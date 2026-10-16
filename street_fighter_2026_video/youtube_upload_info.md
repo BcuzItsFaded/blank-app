@@ -9,14 +9,14 @@ Critics gave Street Fighter (2026) a rotten ~45% on Rotten Tomatoes, but audienc
 
 00:00 Critics vs fans
 00:09 The basics
-00:19 The cast
-00:41 What critics say
-00:53 What fans say
-01:05 The 38-point gap
-01:27 Franchise history
-01:38 Box office
-01:48 Credits scene? (no spoilers)
-01:59 RG verdict
+00:20 The cast
+00:42 What critics say
+00:55 What fans say
+01:09 The 38-point gap
+01:31 Franchise history
+01:44 Box office
+01:57 Credits scene? (no spoilers)
+02:08 RG verdict
 
 Scores as of Oct 16, 2026 (opening day). They will change.
 All animation is original. This is commentary/review; no movie footage used.

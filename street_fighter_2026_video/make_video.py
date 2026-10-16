@@ -5,7 +5,8 @@ characters that punch/kick/blast, impact sparks, camera shake, slam-in titles,
 animated score bars and counters, word-by-word captions, plus a synthesized
 beat and sound effects synced to every hit. No copyrighted footage or art.
 
-  python3 make_video.py            # build YouTube video + Short
+  python3 make_video.py            # build YouTube video + Short (needs kokoro-onnx + model files in ./kokoro,
+                                   # from github.com/thewh1teagle/kokoro-onnx/releases/tag/model-files-v1.0)
   python3 make_video.py --preview  # one still per scene into output/preview/
 """
 import math, os, random, subprocess, sys, wave
@@ -16,6 +17,13 @@ import numpy as np
 from PIL import Image, ImageChops, ImageDraw, ImageFont
 
 HERE = os.path.dirname(os.path.abspath(__file__))
+KOKORO_DIR = os.environ.get("KOKORO_DIR", os.path.join(HERE, "kokoro"))  # kokoro-v1.0.onnx + voices-v1.0.bin
+VOICE, VOICE_SPEED, VO_START = "am_michael", 1.08, 0.35
+# Phonetic respellings so the TTS says names right (captions keep the real spelling).
+TTS_FIX = [("Kitao Sakurai", "Kee-tao Sakoo-rye"), ("Centineo", "Sentin-ayo"), ("Callina", "Kaleena"),
+           ("Chun-Li", "Chun Lee"), ("Dastmalchian", "Dast-mal-chee-an"), ("M. Bison", "M Bison"),
+           ("Eric Andre", "Eric Andray"), ("Don Sauvage", "Don So-vahzh"), ("WWE's", "W W E's"),
+           ("Popcornmeter", "Popcorn-meter"), ("Tomatometer", "Tomato-meter"), ("RG", "R G"), ("Koji", "Koh-jee")]
 OUT = os.path.join(HERE, "output")
 TMP = os.path.join(OUT, "_build")
 FPS = 30
@@ -675,11 +683,13 @@ def text_events(bullets):
     return [(.15, "whoosh"), (.42, "slam")] + [(.9 + i * .4, "swish") for i in range(len(bullets))]
 
 
-def draw_caption(base, d, L, vo, t, dur):
+def draw_caption(base, d, L, vo, t, dur, vo_len=None):
     words = vo.split()
     n = len(words)
-    span = dur - .8
-    idx = int(clamp((t - .3) / span, 0, .9999) * n)
+    span = vo_len or dur - .8
+    w8 = [len(w) + 3 for w in words]  # longer words take longer to say
+    cum = np.cumsum(w8) / sum(w8)
+    idx = min(n - 1, int(np.searchsorted(cum, clamp((t - VO_START) / span, 0, .9999), side="right")))
     cw = L["cwords"]
     chunk = words[idx // cw * cw: idx // cw * cw + cw]
     cur = idx % cw
@@ -698,7 +708,7 @@ def draw_caption(base, d, L, vo, t, dur):
         x += ww + space
 
 
-def scene_frame(scene, L, bg, t, embers, shakes):
+def scene_frame(scene, L, bg, t, embers, shakes, vo_len=None):
     kicker, head, bullets, accent, dur, visual, vo = scene
     W, H, s = L["W"], L["H"], L["s"]
     img = bg.copy()
@@ -715,7 +725,7 @@ def scene_frame(scene, L, bg, t, embers, shakes):
         d.ellipse([x - r, y - r, x + r, y + r], fill=accent + (max(0, a),))
     VISUALS[visual][0](img, d, t, L)
     draw_text_block(img, d, L, kicker, head, bullets, accent, t)
-    draw_caption(img, d, L, vo, t, dur)
+    draw_caption(img, d, L, vo, t, dur, vo_len)
     put(img, text_sprite("RG", F_BLACK, int(54 * s), accent + (255,), 4), W - L["m"], 45 * s, "rt", 1, 1 + .04 * math.sin(t * 3))
     # transitions: white flash in, accent wipe out
     if t < .22:
@@ -749,7 +759,7 @@ def scene_events(scene):
 
 
 def render_scene(job):
-    scene, W, H, path, idx = job
+    scene, W, H, path, idx, vo_len = job
     L = layout(W, H)
     bg, embers, shakes = scene_setup(scene, L, idx)
     dur = scene[4]
@@ -757,13 +767,13 @@ def render_scene(job):
                           "-r", str(FPS), "-i", "-", "-c:v", "libx264", "-preset", "medium", "-crf", "21",
                           "-pix_fmt", "yuv420p", path], stdin=subprocess.PIPE)
     for f in range(int(dur * FPS)):
-        p.stdin.write(scene_frame(scene, L, bg, f / FPS, embers, shakes).tobytes())
+        p.stdin.write(scene_frame(scene, L, bg, f / FPS, embers, shakes, vo_len).tobytes())
     p.stdin.close(); p.wait()
     return path
 
 
 # ---------------------------------------------------------------- audio
-def synth_audio(scenes, path):
+def synth_audio(scenes, path, vo_wavs=None):
     total = sum(sc[4] for sc in scenes)
     n = int(total * SR)
     out = np.zeros(n, np.float32)
@@ -801,7 +811,18 @@ def synth_audio(scenes, path):
             if i < n: music[i:j] += bs[: j - i].astype(np.float32)
         k += 1; t += beat
     fade = np.minimum(1, np.minimum(np.arange(n) / SR / 1.0, (n - np.arange(n)) / SR / 2.0)).astype(np.float32)
-    out += music * .32 * fade
+    voice = np.zeros(n, np.float32)
+    duck = np.ones(n, np.float32)
+    t0 = 0.0
+    for sc, vw in zip(scenes, vo_wavs or [None] * len(scenes)):
+        if vw is not None:
+            i = int((t0 + VO_START) * SR); j = min(n, i + len(vw))
+            voice[i:j] += vw[: j - i]
+            a, b = max(0, i - int(.2 * SR)), min(n, j + int(.3 * SR))
+            duck[a:b] = .35
+        t0 += sc[4]
+    duck = np.convolve(duck, np.ones(4410) / 4410, "same").astype(np.float32)  # smooth the ducking
+    out += music * .32 * fade * duck
 
     def noise_env(d, a, decay, smooth):
         x = tt(d); nz = rng.uniform(-1, 1, len(x))
@@ -828,6 +849,10 @@ def synth_audio(scenes, path):
         for t, e in scene_events(sc):
             add(sfx[e], t0 + t)
         t0 += sc[4]
+    out /= max(1e-6, np.abs(out).max())
+    if vo_wavs:
+        voice /= max(1e-6, np.abs(voice).max())
+        out = out * .45 + voice * .9  # voice leads; music + SFX sit under it
     out /= max(1e-6, np.abs(out).max()) / .9
     pcm = (out * 32767).astype(np.int16)
     with wave.open(path, "wb") as w:
@@ -840,21 +865,49 @@ def ts(x, ms=True):
     return base + f",{int(round(x * 1000)) % 1000:03d}" if ms else base[3:]
 
 
+def voiceover(scenes, name):
+    """Kokoro TTS per scene -> list of float32 arrays at SR; also saved to output/voiceover/."""
+    import soundfile as sf
+    from kokoro_onnx import Kokoro
+    k = Kokoro(os.path.join(KOKORO_DIR, "kokoro-v1.0.onnx"), os.path.join(KOKORO_DIR, "voices-v1.0.bin"))
+    vdir = os.path.join(OUT, "voiceover"); os.makedirs(vdir, exist_ok=True)
+    wavs = []
+    for i, sc in enumerate(scenes):
+        text = sc[6]
+        for a, b in TTS_FIX:
+            text = text.replace(a, b)
+        samples, sr = k.create(text, voice=VOICE, speed=VOICE_SPEED, lang="en-us")
+        samples = np.asarray(samples, np.float32)
+        nz = np.where(np.abs(samples) > .01)[0]  # trim silence
+        if len(nz):
+            samples = samples[max(0, nz[0] - 800): nz[-1] + 2400]
+        if sr != SR:
+            x_old = np.linspace(0, 1, len(samples)); x_new = np.linspace(0, 1, int(len(samples) * SR / sr))
+            samples = np.interp(x_new, x_old, samples).astype(np.float32)
+        sf.write(os.path.join(vdir, f"{name}_{i:02d}.wav"), samples, SR)
+        wavs.append(samples)
+    return wavs
+
+
 def build(scenes, W, H, name, pool):
     os.makedirs(TMP, exist_ok=True)
-    jobs = [(sc, W, H, os.path.join(TMP, f"{name}_{i:02d}.mp4"), i) for i, sc in enumerate(scenes)]
+    vo_wavs = voiceover(scenes, name)
+    vo_lens = [len(v) / SR for v in vo_wavs]
+    # stretch each scene so the narration fits, rounded to whole frames
+    scenes = [sc[:4] + (round(max(sc[4], VO_START + vl + .9) * FPS) / FPS,) + sc[5:] for sc, vl in zip(scenes, vo_lens)]
+    jobs = [(sc, W, H, os.path.join(TMP, f"{name}_{i:02d}.mp4"), i, vl) for i, (sc, vl) in enumerate(zip(scenes, vo_lens))]
     parts = pool.map(render_scene, jobs, chunksize=1)
     lst = os.path.join(TMP, f"{name}.txt")
     open(lst, "w").write("".join(f"file '{p}'\n" for p in parts))
     wav = os.path.join(TMP, f"{name}.wav")
-    synth_audio(scenes, wav)
+    synth_audio(scenes, wav, vo_wavs)
     final = os.path.join(OUT, f"{name}.mp4")
     subprocess.run(["ffmpeg", "-y", "-loglevel", "error", "-f", "concat", "-safe", "0", "-i", lst, "-i", wav,
-                    "-c:v", "copy", "-c:a", "aac", "-b:a", "192k", "-ac", "2", "-shortest", "-movflags", "+faststart", final], check=True)
+                    "-c:v", "copy", "-af", "loudnorm=I=-14:TP=-1.5:LRA=11", "-ar", "48000", "-c:a", "aac", "-b:a", "192k", "-ac", "2", "-shortest", "-movflags", "+faststart", final], check=True)
     t, srt, script = 0.0, [], []
     for i, sc in enumerate(scenes):
         kicker, head, _, _, dur, _, vo = sc
-        srt.append(f"{i + 1}\n{ts(t)} --> {ts(t + dur)}\n{vo}\n")
+        srt.append(f"{i + 1}\n{ts(t + VO_START)} --> {ts(t + VO_START + vo_lens[i])}\n{vo}\n")
         script.append(f"[{ts(t, False)}] {kicker} - {head.replace(chr(10), ' ')}\n{vo}\n")
         t += dur
     open(os.path.join(OUT, f"{name}.srt"), "w").write("\n".join(srt))
