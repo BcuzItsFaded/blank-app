@@ -44,7 +44,7 @@ This video is commentary and review. All animation is original; no footage from 
 
 > YouTube shows the **first 3 hashtags** above your title (#StreetFighter #StreetFighterMovie #MovieReview). Keep 15 or fewer, or YouTube ignores them all.
 
-### Tags (paste into the Tags box, 467 characters, under the 500 limit)
+### Tags (paste into the Tags box, 438 characters, under the 500 limit)
 ```
 street fighter 2026, street fighter movie, street fighter review, street fighter 2026 review, street fighter rotten tomatoes, street fighter post credits scene, street fighter credits scene, street fighter no spoilers, street fighter reaction, critics vs fans, andrew koji ryu, noah centineo ken, jason momoa blanka, 50 cent balrog, cody rhodes guile, kitao sakurai, video game movie, street fighter box office, is street fighter good, RG
 ```
