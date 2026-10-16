@@ -8,15 +8,15 @@
 Critics gave Street Fighter (2026) a rotten ~45% on Rotten Tomatoes, but audiences gave it ~84%. Here's why there's a 38-point gap, what critics and fans are saying, how it stacks up to the 1994 movie and Legend of Chun-Li, and whether you need to stay for the credits scene. 100% spoiler-free.
 
 00:00 Critics vs fans
-00:09 The basics
+00:10 The basics
 00:20 The cast
-00:42 What critics say
-00:55 What fans say
-01:09 The 38-point gap
-01:31 Franchise history
-01:44 Box office
-01:57 Credits scene? (no spoilers)
-02:08 RG verdict
+00:44 What critics say
+00:58 What fans say
+01:13 The 38-point gap
+01:35 Franchise history
+01:49 Box office
+02:02 Credits scene? (no spoilers)
+02:13 RG verdict
 
 Scores as of Oct 16, 2026 (opening day). They will change.
 All animation is original. This is commentary/review; no movie footage used.

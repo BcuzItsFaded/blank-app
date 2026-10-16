@@ -18,12 +18,12 @@ from PIL import Image, ImageChops, ImageDraw, ImageFont
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 KOKORO_DIR = os.environ.get("KOKORO_DIR", os.path.join(HERE, "kokoro"))  # kokoro-v1.0.onnx + voices-v1.0.bin
-VOICE, VOICE_SPEED, VO_START = "am_michael", 1.08, 0.35
-# Phonetic respellings so the TTS says names right (captions keep the real spelling).
-TTS_FIX = [("Kitao Sakurai", "Kee-tao Sakoo-rye"), ("Centineo", "Sentin-ayo"), ("Callina", "Kaleena"),
-           ("Chun-Li", "Chun Lee"), ("Dastmalchian", "Dast-mal-chee-an"), ("M. Bison", "M Bison"),
-           ("Eric Andre", "Eric Andray"), ("Don Sauvage", "Don So-vahzh"), ("WWE's", "W W E's"),
-           ("Popcornmeter", "Popcorn-meter"), ("Tomatometer", "Tomato-meter"), ("RG", "R G"), ("Koji", "Koh-jee")]
+VOICE, VOICE_SPEED, VO_START = "am_michael", 1.0, 0.35
+PAUSE = {".": .28, "?": .38, "!": .3, ":": .18}  # silence after each sentence, by ending
+# Exact phonemes (IPA) for names the TTS gets wrong; captions keep the real spelling.
+PHONEMES = {"Kitao Sakurai": "kˈiːtaʊ sˌɑːkuːɹˈaɪ", "Dastmalchian": "dæstmˈæltʃiən", "Sauvage": "soʊvˈɑːʒ",
+            "Chun-Li": "tʃˈʌn lˈiː", "M. Bison": "ˈɛm bˈaɪsən", "Andre": "ɑːndɹˈeɪ", "WWE's": "dˈʌbəljuː dˈʌbəljuː ˈiːz",
+            "Tomatometer": "təmˈeɪɾoʊmˌiːɾɚ"}
 OUT = os.path.join(HERE, "output")
 TMP = os.path.join(OUT, "_build")
 FPS = 30
@@ -273,7 +273,7 @@ def v_faceoff(base, d, t, L):
     for x, txt, col in ((cx - gap, "CRITICS", RED), (cx + gap, "FANS", BLUE)):
         put(base, text_sprite(txt, F_BLACK, int(40 * L["s"]), col + (255,), 3), x, cy - 240 * sc, "mb", eo((t - .3) / .4))
     vs = text_sprite("VS", F_BLACK, int(90 * L["s"]), (255, 255, 255, 255), 6)
-    put(base, vs, cx, cy - 330 * sc, "mm", eo((t - .5) / .3), 1 + .08 * math.sin(t * 5))
+    put(base, vs, cx, cy - (275 if L["portrait"] else 330) * sc, "mm", eo((t - .5) / .3), 1 + .08 * math.sin(t * 5))
 
 
 def e_faceoff(dur):
@@ -347,21 +347,25 @@ def e_fans(dur):
     return [(2.0, "ding")] + cyc_events(dur, 2.0, [(.6, "whoosh")])
 
 
-def bar(d, x, y, w, h, frac, col, sc):
+def bar(d, x, y, w, h, frac, col, sc, t=0.0):
     d.rounded_rectangle([x, y, x + w, y + h], radius=int(h / 2), fill=(255, 255, 255, 30))
     if frac > .01:
-        d.rounded_rectangle([x, y, x + max(h, w * frac), y + h], radius=int(h / 2), fill=col + (255,))
+        fw = max(h, w * frac)
+        d.rounded_rectangle([x, y, x + fw, y + h], radius=int(h / 2), fill=col + (255,))
+        sx = x + ((t * .6) % 1.4 - .2) * fw  # shine sweeping across the filled part
+        if x + h / 2 < sx < x + fw - h / 2:
+            d.polygon([(sx, y + 4 * sc), (sx + 40 * sc, y + 4 * sc), (sx + 20 * sc, y + h - 4 * sc), (sx - 20 * sc, y + h - 4 * sc)], fill=(255, 255, 255, 90))
 
 
 def v_bars(base, d, t, L):
-    cx, cy, sc = L["vx"], L["vy"], L["vs"]
+    cx, cy, sc = L["vx"], L["vy"] - 50 * L["vs"], L["vs"]
     w, h = 560 * sc, 70 * sc
     x0 = cx - w / 2
     for i, (lab, val, col) in enumerate((("CRITICS", 45, RED), ("FANS", 84, GREEN))):
         y = cy - 230 * sc + i * 190 * sc
         k = eo((t - .5 - i * .3) / 1.4)
         put(base, text_sprite(lab, F_BLACK, int(36 * L["s"]), (255, 255, 255, 255), 3), x0, y - 12 * sc, "lb", eo((t - .3) / .3))
-        bar(d, x0, y, w, h, val / 100 * k, col, sc)
+        bar(d, x0, y, w, h, val / 100 * k, col, sc, t + i * .7)
         put(base, text_sprite(f"{int(val * k)}%", F_BLACK, int(46 * L["s"]), (255, 255, 255, 255), 3), x0 + w * val / 100 * k + 14 * sc, y + h / 2, "lm", k)
     if t > 2.3:  # bracket + slam
         k = eback((t - 2.3) / .35)
@@ -421,7 +425,7 @@ def e_history(dur):
 
 
 def v_money(base, d, t, L):
-    cx, cy, sc = L["vx"], L["vy"], L["vs"]
+    cx, cy, sc = L["vx"], L["vy"] - 30 * L["vs"], L["vs"]
     x0, y0, w, h = cx - 300 * sc, cy + 120 * sc, 600 * sc, 380 * sc
     d.line([(x0, y0), (x0 + w, y0)], fill=(255, 255, 255, 110), width=int(4 * sc))
     d.line([(x0, y0), (x0, y0 - h)], fill=(255, 255, 255, 110), width=int(4 * sc))
@@ -457,7 +461,7 @@ def e_money(dur):
 
 
 def v_credits(base, d, t, L):
-    cx, cy, sc = L["vx"], L["vy"] - 50 * L["vs"], L["vs"]
+    cx, cy, sc = L["vx"], L["vy"] - 90 * L["vs"], L["vs"]
     w, h = 560 * sc, 400 * sc
     x0, y0 = cx - w / 2, cy - h / 2 - 60 * sc
     put(base, glow((200, 200, 255), 900 * sc * (0.9 + .1 * math.sin(t * 20))), cx, cy - 60 * sc, "mm", .25)
@@ -624,9 +628,13 @@ def layout(W, H):
     s = (W / 1080) if portrait else (W / 1920)
     if portrait:
         return dict(W=W, H=H, s=s, portrait=True, m=70 * s, ky=.075 * H, tw=W - 140 * s,
-                    vx=W / 2, vy=.635 * H, vs=1.15 * s, cy=.835 * H, csize=56 * s, cwords=4)
+                    vx=W / 2, vy=.66 * H, vs=1.7 * s, cy=.875 * H, csize=60 * s, cwords=4)
     return dict(W=W, H=H, s=s, portrait=False, m=100 * s, ky=.15 * H, tw=.47 * W,
-                vx=.75 * W, vy=.6 * H, vs=1.25 * s, cy=H - 100 * s, csize=42 * s, cwords=8)
+                vx=.75 * W, vy=.64 * H, vs=1.55 * s, cy=H - 95 * s, csize=44 * s, cwords=7)
+
+
+# chart-style visuals are wider than the fighters, so they get a smaller scale
+VSCALE = {"credits": .72, "bars": .85, "money": .8, "gauge": .95, "history": .95, "ticket": .9, "outro": .9}
 
 
 def make_bg(L, accent):
@@ -723,13 +731,16 @@ def scene_frame(scene, L, bg, t, embers, shakes, vo_len=None):
         x = x0 + math.sin(t * 1.3 + ph) * 18 * s
         a = int(120 + 100 * math.sin(t * 4 + ph))
         d.ellipse([x - r, y - r, x + r, y + r], fill=accent + (max(0, a),))
-    VISUALS[visual][0](img, d, t, L)
+    beat = (t * 128 / 60) % 1  # pulse on the music's beat
+    put(img, glow(accent, 700 * L["vs"]), L["vx"], L["vy"] - 120 * L["vs"], "mm", .18 + .3 * math.exp(-beat * 5))
+    LV = dict(L, vs=L["vs"] * VSCALE.get(visual, 1), vx=L["vx"] + math.sin(t * .9) * 6 * s, vy=L["vy"] + math.sin(t * 1.5) * 7 * s)
+    VISUALS[visual][0](img, d, t, LV)
     draw_text_block(img, d, L, kicker, head, bullets, accent, t)
     draw_caption(img, d, L, vo, t, dur, vo_len)
     put(img, text_sprite("RG", F_BLACK, int(54 * s), accent + (255,), 4), W - L["m"], 45 * s, "rt", 1, 1 + .04 * math.sin(t * 3))
     # transitions: white flash in, accent wipe out
-    if t < .22:
-        d.rectangle([0, 0, W, H], fill=(255, 255, 255, int(255 * (1 - t / .22))))
+    if t < .15:
+        d.rectangle([0, 0, W, H], fill=(255, 255, 255, int(150 * (1 - t / .15))))
     if t > dur - .3:
         k = eio((t - (dur - .3)) / .3)
         xe = -H * .5 + k * (W + H * .6)
@@ -764,7 +775,7 @@ def render_scene(job):
     bg, embers, shakes = scene_setup(scene, L, idx)
     dur = scene[4]
     p = subprocess.Popen(["ffmpeg", "-y", "-loglevel", "error", "-f", "rawvideo", "-pix_fmt", "rgb24", "-s", f"{W}x{H}",
-                          "-r", str(FPS), "-i", "-", "-c:v", "libx264", "-preset", "medium", "-crf", "21",
+                          "-r", str(FPS), "-i", "-", "-c:v", "libx264", "-preset", "medium", "-crf", "23",
                           "-pix_fmt", "yuv420p", path], stdin=subprocess.PIPE)
     for f in range(int(dur * FPS)):
         p.stdin.write(scene_frame(scene, L, bg, f / FPS, embers, shakes, vo_len).tobytes())
@@ -869,18 +880,29 @@ def voiceover(scenes, name):
     """Kokoro TTS per scene -> list of float32 arrays at SR; also saved to output/voiceover/."""
     import soundfile as sf
     from kokoro_onnx import Kokoro
+    import re
     k = Kokoro(os.path.join(KOKORO_DIR, "kokoro-v1.0.onnx"), os.path.join(KOKORO_DIR, "voices-v1.0.bin"))
     vdir = os.path.join(OUT, "voiceover"); os.makedirs(vdir, exist_ok=True)
+    names = re.compile("(" + "|".join(re.escape(n) for n in sorted(PHONEMES, key=len, reverse=True)) + ")")
+
+    def to_phonemes(text):
+        parts = names.split(text)
+        return "".join(PHONEMES[p] if p in PHONEMES else k.tokenizer.phonemize(p, "en-us") if p.strip() else p for p in parts)
+
+    def trim(x):
+        nz = np.where(np.abs(x) > .01)[0]
+        return x[max(0, nz[0] - 600): nz[-1] + 1800] if len(nz) else x
+
     wavs = []
     for i, sc in enumerate(scenes):
-        text = sc[6]
-        for a, b in TTS_FIX:
-            text = text.replace(a, b)
-        samples, sr = k.create(text, voice=VOICE, speed=VOICE_SPEED, lang="en-us")
-        samples = np.asarray(samples, np.float32)
-        nz = np.where(np.abs(samples) > .01)[0]  # trim silence
-        if len(nz):
-            samples = samples[max(0, nz[0] - 800): nz[-1] + 2400]
+        text = sc[6].replace("RG", "R G")
+        sentences = [m.strip() for m in re.findall(r"[^.?!:]+[.?!:]?", text) if m.strip()]
+        chunks = []
+        for snt in sentences:
+            audio, sr = k.create(to_phonemes(snt), voice=VOICE, speed=VOICE_SPEED, lang="en-us", is_phonemes=True)
+            chunks.append(trim(np.asarray(audio, np.float32)))
+            chunks.append(np.zeros(int(PAUSE.get(snt[-1], .2) * sr), np.float32))
+        samples = np.concatenate(chunks[:-1])
         if sr != SR:
             x_old = np.linspace(0, 1, len(samples)); x_new = np.linspace(0, 1, int(len(samples) * SR / sr))
             samples = np.interp(x_new, x_old, samples).astype(np.float32)
