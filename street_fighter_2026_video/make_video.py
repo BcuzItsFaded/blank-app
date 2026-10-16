@@ -20,7 +20,7 @@ RED, GOLD, BLUE, GREEN, WHITE = (230, 40, 50), (255, 196, 0), (40, 140, 255), (6
 # Each slide: kicker, headline, bullets, accent, seconds, voiceover (also used as caption)
 LONG = [
     ("RG BREAKDOWN", "STREET FIGHTER (2026)", ["Critics: ~45%", "Fans: ~84%", "Who's right?"], RED, 9,
-     "Critics gave the new Street Fighter movie a rotten score. Fans gave it an A-plus energy score. So who's right? Let's break it down, no spoilers."),
+     "Critics gave the new Street Fighter movie a rotten score. Fans are calling it a knockout. So who's right? Let's break it down, no spoilers."),
     ("THE BASICS", "WHAT IS IT?", ["Director: Kitao Sakurai", "In theaters Oct 16, 2026", "Runtime: about 2 hours"], GOLD, 10,
      "Street Fighter is directed by Kitao Sakurai and hit theaters October sixteenth, twenty twenty-six. It runs about two hours."),
     ("THE ROSTER", "STACKED CAST", ["Andrew Koji - Ryu", "Noah Centineo - Ken", "Callina Liang - Chun-Li", "David Dastmalchian - M. Bison"], BLUE, 11,
@@ -183,7 +183,7 @@ def build(slides, W, H, name):
     inputs += ["-i", wav]
     final = os.path.join(OUT, f"{name}.mp4")
     run(["ffmpeg", "-y", *inputs, "-filter_complex", ";".join(fc), "-map", f"[{last}]",
-         "-map", f"{len(clips)}:a", "-c:v", "libx264", "-preset", "medium", "-crf", "20",
+         "-map", f"{len(clips)}:a", "-c:v", "libx264", "-preset", "slow", "-crf", "25",
          "-pix_fmt", "yuv420p", "-c:a", "aac", "-b:a", "192k", "-shortest", "-movflags", "+faststart", final])
     # SRT captions + voiceover script with timestamps
     t, srt, script = 0.0, [], []
