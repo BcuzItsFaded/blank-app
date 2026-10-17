@@ -1,6 +1,6 @@
 # YouTube upload kit: Crystal Lake
 
-## Main video: `crystal_lake_EXPLAINED.mp4` (16:9, about 4.5 min)
+## Main video: `crystal_lake_EXPLAINED.mp4` (16:9, 4:04)
 
 **Title options**
 1. Crystal Lake Ending Explained: How Jason Voorhees Never Died (Peacock)
@@ -17,25 +17,25 @@ Crystal Lake is the prequel to Friday the 13th (1980), with Linda Cardellini as 
 
 00:00 Spoiler warning
 00:18 What is Crystal Lake?
-00:48 Who's who
-01:12 How it unfolds
-01:44 The twist: Project Argonaut
-02:14 How did Jason survive?
-02:37 The finale
-03:00 The ending explained
-03:23 The final shot: who lives, who dies
-03:40 Season 2?
+00:47 Who's who
+01:11 How it unfolds
+01:42 The twist: Project Argonaut
+02:12 How did Jason survive?
+02:36 The finale
+02:58 The ending explained
+03:21 The final shot: who lives, who dies
+03:38 Season 2?
 
 Was Project Argonaut a smart fix, or should Jason's survival have stayed a mystery? Comment below!
 
-This is an independent fan recap and is not affiliated with Peacock, NBCUniversal or the Friday the 13th rights holders. All visuals are original animations.
+This is an independent fan recap and is not affiliated with Peacock, NBCUniversal or the Friday the 13th rights holders. All visuals are original 2D cartoon animations.
 
 #CrystalLake #FridayThe13th #JasonVoorhees #Peacock #EndingExplained
 ```
 
 **Tags:** crystal lake, crystal lake ending explained, crystal lake peacock, friday the 13th prequel, pamela voorhees, linda cardellini, jason voorhees, project argonaut, crystal lake finale, crystal lake recap, crystal lake season 2, horror tv explained
 
-## Short: `crystal_lake_SHORT.mp4` (9:16, about 47 sec)
+## Short: `crystal_lake_SHORT.mp4` (9:16, 48 sec)
 
 **Title:** How Jason Voorhees Survived Drowning, Explained by Crystal Lake #shorts
 
