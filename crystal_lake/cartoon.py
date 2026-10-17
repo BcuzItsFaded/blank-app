@@ -100,6 +100,10 @@ class Char:
         self.lips = k.get("lips")
         self.freckles = k.get("freckles", False)
         self.lashes = k.get("lashes", False)
+        self.glasses = k.get("glasses", False)
+        self.mustache = k.get("mustache")
+        self.old = k.get("old", False)
+        self.patch = k.get("patch")
 
     # pose: walk (phase or None), armL/armR degrees (0 = down, + = outward/up), tilt, look (-1..1),
     # expr, blink (0..1), kneel (0..1), facing (1/-1), hold {'L'|'R': item}, t, lean, glow
@@ -118,7 +122,8 @@ class Char:
             armR += 16 * s
             bob = -abs(math.cos(walk)) * 7
         b = self.bulk
-        leg = self.leg * (1 - 0.45 * kneel)
+        sit = p.get("sit", False)
+        leg = self.leg * (0.6 if sit else (1 - 0.45 * kneel))
         hip = -leg + bob
         sh = hip - self.torso
         neck_top = sh - 22
@@ -140,11 +145,36 @@ class Char:
         if self.hair_style in ("pam", "curly", "pigtails", "long") and self.face != "sack":
             self._head_frame(ctx, hc, tilt, lambda: self._hair_back(ctx, R))
         self._legs(ctx, hip, leg, legL, legR, kneel)
+        if sit:  # lap: thighs foreshortened toward the viewer
+            w = 44 * b
+            rrect(ctx, -34 * b - w / 2 - 6, hip - 24, 68 * b + w + 12, 64, 28)
+            fs(ctx, self.pants)
+            ctx.move_to(0, hip - 18)
+            ctx.line_to(0, hip + 34)
+            ctx.set_line_width(3)
+            src(ctx, INK)
+            ctx.stroke()
         self._neck(ctx, sh, neck_top)
         self._torso(ctx, hip, sh)
         sw = 74 * b
         hands = {}
-        for side, ang in (("L", armL), ("R", armR)):
+        if self.patch:
+            C_ = ctx
+            rrect(C_, 18 * b, sh + 40, 52 * b, 30, 4)
+            fs(C_, hx("#efe8d6"), 2.5)
+            text(C_, self.patch, 44 * b, sh + 55, 15, INK, outline=0)
+        if self.top == "straitjacket":
+            ctx.new_path()
+            rrect(ctx, -sw - 14, sh + 60, 2 * sw + 28, 70, 30)
+            fs(ctx, self.shirt)
+            for k in (-1, 0, 1):
+                ctx.rectangle(k * 50 - 10, sh + 56, 20, 78)
+                fs(ctx, hx("#7a6a50"), 3)
+                ctx.rectangle(k * 50 - 7, sh + 86, 14, 14)
+                fs(ctx, hx("#c9c9c9"), 2)
+            hands = {"L": (-sw, sh + 90, 0), "R": (sw, sh + 90, 0)}
+        else:
+          for side, ang in (("L", armL), ("R", armR)):
             hands[side] = self._arm(ctx, -sw if side == "L" else sw, sh + 16, ang, side, p.get("elbow" + side, 12))
         self._head_frame(ctx, hc, tilt, lambda: self._head(ctx, R, p))
         for side, item in (p.get("hold") or {}).items():
@@ -336,6 +366,8 @@ class Char:
         a1 = math.radians(ang) * sg
         a2 = a1 + math.radians(bend) * sg
         sleeve = {"dress": self.skin, "gown": self.skin}.get(self.top, self.shirt)
+        if self.top == "gown" and self.hair_style == "pam" and self.shirt[2] > 0.6:
+            sleeve = self.shirt
         ex, ey = sx - math.sin(a1) * L, sy + math.cos(a1) * L
         for (px, py, a, ln, last) in ((sx, sy, a1, L + 8, False), (ex, ey, a2, L, True)):
             ctx.save()
@@ -410,7 +442,53 @@ class Char:
                     ell(ctx, sx * R * (0.42 + 0.09 * (k % 2)), R * (0.28 + 0.06 * k), 2.5, 2.5)
                     ctx.fill()
         self._face(ctx, R, p)
+        if self.old:
+            ctx.set_line_width(2.5)
+            ctx.set_source_rgba(0.35, 0.2, 0.15, 0.45)
+            for k in range(3):
+                ctx.move_to(-R * 0.4, -R * (0.62 - k * 0.09))
+                ctx.curve_to(-R * 0.1, -R * (0.66 - k * 0.09), R * 0.1, -R * (0.58 - k * 0.09), R * 0.4, -R * (0.62 - k * 0.09))
+                ctx.stroke()
+            for sx in (-1, 1):
+                ctx.move_to(sx * R * 0.2, R * 0.16)
+                ctx.curve_to(sx * R * 0.3, R * 0.22, sx * R * 0.45, R * 0.2, sx * R * 0.55, R * 0.12)
+                ctx.stroke()
+                ctx.move_to(sx * R * 0.3, R * 0.3)
+                ctx.curve_to(sx * R * 0.34, R * 0.45, sx * R * 0.3, R * 0.55, sx * R * 0.26, R * 0.62)
+                ctx.stroke()
+        if self.mustache:
+            ctx.new_path()
+            ctx.move_to(-R * 0.3, R * 0.42)
+            ctx.curve_to(-R * 0.25, R * 0.28, -R * 0.05, R * 0.3, 0, R * 0.36)
+            ctx.curve_to(R * 0.05, R * 0.3, R * 0.25, R * 0.28, R * 0.3, R * 0.42)
+            ctx.curve_to(R * 0.15, R * 0.4, R * 0.05, R * 0.4, 0, R * 0.42)
+            ctx.curve_to(-R * 0.05, R * 0.4, -R * 0.15, R * 0.4, -R * 0.3, R * 0.42)
+            ctx.close_path()
+            fs(ctx, self.mustache, 2.5)
+        if p.get("tears"):
+            t_ = p.get("t", 0)
+            for sx in (-1, 1):
+                ph = (t_ * 0.45 + (0.5 if sx > 0 else 0)) % 1
+                ctx.new_path()
+                ex, ey = sx * R * 0.4, R * 0.15 + ph * R * 0.5
+                ctx.move_to(ex, ey - R * 0.1)
+                ctx.curve_to(ex + R * 0.07, ey, ex + R * 0.06, ey + R * 0.08, ex, ey + R * 0.08)
+                ctx.curve_to(ex - R * 0.06, ey + R * 0.08, ex - R * 0.07, ey, ex, ey - R * 0.1)
+                ctx.set_source_rgba(0.6, 0.85, 1, 0.9 * (1 - ph * 0.6))
+                ctx.fill()
         self._hair_front(ctx, R)
+        if self.glasses:
+            ctx.set_line_width(4)
+            src(ctx, hx("#2b2b2b"))
+            for sx in (-1, 1):
+                ell(ctx, sx * R * 0.36, -R * 0.06, R * 0.27, R * 0.24)
+                ctx.set_source_rgba(0.85, 0.9, 1, 0.18)
+                ctx.fill_preserve()
+                src(ctx, hx("#2b2b2b"))
+                ctx.stroke()
+            ctx.move_to(-R * 0.1, -R * 0.08)
+            ctx.line_to(R * 0.1, -R * 0.08)
+            ctx.stroke()
         if self.beard:
             ctx.new_path()
             for i in range(9):
@@ -584,10 +662,21 @@ class Char:
                 ctx.move_to(x0, -R * 0.75)
                 ctx.curve_to(x0 + 10, -R * 1.05, x0 + rnd.uniform(-25, 25), -R * 1.1, x0 + rnd.uniform(-30, 30), -R * 1.18)
                 ctx.stroke()
+        elif st == "bald":
+            ctx.set_source_rgba(1, 1, 1, 0.22)
+            ell(ctx, -R * 0.3, -R * 0.78, R * 0.28, R * 0.12)
+            ctx.fill()
         elif st == "tufts":  # old man under a cap
             for sx in (-1, 1):
                 ell(ctx, sx * R * 0.92, -R * 0.15, R * 0.2, R * 0.3)
                 fs(ctx, hx("#e2ded6"), 3)
+            if not self.hat:  # thin combed-over top
+                ctx.set_line_width(3)
+                ctx.set_source_rgba(0.9, 0.88, 0.84, 0.9)
+                for k in range(5):
+                    ctx.move_to(-R * 0.6 + k * R * 0.25, -R * 0.8)
+                    ctx.curve_to(-R * 0.4 + k * R * 0.25, -R * 1.0, -R * 0.2 + k * R * 0.25, -R * 1.02, R * 0.1 + k * R * 0.2, -R * 0.95)
+                    ctx.stroke()
 
     def _hat(self, ctx, R):
         h = self.hat
@@ -799,6 +888,51 @@ def draw_item(ctx, item, x, y, ang, side, t):
         ctx.fill()
         ell(ctx, 0, 22, 20, 14, PI, 2 * PI)
         ctx.fill()
+    elif item == "cane":
+        ctx.rotate(-0.08)
+        rrect(ctx, -5, -10, 10, 260, 4)
+        fs(ctx, hx("#5a3a22"), 3)
+        ctx.new_path()
+        ctx.arc(-14, -10, 14, PI, 2 * PI)
+        ctx.set_line_width(10)
+        src(ctx, hx("#5a3a22"))
+        ctx.stroke()
+    elif item == "baton":
+        ctx.rotate(along)
+        rrect(ctx, -10, -7, 150, 14, 6)
+        fs(ctx, hx("#2a1d14"), 3)
+    elif item == "sponge":
+        rrect(ctx, -30, -22, 60, 40, 10)
+        fs(ctx, hx("#e8cf5a"), 3)
+        ctx.set_source_rgba(0.6, 0.45, 0.1, 0.6)
+        for k in range(6):
+            ell(ctx, -18 + (k % 3) * 18, -10 + (k // 3) * 16, 4, 4)
+            ctx.fill()
+    elif item == "lantern":
+        g = cairo.RadialGradient(0, 40, 5, 0, 40, 160)
+        g.add_color_stop_rgba(0, 1, 0.8, 0.4, 0.45)
+        g.add_color_stop_rgba(1, 1, 0.8, 0.4, 0)
+        ctx.set_source(g)
+        ell(ctx, 0, 40, 160, 160)
+        ctx.fill()
+        ctx.move_to(0, -10)
+        ctx.line_to(0, 10)
+        ctx.set_line_width(3)
+        src(ctx, INK)
+        ctx.stroke()
+        rrect(ctx, -18, 10, 36, 56, 8)
+        fs(ctx, hx("#ffd27a"), 3)
+    elif item == "keys":
+        for k in range(3):
+            ctx.save()
+            ctx.rotate(0.3 * k - 0.3)
+            rrect(ctx, -3, 0, 6, 34, 2)
+            fs(ctx, hx("#c9b26a"), 2)
+            ctx.restore()
+        ell(ctx, 0, 0, 10, 10)
+        ctx.set_line_width(3)
+        src(ctx, hx("#c9b26a"))
+        ctx.stroke()
     elif item == "clipboard":
         rrect(ctx, -36, -50, 72, 96, 6)
         fs(ctx, hx("#8a6b45"), 3)
