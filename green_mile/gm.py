@@ -1270,7 +1270,7 @@ def L7(ctx, R, t, p):
             GM["paul"].draw(ctx, 260, 1080, 0.8, t=t, expr="sad", look=1)
         grade(ctx, R, strength=0.55)
         if t > t_ang:
-            text(ctx, "“They's angels...”", W / 2, H * V(R, 0.86, 0.6), V(R, 70, 64) * u, hx("#fff2c8"), "Liberation Serif",
+            text(ctx, "“They's angels...”", W * V(R, 0.76, 0.5), H * V(R, 0.64, 0.6), V(R, 64, 64) * u, hx("#fff2c8"), "Liberation Serif",
                  outline=5 * u, italic=True)
 
     def final(ctx, R, lt):
@@ -1680,6 +1680,9 @@ def main():
     work = out + "_parts"
     os.makedirs(work, exist_ok=True)
     jobs = sorted([(i, f"{work}/s{i:02d}.mp4") for i in range(len(paras))], key=lambda j: -paras[j[0]].dur)
+    redo = os.environ.get("ONLY")  # re-render only these scenes, reuse the other parts
+    if redo:
+        jobs = [j for j in jobs if str(j[0]) in redo.split(",") or not os.path.exists(j[1])]
     with Pool(4) as pool:
         for r in pool.imap_unordered(render_scene, jobs):
             print("done", r, flush=True)
