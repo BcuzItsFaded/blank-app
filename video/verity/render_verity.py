@@ -554,7 +554,9 @@ def build_audio():
             env = (1 - np.exp(-np.arange(L) / (0.08 * SR))) * np.exp(-np.arange(L) / (1.3 * SR))
             thunder[s:s + L] += b / np.max(np.abs(b)) * env * 0.45
     # duck the bed under the voice
-    env = np.convolve(np.abs(vo), np.ones(SR // 5) / (SR // 5), "same")
+    k = SR // 5
+    c = np.concatenate([[0], np.cumsum(np.abs(vo))])
+    env = np.empty(n); env[:] = (c[np.minimum(np.arange(n) + k // 2, n)] - c[np.maximum(np.arange(n) - k // 2, 0)]) / k
     duck = 1 - 0.55 * np.clip(env / (env.max() * 0.25), 0, 1)
     mix = vo + (pad + rain + thunder) * duck
     fade = np.minimum(1, np.minimum(tt / 2.0, (TOTAL - tt) / 3.0))
@@ -582,9 +584,10 @@ def write_srt():
 if __name__ == "__main__":
     print(f"total {TOTAL:.1f}s", flush=True)
     only = [int(a) for a in os.environ.get("ONLY", "").split(",") if a]
-    with Pool(4) as pool:
-        for i in pool.imap_unordered(render_scene, only or list(SCENES)):
-            print("scene", i, "done", flush=True)
+    if not os.environ.get("SKIP_RENDER"):
+        with Pool(4) as pool:
+            for i in pool.imap_unordered(render_scene, only or list(SCENES)):
+                print("scene", i, "done", flush=True)
     if only: sys.exit()
     build_audio(); write_srt()
     inputs, filt, last, off = [], [], "0:v", 0.0
@@ -595,6 +598,6 @@ if __name__ == "__main__":
         filt.append(f"[{last}][{k}:v]xfade=transition=fade:duration={XF}:offset={off:.3f}[v{k}]"); last = f"v{k}"
     subprocess.run(["ffmpeg", "-y", "-loglevel", "error", *inputs, "-i", os.path.join(WORK, "mix.wav"),
                     "-filter_complex", ";".join(filt) + f";[{last}]fade=in:0:20[vout]", "-map", "[vout]", "-map", f"{len(timeline)}:a",
-                    "-c:v", "libx264", "-preset", "medium", "-crf", "20", "-pix_fmt", "yuv420p", "-c:a", "aac", "-b:a", "192k",
+                    "-c:v", "libx264", "-preset", "veryfast", "-crf", "26", "-pix_fmt", "yuv420p", "-c:a", "aac", "-b:a", "192k",
                     "-movflags", "+faststart", "-shortest", OUT], check=True)
     print("done", OUT)
