@@ -1545,12 +1545,13 @@ def captions(ctx, R, p, t):
         return
 
 
-def music(path, dur, sr=48000):
-    """Original soft piano score: slow A-minor progression, arpeggios + pad, simple reverb."""
-    bpm = 66
+GM_PROG = [("A", [57, 60, 64]), ("F", [53, 57, 60]), ("C", [48, 55, 60, 64]), ("G", [55, 59, 62]),
+           ("A", [57, 60, 64]), ("D", [50, 57, 62, 65]), ("F", [53, 57, 60]), ("E", [52, 56, 59, 64])]
+
+
+def music(path, dur, sr=48000, prog=GM_PROG, bpm=66):
+    """Original soft piano score: slow minor-key progression, arpeggios + pad, simple reverb."""
     beat = 60 / bpm
-    prog = [("A", [57, 60, 64]), ("F", [53, 57, 60]), ("C", [48, 55, 60, 64]), ("G", [55, 59, 62]),
-            ("A", [57, 60, 64]), ("D", [50, 57, 62, 65]), ("F", [53, 57, 60]), ("E", [52, 56, 59, 64])]
     n = int(dur * sr) + sr * 3
     out = np.zeros(n)
 

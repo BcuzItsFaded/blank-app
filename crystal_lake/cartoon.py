@@ -104,6 +104,7 @@ class Char:
         self.mustache = k.get("mustache")
         self.old = k.get("old", False)
         self.patch = k.get("patch")
+        self.iris = k.get("iris")
 
     # pose: walk (phase or None), armL/armR degrees (0 = down, + = outward/up), tilt, look (-1..1),
     # expr, blink (0..1), kneel (0..1), facing (1/-1), hold {'L'|'R': item}, t, lean, glow
@@ -142,7 +143,7 @@ class Char:
         ctx.fill()
         ctx.restore()
         tilt = p.get("tilt", 0) + 1.2 * math.sin(t * 1.3)
-        if self.hair_style in ("pam", "curly", "pigtails", "long") and self.face != "sack":
+        if self.hair_style in ("pam", "curly", "pigtails", "long", "ponytail", "bun") and self.face != "sack":
             self._head_frame(ctx, hc, tilt, lambda: self._hair_back(ctx, R))
         self._legs(ctx, hip, leg, legL, legR, kneel)
         if sit:  # lap: thighs foreshortened toward the viewer
@@ -227,9 +228,9 @@ class Char:
     def _torso(self, ctx, hip, sh):
         b = self.bulk
         top = self.top
-        if top in ("dress", "gown"):
+        if top in ("dress", "gown", "robe"):
             # skirt flares over the legs
-            hem = hip + (self.leg * (0.55 if top == "dress" else 0.95))
+            hem = hip + (self.leg * {"dress": 0.55, "gown": 0.95, "robe": 0.97}[top])
             ctx.new_path()
             ctx.move_to(-60 * b, hip - 10)
             ctx.curve_to(-80 * b, hip + 60, -105 * b, hem - 30, -110 * b, hem)
@@ -418,6 +419,13 @@ class Char:
                 ell(ctx, sx * R * 1.15, R * 0.15, R * 0.28, R * 0.55)
         elif st == "long":
             rrect(ctx, -R * 1.1, -R * 1.0, R * 2.2, R * 2.3, R * 0.9)
+        elif st == "ponytail":
+            ctx.move_to(R * 0.6, -R * 0.4)
+            ctx.curve_to(R * 1.5, -R * 0.2, R * 1.4, R * 0.9, R * 1.05, R * 1.5)
+            ctx.curve_to(R * 0.9, R * 0.8, R * 0.9, R * 0.1, R * 0.5, -R * 0.1)
+            ctx.close_path()
+        elif st == "bun":
+            ell(ctx, 0, -R * 1.08, R * 0.42, R * 0.36)
         fs(ctx, self.hair)
 
     def _head(self, ctx, R, p):
@@ -542,7 +550,13 @@ class Char:
             ctx.save()
             ell(ctx, ex, ey, erx, ery * open_)
             ctx.clip()
-            ell(ctx, ex + look * erx * 0.45, ey + ery * 0.1, pr, pr * 1.15)
+            if self.iris:
+                ell(ctx, ex + look * erx * 0.45, ey + ery * 0.1, pr * 1.45, pr * 1.6)
+                src(ctx, self.iris)
+                ctx.fill()
+                ell(ctx, ex + look * erx * 0.45, ey + ery * 0.1, pr * 0.62, pr * 0.7)
+            else:
+                ell(ctx, ex + look * erx * 0.45, ey + ery * 0.1, pr, pr * 1.15)
             src(ctx, INK)
             ctx.fill()
             ell(ctx, ex + look * erx * 0.45 + pr * 0.35, ey - pr * 0.3 + ery * 0.1, pr * 0.3, pr * 0.3)
@@ -662,6 +676,46 @@ class Char:
                 ctx.move_to(x0, -R * 0.75)
                 ctx.curve_to(x0 + 10, -R * 1.05, x0 + rnd.uniform(-25, 25), -R * 1.1, x0 + rnd.uniform(-30, 30), -R * 1.18)
                 ctx.stroke()
+        elif st in ("long", "quiff", "pixie", "ponytail", "bun"):
+            ctx.move_to(-R * 1.02, -R * 0.1)
+            ctx.curve_to(-R * 1.05, -R * 1.25, R * 1.05, -R * 1.25, R * 1.02, -R * 0.1)
+            if st == "long":  # side-parted bangs
+                ctx.curve_to(R * 0.8, -R * 0.55, R * 0.1, -R * 0.75, -R * 0.15, -R * 0.62)
+                ctx.curve_to(-R * 0.55, -R * 0.45, -R * 0.85, -R * 0.3, -R * 1.02, -R * 0.1)
+            else:
+                ctx.curve_to(R * 0.7, -R * 0.58, -R * 0.7, -R * 0.58, -R * 1.02, -R * 0.1)
+            ctx.close_path()
+            fs(ctx, self.hair, 4)
+            if st == "long":  # strands framing the face
+                for sx in (-1, 1):
+                    ctx.new_path()
+                    ctx.move_to(sx * R * 0.98, -R * 0.35)
+                    ctx.curve_to(sx * R * 1.12, R * 0.3, sx * R * 1.1, R * 0.9, sx * R * 1.0, R * 1.25)
+                    ctx.line_to(sx * R * 0.78, R * 1.15)
+                    ctx.curve_to(sx * R * 0.86, R * 0.6, sx * R * 0.86, 0, sx * R * 0.8, -R * 0.4)
+                    ctx.close_path()
+                    fs(ctx, self.hair, 3.5)
+            if st == "quiff":  # tousled, swept-up hair
+                ctx.new_path()
+                ctx.move_to(-R * 0.75, -R * 0.75)
+                pts = [(-0.6, -1.45), (-0.35, -1.05), (-0.1, -1.6), (0.12, -1.1), (0.4, -1.5), (0.5, -1.0), (0.85, -1.2), (0.8, -0.7)]
+                for px, py in pts:
+                    ctx.line_to(R * px, R * py)
+                ctx.close_path()
+                fs(ctx, self.hair, 4)
+                ctx.set_source_rgba(1, 1, 1, 0.18)
+                ell(ctx, -R * 0.1, -R * 1.15, R * 0.25, R * 0.08)
+                ctx.fill()
+            if st == "pixie":  # spiky points
+                for i in range(9):
+                    a = PI * 1.05 + i * PI * 0.9 / 8
+                    cx, cy = R * 0.95 * math.cos(a), -R * 0.2 + R * 0.95 * math.sin(a)
+                    ctx.new_path()
+                    ctx.move_to(cx - R * 0.16, cy + R * 0.1)
+                    ctx.line_to(cx + R * 0.45 * math.cos(a), cy + R * 0.45 * math.sin(a))
+                    ctx.line_to(cx + R * 0.16, cy + R * 0.1)
+                    ctx.close_path()
+                    fs(ctx, self.hair, 3)
         elif st == "bald":
             ctx.set_source_rgba(1, 1, 1, 0.22)
             ell(ctx, -R * 0.3, -R * 0.78, R * 0.28, R * 0.12)
