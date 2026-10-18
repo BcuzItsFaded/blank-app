@@ -50,7 +50,8 @@ Ask: "Want any changes before I build it?" Iterate until they approve.
 ## Step 2: Gather media
 
 Create a project folder, for example `video-<short-name>/`. Inside it:
-- Copy or convert the user's images there. Any common format works, and the builder crops them to fill 9:16, so mention it if a wide image will lose its sides.
+- Copy or convert the user's images there. Any common format works. By default the builder crops images to fill 9:16. If cropping would cut off titles, text or faces, set `"fit": "contain"` (top level or per scene) to show the whole image over a blurred fill.
+- **Comic/storyboard grids** (one image with several numbered panels): split it into one image per panel, in reading order, and treat each panel as a scene. To find the borders, look for rows or columns of near-uniform brightness, for example with numpy over the grayscale image. Upscale small panels about 3× with LANCZOS so the zoom stays sharp. Panels often have titles baked in, so use `"fit": "contain"`.
 - For each stock scene:
   ```bash
   python scripts/fetch_stock.py "dog waiting door" --type video --out video-max/s1.mp4

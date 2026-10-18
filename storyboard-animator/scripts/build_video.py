@@ -16,6 +16,8 @@ storyboard.json:
   ]
 }
 motion (photos only): zoom_in, zoom_out, pan_left, pan_right, pan_up, pan_down, still.
+fit (photos, top-level or per scene): "cover" (default) crops to fill the frame;
+"contain" shows the whole image over a blurred fill — use it when cropping would cut off text or subjects.
 duration: optional; defaults to narration length + 0.5 s (or 4 s with no narration).
 Media paths are relative to the storyboard file.
 """
@@ -28,7 +30,7 @@ import sys
 import tempfile
 import textwrap
 
-from PIL import Image, ImageDraw, ImageFont
+from PIL import Image, ImageDraw, ImageFilter, ImageFont
 
 VIDEO_EXT = {".mp4", ".mov", ".webm", ".mkv", ".m4v"}
 FONTS = [
@@ -83,6 +85,22 @@ def caption_png(text, w, h, out):
     img.save(out)
 
 
+def contain_on_blur(src, w, h, out):
+    """Fit the whole image inside w x h over a blurred, darkened fill of itself, so nothing is cropped."""
+    img = Image.open(src).convert("RGB")
+    bg = img.copy()
+    scale = max(w / bg.width, h / bg.height)
+    bg = bg.resize((int(bg.width * scale) + 1, int(bg.height * scale) + 1))
+    left, top = (bg.width - w) // 2, (bg.height - h) // 2
+    bg = bg.crop((left, top, left + w, top + h)).filter(ImageFilter.GaussianBlur(40))
+    bg = Image.eval(bg, lambda v: int(v * 0.55))
+    scale = min(w / img.width, h / img.height)
+    fg = img.resize((int(img.width * scale), int(img.height * scale)), Image.LANCZOS)
+    bg.paste(fg, ((w - fg.width) // 2, (h - fg.height) // 2))
+    bg.save(out)
+    return out
+
+
 def motion_filter(motion, w, h, fps, frames):
     n = max(frames - 1, 1)
     z_amt = 0.18
@@ -118,6 +136,8 @@ def render_scene(i, scene, base, cfg, tmp):
     fade = min(0.4, dur / 4)
 
     is_video = os.path.splitext(media)[1].lower() in VIDEO_EXT
+    if not is_video and scene.get("fit", cfg["fit"]) == "contain":
+        media = contain_on_blur(media, w * 2, h * 2, os.path.join(tmp, f"fit{i}.png"))
     if is_video:
         inputs = ["-stream_loop", "-1", "-i", media]
         vf = f"scale={w}:{h}:force_original_aspect_ratio=increase,crop={w}:{h},fps={fps},setsar=1"
@@ -162,7 +182,8 @@ def main():
         sb = json.load(f)
     base = os.path.dirname(os.path.abspath(a.storyboard))
     cfg = {"size": sb.get("size", [1080, 1920]), "fps": sb.get("fps", 30),
-           "voice": sb.get("voice", "en-US-AndrewNeural"), "captions": sb.get("captions", True)}
+           "voice": sb.get("voice", "en-US-AndrewNeural"), "captions": sb.get("captions", True),
+           "fit": sb.get("fit", "cover")}
 
     with tempfile.TemporaryDirectory() as tmp:
         clips = [render_scene(i, s, base, cfg, tmp) for i, s in enumerate(sb["scenes"])]
