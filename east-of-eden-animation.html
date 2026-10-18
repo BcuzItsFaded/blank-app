@@ -1,0 +1,520 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>East of Eden — Animated Breakdown</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#07060c; --ui:rgba(18,16,28,.86); --ink:#f6efe2; --muted:#a9a2b8; --accent:#ffb84d; --accent2:#ff5c7a;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;height:100%;background:var(--bg);color:var(--ink);font-family:Inter,system-ui,sans-serif;overflow:hidden}
+  #stage{position:absolute;inset:0;width:100%;height:100%;display:block;background:var(--bg)}
+  .serif{font-family:'Playfair Display',Georgia,serif}
+  .sans{font-family:Inter,system-ui,sans-serif}
+
+  /* ---------- Controls ---------- */
+  #controls{
+    position:fixed;left:50%;bottom:16px;transform:translateX(-50%);
+    width:min(980px,calc(100% - 32px));
+    display:flex;align-items:center;gap:12px;flex-wrap:wrap;
+    padding:10px 14px;border-radius:14px;background:var(--ui);
+    backdrop-filter:blur(8px);border:1px solid rgba(255,255,255,.08);
+    box-shadow:0 10px 30px rgba(0,0,0,.45);
+    transition:opacity .35s ease, transform .35s ease;z-index:10
+  }
+  body.idle #controls{opacity:0;transform:translateX(-50%) translateY(12px);pointer-events:none}
+  body.clean #controls{display:none}
+  body.idle, body.clean{cursor:none}
+  #controls button{
+    font:600 13px Inter,sans-serif;color:var(--ink);background:rgba(255,255,255,.08);
+    border:1px solid rgba(255,255,255,.12);border-radius:9px;padding:7px 11px;cursor:pointer;
+    display:inline-flex;align-items:center;gap:6px;white-space:nowrap
+  }
+  #controls button:hover{background:rgba(255,255,255,.16)}
+  #controls button:focus-visible,#scrub:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+  #play{background:var(--accent)!important;color:#1b1206!important;border-color:transparent!important;min-width:84px;justify-content:center}
+  #scrub{flex:1 1 220px;accent-color:var(--accent);height:22px;cursor:pointer;min-width:140px}
+  #time{font:600 12px ui-monospace,SFMono-Regular,Menlo,monospace;color:var(--muted);min-width:96px;text-align:right}
+  .row{display:flex;gap:6px;flex-wrap:wrap;align-items:center;width:100%}
+  .chip{font-size:12px!important;padding:5px 9px!important}
+  .chip.active{border-color:var(--accent)!important;color:var(--accent)!important}
+  label.loop{font:600 12px Inter,sans-serif;color:var(--muted);display:inline-flex;gap:6px;align-items:center;cursor:pointer}
+  .hint{margin-left:auto;font-size:11px;color:var(--muted)}
+  @media (max-width:640px){ .hint{display:none} }
+</style>
+</head>
+<body>
+
+<svg id="stage" viewBox="0 0 1600 900" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg" aria-label="East of Eden animated breakdown">
+  <defs>
+    <clipPath id="frame"><rect width="1600" height="900"/></clipPath>
+    <clipPath id="titleClipPath"><rect id="titleClip" x="200" y="80" width="0" height="260"/></clipPath>
+
+    <!-- Scene 1 -->
+    <linearGradient id="sky1" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#2b1b4a"/><stop offset=".55" stop-color="#ff7a59"/><stop offset="1" stop-color="#ffd27a"/>
+    </linearGradient>
+    <radialGradient id="glow1"><stop offset="0" stop-color="#fff2b0" stop-opacity="1"/><stop offset="1" stop-color="#ffb84d" stop-opacity="0"/></radialGradient>
+    <linearGradient id="eastMtn" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffb84d"/><stop offset="1" stop-color="#d9532f"/></linearGradient>
+    <linearGradient id="westMtn" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#4a3470"/><stop offset="1" stop-color="#1b1330"/></linearGradient>
+    <linearGradient id="field" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#7fd36b"/><stop offset="1" stop-color="#2a7a4b"/></linearGradient>
+
+    <!-- Scene 2 -->
+    <linearGradient id="wall2" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffe7b8"/><stop offset="1" stop-color="#f7b26a"/></linearGradient>
+    <radialGradient id="soft2"><stop offset="0" stop-color="#ffd6f0" stop-opacity=".9"/><stop offset="1" stop-color="#ffd6f0" stop-opacity="0"/></radialGradient>
+
+    <!-- Scene 3 -->
+    <radialGradient id="bg3" cx=".5" cy=".5" r=".75"><stop offset="0" stop-color="#4a0d22"/><stop offset="1" stop-color="#0b0408"/></radialGradient>
+    <linearGradient id="snakeGrad" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#1fae6a"/><stop offset="1" stop-color="#9df27a"/></linearGradient>
+    <radialGradient id="iris3"><stop offset="0" stop-color="#ffcf4d"/><stop offset=".55" stop-color="#e2452f"/><stop offset="1" stop-color="#7a0b22"/></radialGradient>
+
+    <!-- Scene 4 -->
+    <linearGradient id="night4" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#070b22"/><stop offset="1" stop-color="#2a1f5c"/></linearGradient>
+    <linearGradient id="dawn4g" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#2b2a7a"/><stop offset=".6" stop-color="#ff8a6d"/><stop offset="1" stop-color="#ffd68a"/></linearGradient>
+    <radialGradient id="sunGlow4"><stop offset="0" stop-color="#fff1b8"/><stop offset="1" stop-color="#ffb84d" stop-opacity="0"/></radialGradient>
+
+    <!-- Scene 5 -->
+    <radialGradient id="bg5" cx=".5" cy=".45" r=".7"><stop offset="0" stop-color="#2a1f4a"/><stop offset="1" stop-color="#07060c"/></radialGradient>
+    <radialGradient id="appleG" cx=".35" cy=".35" r=".8"><stop offset="0" stop-color="#ff8a8a"/><stop offset=".5" stop-color="#e3243b"/><stop offset="1" stop-color="#8a0d22"/></radialGradient>
+
+    <filter id="glow" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="8" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+  </defs>
+
+  <g clip-path="url(#frame)">
+
+  <!-- ================= SCENE 1 — THE SALINAS VALLEY ================= -->
+  <g id="s1">
+    <rect width="1600" height="900" fill="url(#sky1)"/>
+    <circle id="sunGlow1" cx="1210" cy="430" r="300" fill="url(#glow1)" opacity=".5"/>
+    <circle id="sun1" cx="1210" cy="430" r="105" fill="#ffe89a"/>
+    <g id="birds" fill="none" stroke="#2b1b4a" stroke-width="5" stroke-linecap="round">
+      <path class="bird" d="M500 380 q18 -16 36 0 q18 -16 36 0"/>
+      <path class="bird" d="M440 420 q14 -12 28 0 q14 -12 28 0"/>
+      <path class="bird" d="M560 440 q12 -10 24 0 q12 -10 24 0"/>
+    </g>
+    <path id="west1" d="M0 900 L0 500 L130 390 L250 460 L400 300 L560 470 L690 400 L860 580 L860 900Z" fill="url(#westMtn)"/>
+    <path id="east1" d="M680 900 L680 610 L850 470 L980 545 L1120 420 L1270 525 L1410 440 L1600 560 L1600 900Z" fill="url(#eastMtn)"/>
+    <g id="valley1">
+      <path d="M0 900 L0 650 Q800 560 1600 650 L1600 900Z" fill="url(#field)"/>
+      <g stroke="#a8ec8a" stroke-width="4" opacity=".45" fill="none">
+        <path d="M0 710 Q800 630 1600 710"/><path d="M0 770 Q800 690 1600 770"/><path d="M0 840 Q800 760 1600 840"/>
+      </g>
+    </g>
+    <path id="river1" d="M-20 880 C260 720 520 870 800 770 S1300 690 1620 770" fill="none" stroke="#6fd3ff" stroke-width="16" stroke-linecap="round"/>
+
+    <g id="labelWest" class="sans" font-weight="800" font-size="22" letter-spacing="3">
+      <rect x="150" y="540" width="330" height="44" rx="22" fill="#1b1330" opacity=".85"/>
+      <text x="315" y="569" text-anchor="middle" fill="#c9b8ff">SANTA LUCIAS · DARK</text>
+    </g>
+    <g id="labelEast" class="sans" font-weight="800" font-size="22" letter-spacing="3">
+      <rect x="1120" y="580" width="310" height="44" rx="22" fill="#fff4dc" opacity=".9"/>
+      <text x="1275" y="609" text-anchor="middle" fill="#c2421f">GABILANS · LIGHT</text>
+    </g>
+
+    <g id="title1" clip-path="url(#titleClipPath)">
+      <text x="800" y="235" text-anchor="middle" class="serif" font-weight="900" font-size="150" fill="#fff8ec" letter-spacing="10">EAST OF EDEN</text>
+    </g>
+    <text id="sub1" x="800" y="305" text-anchor="middle" class="sans" font-weight="600" font-size="30" fill="#fff8ec" letter-spacing="8">JOHN STEINBECK · BOOK BREAKDOWN</text>
+  </g>
+
+  <!-- ================= SCENE 2 — CAL, ARON & ADAM ================= -->
+  <g id="s2">
+    <rect width="1600" height="900" fill="url(#wall2)"/>
+    <!-- window onto the lettuce fields -->
+    <g transform="translate(1180,120)">
+      <rect width="300" height="220" rx="16" fill="#8fd3ff"/>
+      <path d="M0 150 Q150 120 300 150 L300 220 L0 220Z" fill="#6cc25a"/>
+      <g fill="#b8f08a"><circle cx="40" cy="185" r="12"/><circle cx="95" cy="190" r="12"/><circle cx="150" cy="185" r="12"/><circle cx="205" cy="190" r="12"/><circle cx="260" cy="185" r="12"/></g>
+      <rect width="300" height="220" rx="16" fill="none" stroke="#8a5a32" stroke-width="14"/>
+      <line x1="150" y1="0" x2="150" y2="220" stroke="#8a5a32" stroke-width="10"/>
+    </g>
+    <rect y="760" width="1600" height="140" fill="#c9844a"/>
+    <rect y="760" width="1600" height="10" fill="#a8683a"/>
+
+    <g class="sans" font-weight="800">
+      <text id="cap2a" x="120" y="150" class="serif" font-size="78" font-weight="900" fill="#3a1d2e">Cal &amp; Aron</text>
+      <text id="cap2b" x="124" y="200" font-size="26" fill="#7a3a3a" letter-spacing="2" font-weight="600">Cain and Abel, retold in the Salinas Valley</text>
+    </g>
+
+    <circle id="aronGlow" cx="430" cy="470" r="200" fill="url(#soft2)" opacity="0"/>
+
+    <!-- ARON -->
+    <g transform="translate(430,770)"><g id="aron">
+      <rect x="-26" y="-130" width="22" height="130" rx="10" fill="#3c4a6b"/>
+      <rect x="4" y="-130" width="22" height="130" rx="10" fill="#3c4a6b"/>
+      <path d="M-55 -120 Q-62 -270 0 -278 Q62 -270 55 -120Z" fill="#7fd1c4"/>
+      <path d="M-50 -250 Q-78 -190 -66 -140" stroke="#7fd1c4" stroke-width="22" stroke-linecap="round" fill="none"/>
+      <path d="M50 -250 Q78 -190 66 -140" stroke="#7fd1c4" stroke-width="22" stroke-linecap="round" fill="none"/>
+      <circle cx="0" cy="-320" r="42" fill="#f5cfa8"/>
+      <path d="M-44 -326 Q-42 -378 0 -376 Q44 -378 44 -326 Q22 -350 0 -344 Q-22 -350 -44 -326Z" fill="#ffd166"/>
+      <circle cx="-14" cy="-316" r="4.5" fill="#2b2233"/><circle cx="14" cy="-316" r="4.5" fill="#2b2233"/>
+      <path d="M-13 -298 Q0 -287 13 -298" stroke="#2b2233" stroke-width="3.5" fill="none" stroke-linecap="round"/>
+    </g></g>
+
+    <!-- ADAM -->
+    <g transform="translate(800,775)"><g id="adam">
+      <rect x="-38" y="-170" width="30" height="170" rx="12" fill="#2d2a3e"/>
+      <rect x="8" y="-170" width="30" height="170" rx="12" fill="#2d2a3e"/>
+      <path d="M-72 -160 Q-82 -340 0 -350 Q82 -340 72 -160Z" fill="#4a6fa5"/>
+      <path d="M-66 -310 Q-96 -240 -84 -175" stroke="#4a6fa5" stroke-width="26" stroke-linecap="round" fill="none"/>
+      <path d="M66 -310 Q96 -240 84 -175" stroke="#4a6fa5" stroke-width="26" stroke-linecap="round" fill="none"/>
+      <g id="adamHead">
+        <circle cx="0" cy="-398" r="50" fill="#eec39c"/>
+        <path d="M-42 -384 Q0 -326 42 -384 Q32 -356 0 -350 Q-32 -356 -42 -384Z" fill="#8a6a52"/>
+        <circle cx="-17" cy="-404" r="5" fill="#2b2233"/><circle cx="17" cy="-404" r="5" fill="#2b2233"/>
+        <rect x="-80" y="-438" width="160" height="13" rx="6.5" fill="#3b2a20"/>
+        <path d="M-50 -434 Q-50 -494 0 -496 Q50 -494 50 -434Z" fill="#3b2a20"/>
+      </g>
+    </g></g>
+
+    <!-- CAL -->
+    <g transform="translate(1170,770)"><g id="cal">
+      <rect x="-26" y="-130" width="22" height="130" rx="10" fill="#2a2433"/>
+      <rect x="4" y="-130" width="22" height="130" rx="10" fill="#2a2433"/>
+      <path d="M-55 -120 Q-62 -270 0 -278 Q62 -270 55 -120Z" fill="#a4344a"/>
+      <path d="M50 -250 Q78 -190 66 -140" stroke="#a4344a" stroke-width="22" stroke-linecap="round" fill="none"/>
+      <path d="M-50 -250 Q-95 -225 -122 -212" stroke="#a4344a" stroke-width="22" stroke-linecap="round" fill="none"/>
+      <g id="calHead">
+        <circle cx="0" cy="-320" r="42" fill="#e9b98f"/>
+        <path d="M-46 -322 L-38 -374 L-20 -358 L-5 -386 L10 -360 L28 -382 L46 -322 Q0 -348 -46 -322Z" fill="#241a2b"/>
+        <path d="M-22 -328 L-8 -324 M22 -328 L8 -324" stroke="#241a2b" stroke-width="4" stroke-linecap="round"/>
+        <circle cx="-14" cy="-314" r="4.5" fill="#2b2233"/><circle cx="14" cy="-314" r="4.5" fill="#2b2233"/>
+        <path id="calHope" d="M-12 -296 Q0 -290 12 -296" stroke="#2b2233" stroke-width="3.5" fill="none" stroke-linecap="round"/>
+        <path id="calSad" d="M-12 -290 Q0 -300 12 -290" stroke="#2b2233" stroke-width="3.5" fill="none" stroke-linecap="round" opacity="0"/>
+      </g>
+    </g></g>
+
+    <!-- Name tags -->
+    <g id="tags" class="sans" font-weight="800" font-size="20" letter-spacing="3" text-anchor="middle">
+      <g class="tag"><rect x="370" y="790" width="120" height="38" rx="19" fill="#3a1d2e"/><text x="430" y="816" fill="#ffd166">ARON</text></g>
+      <g class="tag"><rect x="740" y="790" width="120" height="38" rx="19" fill="#3a1d2e"/><text x="800" y="816" fill="#8fc2ff">ADAM</text></g>
+      <g class="tag"><rect x="1110" y="790" width="120" height="38" rx="19" fill="#3a1d2e"/><text x="1170" y="816" fill="#ff8aa0">CAL</text></g>
+    </g>
+
+    <!-- Heart of approval -->
+    <g transform="translate(800,300)"><path id="heart" d="M0 30 C-40 0 -40 -30 -20 -35 C-8 -38 0 -28 0 -20 C0 -28 8 -38 20 -35 C40 -30 40 0 0 30Z" fill="#ff5c7a" transform="scale(1.4)"/></g>
+
+    <!-- Envelope + bills -->
+    <g transform="translate(1035,560)">
+      <g id="bills">
+        <rect class="bill" x="-24" y="-12" width="48" height="24" rx="4" fill="#5fbf6a" stroke="#2a7a4b" stroke-width="3"/>
+        <rect class="bill" x="-24" y="-12" width="48" height="24" rx="4" fill="#5fbf6a" stroke="#2a7a4b" stroke-width="3"/>
+        <rect class="bill" x="-24" y="-12" width="48" height="24" rx="4" fill="#5fbf6a" stroke="#2a7a4b" stroke-width="3"/>
+        <rect class="bill" x="-24" y="-12" width="48" height="24" rx="4" fill="#5fbf6a" stroke="#2a7a4b" stroke-width="3"/>
+        <rect class="bill" x="-24" y="-12" width="48" height="24" rx="4" fill="#5fbf6a" stroke="#2a7a4b" stroke-width="3"/>
+        <rect class="bill" x="-24" y="-12" width="48" height="24" rx="4" fill="#5fbf6a" stroke="#2a7a4b" stroke-width="3"/>
+      </g>
+      <g id="env">
+        <rect x="-50" y="-32" width="100" height="64" rx="8" fill="#fff8ec" stroke="#3a1d2e" stroke-width="4"/>
+        <path d="M-50 -30 L0 6 L50 -30" fill="none" stroke="#3a1d2e" stroke-width="4" stroke-linejoin="round"/>
+        <text x="0" y="62" text-anchor="middle" class="sans" font-weight="800" font-size="20" fill="#2a7a4b">$15,000</text>
+      </g>
+    </g>
+
+    <rect id="s2dim" width="1600" height="900" fill="#1d2b5a" opacity="0" pointer-events="none"/>
+    <g id="cap2c">
+      <rect x="430" y="40" width="740" height="70" rx="35" fill="#0f1430" opacity=".9"/>
+      <text x="800" y="86" text-anchor="middle" class="serif" font-style="italic" font-weight="700" font-size="34" fill="#ffd2dc">A gift refused — and a darkness is born.</text>
+    </g>
+  </g>
+
+  <!-- ================= SCENE 3 — CATHY ================= -->
+  <g id="s3">
+    <rect width="1600" height="900" fill="url(#bg3)"/>
+    <g id="embers" fill="#ff5c7a"></g>
+    <g id="eye">
+      <path d="M470 440 Q800 170 1130 440 Q800 710 470 440Z" fill="#f6efe2"/>
+      <g id="iris">
+        <circle cx="800" cy="440" r="125" fill="url(#iris3)"/>
+        <ellipse id="pupil" cx="800" cy="440" rx="22" ry="105" fill="#0b0408"/>
+        <circle cx="842" cy="395" r="14" fill="#fff" opacity=".85"/>
+      </g>
+      <path d="M470 440 Q800 170 1130 440 Q800 710 470 440Z" fill="none" stroke="#0b0408" stroke-width="10"/>
+    </g>
+    <path id="snake" d="M-60 800 C200 690 350 900 600 790 S1000 690 1200 790 S1440 860 1520 760" fill="none" stroke="url(#snakeGrad)" stroke-width="36" stroke-linecap="round"/>
+    <g id="snakeHead" transform="translate(1520,760)">
+      <path id="tongue" d="M30 -20 L70 -40 M70 -40 L82 -52 M70 -40 L86 -36" stroke="#ff3355" stroke-width="5" stroke-linecap="round" fill="none"/>
+      <ellipse cx="10" cy="-6" rx="40" ry="28" fill="#9df27a" transform="rotate(-25)"/>
+      <circle cx="18" cy="-20" r="6" fill="#0b0408"/>
+    </g>
+    <text id="cap3a" x="800" y="130" text-anchor="middle" class="serif" font-weight="900" font-size="96" fill="#f6efe2" letter-spacing="8">CATHY AMES</text>
+    <text id="cap3b" x="800" y="186" text-anchor="middle" class="sans" font-weight="600" font-size="28" fill="#ff9aac" letter-spacing="2">Born a monster — or choosing to be one?</text>
+  </g>
+
+  <!-- ================= SCENE 4 — TIMSHEL ================= -->
+  <g id="s4">
+    <rect width="1600" height="900" fill="url(#night4)"/>
+    <rect id="dawn4" width="1600" height="900" fill="url(#dawn4g)" opacity="0"/>
+    <g id="stars4" fill="#fff"></g>
+    <g id="rays4" stroke="#ffe6a3" stroke-width="10" stroke-linecap="round" opacity=".5"></g>
+    <circle id="sunGlowB" cx="1250" cy="600" r="240" fill="url(#sunGlow4)" opacity=".6"/>
+    <circle id="sun4" cx="1250" cy="600" r="80" fill="#ffe08a"/>
+    <path d="M0 900 L0 630 Q800 590 1600 630 L1600 900Z" fill="#1b1530"/>
+    <path id="roadT" d="M800 940 L800 700" fill="none" stroke="#e9d8b8" stroke-width="56" stroke-linecap="round"/>
+    <path id="roadL" d="M800 700 Q690 650 380 625" fill="none" stroke="#4b3f74" stroke-width="40" stroke-linecap="round"/>
+    <path id="roadR" d="M800 700 Q910 650 1150 622" fill="none" stroke="#ffd27a" stroke-width="40" stroke-linecap="round"/>
+    <g transform="translate(800,900)"><g id="walker">
+      <rect x="-14" y="-60" width="10" height="60" rx="5" fill="#0d0a1a"/><rect x="4" y="-60" width="10" height="60" rx="5" fill="#0d0a1a"/>
+      <path d="M-24 -55 Q-28 -120 0 -124 Q28 -120 24 -55Z" fill="#0d0a1a"/>
+      <circle cx="0" cy="-144" r="20" fill="#0d0a1a"/>
+    </g></g>
+
+    <g id="word4" class="serif" font-weight="900" font-size="150" fill="#fff8ec" text-anchor="middle">
+      <text class="tl" x="395" y="250">T</text><text class="tl" x="515" y="250">I</text><text class="tl" x="640" y="250">M</text>
+      <text class="tl" x="790" y="250">S</text><text class="tl" x="925" y="250">H</text><text class="tl" x="1060" y="250">E</text><text class="tl" x="1185" y="250">L</text>
+    </g>
+    <text id="heb4" x="800" y="330" text-anchor="middle" font-size="54" fill="#ffb84d" font-family="'Times New Roman',serif" filter="url(#glow)">תִּמְשֹׁל</text>
+    <text id="sub4" x="800" y="395" text-anchor="middle" class="sans" font-weight="600" font-size="30" fill="#fff8ec" letter-spacing="2">“Thou mayest.” Good and evil are a choice — not a fate.</text>
+  </g>
+
+  <!-- ================= SCENE 5 — OUTRO ================= -->
+  <g id="s5">
+    <rect width="1600" height="900" fill="url(#bg5)"/>
+    <g id="stars5" fill="#fff"></g>
+    <circle id="glow5" cx="800" cy="420" r="260" fill="url(#glow1)" opacity=".35"/>
+    <g id="book" transform="translate(800,480)">
+      <path id="pageL" d="M0 0 Q-120 -40 -270 -10 L-270 170 Q-120 140 0 180Z" fill="#f6efe2"/>
+      <path id="pageR" d="M0 0 Q120 -40 270 -10 L270 170 Q120 140 0 180Z" fill="#fff8ec"/>
+      <g id="lines5" fill="none" stroke="#c7bca8" stroke-width="5" stroke-linecap="round">
+        <path d="M-230 30 Q-120 8 -30 34"/><path d="M-230 70 Q-120 48 -30 74"/><path d="M-230 110 Q-120 88 -30 114"/>
+        <path d="M30 34 Q120 8 230 30"/><path d="M30 74 Q120 48 230 70"/><path d="M30 114 Q120 88 230 110"/>
+      </g>
+      <line x1="0" y1="0" x2="0" y2="180" stroke="#b8a78a" stroke-width="6"/>
+    </g>
+    <g transform="translate(800,350)"><g id="apple">
+      <path d="M0 -40 C-30 -70 -90 -55 -90 5 C-90 60 -45 95 0 80 C45 95 90 60 90 5 C90 -55 30 -70 0 -40Z" fill="url(#appleG)"/>
+      <path d="M0 -40 Q4 -70 16 -86" stroke="#5a3a22" stroke-width="8" stroke-linecap="round" fill="none"/>
+      <path d="M14 -70 Q50 -100 74 -72 Q42 -50 14 -70Z" fill="#5fbf6a"/>
+    </g></g>
+    <text id="t5a" x="800" y="160" text-anchor="middle" class="serif" font-weight="900" font-size="104" fill="#fff8ec" letter-spacing="10">EAST OF EDEN</text>
+    <text id="t5b" x="800" y="760" text-anchor="middle" class="serif" font-style="italic" font-weight="700" font-size="56" fill="#ffb84d">Thou mayest.</text>
+    <text id="t5c" x="800" y="815" text-anchor="middle" class="sans" font-weight="600" font-size="24" fill="#a9a2b8" letter-spacing="8">A BOOK BREAKDOWN</text>
+  </g>
+
+  <rect id="fade" width="1600" height="900" fill="#07060c" opacity="0" pointer-events="none"/>
+  </g>
+</svg>
+
+<div id="controls" role="group" aria-label="Animation controls">
+  <button id="play" aria-label="Pause">❚❚ Pause</button>
+  <button id="restart" aria-label="Restart">↺</button>
+  <input id="scrub" type="range" min="0" max="1000" step="1" value="0" aria-label="Timeline scrubber">
+  <span id="time">0:00 / 0:00</span>
+  <div class="row">
+    <button class="chip" data-label="valley">1 · Valley</button>
+    <button class="chip" data-label="brothers">2 · Brothers</button>
+    <button class="chip" data-label="cathy">3 · Cathy</button>
+    <button class="chip" data-label="timshel">4 · Timshel</button>
+    <button class="chip" data-label="outro">5 · Outro</button>
+    <label class="loop"><input id="loop" type="checkbox" checked> Loop</label>
+    <span class="hint">Space play/pause · ←/→ seek · 1–5 scenes · H hide UI · F fullscreen</span>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script>
+(() => {
+  const $ = s => document.querySelector(s);
+  const $$ = s => [...document.querySelectorAll(s)];
+  const NS = 'http://www.w3.org/2000/svg';
+
+  // ---------- Procedural decor ----------
+  // Seeded RNG so the scene looks identical on every load (consistent re-takes).
+  let seed = 7;
+  const rnd = (a, b) => { seed = (seed * 16807) % 2147483647; return a + (seed / 2147483647) * (b - a); };
+  const make = (tag, attrs, parent) => { const el = document.createElementNS(NS, tag); for (const k in attrs) el.setAttribute(k, attrs[k]); parent.appendChild(el); return el; };
+
+  ['#stars4', '#stars5'].forEach(id => {
+    const g = $(id);
+    for (let i = 0; i < 70; i++) make('circle', { class: 'star', cx: rnd(0, 1600), cy: rnd(0, id === '#stars4' ? 560 : 900), r: rnd(1, 3.2), opacity: rnd(.3, 1) }, g);
+  });
+  for (let i = 0; i < 26; i++) make('circle', { class: 'ember', cx: rnd(0, 1600), cy: rnd(500, 950), r: rnd(2, 6), opacity: rnd(.25, .8) }, $('#embers'));
+  for (let i = 0; i < 12; i++) {
+    const a = (i / 12) * Math.PI * 2;
+    make('line', { x1: 1250 + Math.cos(a) * 120, y1: 600 + Math.sin(a) * 120, x2: 1250 + Math.cos(a) * 210, y2: 600 + Math.sin(a) * 210 }, $('#rays4'));
+  }
+
+  // Prepare stroke-draw paths
+  const prepDraw = sel => $$(sel).forEach(p => { const L = p.getTotalLength(); p.style.strokeDasharray = L; p.style.strokeDashoffset = L; p.dataset.len = L; });
+  prepDraw('#river1, #snake, #roadT, #roadL, #roadR');
+  const len = sel => +$(sel).dataset.len;
+
+  gsap.set(['#s1', '#s2', '#s3', '#s4', '#s5'], { autoAlpha: 0 });
+  gsap.set(['#heart', '#env', '.bill', '#snakeHead', '#cap2c'], { opacity: 0 });
+
+  // ---------- Master timeline ----------
+  const tl = gsap.timeline({ repeat: -1, defaults: { ease: 'power2.out', smoothOrigin: false }, onUpdate: sync, onComplete: () => setPlayUI(false) });
+
+  // SCENE 1 — The Salinas Valley
+  const S1 = 0;
+  tl.addLabel('valley', S1)
+    .set('#s1', { autoAlpha: 1 }, S1)
+    .fromTo('#fade', { opacity: 1 }, { opacity: 0, duration: .8 }, S1)
+    .fromTo('#sun1', { y: 280 }, { y: 0, duration: 3.2 }, S1)
+    .fromTo('#sunGlow1', { opacity: 0, scale: .4 }, { opacity: .55, scale: 1, transformOrigin: '50% 50%', duration: 3.4 }, S1)
+    .fromTo('#west1', { y: 160 }, { y: 0, duration: 2.4, ease: 'power3.out' }, S1 + .1)
+    .fromTo('#east1', { y: 200 }, { y: 0, duration: 2.4, ease: 'power3.out' }, S1 + .3)
+    .fromTo('#valley1', { y: 260 }, { y: 0, duration: 2, ease: 'power3.out' }, S1 + .5)
+    .fromTo('#river1', { strokeDashoffset: len('#river1') }, { strokeDashoffset: 0, duration: 2.6, ease: 'power1.inOut' }, S1 + 1)
+    .fromTo('#titleClip', { attr: { width: 0 } }, { attr: { width: 1200 }, duration: 1.6, ease: 'power3.inOut' }, S1 + 1.6)
+    .fromTo('#title1', { scale: 1.12 }, { scale: 1, transformOrigin: '50% 50%', duration: 2.4 }, S1 + 1.6)
+    .fromTo('#sub1', { opacity: 0, y: 24 }, { opacity: 1, y: 0, duration: 1 }, S1 + 2.8)
+    .fromTo('.bird', { x: -300, opacity: 0 }, { x: 500, opacity: 1, duration: 6, stagger: .35, ease: 'none' }, S1 + 1.5)
+    .fromTo('#labelWest', { opacity: 0, x: -40 }, { opacity: 1, x: 0, duration: .7, ease: 'back.out(2)' }, S1 + 4)
+    .fromTo('#labelEast', { opacity: 0, x: 40 }, { opacity: 1, x: 0, duration: .7, ease: 'back.out(2)' }, S1 + 4.5)
+    .to('#s1', { autoAlpha: 0, duration: .8, ease: 'power1.in' }, S1 + 8);
+
+  // SCENE 2 — Cal, Aron & Adam
+  const S2 = 8.4;
+  const billX = [-170, -90, -20, 60, 140, 200], billY = [-140, -200, -90, -170, -120, -60], billR = [-60, 40, -20, 80, -110, 30];
+  tl.addLabel('brothers', S2)
+    .fromTo('#s2', { autoAlpha: 0 }, { autoAlpha: 1, duration: .8 }, S2)
+    .fromTo(['#cap2a', '#cap2b'], { opacity: 0, x: -40 }, { opacity: 1, x: 0, duration: .8, stagger: .2 }, S2 + .4)
+    .fromTo('#adam', { y: 80, opacity: 0 }, { y: 0, opacity: 1, duration: .9, ease: 'back.out(1.6)' }, S2 + .5)
+    .fromTo('#aron', { x: -420, opacity: 0 }, { x: 0, opacity: 1, duration: 1.1 }, S2 + .8)
+    .fromTo('#cal', { x: 420, opacity: 0 }, { x: 0, opacity: 1, duration: 1.1 }, S2 + 1)
+    .fromTo('.tag', { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: .5, stagger: .15, ease: 'back.out(2)' }, S2 + 1.8)
+    // Adam's love flows to Aron
+    .fromTo('#heart', { scale: 0, opacity: 0 }, { scale: 1.4, opacity: 1, transformOrigin: '50% 50%', duration: .5, ease: 'back.out(3)' }, S2 + 2.6)
+    .to('#heart', { x: -370, y: 60, duration: 1.3, ease: 'power1.inOut' }, S2 + 3.2)
+    .to('#heart', { scale: 0, opacity: 0, duration: .3 }, S2 + 4.5)
+    .fromTo('#aronGlow', { opacity: 0 }, { opacity: .9, duration: .5, yoyo: true, repeat: 1 }, S2 + 4.4)
+    .to('#aron', { keyframes: { y: [0, -18, 0] }, duration: .5, ease: 'power1.inOut' }, S2 + 4.5)
+    // Cal's gift
+    .fromTo('#env', { opacity: 0, scale: .2 }, { opacity: 1, scale: 1, transformOrigin: '50% 50%', duration: .5, ease: 'back.out(2)' }, S2 + 5.2)
+    .to('#env', { x: -150, y: -30, duration: 1, ease: 'power2.inOut' }, S2 + 5.9)
+    .to('#adamHead', { keyframes: { rotation: [0, -9, 9, -9, 9, 0] }, transformOrigin: '50% 100%', duration: 1.1, ease: 'none' }, S2 + 7)
+    .to('#env', { x: -40, y: 210, rotation: -35, duration: .8, ease: 'bounce.out' }, S2 + 8.1)
+    .fromTo('.bill', { opacity: 0, x: -150, y: -30, rotation: 0 },
+      { opacity: 1, x: i => billX[i], y: i => billY[i], rotation: i => billR[i], duration: .6, stagger: .04, ease: 'power3.out' }, S2 + 8.1)
+    .to('.bill', { y: 200, opacity: 0, duration: 1.2, stagger: .05, ease: 'power2.in' }, S2 + 8.8)
+    .to('#s2dim', { opacity: .45, duration: 1 }, S2 + 8.5)
+    .to('#calHead', { rotation: 16, y: 10, transformOrigin: '50% 100%', duration: .8 }, S2 + 8.6)
+    .to('#calHope', { opacity: 0, duration: .2 }, S2 + 8.6)
+    .to('#calSad', { opacity: 1, duration: .2 }, S2 + 8.6)
+    .to(['#cap2a', '#cap2b'], { opacity: 0, y: -20, duration: .5 }, S2 + 8.5)
+    .fromTo('#cap2c', { opacity: 0, y: -20 }, { opacity: 1, y: 0, duration: .7 }, S2 + 8.9)
+    .to('#s2', { autoAlpha: 0, duration: .8, ease: 'power1.in' }, S2 + 11.6);
+
+  // SCENE 3 — Cathy
+  const S3 = S2 + 12;
+  tl.addLabel('cathy', S3)
+    .fromTo('#s3', { autoAlpha: 0 }, { autoAlpha: 1, duration: .8 }, S3)
+    .fromTo('.ember', { y: 0 }, { y: -520, duration: 8.5, ease: 'none', stagger: { each: .08 } }, S3)
+    .fromTo('#eye', { scaleY: 0 }, { scaleY: 1, transformOrigin: '50% 50%', duration: .9, ease: 'expo.out' }, S3 + .7)
+    .fromTo('#pupil', { scaleX: 3 }, { scaleX: 1, transformOrigin: '50% 50%', duration: 1.2 }, S3 + 1)
+    .fromTo(['#cap3a', '#cap3b'], { opacity: 0, y: -24 }, { opacity: 1, y: 0, duration: .8, stagger: .35 }, S3 + 1.3)
+    .fromTo('#snake', { strokeDashoffset: len('#snake') }, { strokeDashoffset: 0, duration: 3, ease: 'power1.inOut' }, S3 + .4)
+    .fromTo('#snakeHead', { opacity: 0, scale: .3 }, { opacity: 1, scale: 1, transformOrigin: '50% 50%', duration: .5, ease: 'back.out(3)' }, S3 + 3.3)
+    .to('#tongue', { keyframes: { scaleX: [1, .2, 1, .2, 1] }, transformOrigin: '0% 50%', duration: .8 }, S3 + 3.9)
+    .to('#iris', { keyframes: { x: [0, -70, -70, 70, 70, 0] }, duration: 3.2, ease: 'power1.inOut' }, S3 + 2.4)
+    .to('#eye', { keyframes: { scaleY: [1, .04, 1] }, transformOrigin: '50% 50%', duration: .35 }, S3 + 5.8)
+    .to('#pupil', { scaleX: .45, duration: .6 }, S3 + 6.5)
+    .to('#s3', { autoAlpha: 0, duration: .8, ease: 'power1.in' }, S3 + 8.6);
+
+  // SCENE 4 — Timshel
+  const S4 = S3 + 9;
+  tl.addLabel('timshel', S4)
+    .fromTo('#s4', { autoAlpha: 0 }, { autoAlpha: 1, duration: .8 }, S4)
+    .fromTo('#stars4 .star', { opacity: .1 }, { opacity: 1, duration: .6, stagger: { each: .03, from: 'random' }, yoyo: true, repeat: 3 }, S4)
+    .fromTo('#rays4', { rotation: 0 }, { rotation: 70, svgOrigin: '1250 600', duration: 10.5, ease: 'none' }, S4)
+    .fromTo(['#sun4', '#sunGlowB', '#rays4'], { y: 140 }, { y: 0, duration: 3 }, S4 + .2)
+    .fromTo('#roadT', { strokeDashoffset: len('#roadT') }, { strokeDashoffset: 0, duration: 1, ease: 'power1.inOut' }, S4 + .4)
+    .fromTo('#roadL', { strokeDashoffset: len('#roadL') }, { strokeDashoffset: 0, duration: 1.4 }, S4 + 1.3)
+    .fromTo('#roadR', { strokeDashoffset: len('#roadR') }, { strokeDashoffset: 0, duration: 1.4 }, S4 + 1.3)
+    .fromTo('#walker', { y: 80 }, { y: -200, duration: 2.2, ease: 'power1.inOut' }, S4 + 1)
+    .fromTo('.tl', { opacity: 0, y: 70, scale: .3 }, { opacity: 1, y: 0, scale: 1, transformOrigin: '50% 100%', duration: .7, stagger: .12, ease: 'back.out(2.2)' }, S4 + 2.2)
+    .fromTo('#heb4', { opacity: 0, scale: .6 }, { opacity: 1, scale: 1, transformOrigin: '50% 50%', duration: .8, ease: 'back.out(2)' }, S4 + 3.4)
+    .fromTo('#sub4', { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: .8 }, S4 + 4)
+    // The choice: walk toward the light
+    .to('#walker', { keyframes: { rotation: [0, -4, 4, -4, 4, 0] }, transformOrigin: '50% 100%', duration: 1, ease: 'none' }, S4 + 4.6)
+    .to('#walker', { x: 300, y: -278, scale: .5, transformOrigin: '50% 100%', duration: 2.6, ease: 'power1.inOut' }, S4 + 5.6)
+    .to('#dawn4', { opacity: 1, duration: 2.6 }, S4 + 5.6)
+    .to('#roadL', { opacity: .35, duration: 1.5 }, S4 + 5.8)
+    .to(['#sun4', '#sunGlowB'], { scale: 1.3, transformOrigin: '50% 50%', duration: 2.4 }, S4 + 5.8)
+    .to('#s4', { autoAlpha: 0, duration: .8, ease: 'power1.in' }, S4 + 10);
+
+  // SCENE 5 — Outro
+  const S5 = S4 + 10.4;
+  tl.addLabel('outro', S5)
+    .fromTo('#s5', { autoAlpha: 0 }, { autoAlpha: 1, duration: .8 }, S5)
+    .fromTo('#stars5 .star', { opacity: 0 }, { opacity: 1, duration: 1.2, stagger: { each: .02, from: 'random' } }, S5)
+    .fromTo('#pageL', { scaleX: 0 }, { scaleX: 1, transformOrigin: '100% 50%', duration: 1.1, ease: 'power3.out' }, S5 + .3)
+    .fromTo('#pageR', { scaleX: 0 }, { scaleX: 1, transformOrigin: '0% 50%', duration: 1.1, ease: 'power3.out' }, S5 + .3)
+    .fromTo('#lines5 path', { opacity: 0 }, { opacity: 1, duration: .3, stagger: .08 }, S5 + 1)
+    .fromTo('#glow5', { opacity: 0, scale: .5 }, { opacity: .45, scale: 1, transformOrigin: '50% 50%', duration: 1.6 }, S5 + .8)
+    .fromTo('#apple', { y: 120, opacity: 0, scale: .4 }, { y: 0, opacity: 1, scale: 1, transformOrigin: '50% 50%', duration: 1, ease: 'back.out(1.8)' }, S5 + 1.1)
+    .to('#apple', { keyframes: { y: [0, -16, 0, -16, 0], rotation: [0, 4, 0, -4, 0] }, duration: 4.2, ease: 'sine.inOut' }, S5 + 2.1)
+    .fromTo('#t5a', { opacity: 0, y: -30 }, { opacity: 1, y: 0, duration: .9 }, S5 + .8)
+    .fromTo('#t5b', { opacity: 0, scale: .8 }, { opacity: 1, scale: 1, transformOrigin: '50% 50%', duration: .9, ease: 'back.out(2)' }, S5 + 1.9)
+    .fromTo('#t5c', { opacity: 0, letterSpacing: 20 }, { opacity: 1, letterSpacing: 8, duration: 1.2 }, S5 + 2.4)
+    .to('#fade', { opacity: 1, duration: .9, ease: 'power1.in' }, S5 + 6.5)
+    .set('#s5', { autoAlpha: 0 }, S5 + 7.4);
+
+  window.tl = tl; // handy for console tweaks
+
+  // ---------- Controls ----------
+  const playBtn = $('#play'), scrub = $('#scrub'), timeEl = $('#time'), loopBox = $('#loop');
+  const chips = $$('.chip');
+  const labels = ['valley', 'brothers', 'cathy', 'timshel', 'outro'];
+  let scrubbing = false;
+
+  const fmt = t => `${Math.floor(t / 60)}:${String(Math.floor(t % 60)).padStart(2, '0')}`;
+  function sync() {
+    if (!scrubbing) scrub.value = Math.round(tl.progress() * 1000);
+    timeEl.textContent = `${fmt(tl.time())} / ${fmt(tl.duration())}`;
+    const t = tl.time();
+    let cur = labels[0];
+    labels.forEach(l => { if (t >= tl.labels[l]) cur = l; });
+    chips.forEach(c => c.classList.toggle('active', c.dataset.label === cur));
+  }
+  function setPlayUI(playing) {
+    playBtn.textContent = playing ? '❚❚ Pause' : '▶ Play';
+    playBtn.setAttribute('aria-label', playing ? 'Pause' : 'Play');
+  }
+  function togglePlay() {
+    if (tl.progress() === 1 && !tl.repeat()) tl.restart();
+    else tl.paused(!tl.paused());
+    setPlayUI(!tl.paused());
+  }
+  const seek = t => { tl.time(Math.max(0, Math.min(tl.duration(), t))); sync(); };
+
+  playBtn.addEventListener('click', togglePlay);
+  $('#restart').addEventListener('click', () => { tl.restart(); setPlayUI(true); });
+  scrub.addEventListener('input', () => { scrubbing = true; tl.pause(); setPlayUI(false); tl.progress(scrub.value / 1000); sync(); });
+  scrub.addEventListener('change', () => { scrubbing = false; });
+  loopBox.addEventListener('change', () => tl.repeat(loopBox.checked ? -1 : 0));
+  chips.forEach(c => c.addEventListener('click', () => { seek(tl.labels[c.dataset.label]); }));
+
+  window.addEventListener('keydown', e => {
+    if (e.target.tagName === 'INPUT' && e.target.type === 'range' && e.key.startsWith('Arrow')) return;
+    const k = e.key.toLowerCase();
+    if (k === ' ') { e.preventDefault(); togglePlay(); }
+    else if (k === 'arrowright') seek(tl.time() + 2);
+    else if (k === 'arrowleft') seek(tl.time() - 2);
+    else if (k === 'home') { tl.restart(); setPlayUI(true); }
+    else if (k === 'h') document.body.classList.toggle('clean');
+    else if (k === 'f') { document.fullscreenElement ? document.exitFullscreen() : document.documentElement.requestFullscreen?.(); }
+    else if (/^[1-5]$/.test(k)) seek(tl.labels[labels[+k - 1]]);
+    wake();
+  });
+
+  // Auto-hide controls while playing and the mouse is idle (clean recording)
+  let idleTimer;
+  function wake() {
+    document.body.classList.remove('idle');
+    clearTimeout(idleTimer);
+    idleTimer = setTimeout(() => { if (!tl.paused()) document.body.classList.add('idle'); }, 2500);
+  }
+  ['mousemove', 'pointerdown', 'touchstart'].forEach(ev => window.addEventListener(ev, wake, { passive: true }));
+  wake();
+  sync();
+})();
+</script>
+</body>
+</html>
