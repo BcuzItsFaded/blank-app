@@ -1,84 +1,100 @@
 ---
 name: storyboard-animator
-description: Turns the user's own images, or a script they write, into an animated, narrated vertical short video (9:16) using the Calliope video tools. Use this whenever the user wants to animate pictures or photos, "bring these images to life", make their images move, turn a script/story/idea into a storyboard, storyboard a script, or make an animated video, short, Reel, TikTok or YouTube Short from images or a script — even if they don't say "Calliope" or "storyboard".
+description: Turns the user's own images, or a script they write, into an animated, narrated vertical short video (9:16) using only free tools — free stock footage and photos from Pexels and Pixabay, ffmpeg motion (zoom/pan/fades), free text-to-speech narration and burned-in captions. Use this whenever the user wants to animate pictures or photos, "bring these images to life", make a slideshow video with movement, turn a script/story/idea into a storyboard, storyboard a script, or make a video, short, Reel, TikTok or YouTube Short from images or a script — even if they don't say "storyboard". Do not use paid AI video services unless the user asks.
 ---
 
-# Storyboard Animator
+# Storyboard Animator (free tools only)
 
-Two jobs, one pipeline:
+This turns **images** or a **script** into a narrated vertical short. Everything is free:
 
-- **Animate images**: the user gives images (and maybe a script or topic). Each image becomes a scene, animated with AI motion, with narration over it.
-- **Storyboard a script**: the user gives a script or idea. You break it into a storyboard, they approve it, then Calliope generates and animates the scenes with a narrator reading the script.
+| Need | Tool |
+|---|---|
+| Visuals for script scenes | `scripts/fetch_stock.py` searches **Pexels** and **Pixabay** (free stock photos and video clips) |
+| Animation | `scripts/build_video.py` uses ffmpeg to add slow zoom/pan to photos, fit stock video clips to the frame, and add fades |
+| Narration | Free TTS: edge-tts (natural Microsoft voices), falling back to gTTS automatically |
+| Captions | Burned in from the narration text (on by default) |
 
-The user's defaults are **vertical short (9:16, `content_type: "short"`)**, **narrator voiceover** (`voiceover: true`), and **storyboard approval before spending credits**. Follow these unless the user asks for something different in their request.
+The user's defaults are **vertical 9:16 (1080×1920)**, **narrator voiceover**, and **storyboard approval before building**. Don't use paid AI video or image generators (Calliope, etc.). The user chose free sources on purpose.
 
-## Ground rules (why they matter)
+## Setup (check once per session)
 
-- **Calliope spends real credits.** Every COST tool (`create_video`, `animate_clip`, `resume_job`, `character_reference` regenerations, `generate_clip`) has an estimate step. Run the estimate, show the exact number it returns (never guess a number), and wait for a clear "yes" before calling it with `confirm: true`. Surprise charges are the fastest way to lose the user's trust.
-- **Narration is a separate audio track**, so characters in the animation must not talk. Never put talking, lip-sync or speaking to camera into a `video_prompt`.
-- **Generation is asynchronous.** After you start a job, tell the user what's happening and roughly how long it takes (assets: minutes, render: 2–10 min). Check with `get_job` / `get_editor` when they come back. Don't loop on sleep.
-- If a Calliope call fails with "Upgrade required" or no credits, stop. Tell the user plainly that their Calliope plan needs upgrading or topping up, and offer the storyboard as a document they can keep in the meantime.
-- Before complex Calliope work, try `read_skill` with path `best-practices-create-video/SKILL.md`. It explains which field each instruction belongs to. If that call fails, continue with this guide.
+- `ffmpeg` and `ffprobe` must be installed. Python packages: `pip install pillow gTTS edge-tts`.
+- Stock search needs at least one **free** API key, set as an environment variable:
+  - `PEXELS_API_KEY`: sign up at https://www.pexels.com/api/ (instant, free)
+  - `PIXABAY_API_KEY`: sign up at https://pixabay.com/api/docs/ (the key is shown on that page once logged in)
 
-## Step 0: Figure out the mode
+  If neither is set and the user needs stock media (Mode B), ask them to paste a key. Explain that it's free and takes a minute. Mode A, using only the user's own images, needs no key.
 
-- Images attached or referenced → **Mode A (animate images)**. If they also gave a script, use it as the narration.
-- Only text (a script, a story or an idea) → **Mode B (storyboard a script)**.
-- Images plus "storyboard this" → Mode B, passing the images as `character_references` (labeled "Main character", "Object", "Background", etc.) so the generated scenes match them.
+## Step 0: Pick the mode
 
-Pick a template either way: run `list_templates {content_type: "short"}`. Prefer templates with the `ANIMATED` badge. Show the top 3–4 (name plus cover) and let the user pick. If they don't care, use the first animated one.
+- **Mode A: animate the user's images.** The user's images are the scenes. If they gave a script, it becomes the narration. Otherwise write a short narration that fits the images, or ask what the video is about if that isn't obvious. Stock media only fills gaps the user agrees to.
+- **Mode B: storyboard a script.** The user gives a script or idea. Every scene gets a stock photo or clip from Pexels/Pixabay. If the user also gave some images, use those for the scenes they fit and stock media for the rest.
 
-## Step 1: Build the storyboard (both modes)
+## Step 1: Storyboard and get approval
 
-Always write a storyboard first and show it in chat as a table. This is the review point the user asked for: it's cheap to change here and expensive to change later.
+Write the storyboard as a table in chat. This is the review point the user asked for, and it's much cheaper to change here than after building.
 
-| # | Narration (spoken) | Visual (what's on screen) | Motion (camera + subject) | ~Sec |
-|---|---|---|---|---|
+| # | Narration (spoken + captioned) | Visual | Source | Motion | ~Sec |
+|---|---|---|---|---|---|
+| 1 | "Every morning, Max waits by the door." | Golden retriever sitting by a front door | Stock video: `dog waiting door` | — | 4 |
+| 2 | "But today, nobody came." | Your image 2 (empty hallway) | User image | slow zoom in | 3 |
 
-How to write it well:
-- **Narration**: the user's script, split at natural beats. Don't rewrite their words unless they asked for help writing. If they gave only an idea, write a tight script: hook in the first line, about 150 words per minute, and 280–1120 characters total for a short (Calliope's limit).
-- **Visual**: in Mode A, name the image ("Image 2: dog on beach"). In Mode B, describe the shot concretely: subject, setting, lighting, style. Keep characters described the same way in every row so they stay consistent.
-- **Motion**: one clear move per scene, such as slow push-in, pan left, the subject turns their head, waves crash, or hair blows in the wind. Subtle, physical motion animates far better than big, complicated action.
-- **Timing**: roughly 3–6 s per scene. A short is usually 30–60 s.
-- In Mode A, use one scene per image, in the user's order unless the story suggests a better one (say so if you reorder).
+Guidelines:
+- **Narration**: the user's script, split at natural beats. Don't rewrite their words unless they want help. If they gave only an idea, write a tight script: a hook in the first line, and about 150 words per minute. A short is usually 20–60 s.
+- **Source**: for stock media, write the **search keywords** you'll use. Stock search works best with 2–4 concrete, literal words (`woman running beach sunset`, not `freedom and hope`). Abstract lines need a concrete visual metaphor. Prefer **stock video** for action or nature scenes, because real motion beats a zoomed photo. Use photos when a still fits better or no good clip exists.
+- **Motion** (photos only): `zoom_in` draws focus or adds tension, `zoom_out` reveals or ends a scene, `pan_left`/`pan_right` suit wide landscapes and groups, `pan_up`/`pan_down` suit tall subjects (buildings, people head to toe), and `still` is for text-heavy images. Vary motion between neighboring scenes so it doesn't feel repetitive.
+- One scene ≈ one narration sentence, about 3–6 s.
 
-Then ask: "Want any changes before I price it out?" Iterate until they approve.
+Ask: "Want any changes before I build it?" Iterate until they approve.
 
-## Step 2: Price it and create the job
+## Step 2: Gather media
 
-1. `estimate_generation_cost` with `content_type: "short"`, `template_id`, `target_duration_sec`, `voiceover: true`, and the same `animate` value you'll generate with (see the mode sections). Report the cost with the `image_model`, `video_model` and `scene_frequency` it returns. Get a yes.
-2. `create_video` with **`auto_accept: false`** and **`auto_render: false`**. This makes Calliope pause after narration and before the final render, which gives the user review points.
+Create a project folder, for example `video-<short-name>/`. Inside it:
+- Copy or convert the user's images there. Any common format works, and the builder crops them to fill 9:16, so mention it if a wide image will lose its sides.
+- For each stock scene:
+  ```bash
+  python scripts/fetch_stock.py "dog waiting door" --type video --out video-max/s1.mp4
+  python scripts/fetch_stock.py "empty hallway" --type photo --out video-max/s3.jpg
+  ```
+  The default is Pexels, then Pixabay, in portrait orientation. `--index 1`, `--index 2`, etc. fetch the next-best result. `--source pixabay` forces Pixabay.
+- **Look at what you downloaded** before building. For photos, view the image. For videos, grab a frame with `ffmpeg -ss 1 -i s1.mp4 -frames:v 1 s1.png` and view it. Stock search often returns near misses. If a result doesn't match the scene, try `--index 1` or rephrase the keywords. Wrong visuals are the most common way these videos go bad.
+- Every download is recorded in `credits.txt`. Pexels and Pixabay don't require credit, but it's courteous, and the user may want it for a video description.
 
-Then follow the mode-specific steps.
+Optional music: Pixabay Music (https://pixabay.com/music/) is free. If the user downloads a track, put it in the folder and set `"music"`. It's mixed quietly under the voice.
 
-### Mode A — animate the user's images
+## Step 3: Build
 
-Calliope builds scenes from a script, so the trick is to let it lay out the timeline and then swap the user's images into the scenes.
+Write `storyboard.json` in the project folder. Media paths are relative to it.
 
-1. Create the job with `script_params.script` set to the approved narration and `content_instructions` set to a short brief listing the scenes in order. Use `animate: false` so you don't pay to animate AI images you're about to replace. Pick `visual_frequency` so the scene count is close to the image count (`high` ≈ one scene every 2 s, `balanced` ≈ 4 s, `low` ≈ 6 s).
-2. Narration pause: `get_editor` shows the audio. Let the user listen and confirm (`replace_audio` to change the voice). Then `resume_job` (estimate, confirm) to generate assets. Skip the character sheet with `skip_character_reference: true`, because the user's images are the visuals.
-3. When assets are done, `get_editor` lists the scenes and their `promptKey`s. Map image → scene by timing against the storyboard. If there are more scenes than images, either let a related image span two scenes or keep a fitting AI scene. Tell the user which you chose.
-4. Upload each image: `register_upload {job_id, mediaType: "image", file_name, file_size}` returns an `upload_url`. PUT the raw bytes with `curl -X PUT -H "Content-Type: <content_type>" --data-binary @file "<upload_url>"`. Then call `replace_clip {job_id, prompt_key, path, media_type: "image"}`. The limit is 5 MB per image (PNG, JPG or WEBP). Downscale larger images first, for example with `ffmpeg -i in.jpg -vf scale=1080:-2 out.jpg`. Confirm the image → scene mapping before replacing, because `replace_clip` has no undo.
-5. Animate: `animate_clip` with `mode: "all"` (or a `promptKeys` list). Estimate, confirm, then execute. Write a `video_prompt` per scene from the storyboard's Motion column (60+ words: camera move, what moves in the image, pacing, mood, and no talking). Different motion per scene means one call per scene. Batch scenes that share a motion style into one call.
-6. Go to Step 3.
+```json
+{
+  "voice": "en-US-AndrewNeural",
+  "captions": true,
+  "scenes": [
+    {"media": "s1.mp4", "narration": "Every morning, Max waits by the door."},
+    {"media": "user2.jpg", "narration": "But today, nobody came.", "motion": "zoom_in"},
+    {"media": "s3.jpg", "motion": "pan_right", "duration": 3}
+  ]
+}
+```
 
-### Mode B — storyboard a script
+- Scene length is the narration length plus 0.5 s. Set `duration` to override, or for scenes with no narration.
+- Stock videos loop if they're shorter than the scene.
+- Voices (edge-tts) include `en-US-AndrewNeural` (warm male), `en-US-AvaNeural` (friendly female), `en-US-GuyNeural`, `en-US-JennyNeural` and `en-GB-SoniaNeural`. Run `edge-tts --list-voices` for more. If edge-tts can't connect, the builder falls back to gTTS (one plainer voice) and says so, so tell the user.
+- `"size": [1920, 1080]` gives horizontal output if the user asks.
 
-1. Create the job with `animate: true`, `script_params.script` set to the approved narration (exact words), and `content_instructions` set to the Visual and Motion columns as a scene-by-scene brief, with a description of the consistent characters and style. If the user gave reference images, pass them in `character_references`.
-2. Narration pause: let the user hear it (`get_editor`). Adjust with `update_script` or `replace_audio` if needed.
-3. Character sheet: `character_reference` with a description of the main character(s), drawn from the storyboard. The first sheet is free. Each regeneration costs 14 credits, so confirm before redoing it. Show it with `get_clip {sheet_index: 0}` and iterate until the user approves.
-4. `resume_job` (estimate, confirm) to generate and animate the scenes.
-5. Go to Step 3.
+```bash
+python scripts/build_video.py video-max/storyboard.json --out video-max/final.mp4
+```
 
-## Step 3: Review and render
+It prints each scene's length, then the final file and its duration. Building takes about 5–30 s per scene.
 
-1. When assets are done, show the scenes (`get_clip`) and ask if any need fixing. Use `regenerate_clip` for a bad AI scene, or `animate_clip` with a new `video_prompt` for bad motion. Estimate before each.
-2. Render only when the user explicitly approves it: `resume_job` (estimate, confirm). Edits or uploads don't count as render approval.
-3. `get_job` until Completed, then give them the video (the `video_url` expires in 90 min, so call again for a fresh link).
-4. Offer, in one line, a thumbnail (`create_thumbnails`) or caption style changes.
+## Step 4: Check and deliver
+
+1. Pull 2–3 frames from the finished video and look at them. Check that captions are readable, the subject isn't cropped out, and the right media appears on the right line.
+2. Give the user the video file. Tell them its length and the voice used, and point them to `credits.txt`.
+3. Offer one-line tweaks: a different voice, swapping a scene's media, captions off, or adding music. Changing one scene means editing `storyboard.json` and rebuilding.
 
 ## Keep the user oriented
 
-At each pause, tell the user in one or two lines where things stand and what you need from them, for example: "Narration's ready, have a listen. Next I'll generate the scenes (est. X credits)." Non-technical users shouldn't need to know tool names. Talk about scenes, voice, credits and the final video.
-
-See `references/motion-prompts.md` for example `video_prompt`s and storyboard rows.
+Many users aren't technical. Talk about scenes, voice, pictures and the final video, not scripts or JSON. At each pause, say in one line where things stand and what you need from them.
