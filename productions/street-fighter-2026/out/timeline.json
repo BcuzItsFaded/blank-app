@@ -1,0 +1,1646 @@
+{
+  "meta": {
+    "title": "Street Fighter (2026) \u2014 Full Movie Breakdown, Plot Twists, Ending & Post-Credits Scene Explained",
+    "channel": "Don't Spoil It RG",
+    "resolution": [
+      1920,
+      1080
+    ],
+    "fps": 24,
+    "target_minutes": [
+      8,
+      10
+    ],
+    "words_per_minute": 145,
+    "scene_pad_sec": 1.2,
+    "transition_sec": 0.5,
+    "narrator": {
+      "description": "Natural adult male, American, warm mid-low baritone, YouTube film-explainer energy: conversational, builds tension on reveals, never shouty.",
+      "tts_model": "eleven_v4",
+      "voice_search": {
+        "gender": "male",
+        "use_cases": [
+          "narrative_story",
+          "entertainment_tv"
+        ],
+        "descriptives": [
+          "confident",
+          "deep"
+        ],
+        "languages": [
+          "en"
+        ]
+      }
+    }
+  },
+  "total": 538.3448275862069,
+  "scenes": [
+    {
+      "id": "S01",
+      "title": "Cold Open \u2014 The Demon Descends",
+      "status": "confirmed",
+      "delivery": "low, ominous, then a hard punch on 'spoiling everything'",
+      "music": {
+        "cue": "dark_taiko_build",
+        "vol": 0.35
+      },
+      "narration": "October 2026. After three decades, Street Fighter is back on the big screen. And in its final act, a demon walks down off a mountain, steps into the arena, and finishes the tournament's champion in a matter of seconds. If you haven't seen the movie yet, this is your last warning. Because today, we are spoiling everything.",
+      "transition": "fadeblack",
+      "shots": [
+        {
+          "w": 3,
+          "mode": "anime",
+          "chars": [
+            "akuma"
+          ],
+          "action": "storm clouds over a jagged mountain peak at night; Akuma stands on the summit, back to camera, the kanji on his back flaring red",
+          "camera": "slow push-in from wide",
+          "sfx": [
+            "thunder_rumble",
+            "wind_howl"
+          ],
+          "id": "S01_01",
+          "start": 0.0,
+          "dur": 6.197
+        },
+        {
+          "w": 2,
+          "mode": "anime",
+          "chars": [
+            "akuma"
+          ],
+          "action": "extreme close-up: Akuma's eyes snap open, glowing red",
+          "camera": "static ECU with light flare",
+          "sfx": [
+            "energy_hum"
+          ],
+          "id": "S01_02",
+          "start": 6.197,
+          "dur": 4.131
+        },
+        {
+          "w": 3,
+          "mode": "anime",
+          "chars": [
+            "akuma",
+            "joe"
+          ],
+          "action": "Akuma lands in the centre of a packed tournament arena, cracking the floor; Joe turns, startled",
+          "camera": "low-angle whip pan",
+          "sfx": [
+            "ground_slam",
+            "crowd_gasp"
+          ],
+          "id": "S01_03",
+          "start": 10.328,
+          "dur": 6.197
+        },
+        {
+          "w": 2,
+          "mode": "arcade",
+          "chars": [
+            "akuma",
+            "joe"
+          ],
+          "action": "arcade frame: Akuma's sprite blurs across the screen; Joe's health bar drains instantly to zero; giant pixel 'K.O.' text",
+          "camera": "locked side-view",
+          "sfx": [
+            "arcade_ko",
+            "heavy_punch"
+          ],
+          "id": "S01_04",
+          "start": 16.524,
+          "dur": 4.131
+        },
+        {
+          "w": 2,
+          "mode": "title",
+          "chars": [],
+          "action": "brush-stroke title card: 'STREET FIGHTER (2026) \u2014 EVERYTHING EXPLAINED' with a red ink splash",
+          "camera": "ink-splash reveal",
+          "sfx": [
+            "taiko_hit"
+          ],
+          "id": "S01_05",
+          "start": 20.655,
+          "dur": 4.131
+        }
+      ],
+      "start": 0.0,
+      "dur": 24.786,
+      "vo_dur": 23.586,
+      "vo_file": null
+    },
+    {
+      "id": "S02",
+      "title": "Channel Intro & Ground Rules",
+      "status": "meta",
+      "delivery": "friendly, upbeat channel host",
+      "music": {
+        "cue": "synth_arcade_theme",
+        "vol": 0.3
+      },
+      "narration": "Welcome back to Don't Spoil It RG. This is Street Fighter, directed by Kitao Sakurai, from Legendary and Paramount. We're breaking down the beginning, every major fight, the plot twists, the ending, and the credits scene. And we're keeping two things separate: what actually happens on screen, and what's only fan theory about a sequel. Whenever we cross into theory, you'll see it flagged on screen.",
+      "transition": "wipeleft",
+      "shots": [
+        {
+          "w": 3,
+          "mode": "title",
+          "chars": [],
+          "action": "animated channel bumper: 'DON'T SPOIL IT RG' in chunky arcade lettering slams in over a spinning 90s anime starburst",
+          "camera": "zoom-punch",
+          "sfx": [
+            "coin_insert",
+            "whoosh"
+          ],
+          "id": "S02_01",
+          "start": 24.786,
+          "dur": 10.691
+        },
+        {
+          "w": 3,
+          "mode": "arcade",
+          "chars": [
+            "ryu",
+            "ken",
+            "chunli",
+            "akuma",
+            "bison",
+            "sagat",
+            "guile",
+            "blanka"
+          ],
+          "action": "arcade character-select screen: a grid of eight pixel portraits; the cursor flicks across each one, each portrait flashing as highlighted",
+          "camera": "locked frontal",
+          "sfx": [
+            "menu_blip"
+          ],
+          "id": "S02_02",
+          "start": 35.478,
+          "dur": 10.691
+        },
+        {
+          "w": 2,
+          "mode": "title",
+          "chars": [],
+          "action": "two stamped badges animate on: a gold 'CONFIRMED IN FILM' badge on the left and a purple 'THEORY' badge on the right",
+          "camera": "static, stamp-in",
+          "sfx": [
+            "stamp_thud"
+          ],
+          "id": "S02_03",
+          "start": 46.169,
+          "dur": 7.128
+        }
+      ],
+      "start": 24.786,
+      "dur": 28.51,
+      "vo_dur": 27.31,
+      "vo_file": null
+    },
+    {
+      "id": "S02B",
+      "title": "The Roster",
+      "status": "confirmed",
+      "delivery": "quick, rhythmic, like an announcer reading a fight card",
+      "music": {
+        "cue": "synth_arcade_theme",
+        "vol": 0.3
+      },
+      "narration": "Quick roster check. Andrew Koji is Ryu. Noah Centineo is Ken. Callina Liang is Chun-Li. David Dastmalchian is M. Bison, and Roman Reigns, credited as Joe Anoa'i, is Akuma. Jason Momoa plays Blanka, Cody Rhodes is Guile, 50 Cent is Balrog, Vidyut Jammwal is Dhalsim, and Orville Peck is Vega. Quick note: our animated versions are drawn from the classic arcade designs, not the actors.",
+      "transition": "slideright",
+      "shots": [
+        {
+          "w": 3,
+          "mode": "arcade",
+          "chars": [
+            "ryu",
+            "ken",
+            "chunli"
+          ],
+          "action": "arcade 'VS' splash screens in rapid sequence: Ryu, Ken and Chun-Li pixel portraits slam in one after another with name plates",
+          "camera": "locked frontal, hard cuts",
+          "sfx": [
+            "arcade_vs",
+            "menu_blip"
+          ],
+          "id": "S02B_01",
+          "start": 53.297,
+          "dur": 9.366
+        },
+        {
+          "w": 3,
+          "mode": "arcade",
+          "chars": [
+            "bison",
+            "akuma"
+          ],
+          "action": "darker red 'BOSS' variant of the VS screen: Bison and Akuma portraits slam in with flaming name plates",
+          "camera": "locked frontal, hard cuts",
+          "sfx": [
+            "arcade_vs",
+            "taiko_hit"
+          ],
+          "id": "S02B_02",
+          "start": 62.662,
+          "dur": 9.366
+        },
+        {
+          "w": 3,
+          "mode": "arcade",
+          "chars": [
+            "blanka",
+            "guile",
+            "balrog",
+            "dhalsim",
+            "vega"
+          ],
+          "action": "five smaller pixel portraits fill a fight-card grid one by one: Blanka, Guile, Balrog, Dhalsim, Vega",
+          "camera": "locked frontal",
+          "sfx": [
+            "menu_blip"
+          ],
+          "id": "S02B_03",
+          "start": 72.028,
+          "dur": 9.366
+        }
+      ],
+      "start": 53.297,
+      "dur": 28.097,
+      "vo_dur": 26.897,
+      "vo_file": null
+    },
+    {
+      "id": "S03",
+      "title": "1987 \u2014 The First World Warrior Tournament",
+      "status": "confirmed",
+      "delivery": "storyteller, nostalgic, darkening toward Gouken's death",
+      "music": {
+        "cue": "flashback_shakuhachi",
+        "vol": 0.3
+      },
+      "narration": "The story opens in 1987, in Thailand, at the very first World Warrior Tournament. A young Ryu fights his way to the final against the giant Muay Thai king, Sagat, and wins. But not cleanly. To win, Ryu lets something dark into his fighting, and the film treats those inner demons as literally real. That surge of killing intent reaches someone who has been waiting for it: Akuma. In the aftermath, Ryu's master, Gouken, is killed by Akuma. And Ryu walks away from everything. His title. His training. His best friend, Ken.",
+      "transition": "fade",
+      "shots": [
+        {
+          "w": 2,
+          "mode": "title",
+          "chars": [],
+          "action": "sepia-tinted caption card 'THAILAND \u2014 1987' over a painted temple-ruin arena with palm trees and a giant reclining Buddha",
+          "camera": "slow pan",
+          "sfx": [
+            "crowd_distant"
+          ],
+          "id": "S03_01",
+          "start": 81.393,
+          "dur": 4.909
+        },
+        {
+          "w": 3,
+          "mode": "arcade",
+          "chars": [
+            "ryu_young",
+            "sagat"
+          ],
+          "action": "sepia arcade fight on a Thai temple stage: young Ryu sprite vs towering Sagat sprite, exchanging kicks, health bars flickering",
+          "camera": "locked side-view",
+          "sfx": [
+            "light_kick",
+            "heavy_kick"
+          ],
+          "id": "S03_02",
+          "start": 86.302,
+          "dur": 7.363
+        },
+        {
+          "w": 3,
+          "mode": "anime",
+          "chars": [
+            "ryu_young",
+            "sagat"
+          ],
+          "action": "Ryu's eyes flash red as a black aura flickers; his rising uppercut slashes across Sagat's chest, leaving a long diagonal wound; Sagat falls",
+          "camera": "slow-motion impact frame, then snap to real speed",
+          "sfx": [
+            "shoryuken_whoosh",
+            "body_fall"
+          ],
+          "id": "S03_03",
+          "start": 93.665,
+          "dur": 7.363
+        },
+        {
+          "w": 3,
+          "mode": "anime",
+          "chars": [
+            "akuma"
+          ],
+          "action": "far away on a dark mountain, Akuma lifts his head as a thread of red energy reaches him across the sky",
+          "camera": "rack focus",
+          "sfx": [
+            "energy_hum"
+          ],
+          "id": "S03_04",
+          "start": 101.028,
+          "dur": 7.363
+        },
+        {
+          "w": 3,
+          "mode": "anime",
+          "chars": [
+            "gouken",
+            "akuma",
+            "ryu_young"
+          ],
+          "action": "rain-soaked dojo courtyard at night: Gouken lies fallen, Akuma's silhouette walking away through the rain; young Ryu on his knees screaming",
+          "camera": "high wide angle, slow pull-back",
+          "sfx": [
+            "rain_heavy",
+            "thunder_crack"
+          ],
+          "id": "S03_05",
+          "start": 108.391,
+          "dur": 7.363
+        },
+        {
+          "w": 2,
+          "mode": "anime",
+          "chars": [
+            "ryu_young"
+          ],
+          "action": "Ryu drops his tournament medal in the mud and walks off down a lonely road; a younger Ken calls after him from a distance",
+          "camera": "long lens, tracking away",
+          "sfx": [
+            "footsteps_mud"
+          ],
+          "id": "S03_06",
+          "start": 115.753,
+          "dur": 4.909
+        }
+      ],
+      "start": 81.393,
+      "dur": 39.269,
+      "vo_dur": 38.069,
+      "vo_file": null
+    },
+    {
+      "id": "S04",
+      "title": "1993 \u2014 Brothers Apart",
+      "status": "confirmed",
+      "delivery": "brisk, a little wry about Ken",
+      "music": {
+        "cue": "90s_hiphop_breakbeat",
+        "vol": 0.28
+      },
+      "narration": "Six years later, in 1993, the two have drifted apart. Ryu is living in self-imposed exile, wandering, barely fighting at all. Ken Masters went the other way. He's a showman now, a fighter for the cameras, all flash and no real stakes. Then Chun-Li shows up. She needs both of them inside a brand-new event: the second World Warrior Tournament. And the old wound between Ryu and Ken tears open the second they're in the same room.",
+      "transition": "slideleft",
+      "shots": [
+        {
+          "w": 2,
+          "mode": "title",
+          "chars": [],
+          "action": "caption card '1993' in neon VHS lettering over a rainy city skyline",
+          "camera": "VHS tracking glitch in",
+          "sfx": [
+            "vhs_glitch"
+          ],
+          "id": "S04_01",
+          "start": 120.662,
+          "dur": 4.723
+        },
+        {
+          "w": 3,
+          "mode": "anime",
+          "chars": [
+            "ryu"
+          ],
+          "action": "Ryu walks alone along a misty mountain road with a travel bag over his shoulder, wind tugging his headband",
+          "camera": "wide tracking shot",
+          "sfx": [
+            "wind_soft",
+            "footsteps_gravel"
+          ],
+          "id": "S04_02",
+          "start": 125.385,
+          "dur": 7.085
+        },
+        {
+          "w": 3,
+          "mode": "anime",
+          "chars": [
+            "ken"
+          ],
+          "action": "Ken poses under spotlights in a flashy exhibition ring with fireworks and camera flashes, winking at the crowd",
+          "camera": "orbiting hero shot",
+          "sfx": [
+            "crowd_cheer",
+            "camera_flash"
+          ],
+          "id": "S04_03",
+          "start": 132.47,
+          "dur": 7.085
+        },
+        {
+          "w": 3,
+          "mode": "anime",
+          "chars": [
+            "chunli",
+            "ken"
+          ],
+          "action": "Chun-Li steps out of shadow in a back alley and slaps a tournament invitation onto Ken's chest",
+          "camera": "over-the-shoulder push-in",
+          "sfx": [
+            "paper_slap"
+          ],
+          "id": "S04_04",
+          "start": 139.555,
+          "dur": 7.085
+        },
+        {
+          "w": 3,
+          "mode": "anime",
+          "chars": [
+            "ryu",
+            "ken",
+            "chunli"
+          ],
+          "action": "tense stand-off in a dim hangar: Ryu and Ken face each other, Chun-Li between them; lightning cracks between their eyes in classic anime style",
+          "camera": "split-diopter two-shot",
+          "sfx": [
+            "tension_sting"
+          ],
+          "id": "S04_05",
+          "start": 146.639,
+          "dur": 7.085
+        }
+      ],
+      "start": 120.662,
+      "dur": 33.062,
+      "vo_dur": 31.862,
+      "vo_file": null
+    },
+    {
+      "id": "S05",
+      "title": "Twist #1 \u2014 Chun-Li's Secret",
+      "status": "confirmed",
+      "delivery": "reveal energy, then quiet sincerity on her father",
+      "music": {
+        "cue": "reveal_strings",
+        "vol": 0.3
+      },
+      "narration": "Here's the first big reveal. Chun-Li isn't just a fighter. She's an undercover Interpol agent, and this isn't just a job for her. It's personal. M. Bison killed her father. She's been working her way toward him for years, and this tournament is the closest she has ever gotten.",
+      "transition": "circleopen",
+      "shots": [
+        {
+          "w": 3,
+          "mode": "anime",
+          "chars": [
+            "chunli"
+          ],
+          "action": "Chun-Li flips open an Interpol badge in close-up; her eyes harden",
+          "camera": "insert shot, rack focus badge to face",
+          "sfx": [
+            "badge_flip"
+          ],
+          "id": "S05_01",
+          "start": 153.724,
+          "dur": 7.159
+        },
+        {
+          "w": 3,
+          "mode": "anime",
+          "chars": [
+            "chunli"
+          ],
+          "action": "Chun-Li alone in a hotel room at night, looking at a faded photo of her father, rain on the window",
+          "camera": "slow push-in",
+          "sfx": [
+            "rain_window"
+          ],
+          "id": "S05_02",
+          "start": 160.883,
+          "dur": 7.159
+        },
+        {
+          "w": 3,
+          "mode": "anime",
+          "chars": [
+            "bison"
+          ],
+          "action": "her memory: the shadowed silhouette of Bison with a violet glow, cape billowing",
+          "camera": "low angle, smoky",
+          "sfx": [
+            "psycho_hum"
+          ],
+          "id": "S05_03",
+          "start": 168.041,
+          "dur": 7.159
+        }
+      ],
+      "start": 153.724,
+      "dur": 21.476,
+      "vo_dur": 20.276,
+      "vo_file": null
+    },
+    {
+      "id": "S06",
+      "title": "The Tournament Is a Front",
+      "status": "confirmed",
+      "delivery": "conspiratorial, building",
+      "music": {
+        "cue": "villain_march",
+        "vol": 0.32
+      },
+      "narration": "Because the tournament is a front. Bison, played by David Dastmalchian, is running a scheme for global domination, and what he wants is power. More Psycho Power than any human has ever held. His operation drains Hado energy from fighters, so gathering the strongest warriors on the planet in one place is basically building himself a buffet. But the fighters are only the appetizer. The real target is the most dangerous dark power on Earth: Akuma. And the one person who can draw Akuma down from his mountain is Ryu.",
+      "transition": "dissolve",
+      "shots": [
+        {
+          "w": 3,
+          "mode": "anime",
+          "chars": [
+            "bison"
+          ],
+          "action": "Bison on a balcony overlooking the glittering tournament arena, cape flowing, violet energy crackling around his gloved fist",
+          "camera": "slow crane up behind him",
+          "sfx": [
+            "psycho_hum",
+            "crowd_distant"
+          ],
+          "id": "S06_01",
+          "start": 175.2,
+          "dur": 9.61
+        },
+        {
+          "w": 3,
+          "mode": "anime",
+          "chars": [],
+          "action": "secret lab under the arena: glass tubes and cables siphoning glowing blue Hado energy from sleeping fighters into a pulsing violet reactor",
+          "camera": "tracking dolly along the tubes",
+          "sfx": [
+            "machine_whir",
+            "electric_buzz"
+          ],
+          "id": "S06_02",
+          "start": 184.81,
+          "dur": 9.61
+        },
+        {
+          "w": 3,
+          "mode": "anime",
+          "chars": [
+            "bison"
+          ],
+          "action": "Bison places his palm on the reactor and the energy flows into him; his eyes go white",
+          "camera": "close-up, light flare",
+          "sfx": [
+            "power_surge"
+          ],
+          "id": "S06_03",
+          "start": 194.421,
+          "dur": 9.61
+        },
+        {
+          "w": 3,
+          "mode": "anime",
+          "chars": [
+            "bison",
+            "ryu",
+            "akuma"
+          ],
+          "action": "a monitor wall shows Ryu's file photo beside a red-tinted sketch of Akuma; Bison smiles",
+          "camera": "push-in on screens",
+          "sfx": [
+            "crt_static"
+          ],
+          "id": "S06_04",
+          "start": 204.031,
+          "dur": 9.61
+        }
+      ],
+      "start": 175.2,
+      "dur": 38.441,
+      "vo_dur": 37.241,
+      "vo_file": null
+    },
+    {
+      "id": "S07",
+      "title": "The Nightclub Brawl",
+      "status": "confirmed",
+      "delivery": "fun, quick, grinning",
+      "music": {
+        "cue": "eurodance_club",
+        "vol": 0.35
+      },
+      "narration": "Before a single official match, the fighters collide in a nightclub. Ken, Ryu, Guile, Dhalsim, Vega and Balrog all end up in one glorious, ridiculous brawl. It's the movie at its most fun, and Cody Rhodes' Guile gets some of the funniest lines in the film.",
+      "transition": "pixelize",
+      "shots": [
+        {
+          "w": 2,
+          "mode": "anime",
+          "chars": [
+            "ken",
+            "balrog"
+          ],
+          "action": "neon 90s nightclub; Ken spills a drink on Balrog, who cracks his knuckles",
+          "camera": "handheld push-in",
+          "sfx": [
+            "club_crowd",
+            "glass_clink"
+          ],
+          "id": "S07_01",
+          "start": 213.641,
+          "dur": 4.047
+        },
+        {
+          "w": 3,
+          "mode": "anime",
+          "chars": [
+            "ryu",
+            "vega",
+            "dhalsim"
+          ],
+          "action": "chaos: Vega flips over a table with his claw out, Dhalsim's arm stretches across the room, Ryu ducks under it",
+          "camera": "whip pans between fighters",
+          "sfx": [
+            "table_crash",
+            "claw_swipe",
+            "stretch_whoosh"
+          ],
+          "id": "S07_02",
+          "start": 217.688,
+          "dur": 6.07
+        },
+        {
+          "w": 3,
+          "mode": "anime",
+          "chars": [
+            "guile",
+            "ken"
+          ],
+          "action": "Guile calmly steps in, sunglasses on, and performs a perfect Flash Kick that sends a thug into the disco ball; Ken gapes",
+          "camera": "low-angle slow motion",
+          "sfx": [
+            "flash_kick",
+            "glass_shatter"
+          ],
+          "id": "S07_03",
+          "start": 223.759,
+          "dur": 6.07
+        },
+        {
+          "w": 2,
+          "mode": "arcade",
+          "chars": [
+            "ken",
+            "balrog",
+            "guile"
+          ],
+          "action": "arcade 'bonus stage' frame: pixel fighters brawling on a dancefloor stage while a pixel combo counter climbs to '12 HITS'",
+          "camera": "locked side-view",
+          "sfx": [
+            "arcade_combo"
+          ],
+          "id": "S07_04",
+          "start": 229.829,
+          "dur": 4.047
+        }
+      ],
+      "start": 213.641,
+      "dur": 20.234,
+      "vo_dur": 19.034,
+      "vo_file": null
+    },
+    {
+      "id": "S08",
+      "title": "Ken's Tournament Run",
+      "status": "confirmed",
+      "delivery": "sports-commentator hype",
+      "music": {
+        "cue": "fight_theme_rock",
+        "vol": 0.33
+      },
+      "narration": "Then comes the tournament proper. Honestly, it gets less screen time than a lot of fans hoped, only a handful of bouts. But Ken makes them count. He takes down Balrog, 50 Cent's heavyweight boxer. Then he beats Dhalsim. Suddenly the showman is one win away from the title, and for the first time in years, he's fighting like he actually means it.",
+      "transition": "wiperight",
+      "shots": [
+        {
+          "w": 2,
+          "mode": "arcade",
+          "chars": [
+            "ken",
+            "balrog"
+          ],
+          "action": "arcade 'ROUND 1 \u2014 FIGHT!' splash; Ken sprite vs Balrog sprite on a Las Vegas-style pixel stage",
+          "camera": "locked side-view",
+          "sfx": [
+            "arcade_round_call"
+          ],
+          "id": "S08_01",
+          "start": 233.876,
+          "dur": 5.454
+        },
+        {
+          "w": 3,
+          "mode": "anime",
+          "chars": [
+            "ken",
+            "balrog"
+          ],
+          "action": "Ken slips a huge Balrog haymaker and lands a spinning hurricane kick to the jaw; sweat flies",
+          "camera": "slow-mo orbit",
+          "sfx": [
+            "hurricane_kick",
+            "heavy_punch",
+            "crowd_roar"
+          ],
+          "id": "S08_02",
+          "start": 239.33,
+          "dur": 8.181
+        },
+        {
+          "w": 3,
+          "mode": "anime",
+          "chars": [
+            "ken",
+            "dhalsim"
+          ],
+          "action": "Dhalsim breathes a stream of fire; Ken dives through it and lands a rising Shoryuken wreathed in flame",
+          "camera": "tracking side-on",
+          "sfx": [
+            "yoga_fire",
+            "shoryuken_whoosh"
+          ],
+          "id": "S08_03",
+          "start": 247.51,
+          "dur": 8.181
+        },
+        {
+          "w": 2,
+          "mode": "arcade",
+          "chars": [
+            "ken"
+          ],
+          "action": "arcade win screen: Ken victory-pose sprite, pixel text 'YOU WIN' and 'PERFECT'",
+          "camera": "locked",
+          "sfx": [
+            "arcade_you_win"
+          ],
+          "id": "S08_04",
+          "start": 255.691,
+          "dur": 5.454
+        }
+      ],
+      "start": 233.876,
+      "dur": 27.269,
+      "vo_dur": 26.069,
+      "vo_file": null
+    },
+    {
+      "id": "S09",
+      "title": "Ryu Captured \u2014 The Blanka Fight",
+      "status": "confirmed",
+      "delivery": "tense, urgent",
+      "music": {
+        "cue": "industrial_tension",
+        "vol": 0.3
+      },
+      "narration": "Ryu, meanwhile, never makes it to his match. Bison captures him. And to force Ryu's power to the surface, Bison makes him fight Blanka, played by Jason Momoa, feral and crackling with electricity, while he watches the dark energy start to rise.",
+      "transition": "fadewhite",
+      "shots": [
+        {
+          "w": 2,
+          "mode": "anime",
+          "chars": [
+            "ryu",
+            "bison"
+          ],
+          "action": "Ryu wakes chained in a steel holding chamber; Bison watches through glass",
+          "camera": "slow dolly",
+          "sfx": [
+            "chains_rattle"
+          ],
+          "id": "S09_01",
+          "start": 261.145,
+          "dur": 4.645
+        },
+        {
+          "w": 3,
+          "mode": "anime",
+          "chars": [
+            "ryu",
+            "blanka"
+          ],
+          "action": "a gate opens and Blanka lunges, body rolling into an electric cannonball; Ryu blocks, electricity sparking off his forearms",
+          "camera": "handheld, chaotic",
+          "sfx": [
+            "electric_zap",
+            "blanka_roar"
+          ],
+          "id": "S09_02",
+          "start": 265.79,
+          "dur": 6.967
+        },
+        {
+          "w": 3,
+          "mode": "anime",
+          "chars": [
+            "ryu"
+          ],
+          "action": "Ryu's eyes flicker red for one frame; a ripple of black aura bursts outward; on Bison's monitors, a meter spikes",
+          "camera": "snap zoom",
+          "sfx": [
+            "dark_pulse",
+            "alarm_beep"
+          ],
+          "id": "S09_03",
+          "start": 272.757,
+          "dur": 6.967
+        }
+      ],
+      "start": 261.145,
+      "dur": 18.579,
+      "vo_dur": 17.379,
+      "vo_file": null
+    },
+    {
+      "id": "S10",
+      "title": "Twist #2 \u2014 Ryu's Confession",
+      "status": "confirmed",
+      "delivery": "quiet, heavy, emotional; let the confession land",
+      "music": {
+        "cue": "sad_piano",
+        "vol": 0.28
+      },
+      "narration": "Now the movie's emotional twist. The reason Ryu and Ken fell apart wasn't just Ryu disappearing. Ryu finally confesses that back in 1987, jealousy drove him to sabotage Ken's shot at that first tournament. That's the secret he's carried for six years. And in the fight that follows, Ryu beats Ken anyway. Ken never makes it to the final.",
+      "transition": "fade",
+      "shots": [
+        {
+          "w": 3,
+          "mode": "anime",
+          "chars": [
+            "ryu",
+            "ken"
+          ],
+          "action": "rooftop at dusk: Ryu, head bowed, speaks; Ken's expression goes from confused to betrayed",
+          "camera": "slow alternating close-ups",
+          "sfx": [
+            "wind_soft"
+          ],
+          "id": "S10_01",
+          "start": 279.724,
+          "dur": 7.684
+        },
+        {
+          "w": 2,
+          "mode": "anime",
+          "chars": [
+            "ryu_young",
+            "ken"
+          ],
+          "action": "sepia flashback flicker: a younger Ryu quietly tampering with Ken's tournament entry paper",
+          "camera": "dutch angle",
+          "sfx": [
+            "paper_rustle"
+          ],
+          "id": "S10_02",
+          "start": 287.408,
+          "dur": 5.123
+        },
+        {
+          "w": 3,
+          "mode": "anime",
+          "chars": [
+            "ryu",
+            "ken"
+          ],
+          "action": "Ken swings first; the two trade furious blows in the rain on the rooftop",
+          "camera": "rotating two-shot",
+          "sfx": [
+            "heavy_punch",
+            "rain_heavy"
+          ],
+          "id": "S10_03",
+          "start": 292.531,
+          "dur": 7.684
+        },
+        {
+          "w": 2,
+          "mode": "arcade",
+          "chars": [
+            "ryu",
+            "ken"
+          ],
+          "action": "arcade mirror-match frame: Ryu sprite vs Ken sprite; Ken's health bar empties; 'K.O.'",
+          "camera": "locked side-view",
+          "sfx": [
+            "arcade_ko"
+          ],
+          "id": "S10_04",
+          "start": 300.215,
+          "dur": 5.123
+        }
+      ],
+      "start": 279.724,
+      "dur": 25.614,
+      "vo_dur": 24.414,
+      "vo_file": null
+    },
+    {
+      "id": "S11",
+      "title": "The Forfeit \u2014 Akuma Arrives",
+      "status": "confirmed",
+      "delivery": "build tension slowly, then go cold and quiet on the death",
+      "music": {
+        "cue": "dark_taiko_build",
+        "vol": 0.35
+      },
+      "narration": "Which leads to the cruelest beat in the film. Promoter Don Sauvage, played by Eric Andr\u00e9, is thrilled that Ken is a no-show, and he declares Joe, played by UFC champion Alexander Volkanovski, the winner by forfeit. Joe only got this far because Ryu, his original opponent, was captured. And then Akuma descends from his mountain and challenges the new champion. Seconds later, Joe is down. And it seems, he's dead.",
+      "transition": "fadeblack",
+      "shots": [
+        {
+          "w": 3,
+          "mode": "anime",
+          "chars": [
+            "sauvage",
+            "joe"
+          ],
+          "action": "Don Sauvage grabs a microphone in the ring and thrusts Joe's arm into the air as confetti falls",
+          "camera": "wide, crowd foreground",
+          "sfx": [
+            "crowd_cheer",
+            "mic_feedback"
+          ],
+          "id": "S11_01",
+          "start": 305.338,
+          "dur": 8.34
+        },
+        {
+          "w": 3,
+          "mode": "anime",
+          "chars": [
+            "akuma"
+          ],
+          "action": "the arena lights flicker and die; a red glow appears at the top of the entrance ramp; Akuma walks down",
+          "camera": "slow tilt down",
+          "sfx": [
+            "power_down",
+            "heavy_footsteps"
+          ],
+          "id": "S11_02",
+          "start": 313.678,
+          "dur": 8.34
+        },
+        {
+          "w": 2,
+          "mode": "anime",
+          "chars": [
+            "akuma",
+            "joe"
+          ],
+          "action": "Akuma teleports in a blur of afterimages directly in front of Joe",
+          "camera": "snap zoom",
+          "sfx": [
+            "teleport_whoosh"
+          ],
+          "id": "S11_03",
+          "start": 322.018,
+          "dur": 5.56
+        },
+        {
+          "w": 3,
+          "mode": "anime",
+          "chars": [
+            "akuma",
+            "joe"
+          ],
+          "action": "the screen flashes red-white with one kanji silhouette as Akuma's fury strike lands off-screen; Joe collapses; the crowd is frozen silent",
+          "camera": "flash frame then still wide",
+          "sfx": [
+            "raging_demon_hit",
+            "silence_ring"
+          ],
+          "id": "S11_04",
+          "start": 327.577,
+          "dur": 8.34
+        }
+      ],
+      "start": 305.338,
+      "dur": 30.579,
+      "vo_dur": 29.379,
+      "vo_file": null
+    },
+    {
+      "id": "S12",
+      "title": "Ryu vs. Akuma \u2014 Evil Ryu Unleashed",
+      "status": "confirmed",
+      "delivery": "epic, intense, then unsettled",
+      "music": {
+        "cue": "boss_battle_orchestral",
+        "vol": 0.36
+      },
+      "narration": "Ryu arrives and challenges Akuma alone. And he can't win clean. So he does the one thing he swore he'd never do again. He lets the hatred in. This is Evil Ryu, the version longtime fans know from the games. Evil Ryu beats Akuma. But the darkness doesn't switch off. Ryu turns on his own friends.",
+      "transition": "radial",
+      "shots": [
+        {
+          "w": 2,
+          "mode": "anime",
+          "chars": [
+            "ryu",
+            "akuma"
+          ],
+          "action": "Ryu steps into the ruined arena facing Akuma, headband whipping in the wind",
+          "camera": "wide stand-off, then slow push",
+          "sfx": [
+            "wind_howl"
+          ],
+          "id": "S12_01",
+          "start": 335.917,
+          "dur": 3.75
+        },
+        {
+          "w": 3,
+          "mode": "anime",
+          "chars": [
+            "ryu",
+            "akuma"
+          ],
+          "action": "ferocious exchange: Hadouken meets Gou Hadouken in mid-air, the blue and red fireballs exploding",
+          "camera": "rapid cuts, impact frames",
+          "sfx": [
+            "hadouken",
+            "explosion"
+          ],
+          "id": "S12_02",
+          "start": 339.667,
+          "dur": 5.624
+        },
+        {
+          "w": 3,
+          "mode": "anime",
+          "chars": [
+            "evil_ryu"
+          ],
+          "action": "Ryu screams as purple-black aura erupts; his skin darkens and his eyes ignite red, transforming into Evil Ryu",
+          "camera": "360 orbit with debris",
+          "sfx": [
+            "dark_transform",
+            "ground_crack"
+          ],
+          "id": "S12_03",
+          "start": 345.291,
+          "dur": 5.624
+        },
+        {
+          "w": 3,
+          "mode": "arcade",
+          "chars": [
+            "evil_ryu",
+            "akuma"
+          ],
+          "action": "arcade boss-fight frame: Evil Ryu sprite lands a super combo; flashing 'SUPER' banner; Akuma's bar empties; 'K.O.'",
+          "camera": "locked side-view",
+          "sfx": [
+            "arcade_super",
+            "arcade_ko"
+          ],
+          "id": "S12_04",
+          "start": 350.916,
+          "dur": 5.624
+        },
+        {
+          "w": 2,
+          "mode": "anime",
+          "chars": [
+            "evil_ryu",
+            "ken",
+            "chunli"
+          ],
+          "action": "Evil Ryu turns slowly toward Ken and Chun-Li, aura flaring",
+          "camera": "low-angle push",
+          "sfx": [
+            "dark_pulse"
+          ],
+          "id": "S12_05",
+          "start": 356.54,
+          "dur": 3.75
+        }
+      ],
+      "start": 335.917,
+      "dur": 24.372,
+      "vo_dur": 23.172,
+      "vo_file": null
+    },
+    {
+      "id": "S13",
+      "title": "Ken's Hadouken",
+      "status": "confirmed",
+      "delivery": "triumphant swell",
+      "music": {
+        "cue": "hero_theme_swell",
+        "vol": 0.36
+      },
+      "narration": "Then comes the payoff the whole movie has been building to. Ken, the one who never could, plants his feet, cups his hands, and finally throws a real Hadouken. It hits Ryu and snaps him back to himself.",
+      "transition": "fadewhite",
+      "shots": [
+        {
+          "w": 3,
+          "mode": "anime",
+          "chars": [
+            "ken"
+          ],
+          "action": "Ken plants his feet and draws his cupped hands back; blue light gathers between his palms",
+          "camera": "slow push-in, rim light",
+          "sfx": [
+            "energy_charge"
+          ],
+          "id": "S13_01",
+          "start": 360.29,
+          "dur": 6.347
+        },
+        {
+          "w": 2,
+          "mode": "anime",
+          "chars": [
+            "ken",
+            "evil_ryu"
+          ],
+          "action": "Ken thrusts forward and a bright blue Hadouken roars across the arena into Evil Ryu",
+          "camera": "side tracking with the fireball",
+          "sfx": [
+            "hadouken"
+          ],
+          "id": "S13_02",
+          "start": 366.636,
+          "dur": 4.231
+        },
+        {
+          "w": 3,
+          "mode": "anime",
+          "chars": [
+            "ryu",
+            "ken"
+          ],
+          "action": "the dark aura shatters like glass; Ryu falls to one knee, normal again; Ken offers his hand and Ryu takes it",
+          "camera": "slow-mo, warm light",
+          "sfx": [
+            "glass_shatter_magic",
+            "breath"
+          ],
+          "id": "S13_03",
+          "start": 370.867,
+          "dur": 6.347
+        }
+      ],
+      "start": 360.29,
+      "dur": 16.924,
+      "vo_dur": 15.724,
+      "vo_file": null
+    },
+    {
+      "id": "S14",
+      "title": "Twist #3 \u2014 Bison's Heist",
+      "status": "confirmed",
+      "delivery": "sharp, frustrated, fast",
+      "music": {
+        "cue": "chase_drums",
+        "vol": 0.34
+      },
+      "narration": "But while the heroes were fighting each other, Bison collected the real prize. His men restrain the unconscious Akuma and haul him away. Ryu, Ken, Chun-Li and Dan chase after them, until Cammy destroys their vehicle. Bison escapes. With Akuma.",
+      "transition": "smoothleft",
+      "shots": [
+        {
+          "w": 3,
+          "mode": "anime",
+          "chars": [
+            "akuma",
+            "bison"
+          ],
+          "action": "soldiers clamp glowing restraints onto the unconscious Akuma and load him into an armoured truck; Bison watches, smiling",
+          "camera": "low dolly",
+          "sfx": [
+            "metal_clamp",
+            "truck_door"
+          ],
+          "id": "S14_01",
+          "start": 377.214,
+          "dur": 5.326
+        },
+        {
+          "w": 3,
+          "mode": "anime",
+          "chars": [
+            "ryu",
+            "ken",
+            "chunli",
+            "dan"
+          ],
+          "action": "the four heroes race after the convoy through night streets in a beat-up 90s car",
+          "camera": "car-mount tracking",
+          "sfx": [
+            "engine_rev",
+            "tires_screech"
+          ],
+          "id": "S14_02",
+          "start": 382.539,
+          "dur": 5.326
+        },
+        {
+          "w": 2,
+          "mode": "anime",
+          "chars": [
+            "cammy"
+          ],
+          "action": "Cammy drops from an overpass and strikes the car's hood with a Cannon Spike; the car flips",
+          "camera": "top-down then slow-mo side",
+          "sfx": [
+            "cannon_spike",
+            "car_crash"
+          ],
+          "id": "S14_03",
+          "start": 387.865,
+          "dur": 3.55
+        },
+        {
+          "w": 2,
+          "mode": "anime",
+          "chars": [
+            "bison"
+          ],
+          "action": "Bison's aircraft lifts off into the night sky, the truck loaded inside",
+          "camera": "wide, tilt up",
+          "sfx": [
+            "jet_takeoff"
+          ],
+          "id": "S14_04",
+          "start": 391.415,
+          "dur": 3.55
+        }
+      ],
+      "start": 377.214,
+      "dur": 17.752,
+      "vo_dur": 16.552,
+      "vo_file": null
+    },
+    {
+      "id": "S15",
+      "title": "The Ending Explained",
+      "status": "confirmed",
+      "delivery": "reflective, explanatory",
+      "music": {
+        "cue": "sunrise_guitar",
+        "vol": 0.3
+      },
+      "narration": "So here's where the movie lands. Bison is free, and the most dangerous fighter alive is his prisoner. Akuma is not dead. And notice what the film doesn't show: we never actually see Bison extract Akuma's power. That's being saved for later. Meanwhile, Guile and Dhalsim pick up our heroes, and Ryu, Ken, Chun-Li and Dan hit the road together to hunt Bison down. A lot of viewers found that ending abrupt. The movie builds Bison up as the big bad, then spends its climax on Akuma. But it's clearly designed to leave the door wide open.",
+      "transition": "fade",
+      "shots": [
+        {
+          "w": 3,
+          "mode": "anime",
+          "chars": [
+            "guile",
+            "dhalsim"
+          ],
+          "action": "dawn on the wrecked road; an army jeep pulls up, Guile at the wheel, Dhalsim calmly seated in the back",
+          "camera": "wide, sunrise backlight",
+          "sfx": [
+            "jeep_brake"
+          ],
+          "id": "S15_01",
+          "start": 394.966,
+          "dur": 11.274
+        },
+        {
+          "w": 3,
+          "mode": "anime",
+          "chars": [
+            "ryu",
+            "ken",
+            "chunli",
+            "dan"
+          ],
+          "action": "the heroes climb aboard, battered but grinning; Dan tries a victory pose and nearly falls off",
+          "camera": "medium group shot",
+          "sfx": [
+            "laugh_light"
+          ],
+          "id": "S15_02",
+          "start": 406.239,
+          "dur": 11.274
+        },
+        {
+          "w": 3,
+          "mode": "anime",
+          "chars": [
+            "ryu",
+            "ken"
+          ],
+          "action": "the jeep drives into the sunrise; Ryu and Ken in the back seat bump fists",
+          "camera": "drone-style rising wide",
+          "sfx": [
+            "engine_drive"
+          ],
+          "id": "S15_03",
+          "start": 417.513,
+          "dur": 11.274
+        },
+        {
+          "w": 2,
+          "mode": "anime",
+          "chars": [
+            "akuma"
+          ],
+          "action": "inside a dark containment pod, Akuma's eyes glow red through frosted glass",
+          "camera": "slow push",
+          "sfx": [
+            "heartbeat"
+          ],
+          "id": "S15_04",
+          "start": 428.787,
+          "dur": 7.516
+        }
+      ],
+      "start": 394.966,
+      "dur": 41.338,
+      "vo_dur": 40.138,
+      "vo_file": null
+    },
+    {
+      "id": "S16",
+      "title": "The Credits Scene \u2014 Enter Sagat",
+      "status": "confirmed",
+      "delivery": "hushed, conspiratorial, then a satisfied reveal on 'Sagat'",
+      "music": {
+        "cue": "credits_tension",
+        "vol": 0.32
+      },
+      "narration": "And stay in your seat, because there's an animated credits scene. Some outlets call it mid-credits, others post-credits, so watch all the way through. Somewhere tropical, Bison and his lieutenants approach a towering man with an eyepatch and a huge scar across his chest. It's Sagat, the man Ryu defeated back in 1987. And Bison is here to offer him an alliance.",
+      "transition": "fadeblack",
+      "shots": [
+        {
+          "w": 2,
+          "mode": "title",
+          "chars": [],
+          "action": "scrolling end-credit text blur fades to black",
+          "camera": "static",
+          "sfx": [],
+          "id": "S16_01",
+          "start": 436.303,
+          "dur": 4.883
+        },
+        {
+          "w": 3,
+          "mode": "anime",
+          "chars": [
+            "bison",
+            "cammy",
+            "vega",
+            "balrog"
+          ],
+          "action": "a jungle beach at sunset; Bison's lieutenants walk in formation behind him through the palms",
+          "camera": "low tracking shot",
+          "sfx": [
+            "waves",
+            "jungle_birds"
+          ],
+          "id": "S16_02",
+          "start": 441.186,
+          "dur": 7.324
+        },
+        {
+          "w": 3,
+          "mode": "anime",
+          "chars": [
+            "sagat"
+          ],
+          "action": "a giant figure meditates on the rocks with his back turned; he rises and turns, revealing an eyepatch and a huge diagonal chest scar",
+          "camera": "slow reveal tilt up",
+          "sfx": [
+            "taiko_hit"
+          ],
+          "id": "S16_03",
+          "start": 448.51,
+          "dur": 7.324
+        },
+        {
+          "w": 3,
+          "mode": "anime",
+          "chars": [
+            "bison",
+            "sagat"
+          ],
+          "action": "Bison extends a gloved hand, violet energy flickering; Sagat stares, then the frame freezes",
+          "camera": "two-shot, freeze frame",
+          "sfx": [
+            "psycho_hum",
+            "freeze_sting"
+          ],
+          "id": "S16_04",
+          "start": 455.834,
+          "dur": 7.324
+        }
+      ],
+      "start": 436.303,
+      "dur": 26.855,
+      "vo_dur": 25.655,
+      "vo_file": null
+    },
+    {
+      "id": "S17",
+      "title": "Confirmed Recap",
+      "status": "confirmed",
+      "delivery": "clear, punchy checklist",
+      "music": {
+        "cue": "synth_arcade_theme",
+        "vol": 0.28
+      },
+      "narration": "Let's lock in what's confirmed. Chun-Li is Interpol, out to avenge her father. Ryu sabotaged Ken back in 1987. Akuma killed Gouken, and Joe appears to die. Ryu became Evil Ryu and came back thanks to Ken's Hadouken. Bison escaped with Akuma alive. And Sagat is now in Bison's sights.",
+      "transition": "wipeup",
+      "shots": [
+        {
+          "w": 3,
+          "mode": "title",
+          "chars": [
+            "chunli",
+            "ryu",
+            "ken"
+          ],
+          "action": "arcade 'continue screen'-style checklist; three character portraits slide in with gold check marks stamped next to each fact",
+          "camera": "static, slide-ins",
+          "sfx": [
+            "menu_blip",
+            "stamp_thud"
+          ],
+          "id": "S17_01",
+          "start": 463.159,
+          "dur": 10.945
+        },
+        {
+          "w": 3,
+          "mode": "title",
+          "chars": [
+            "akuma",
+            "evil_ryu",
+            "bison",
+            "sagat"
+          ],
+          "action": "four more portraits slide in with gold check marks; the gold 'CONFIRMED IN FILM' badge pulses",
+          "camera": "static, slide-ins",
+          "sfx": [
+            "menu_blip",
+            "stamp_thud"
+          ],
+          "id": "S17_02",
+          "start": 474.103,
+          "dur": 10.945
+        }
+      ],
+      "start": 463.159,
+      "dur": 21.89,
+      "vo_dur": 20.69,
+      "vo_file": null
+    },
+    {
+      "id": "S18",
+      "title": "Sequel Theories (Not Confirmed)",
+      "status": "theory",
+      "delivery": "speculative, playful, clearly signposting 'theory'",
+      "music": {
+        "cue": "mystery_synth",
+        "vol": 0.3
+      },
+      "narration": "Now, theory time. None of this is confirmed, and no sequel had been officially announced when we made this video. Theory one: Bison drains Akuma and becomes something far beyond human. Theory two: Sagat joins Bison out of revenge, setting up Ryu versus Sagat, round two. Theory three: Ryu's dark side isn't gone, it's just sleeping. Theory four: Gouken could come back, because in the games, he survived Akuma. And theory five: Cammy, Zangief, E. Honda and the rest finally get real arcs next time.",
+      "transition": "pixelize",
+      "shots": [
+        {
+          "w": 2,
+          "mode": "title",
+          "chars": [],
+          "action": "purple 'THEORY \u2014 NOT CONFIRMED' badge slams on screen with static",
+          "camera": "static",
+          "sfx": [
+            "crt_static",
+            "stamp_thud"
+          ],
+          "id": "S18_01",
+          "start": 485.048,
+          "dur": 5.596
+        },
+        {
+          "w": 3,
+          "mode": "anime",
+          "chars": [
+            "bison",
+            "akuma"
+          ],
+          "action": "speculative vision in purple-tinted dream style: Bison absorbs red energy from Akuma's pod and his aura turns red-violet",
+          "camera": "slow push",
+          "sfx": [
+            "power_surge"
+          ],
+          "id": "S18_02",
+          "start": 490.644,
+          "dur": 8.394
+        },
+        {
+          "w": 3,
+          "mode": "arcade",
+          "chars": [
+            "ryu",
+            "sagat"
+          ],
+          "action": "purple-tinted arcade 'NEXT CHALLENGER' screen: Ryu sprite vs Sagat sprite with a '?' over the stage",
+          "camera": "locked",
+          "sfx": [
+            "arcade_new_challenger"
+          ],
+          "id": "S18_03",
+          "start": 499.038,
+          "dur": 8.394
+        },
+        {
+          "w": 3,
+          "mode": "anime",
+          "chars": [
+            "ryu",
+            "gouken"
+          ],
+          "action": "purple-tinted: Ryu meditating under a waterfall; a faint red glint in his eye; behind him the ghostly silhouette of Gouken",
+          "camera": "slow pull-back",
+          "sfx": [
+            "waterfall",
+            "dark_pulse"
+          ],
+          "id": "S18_04",
+          "start": 507.431,
+          "dur": 8.394
+        },
+        {
+          "w": 2,
+          "mode": "anime",
+          "chars": [
+            "cammy"
+          ],
+          "action": "purple-tinted: Cammy in a dark corridor, clutching her head as if fighting mind control",
+          "camera": "dutch angle",
+          "sfx": [
+            "heartbeat"
+          ],
+          "id": "S18_05",
+          "start": 515.825,
+          "dur": 5.596
+        }
+      ],
+      "start": 485.048,
+      "dur": 36.372,
+      "vo_dur": 35.172,
+      "vo_file": null
+    },
+    {
+      "id": "S19",
+      "title": "Outro",
+      "status": "meta",
+      "delivery": "warm, friendly sign-off",
+      "music": {
+        "cue": "synth_arcade_theme",
+        "vol": 0.34
+      },
+      "narration": "So what did you think? Did the ending land, or did it feel rushed? Tell me in the comments, hit subscribe, and remember: on this channel, we spoil it so you don't have to. See you next round.",
+      "transition": "fadeblack",
+      "shots": [
+        {
+          "w": 3,
+          "mode": "anime",
+          "chars": [
+            "ryu",
+            "ken",
+            "chunli"
+          ],
+          "action": "Ryu, Ken and Chun-Li stand on a cliff at sunset, headband and hair blowing, turning to look at camera",
+          "camera": "slow orbit",
+          "sfx": [
+            "wind_soft"
+          ],
+          "id": "S19_01",
+          "start": 521.421,
+          "dur": 8.462
+        },
+        {
+          "w": 3,
+          "mode": "title",
+          "chars": [],
+          "action": "end screen: 'DON'T SPOIL IT RG' logo, subscribe button, two blank video-card frames; arcade text 'CONTINUE? 9\u20268\u20267\u2026'",
+          "camera": "static",
+          "sfx": [
+            "arcade_countdown"
+          ],
+          "id": "S19_02",
+          "start": 529.883,
+          "dur": 8.462
+        }
+      ],
+      "start": 521.421,
+      "dur": 16.924,
+      "vo_dur": 15.724,
+      "vo_file": null
+    }
+  ]
+}
