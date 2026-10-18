@@ -1758,7 +1758,7 @@ def L9(ctx, R, t, p):
             bg_city(ctx, t)
         grade(ctx, R, strength=0.6)
         ctx.save()
-        k = ap(lt, 2.6, 0.5)
+        k = max(0.01, ap(lt, 2.6, 0.5))  # a zero scale makes the cairo matrix non-invertible
         ctx.translate(W / 2, H * 0.4)
         ctx.rotate((1 - k) * 5 - 0.05)
         ctx.scale(k, k)
