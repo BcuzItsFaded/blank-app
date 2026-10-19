@@ -22,6 +22,8 @@ it also shrinks the image so zooms and pans never crop it.
 zoom (top-level or per scene): how far photos zoom/pan, default 0.12 (12%).
 music_volume: background music level under the voice, default 0.12.
 caption_size: "normal" (whole line in a box) or "large" (big Shorts-style words, a few at a time).
+voice_speed: narration speed multiplier, e.g. 1.15 to tighten a long script (keep it at or below 1.25).
+caption_y (top-level or per scene): vertical center of captions as a fraction of height (default 0.75).
 Per scene: media "black" or "#rrggbb" for a solid frame (e.g. a cut to black); "fade_in"/"fade_out": false
 for hard cuts; "sfx": [{"file": "snap.wav", "at": 5.2, "volume": 1.0}] (at = seconds into the scene).
 If narration is longer than a scene's duration, it is sped up slightly (max 1.15x), then the scene is extended.
@@ -39,6 +41,7 @@ import textwrap
 
 from PIL import Image, ImageDraw, ImageFilter, ImageFont
 
+LARGE_CAPTION = 0.075  # font size as a fraction of frame width
 VIDEO_EXT = {".mp4", ".mov", ".webm", ".mkv", ".m4v"}
 FONTS = [
     "/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf",
@@ -161,11 +164,15 @@ def render_scene(i, scene, base, cfg, tmp):
         tts(scene["narration"], cfg["voice"], audio)
         speech = duration_of(audio)
     dur = scene.get("duration") or ((speech + 0.5) if audio else 4.0)
-    tempo = 1.0
+    tempo = cfg["voice_speed"]
+    speech /= tempo
+    if not scene.get("duration") and audio:
+        dur = speech + 0.5
     if audio and speech > dur - 0.2:
         # Narration overruns the requested scene length: speed it up a little, then stretch the scene.
-        tempo = min(speech / (dur - 0.2), 1.15)
-        speech /= tempo
+        extra = min(speech / (dur - 0.2), 1.15)
+        tempo *= extra
+        speech /= extra
         if speech > dur - 0.2:
             print(f"scene {i + 1}: narration needs {speech + 0.3:.1f}s, longer than {dur}s; extending", file=sys.stderr)
             dur = speech + 0.3
@@ -199,16 +206,18 @@ def render_scene(i, scene, base, cfg, tmp):
     graph = f"[0:v]{vf}[v0]"
     last = "[v0]"
     if cfg["captions"] and scene.get("narration"):
+        cap_y = scene.get("caption_y", cfg["caption_y"])
         if cfg["caption_size"] == "large":
             # Big subtitles a few words at a time, timed by each phrase's share of the narration.
-            chunks = caption_chunks(scene["narration"])
+            # One line per chunk keeps the captions compact enough to sit below the picture.
+            chunks = caption_chunks(scene["narration"], max_chars=int(w * 0.85 / (w * LARGE_CAPTION * 0.6)))
             total_chars = sum(len(c) for c in chunks)
             t = 0.0
             for k, chunk in enumerate(chunks):
                 span = speech * len(chunk) / total_chars
                 end = t + span if k < len(chunks) - 1 else dur
                 cap = os.path.join(tmp, f"c{i}_{k}.png")
-                caption_png(chunk, w, h, cap, scale=0.085, y_frac=0.75, box=False)
+                caption_png(chunk, w, h, cap, scale=LARGE_CAPTION, y_frac=cap_y, box=False)
                 cmd += ["-i", cap]
                 graph += f";{last}[{n_in}:v]overlay=0:0:enable='between(t,{t:.3f},{end:.3f})'[v{n_in}]"
                 last = f"[v{n_in}]"
@@ -216,7 +225,7 @@ def render_scene(i, scene, base, cfg, tmp):
                 t += span
         else:
             cap = os.path.join(tmp, f"c{i}.png")
-            caption_png(scene["narration"], w, h, cap)
+            caption_png(scene["narration"], w, h, cap, y_frac=cap_y)
             cmd += ["-i", cap]
             graph += f";{last}[{n_in}:v]overlay=0:0[v{n_in}]"
             last = f"[v{n_in}]"
@@ -263,7 +272,8 @@ def main():
     cfg = {"size": sb.get("size", [1080, 1920]), "fps": sb.get("fps", 30),
            "voice": sb.get("voice", "en-US-AndrewNeural"), "captions": sb.get("captions", True),
            "fit": sb.get("fit", "cover"), "zoom": sb.get("zoom", 0.12),
-           "caption_size": sb.get("caption_size", "normal")}
+           "caption_size": sb.get("caption_size", "normal"), "voice_speed": sb.get("voice_speed", 1.0),
+           "caption_y": sb.get("caption_y", 0.75 if sb.get("caption_size") == "large" else 0.72)}
 
     with tempfile.TemporaryDirectory() as tmp:
         clips = [render_scene(i, s, base, cfg, tmp) for i, s in enumerate(sb["scenes"])]

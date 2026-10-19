@@ -77,6 +77,11 @@ Other free synthesized sounds that have worked well:
 ffmpeg -y -f lavfi -i "anoisesrc=d=80:c=brown:a=0.5" -f lavfi -i "sine=f=4400:d=80" -f lavfi -i "sine=f=4650:d=80" \
   -filter_complex "[0]highpass=f=80,lowpass=f=650,tremolo=f=0.3:d=0.6,volume=0.9[w];[1]tremolo=f=38:d=1,tremolo=f=0.6:d=0.95,volume=0.035[c1];[2]tremolo=f=44:d=1,tremolo=f=0.45:d=0.95,volume=0.025,adelay=700|700[c2];[w][c1][c2]amix=inputs=3:normalize=0,afade=t=in:d=2,loudnorm=I=-22" \
   -ar 44100 -ac 2 lake.mp3
+# Energetic 120 BPM beat (kick, hi-hat, bass) for action/fighting content; use "music_volume": 0.22
+ffmpeg -y -f lavfi -i "aevalsrc='0.9*sin(2*PI*(45+120*exp(-mod(t,0.5)*25))*mod(t,0.5))*exp(-mod(t,0.5)*7)':d=90:s=44100" \
+  -f lavfi -i "aevalsrc='0.35*(random(0)*2-1)*exp(-mod(t+0.25,0.5)*45)':d=90:s=44100" \
+  -f lavfi -i "aevalsrc='0.22*sin(2*PI*55*t)*(0.6+0.4*sin(2*PI*2*t))+0.12*sin(2*PI*82.4*t)*gte(mod(t,4),2)':d=90:s=44100" \
+  -filter_complex "[1]highpass=f=6000[h];[0][h][2]amix=inputs=3:normalize=0,afade=t=in:d=1,loudnorm=I=-18" -ac 2 beat.mp3
 # Twig snap (use as a scene "sfx")
 ffmpeg -y -f lavfi -i "aevalsrc='(random(0)*2-1)*(exp(-t*70)+0.8*gte(t,0.055)*exp(-(t-0.055)*90)+0.4*gte(t,0.13)*exp(-(t-0.13)*120))':d=0.5:s=44100" \
   -af "highpass=f=900,lowpass=f=7000,volume=2.5,aecho=0.6:0.4:40:0.25" -ac 2 twig.wav
@@ -102,6 +107,9 @@ Write `storyboard.json` in the project folder. Media paths are relative to it.
 - Stock videos loop if they're shorter than the scene.
 - **User-given timings**: set each scene's `duration` to match. If the narration is too long for it, the builder speeds the voice up slightly (max 1.15×), then stretches the scene, and reports this. Tell the user the final length.
 - `"caption_size": "large"` gives big Shorts-style subtitles, a few words at a time, timed to the voice. Use it whenever the user asks for big or large subtitles. The default `"normal"` shows the whole line in a box.
+- **Caption placement**: `"caption_y"` (0–1, top-level or per scene) sets where captions sit. When panels have titles or labels baked into their bottom edge, use about 0.94 so the captions sit in the blurred area below the picture. Pull a few frames and check that nothing overlaps.
+- **Hitting a target length**: free TTS voices are slow. If the total runs long, set `"voice_speed"` (1.1–1.25) instead of cutting the user's words. The builder prints each scene's length.
+- **Outro**: for a closing line such as a call to action, reuse the user's full storyboard image as a final scene. It works as a recap card.
 - **Sound effects**: a scene can take `"sfx": [{"file": "twig.wav", "at": 5.2}]` (seconds into the scene). Leave a gap after the last spoken word so the effect doesn't land on top of it.
 - **Cut to black**: set `"fade_out": false` on the last scene, then add `{"media": "black", "duration": 1.5, "fade_in": false}`. `"#rrggbb"` gives any other solid color.
 - `"zoom"` sets how strong the photo motion is (default 0.12, or 12%). Lower it for subtler motion. With `"fit": "contain"` the image is shrunk just enough that zooms and pans never cut anything off.
