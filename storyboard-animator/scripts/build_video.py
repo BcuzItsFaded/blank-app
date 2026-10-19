@@ -21,6 +21,10 @@ fit (photos, top-level or per scene): "cover" (default) crops to fill the frame;
 it also shrinks the image so zooms and pans never crop it.
 zoom (top-level or per scene): how far photos zoom/pan, default 0.12 (12%).
 music_volume: background music level under the voice, default 0.12.
+caption_size: "normal" (whole line in a box) or "large" (big Shorts-style words, a few at a time).
+Per scene: media "black" or "#rrggbb" for a solid frame (e.g. a cut to black); "fade_in"/"fade_out": false
+for hard cuts; "sfx": [{"file": "snap.wav", "at": 5.2, "volume": 1.0}] (at = seconds into the scene).
+If narration is longer than a scene's duration, it is sped up slightly (max 1.15x), then the scene is extended.
 duration: optional; defaults to narration length + 0.5 s (or 4 s with no narration).
 Media paths are relative to the storyboard file.
 """
@@ -67,25 +71,44 @@ def tts(text, voice, out):
     gTTS(text).save(out)
 
 
-def caption_png(text, w, h, out):
+def _font(size):
     font_path = next((f for f in FONTS if os.path.exists(f)), None)
-    size = int(w * 0.055)
-    font = ImageFont.truetype(font_path, size) if font_path else ImageFont.load_default()
+    return ImageFont.truetype(font_path, size) if font_path else ImageFont.load_default()
+
+
+def caption_png(text, w, h, out, scale=0.055, y_frac=0.72, box=True):
+    size = int(w * scale)
+    font = _font(size)
     # Bold glyphs average ~0.6 em wide; keep text within 85% of the frame width.
-    lines = textwrap.wrap(text, width=max(12, int(w * 0.85 / (size * 0.6))))
+    lines = textwrap.wrap(text, width=max(8, int(w * 0.85 / (size * 0.6))))
     img = Image.new("RGBA", (w, h), (0, 0, 0, 0))
     d = ImageDraw.Draw(img)
     line_h = int(size * 1.25)
     block_h = line_h * len(lines)
-    y = int(h * 0.72) - block_h // 2
+    y = int(h * y_frac) - block_h // 2
     pad = int(size * 0.4)
     widths = [d.textlength(line, font=font) for line in lines]
-    box_w = max(widths) + pad * 2
-    d.rounded_rectangle([(w - box_w) / 2, y - pad, (w + box_w) / 2, y + block_h + pad], radius=pad, fill=(0, 0, 0, 150))
+    if box:
+        box_w = max(widths) + pad * 2
+        d.rounded_rectangle([(w - box_w) / 2, y - pad, (w + box_w) / 2, y + block_h + pad], radius=pad, fill=(0, 0, 0, 150))
     for line, lw in zip(lines, widths):
-        d.text(((w - lw) / 2, y), line, font=font, fill="white", stroke_width=2, stroke_fill="black")
+        d.text(((w - lw) / 2, y), line, font=font, fill="white", stroke_width=max(2, size // 12), stroke_fill="black")
         y += line_h
     img.save(out)
+
+
+def caption_chunks(text, max_chars=24):
+    """Split narration into short phrases for big, Shorts-style subtitles."""
+    chunks, cur = [], ""
+    for word in text.split():
+        if cur and (len(cur) + 1 + len(word) > max_chars or cur[-1] in ".?!"):
+            chunks.append(cur)
+            cur = word
+        else:
+            cur = f"{cur} {word}".strip()
+    if cur:
+        chunks.append(cur)
+    return chunks
 
 
 def contain_on_blur(src, w, h, out, inset=1.0):
@@ -127,57 +150,104 @@ def motion_filter(motion, w, h, fps, frames, z_amt):
 def render_scene(i, scene, base, cfg, tmp):
     w, h = cfg["size"]
     fps = cfg["fps"]
+    color = scene["media"] if scene["media"] == "black" or scene["media"].startswith("#") else None
     media = os.path.join(base, scene["media"])
-    if not os.path.exists(media):
+    if not color and not os.path.exists(media):
         sys.exit(f"Scene {i + 1}: media not found: {media}")
 
-    audio = None
+    audio, speech = None, 0.0
     if scene.get("narration"):
         audio = os.path.join(tmp, f"n{i}.mp3")
         tts(scene["narration"], cfg["voice"], audio)
-    dur = scene.get("duration") or ((duration_of(audio) + 0.5) if audio else 4.0)
+        speech = duration_of(audio)
+    dur = scene.get("duration") or ((speech + 0.5) if audio else 4.0)
+    tempo = 1.0
+    if audio and speech > dur - 0.2:
+        # Narration overruns the requested scene length: speed it up a little, then stretch the scene.
+        tempo = min(speech / (dur - 0.2), 1.15)
+        speech /= tempo
+        if speech > dur - 0.2:
+            print(f"scene {i + 1}: narration needs {speech + 0.3:.1f}s, longer than {dur}s; extending", file=sys.stderr)
+            dur = speech + 0.3
     frames = int(round(dur * fps))
     fade = min(0.4, dur / 4)
 
-    is_video = os.path.splitext(media)[1].lower() in VIDEO_EXT
+    is_video = not color and os.path.splitext(media)[1].lower() in VIDEO_EXT
     zoom = scene.get("zoom", cfg["zoom"])
-    if not is_video and scene.get("fit", cfg["fit"]) == "contain":
+    if not color and not is_video and scene.get("fit", cfg["fit"]) == "contain":
         # A centered zoom by (1+zoom) needs the image shrunk by that much; a pan also slides the
         # window off-center by up to the zoom slack, which needs (1+zoom)/(1-zoom).
         pan = scene.get("motion", "zoom_in").startswith("pan_")
         inset = (1 + zoom) / (1 - zoom) if pan else 1 + zoom
         media = contain_on_blur(media, w * 2, h * 2, os.path.join(tmp, f"fit{i}.png"), inset=inset)
-    if is_video:
+    if color:
+        inputs = ["-f", "lavfi", "-i", f"color=c={color.replace('#', '0x')}:s={w}x{h}:r={fps}"]
+        vf = "setsar=1"
+    elif is_video:
         inputs = ["-stream_loop", "-1", "-i", media]
         vf = f"scale={w}:{h}:force_original_aspect_ratio=increase,crop={w}:{h},fps={fps},setsar=1"
     else:
         inputs = ["-loop", "1", "-framerate", str(fps), "-i", media]
         vf = motion_filter(scene.get("motion", "zoom_in"), w, h, fps, frames, zoom) + ",setsar=1"
-    vf += f",fade=t=in:st=0:d={fade},fade=t=out:st={dur - fade}:d={fade}"
+    if scene.get("fade_in", True):
+        vf += f",fade=t=in:st=0:d={fade}"
+    if scene.get("fade_out", True):  # false = hard cut into the next scene
+        vf += f",fade=t=out:st={dur - fade}:d={fade}"
 
     cmd = ["ffmpeg", "-y", "-v", "error", *inputs]
+    n_in = 1
     graph = f"[0:v]{vf}[v0]"
     last = "[v0]"
     if cfg["captions"] and scene.get("narration"):
-        cap = os.path.join(tmp, f"c{i}.png")
-        caption_png(scene["narration"], w, h, cap)
-        cmd += ["-i", cap]
-        graph += f";{last}[1:v]overlay=0:0[v1]"
-        last = "[v1]"
+        if cfg["caption_size"] == "large":
+            # Big subtitles a few words at a time, timed by each phrase's share of the narration.
+            chunks = caption_chunks(scene["narration"])
+            total_chars = sum(len(c) for c in chunks)
+            t = 0.0
+            for k, chunk in enumerate(chunks):
+                span = speech * len(chunk) / total_chars
+                end = t + span if k < len(chunks) - 1 else dur
+                cap = os.path.join(tmp, f"c{i}_{k}.png")
+                caption_png(chunk, w, h, cap, scale=0.085, y_frac=0.75, box=False)
+                cmd += ["-i", cap]
+                graph += f";{last}[{n_in}:v]overlay=0:0:enable='between(t,{t:.3f},{end:.3f})'[v{n_in}]"
+                last = f"[v{n_in}]"
+                n_in += 1
+                t += span
+        else:
+            cap = os.path.join(tmp, f"c{i}.png")
+            caption_png(scene["narration"], w, h, cap)
+            cmd += ["-i", cap]
+            graph += f";{last}[{n_in}:v]overlay=0:0[v{n_in}]"
+            last = f"[v{n_in}]"
+            n_in += 1
     if audio:
         cmd += ["-i", audio]
-        a_idx = 2 if cfg["captions"] else 1
-        graph += f";[{a_idx}:a]apad,atrim=0:{dur},aresample=44100[a]"
+        graph += f";[{n_in}:a]atempo={tempo:.3f},apad,atrim=0:{dur},aresample=44100,aformat=channel_layouts=stereo[a0]"
     else:
         cmd += ["-f", "lavfi", "-i", "anullsrc=r=44100:cl=stereo"]
-        a_idx = 2 if cfg["captions"] and scene.get("narration") else 1
-        graph += f";[{a_idx}:a]atrim=0:{dur}[a]"
+        graph += f";[{n_in}:a]atrim=0:{dur}[a0]"
+    n_in += 1
+    # Sound effects: [{"file": "snap.wav", "at": 5.2, "volume": 1.0}], "at" in seconds from scene start.
+    mix = ["[a0]"]
+    for k, fx in enumerate(scene.get("sfx", [])):
+        cmd += ["-i", os.path.join(base, fx["file"])]
+        delay = int(fx.get("at", 0) * 1000)
+        graph += (f";[{n_in}:a]volume={fx.get('volume', 1.0)},aresample=44100,aformat=channel_layouts=stereo,"
+                  f"adelay={delay}|{delay}[fx{k}]")
+        mix.append(f"[fx{k}]")
+        n_in += 1
+    if len(mix) > 1:
+        graph += f";{''.join(mix)}amix=inputs={len(mix)}:duration=first:normalize=0[a]"
+    else:
+        graph = graph.replace("[a0]", "[a]")
     out = os.path.join(tmp, f"s{i:03d}.mp4")
     cmd += ["-filter_complex", graph, "-map", last, "-map", "[a]", "-t", f"{dur}", "-frames:v", str(frames),
             "-c:v", "libx264", "-pix_fmt", "yuv420p", "-preset", "medium", "-crf", "20",
             "-c:a", "aac", "-ac", "2", "-ar", "44100", out]
     run(cmd)
-    print(f"scene {i + 1}: {dur:.1f}s {'video' if is_video else scene.get('motion', 'zoom_in')}", file=sys.stderr)
+    kind = color or ("video" if is_video else scene.get("motion", "zoom_in"))
+    print(f"scene {i + 1}: {dur:.1f}s {kind}" + (f" (voice x{tempo:.2f})" if tempo > 1 else ""), file=sys.stderr)
     return out
 
 
@@ -192,7 +262,8 @@ def main():
     base = os.path.dirname(os.path.abspath(a.storyboard))
     cfg = {"size": sb.get("size", [1080, 1920]), "fps": sb.get("fps", 30),
            "voice": sb.get("voice", "en-US-AndrewNeural"), "captions": sb.get("captions", True),
-           "fit": sb.get("fit", "cover"), "zoom": sb.get("zoom", 0.12)}
+           "fit": sb.get("fit", "cover"), "zoom": sb.get("zoom", 0.12),
+           "caption_size": sb.get("caption_size", "normal")}
 
     with tempfile.TemporaryDirectory() as tmp:
         clips = [render_scene(i, s, base, cfg, tmp) for i, s in enumerate(sb["scenes"])]

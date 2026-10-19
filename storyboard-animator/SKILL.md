@@ -71,6 +71,17 @@ ffmpeg -y -f lavfi -i "sine=f=55:d=60" -f lavfi -i "sine=f=58.3:d=60" -f lavfi -
 ```
 Tell the user it's a generated placeholder and that a real track from Pixabay Music will sound better.
 
+Other free synthesized sounds that have worked well:
+```bash
+# Night lake ambience (lapping water + crickets); use "music_volume": 0.45
+ffmpeg -y -f lavfi -i "anoisesrc=d=80:c=brown:a=0.5" -f lavfi -i "sine=f=4400:d=80" -f lavfi -i "sine=f=4650:d=80" \
+  -filter_complex "[0]highpass=f=80,lowpass=f=650,tremolo=f=0.3:d=0.6,volume=0.9[w];[1]tremolo=f=38:d=1,tremolo=f=0.6:d=0.95,volume=0.035[c1];[2]tremolo=f=44:d=1,tremolo=f=0.45:d=0.95,volume=0.025,adelay=700|700[c2];[w][c1][c2]amix=inputs=3:normalize=0,afade=t=in:d=2,loudnorm=I=-22" \
+  -ar 44100 -ac 2 lake.mp3
+# Twig snap (use as a scene "sfx")
+ffmpeg -y -f lavfi -i "aevalsrc='(random(0)*2-1)*(exp(-t*70)+0.8*gte(t,0.055)*exp(-(t-0.055)*90)+0.4*gte(t,0.13)*exp(-(t-0.13)*120))':d=0.5:s=44100" \
+  -af "highpass=f=900,lowpass=f=7000,volume=2.5,aecho=0.6:0.4:40:0.25" -ac 2 twig.wav
+```
+
 ## Step 3: Build
 
 Write `storyboard.json` in the project folder. Media paths are relative to it.
@@ -89,6 +100,10 @@ Write `storyboard.json` in the project folder. Media paths are relative to it.
 
 - Scene length is the narration length plus 0.5 s. Set `duration` to override, or for scenes with no narration.
 - Stock videos loop if they're shorter than the scene.
+- **User-given timings**: set each scene's `duration` to match. If the narration is too long for it, the builder speeds the voice up slightly (max 1.15×), then stretches the scene, and reports this. Tell the user the final length.
+- `"caption_size": "large"` gives big Shorts-style subtitles, a few words at a time, timed to the voice. Use it whenever the user asks for big or large subtitles. The default `"normal"` shows the whole line in a box.
+- **Sound effects**: a scene can take `"sfx": [{"file": "twig.wav", "at": 5.2}]` (seconds into the scene). Leave a gap after the last spoken word so the effect doesn't land on top of it.
+- **Cut to black**: set `"fade_out": false` on the last scene, then add `{"media": "black", "duration": 1.5, "fade_in": false}`. `"#rrggbb"` gives any other solid color.
 - `"zoom"` sets how strong the photo motion is (default 0.12, or 12%). Lower it for subtler motion. With `"fit": "contain"` the image is shrunk just enough that zooms and pans never cut anything off.
 - Voices (edge-tts) include `en-US-AndrewNeural` (warm male), `en-US-AvaNeural` (friendly female), `en-US-GuyNeural`, `en-US-JennyNeural` and `en-GB-SoniaNeural`. Run `edge-tts --list-voices` for more. If edge-tts can't connect, the builder falls back to gTTS (one plainer voice) and says so, so tell the user.
 - `"size": [1920, 1080]` gives horizontal output if the user asks.
