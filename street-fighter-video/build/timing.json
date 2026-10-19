@@ -1,0 +1,1520 @@
+{
+ "duration": 91.904,
+ "sentences": [
+  {
+   "para": 0,
+   "idx": 0,
+   "text": "Street Fighter's ending brings back a fighter Ryu already beat once.",
+   "start": 0.25,
+   "end": 4.348,
+   "words": [
+    {
+     "w": "Street",
+     "start": 0.25,
+     "end": 0.705
+    },
+    {
+     "w": "Fighter's",
+     "start": 0.705,
+     "end": 1.161
+    },
+    {
+     "w": "ending",
+     "start": 1.161,
+     "end": 1.551
+    },
+    {
+     "w": "brings",
+     "start": 1.551,
+     "end": 1.941
+    },
+    {
+     "w": "back",
+     "start": 1.941,
+     "end": 2.202
+    },
+    {
+     "w": "a",
+     "start": 2.202,
+     "end": 2.397
+    },
+    {
+     "w": "fighter",
+     "start": 2.397,
+     "end": 2.787
+    },
+    {
+     "w": "Ryu",
+     "start": 2.787,
+     "end": 3.178
+    },
+    {
+     "w": "already",
+     "start": 3.178,
+     "end": 3.698
+    },
+    {
+     "w": "beat",
+     "start": 3.698,
+     "end": 4.023
+    },
+    {
+     "w": "once.",
+     "start": 4.023,
+     "end": 4.349
+    }
+   ]
+  },
+  {
+   "para": 0,
+   "idx": 1,
+   "text": "And you only see him if you stay for the credits.",
+   "start": 4.448,
+   "end": 6.83,
+   "words": [
+    {
+     "w": "And",
+     "start": 4.448,
+     "end": 4.611
+    },
+    {
+     "w": "you",
+     "start": 4.611,
+     "end": 4.773
+    },
+    {
+     "w": "only",
+     "start": 4.773,
+     "end": 5.098
+    },
+    {
+     "w": "see",
+     "start": 5.098,
+     "end": 5.315
+    },
+    {
+     "w": "him",
+     "start": 5.315,
+     "end": 5.531
+    },
+    {
+     "w": "if",
+     "start": 5.531,
+     "end": 5.639
+    },
+    {
+     "w": "you",
+     "start": 5.639,
+     "end": 5.802
+    },
+    {
+     "w": "stay",
+     "start": 5.802,
+     "end": 6.072
+    },
+    {
+     "w": "for",
+     "start": 6.072,
+     "end": 6.289
+    },
+    {
+     "w": "the",
+     "start": 6.289,
+     "end": 6.397
+    },
+    {
+     "w": "credits.",
+     "start": 6.397,
+     "end": 6.83
+    }
+   ]
+  },
+  {
+   "para": 1,
+   "idx": 0,
+   "text": "Spoilers from here.",
+   "start": 7.15,
+   "end": 8.265,
+   "words": [
+    {
+     "w": "Spoilers",
+     "start": 7.15,
+     "end": 7.708
+    },
+    {
+     "w": "from",
+     "start": 7.708,
+     "end": 7.986
+    },
+    {
+     "w": "here.",
+     "start": 7.986,
+     "end": 8.265
+    }
+   ]
+  },
+  {
+   "para": 2,
+   "idx": 0,
+   "text": "1987.",
+   "start": 8.585,
+   "end": 9.921,
+   "words": [
+    {
+     "w": "1987.",
+     "start": 8.585,
+     "end": 9.921
+    }
+   ]
+  },
+  {
+   "para": 2,
+   "idx": 1,
+   "text": "Ryu wins the first World Warrior tournament using the Dark Hadou.",
+   "start": 10.021,
+   "end": 13.927,
+   "words": [
+    {
+     "w": "Ryu",
+     "start": 10.021,
+     "end": 10.393
+    },
+    {
+     "w": "wins",
+     "start": 10.393,
+     "end": 10.703
+    },
+    {
+     "w": "the",
+     "start": 10.703,
+     "end": 10.827
+    },
+    {
+     "w": "first",
+     "start": 10.827,
+     "end": 11.199
+    },
+    {
+     "w": "World",
+     "start": 11.199,
+     "end": 11.571
+    },
+    {
+     "w": "Warrior",
+     "start": 11.571,
+     "end": 12.005
+    },
+    {
+     "w": "tournament",
+     "start": 12.005,
+     "end": 12.625
+    },
+    {
+     "w": "using",
+     "start": 12.625,
+     "end": 13.059
+    },
+    {
+     "w": "the",
+     "start": 13.059,
+     "end": 13.183
+    },
+    {
+     "w": "Dark",
+     "start": 13.183,
+     "end": 13.555
+    },
+    {
+     "w": "Hadou.",
+     "start": 13.555,
+     "end": 13.927
+    }
+   ]
+  },
+  {
+   "para": 2,
+   "idx": 2,
+   "text": "Akuma wants that power, so he kills Ryu's master, Gouken, to drag it back out.",
+   "start": 14.027,
+   "end": 19.041,
+   "words": [
+    {
+     "w": "Akuma",
+     "start": 14.027,
+     "end": 14.515
+    },
+    {
+     "w": "wants",
+     "start": 14.515,
+     "end": 14.932
+    },
+    {
+     "w": "that",
+     "start": 14.932,
+     "end": 15.211
+    },
+    {
+     "w": "power,",
+     "start": 15.211,
+     "end": 15.559
+    },
+    {
+     "w": "so",
+     "start": 15.559,
+     "end": 15.838
+    },
+    {
+     "w": "he",
+     "start": 15.838,
+     "end": 16.046
+    },
+    {
+     "w": "kills",
+     "start": 16.046,
+     "end": 16.395
+    },
+    {
+     "w": "Ryu's",
+     "start": 16.395,
+     "end": 16.882
+    },
+    {
+     "w": "master,",
+     "start": 16.882,
+     "end": 17.3
+    },
+    {
+     "w": "Gouken,",
+     "start": 17.3,
+     "end": 17.787
+    },
+    {
+     "w": "to",
+     "start": 17.787,
+     "end": 17.996
+    },
+    {
+     "w": "drag",
+     "start": 17.996,
+     "end": 18.344
+    },
+    {
+     "w": "it",
+     "start": 18.344,
+     "end": 18.484
+    },
+    {
+     "w": "back",
+     "start": 18.484,
+     "end": 18.762
+    },
+    {
+     "w": "out.",
+     "start": 18.762,
+     "end": 19.041
+    }
+   ]
+  },
+  {
+   "para": 3,
+   "idx": 0,
+   "text": "Six years later, M. Bison hosts a second tournament.",
+   "start": 19.361,
+   "end": 22.493,
+   "words": [
+    {
+     "w": "Six",
+     "start": 19.361,
+     "end": 19.656
+    },
+    {
+     "w": "years",
+     "start": 19.656,
+     "end": 19.952
+    },
+    {
+     "w": "later,",
+     "start": 19.952,
+     "end": 20.306
+    },
+    {
+     "w": "M.",
+     "start": 20.306,
+     "end": 20.484
+    },
+    {
+     "w": "Bison",
+     "start": 20.484,
+     "end": 20.897
+    },
+    {
+     "w": "hosts",
+     "start": 20.897,
+     "end": 21.311
+    },
+    {
+     "w": "a",
+     "start": 21.311,
+     "end": 21.488
+    },
+    {
+     "w": "second",
+     "start": 21.488,
+     "end": 21.902
+    },
+    {
+     "w": "tournament.",
+     "start": 21.902,
+     "end": 22.493
+    }
+   ]
+  },
+  {
+   "para": 3,
+   "idx": 1,
+   "text": "It's bait.",
+   "start": 22.593,
+   "end": 23.279,
+   "words": [
+    {
+     "w": "It's",
+     "start": 22.593,
+     "end": 22.85
+    },
+    {
+     "w": "bait.",
+     "start": 22.85,
+     "end": 23.279
+    }
+   ]
+  },
+  {
+   "para": 3,
+   "idx": 2,
+   "text": "He wants Ryu strapped into a machine that drains his power.",
+   "start": 23.379,
+   "end": 26.449,
+   "words": [
+    {
+     "w": "He",
+     "start": 23.379,
+     "end": 23.54
+    },
+    {
+     "w": "wants",
+     "start": 23.54,
+     "end": 23.864
+    },
+    {
+     "w": "Ryu",
+     "start": 23.864,
+     "end": 24.187
+    },
+    {
+     "w": "strapped",
+     "start": 24.187,
+     "end": 24.564
+    },
+    {
+     "w": "into",
+     "start": 24.564,
+     "end": 24.833
+    },
+    {
+     "w": "a",
+     "start": 24.833,
+     "end": 24.995
+    },
+    {
+     "w": "machine",
+     "start": 24.995,
+     "end": 25.372
+    },
+    {
+     "w": "that",
+     "start": 25.372,
+     "end": 25.587
+    },
+    {
+     "w": "drains",
+     "start": 25.587,
+     "end": 25.964
+    },
+    {
+     "w": "his",
+     "start": 25.964,
+     "end": 26.18
+    },
+    {
+     "w": "power.",
+     "start": 26.18,
+     "end": 26.449
+    }
+   ]
+  },
+  {
+   "para": 4,
+   "idx": 0,
+   "text": "Then Ryu confesses.",
+   "start": 26.769,
+   "end": 28.028,
+   "words": [
+    {
+     "w": "Then",
+     "start": 26.769,
+     "end": 27.034
+    },
+    {
+     "w": "Ryu",
+     "start": 27.034,
+     "end": 27.431
+    },
+    {
+     "w": "confesses.",
+     "start": 27.431,
+     "end": 28.028
+    }
+   ]
+  },
+  {
+   "para": 4,
+   "idx": 1,
+   "text": "He tore up Ken's invitation to that first tournament.",
+   "start": 28.128,
+   "end": 30.847,
+   "words": [
+    {
+     "w": "He",
+     "start": 28.128,
+     "end": 28.291
+    },
+    {
+     "w": "tore",
+     "start": 28.291,
+     "end": 28.563
+    },
+    {
+     "w": "up",
+     "start": 28.563,
+     "end": 28.726
+    },
+    {
+     "w": "Ken's",
+     "start": 28.726,
+     "end": 28.998
+    },
+    {
+     "w": "invitation",
+     "start": 28.998,
+     "end": 29.596
+    },
+    {
+     "w": "to",
+     "start": 29.596,
+     "end": 29.759
+    },
+    {
+     "w": "that",
+     "start": 29.759,
+     "end": 29.977
+    },
+    {
+     "w": "first",
+     "start": 29.977,
+     "end": 30.303
+    },
+    {
+     "w": "tournament.",
+     "start": 30.303,
+     "end": 30.847
+    }
+   ]
+  },
+  {
+   "para": 4,
+   "idx": 2,
+   "text": "Pure jealousy.",
+   "start": 30.947,
+   "end": 31.883,
+   "words": [
+    {
+     "w": "Pure",
+     "start": 30.947,
+     "end": 31.307
+    },
+    {
+     "w": "jealousy.",
+     "start": 31.307,
+     "end": 31.883
+    }
+   ]
+  },
+  {
+   "para": 4,
+   "idx": 3,
+   "text": "The brothers fight, and Ken loses.",
+   "start": 31.983,
+   "end": 33.87,
+   "words": [
+    {
+     "w": "The",
+     "start": 31.983,
+     "end": 32.118
+    },
+    {
+     "w": "brothers",
+     "start": 32.118,
+     "end": 32.59
+    },
+    {
+     "w": "fight,",
+     "start": 32.59,
+     "end": 32.927
+    },
+    {
+     "w": "and",
+     "start": 32.927,
+     "end": 33.129
+    },
+    {
+     "w": "Ken",
+     "start": 33.129,
+     "end": 33.398
+    },
+    {
+     "w": "loses.",
+     "start": 33.398,
+     "end": 33.87
+    }
+   ]
+  },
+  {
+   "para": 5,
+   "idx": 0,
+   "text": "Ken never shows up for the final, so Joe, played by UFC star Alexander Volkanovski, wins by forfeit.",
+   "start": 34.19,
+   "end": 41.482,
+   "words": [
+    {
+     "w": "Ken",
+     "start": 34.19,
+     "end": 34.476
+    },
+    {
+     "w": "never",
+     "start": 34.476,
+     "end": 34.833
+    },
+    {
+     "w": "shows",
+     "start": 34.833,
+     "end": 35.19
+    },
+    {
+     "w": "up",
+     "start": 35.19,
+     "end": 35.405
+    },
+    {
+     "w": "for",
+     "start": 35.405,
+     "end": 35.691
+    },
+    {
+     "w": "the",
+     "start": 35.691,
+     "end": 35.834
+    },
+    {
+     "w": "final,",
+     "start": 35.834,
+     "end": 36.334
+    },
+    {
+     "w": "so",
+     "start": 36.334,
+     "end": 36.62
+    },
+    {
+     "w": "Joe,",
+     "start": 36.62,
+     "end": 36.978
+    },
+    {
+     "w": "played",
+     "start": 36.978,
+     "end": 37.407
+    },
+    {
+     "w": "by",
+     "start": 37.407,
+     "end": 37.693
+    },
+    {
+     "w": "UFC",
+     "start": 37.693,
+     "end": 37.979
+    },
+    {
+     "w": "star",
+     "start": 37.979,
+     "end": 38.408
+    },
+    {
+     "w": "Alexander",
+     "start": 38.408,
+     "end": 39.194
+    },
+    {
+     "w": "Volkanovski,",
+     "start": 39.194,
+     "end": 40.266
+    },
+    {
+     "w": "wins",
+     "start": 40.266,
+     "end": 40.624
+    },
+    {
+     "w": "by",
+     "start": 40.624,
+     "end": 40.91
+    },
+    {
+     "w": "forfeit.",
+     "start": 40.91,
+     "end": 41.482
+    }
+   ]
+  },
+  {
+   "para": 5,
+   "idx": 1,
+   "text": "Akuma walks in and finishes him in seconds.",
+   "start": 41.582,
+   "end": 44.04,
+   "words": [
+    {
+     "w": "Akuma",
+     "start": 41.582,
+     "end": 41.991
+    },
+    {
+     "w": "walks",
+     "start": 41.991,
+     "end": 42.343
+    },
+    {
+     "w": "in",
+     "start": 42.343,
+     "end": 42.518
+    },
+    {
+     "w": "and",
+     "start": 42.518,
+     "end": 42.694
+    },
+    {
+     "w": "finishes",
+     "start": 42.694,
+     "end": 43.162
+    },
+    {
+     "w": "him",
+     "start": 43.162,
+     "end": 43.396
+    },
+    {
+     "w": "in",
+     "start": 43.396,
+     "end": 43.571
+    },
+    {
+     "w": "seconds.",
+     "start": 43.571,
+     "end": 44.04
+    }
+   ]
+  },
+  {
+   "para": 6,
+   "idx": 0,
+   "text": "Ryu goes Dark Ryu.",
+   "start": 44.36,
+   "end": 45.591,
+   "words": [
+    {
+     "w": "Ryu",
+     "start": 44.36,
+     "end": 44.681
+    },
+    {
+     "w": "goes",
+     "start": 44.681,
+     "end": 44.948
+    },
+    {
+     "w": "Dark",
+     "start": 44.948,
+     "end": 45.269
+    },
+    {
+     "w": "Ryu.",
+     "start": 45.269,
+     "end": 45.591
+    }
+   ]
+  },
+  {
+   "para": 6,
+   "idx": 1,
+   "text": "He beats Akuma, then turns on his own friends.",
+   "start": 45.691,
+   "end": 48.562,
+   "words": [
+    {
+     "w": "He",
+     "start": 45.691,
+     "end": 45.886
+    },
+    {
+     "w": "beats",
+     "start": 45.886,
+     "end": 46.278
+    },
+    {
+     "w": "Akuma,",
+     "start": 46.278,
+     "end": 46.735
+    },
+    {
+     "w": "then",
+     "start": 46.735,
+     "end": 46.996
+    },
+    {
+     "w": "turns",
+     "start": 46.996,
+     "end": 47.387
+    },
+    {
+     "w": "on",
+     "start": 47.387,
+     "end": 47.583
+    },
+    {
+     "w": "his",
+     "start": 47.583,
+     "end": 47.844
+    },
+    {
+     "w": "own",
+     "start": 47.844,
+     "end": 48.105
+    },
+    {
+     "w": "friends.",
+     "start": 48.105,
+     "end": 48.562
+    }
+   ]
+  },
+  {
+   "para": 6,
+   "idx": 2,
+   "text": "Nobody can stop him until Ken throws a flaming Hadouken he's never pulled off before.",
+   "start": 48.662,
+   "end": 54.205,
+   "words": [
+    {
+     "w": "Nobody",
+     "start": 48.662,
+     "end": 49.263
+    },
+    {
+     "w": "can",
+     "start": 49.263,
+     "end": 49.53
+    },
+    {
+     "w": "stop",
+     "start": 49.53,
+     "end": 49.931
+    },
+    {
+     "w": "him",
+     "start": 49.931,
+     "end": 50.198
+    },
+    {
+     "w": "until",
+     "start": 50.198,
+     "end": 50.599
+    },
+    {
+     "w": "Ken",
+     "start": 50.599,
+     "end": 50.866
+    },
+    {
+     "w": "throws",
+     "start": 50.866,
+     "end": 51.267
+    },
+    {
+     "w": "a",
+     "start": 51.267,
+     "end": 51.467
+    },
+    {
+     "w": "flaming",
+     "start": 51.467,
+     "end": 52.001
+    },
+    {
+     "w": "Hadouken",
+     "start": 52.001,
+     "end": 52.602
+    },
+    {
+     "w": "he's",
+     "start": 52.602,
+     "end": 52.87
+    },
+    {
+     "w": "never",
+     "start": 52.87,
+     "end": 53.204
+    },
+    {
+     "w": "pulled",
+     "start": 53.204,
+     "end": 53.538
+    },
+    {
+     "w": "off",
+     "start": 53.538,
+     "end": 53.738
+    },
+    {
+     "w": "before.",
+     "start": 53.738,
+     "end": 54.205
+    }
+   ]
+  },
+  {
+   "para": 7,
+   "idx": 0,
+   "text": "Then the twist hits.",
+   "start": 54.525,
+   "end": 55.7,
+   "words": [
+    {
+     "w": "Then",
+     "start": 54.525,
+     "end": 54.802
+    },
+    {
+     "w": "the",
+     "start": 54.802,
+     "end": 54.94
+    },
+    {
+     "w": "twist",
+     "start": 54.94,
+     "end": 55.355
+    },
+    {
+     "w": "hits.",
+     "start": 55.355,
+     "end": 55.7
+    }
+   ]
+  },
+  {
+   "para": 7,
+   "idx": 1,
+   "text": "Bison's soldiers carry off Akuma's unconscious body, and Cammy blows up Chun-Li's van to cover the escape.",
+   "start": 55.8,
+   "end": 62.5,
+   "words": [
+    {
+     "w": "Bison's",
+     "start": 55.8,
+     "end": 56.353
+    },
+    {
+     "w": "soldiers",
+     "start": 56.353,
+     "end": 56.974
+    },
+    {
+     "w": "carry",
+     "start": 56.974,
+     "end": 57.32
+    },
+    {
+     "w": "off",
+     "start": 57.32,
+     "end": 57.527
+    },
+    {
+     "w": "Akuma's",
+     "start": 57.527,
+     "end": 58.08
+    },
+    {
+     "w": "unconscious",
+     "start": 58.08,
+     "end": 58.77
+    },
+    {
+     "w": "body,",
+     "start": 58.77,
+     "end": 59.185
+    },
+    {
+     "w": "and",
+     "start": 59.185,
+     "end": 59.392
+    },
+    {
+     "w": "Cammy",
+     "start": 59.392,
+     "end": 59.737
+    },
+    {
+     "w": "blows",
+     "start": 59.737,
+     "end": 60.152
+    },
+    {
+     "w": "up",
+     "start": 60.152,
+     "end": 60.359
+    },
+    {
+     "w": "Chun-Li's",
+     "start": 60.359,
+     "end": 61.05
+    },
+    {
+     "w": "van",
+     "start": 61.05,
+     "end": 61.326
+    },
+    {
+     "w": "to",
+     "start": 61.326,
+     "end": 61.533
+    },
+    {
+     "w": "cover",
+     "start": 61.533,
+     "end": 61.879
+    },
+    {
+     "w": "the",
+     "start": 61.879,
+     "end": 62.017
+    },
+    {
+     "w": "escape.",
+     "start": 62.017,
+     "end": 62.5
+    }
+   ]
+  },
+  {
+   "para": 7,
+   "idx": 2,
+   "text": "Bison's new plan is to steal Akuma's power instead of Ryu's.",
+   "start": 62.6,
+   "end": 66.482,
+   "words": [
+    {
+     "w": "Bison's",
+     "start": 62.6,
+     "end": 63.145
+    },
+    {
+     "w": "new",
+     "start": 63.145,
+     "end": 63.418
+    },
+    {
+     "w": "plan",
+     "start": 63.418,
+     "end": 63.758
+    },
+    {
+     "w": "is",
+     "start": 63.758,
+     "end": 63.894
+    },
+    {
+     "w": "to",
+     "start": 63.894,
+     "end": 64.099
+    },
+    {
+     "w": "steal",
+     "start": 64.099,
+     "end": 64.507
+    },
+    {
+     "w": "Akuma's",
+     "start": 64.507,
+     "end": 65.052
+    },
+    {
+     "w": "power",
+     "start": 65.052,
+     "end": 65.393
+    },
+    {
+     "w": "instead",
+     "start": 65.393,
+     "end": 65.869
+    },
+    {
+     "w": "of",
+     "start": 65.869,
+     "end": 66.006
+    },
+    {
+     "w": "Ryu's.",
+     "start": 66.006,
+     "end": 66.482
+    }
+   ]
+  },
+  {
+   "para": 8,
+   "idx": 0,
+   "text": "Now the mid-credits scene.",
+   "start": 66.802,
+   "end": 68.109,
+   "words": [
+    {
+     "w": "Now",
+     "start": 66.802,
+     "end": 67.03
+    },
+    {
+     "w": "the",
+     "start": 67.03,
+     "end": 67.143
+    },
+    {
+     "w": "mid-credits",
+     "start": 67.143,
+     "end": 67.825
+    },
+    {
+     "w": "scene.",
+     "start": 67.825,
+     "end": 68.109
+    }
+   ]
+  },
+  {
+   "para": 8,
+   "idx": 1,
+   "text": "It's animated.",
+   "start": 68.209,
+   "end": 69.161,
+   "words": [
+    {
+     "w": "It's",
+     "start": 68.209,
+     "end": 68.413
+    },
+    {
+     "w": "animated.",
+     "start": 68.413,
+     "end": 69.161
+    }
+   ]
+  },
+  {
+   "para": 8,
+   "idx": 2,
+   "text": "A man with an eyepatch and a huge scar across his chest is training.",
+   "start": 69.261,
+   "end": 73.222,
+   "words": [
+    {
+     "w": "A",
+     "start": 69.261,
+     "end": 69.444
+    },
+    {
+     "w": "man",
+     "start": 69.444,
+     "end": 69.688
+    },
+    {
+     "w": "with",
+     "start": 69.688,
+     "end": 69.871
+    },
+    {
+     "w": "an",
+     "start": 69.871,
+     "end": 69.992
+    },
+    {
+     "w": "eyepatch",
+     "start": 69.992,
+     "end": 70.419
+    },
+    {
+     "w": "and",
+     "start": 70.419,
+     "end": 70.602
+    },
+    {
+     "w": "a",
+     "start": 70.602,
+     "end": 70.784
+    },
+    {
+     "w": "huge",
+     "start": 70.784,
+     "end": 71.211
+    },
+    {
+     "w": "scar",
+     "start": 71.211,
+     "end": 71.577
+    },
+    {
+     "w": "across",
+     "start": 71.577,
+     "end": 72.003
+    },
+    {
+     "w": "his",
+     "start": 72.003,
+     "end": 72.247
+    },
+    {
+     "w": "chest",
+     "start": 72.247,
+     "end": 72.612
+    },
+    {
+     "w": "is",
+     "start": 72.612,
+     "end": 72.734
+    },
+    {
+     "w": "training.",
+     "start": 72.734,
+     "end": 73.222
+    }
+   ]
+  },
+  {
+   "para": 8,
+   "idx": 3,
+   "text": "Bison walks up with Vega, Cammy and Juli.",
+   "start": 73.322,
+   "end": 75.943,
+   "words": [
+    {
+     "w": "Bison",
+     "start": 73.322,
+     "end": 73.78
+    },
+    {
+     "w": "walks",
+     "start": 73.78,
+     "end": 74.174
+    },
+    {
+     "w": "up",
+     "start": 74.174,
+     "end": 74.37
+    },
+    {
+     "w": "with",
+     "start": 74.37,
+     "end": 74.567
+    },
+    {
+     "w": "Vega,",
+     "start": 74.567,
+     "end": 74.96
+    },
+    {
+     "w": "Cammy",
+     "start": 74.96,
+     "end": 75.288
+    },
+    {
+     "w": "and",
+     "start": 75.288,
+     "end": 75.485
+    },
+    {
+     "w": "Juli.",
+     "start": 75.485,
+     "end": 75.943
+    }
+   ]
+  },
+  {
+   "para": 9,
+   "idx": 0,
+   "text": "That's Sagat, the fighter Ryu beat in 1987.",
+   "start": 76.263,
+   "end": 79.464,
+   "words": [
+    {
+     "w": "That's",
+     "start": 76.263,
+     "end": 76.56
+    },
+    {
+     "w": "Sagat,",
+     "start": 76.56,
+     "end": 76.915
+    },
+    {
+     "w": "the",
+     "start": 76.915,
+     "end": 77.034
+    },
+    {
+     "w": "fighter",
+     "start": 77.034,
+     "end": 77.39
+    },
+    {
+     "w": "Ryu",
+     "start": 77.39,
+     "end": 77.745
+    },
+    {
+     "w": "beat",
+     "start": 77.745,
+     "end": 78.042
+    },
+    {
+     "w": "in",
+     "start": 78.042,
+     "end": 78.219
+    },
+    {
+     "w": "1987.",
+     "start": 78.219,
+     "end": 79.464
+    }
+   ]
+  },
+  {
+   "para": 9,
+   "idx": 1,
+   "text": "In the games, he's Bison's bodyguard, and Ryu's Shoryuken gave him that scar.",
+   "start": 79.564,
+   "end": 84.241,
+   "words": [
+    {
+     "w": "In",
+     "start": 79.564,
+     "end": 79.751
+    },
+    {
+     "w": "the",
+     "start": 79.751,
+     "end": 79.876
+    },
+    {
+     "w": "games,",
+     "start": 79.876,
+     "end": 80.25
+    },
+    {
+     "w": "he's",
+     "start": 80.25,
+     "end": 80.5
+    },
+    {
+     "w": "Bison's",
+     "start": 80.5,
+     "end": 80.998
+    },
+    {
+     "w": "bodyguard,",
+     "start": 80.998,
+     "end": 81.747
+    },
+    {
+     "w": "and",
+     "start": 81.747,
+     "end": 81.934
+    },
+    {
+     "w": "Ryu's",
+     "start": 81.934,
+     "end": 82.37
+    },
+    {
+     "w": "Shoryuken",
+     "start": 82.37,
+     "end": 83.056
+    },
+    {
+     "w": "gave",
+     "start": 83.056,
+     "end": 83.368
+    },
+    {
+     "w": "him",
+     "start": 83.368,
+     "end": 83.618
+    },
+    {
+     "w": "that",
+     "start": 83.618,
+     "end": 83.867
+    },
+    {
+     "w": "scar.",
+     "start": 83.867,
+     "end": 84.241
+    }
+   ]
+  },
+  {
+   "para": 10,
+   "idx": 0,
+   "text": "He's animated, probably because nobody's been cast as Sagat yet.",
+   "start": 84.561,
+   "end": 88.438,
+   "words": [
+    {
+     "w": "He's",
+     "start": 84.561,
+     "end": 84.811
+    },
+    {
+     "w": "animated,",
+     "start": 84.811,
+     "end": 85.499
+    },
+    {
+     "w": "probably",
+     "start": 85.499,
+     "end": 86.125
+    },
+    {
+     "w": "because",
+     "start": 86.125,
+     "end": 86.5
+    },
+    {
+     "w": "nobody's",
+     "start": 86.5,
+     "end": 87.125
+    },
+    {
+     "w": "been",
+     "start": 87.125,
+     "end": 87.375
+    },
+    {
+     "w": "cast",
+     "start": 87.375,
+     "end": 87.688
+    },
+    {
+     "w": "as",
+     "start": 87.688,
+     "end": 87.813
+    },
+    {
+     "w": "Sagat",
+     "start": 87.813,
+     "end": 88.188
+    },
+    {
+     "w": "yet.",
+     "start": 88.188,
+     "end": 88.438
+    }
+   ]
+  },
+  {
+   "para": 10,
+   "idx": 1,
+   "text": "So who should play him?",
+   "start": 88.538,
+   "end": 89.719,
+   "words": [
+    {
+     "w": "So",
+     "start": 88.538,
+     "end": 88.763
+    },
+    {
+     "w": "who",
+     "start": 88.763,
+     "end": 88.988
+    },
+    {
+     "w": "should",
+     "start": 88.988,
+     "end": 89.213
+    },
+    {
+     "w": "play",
+     "start": 89.213,
+     "end": 89.494
+    },
+    {
+     "w": "him?",
+     "start": 89.494,
+     "end": 89.719
+    }
+   ]
+  },
+  {
+   "para": 10,
+   "idx": 2,
+   "text": "Tell me in the comments.",
+   "start": 89.819,
+   "end": 90.984,
+   "words": [
+    {
+     "w": "Tell",
+     "start": 89.819,
+     "end": 90.03
+    },
+    {
+     "w": "me",
+     "start": 90.03,
+     "end": 90.242
+    },
+    {
+     "w": "in",
+     "start": 90.242,
+     "end": 90.401
+    },
+    {
+     "w": "the",
+     "start": 90.401,
+     "end": 90.507
+    },
+    {
+     "w": "comments.",
+     "start": 90.507,
+     "end": 90.984
+    }
+   ]
+  }
+ ]
+}

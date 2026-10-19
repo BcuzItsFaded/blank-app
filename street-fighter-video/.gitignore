@@ -1,0 +1,4 @@
+__pycache__/
+build/*
+!build/timing.json
+!build/asr.json
