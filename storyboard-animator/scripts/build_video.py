@@ -38,6 +38,8 @@ duration: optional; defaults to narration length + 0.5 s (or 4 s with no narrati
 "text": big centered title text over the scene (e.g. an end card on "black").
 caption_scale: caption font size as a fraction of frame width (default 0.075 for large captions;
   about 0.04 suits horizontal 16:9 videos).
+narration_mode: "scene" (default: each scene voiced in one go, natural flow) or "sentences" (each
+  sentence voiced separately: exact caption timing but choppier).
 Narration audio is cached in .tts_cache next to the storyboard, so rebuilds are fast.
 --plan prints each scene's start and length (generating narration only) without rendering video.
 Media paths are relative to the storyboard file.
@@ -132,11 +134,38 @@ def caption_png(text, w, h, out, scale=0.055, y_frac=0.72, box=True):
     img.save(out)
 
 
-def narrate(text, voice, out, cache_dir, work):
-    """Voice each sentence separately (cached) and join them with short gaps.
+def narrate(text, voice, out, cache_dir, work, mode="scene"):
+    """Voice a scene's narration and return [(sentence, start, end)] so captions follow the speech.
 
-    Returns [(sentence, start, end)] in seconds so captions can follow the real speech timing."""
+    mode "scene" (default) voices the whole text in one go, which sounds natural, then finds sentence
+    boundaries by snapping estimated positions to the pauses in the audio. Mode "sentences" voices each
+    sentence separately: exact timing, but choppier delivery.
+    """
     sentences = [x for x in re.split(r"(?<=[.?!])\s+", text.strip()) if x]
+    if mode != "sentences":
+        mp3 = f"{out}.mp3"
+        tts(text, voice, mp3, cache_dir)
+        run(["ffmpeg", "-y", "-v", "error", "-i", mp3, "-ar", "44100", "-ac", "1", out])
+        total = duration_of(out)
+        log = subprocess.run(["ffmpeg", "-i", out, "-af", "silencedetect=noise=-35dB:d=0.12", "-f", "null", "-"],
+                             capture_output=True, text=True).stderr
+        starts = [float(x) for x in re.findall(r"silence_start: ([\d.]+)", log)]
+        ends = [float(x) for x in re.findall(r"silence_end: ([\d.]+)", log)]
+        pauses = [(a + b) / 2 for a, b in zip(starts, ends) if 0.05 < a and b < total - 0.05]
+        chars = [len(x) for x in sentences]
+        timeline, prev, acc = [], 0.0, 0
+        for k, sentence in enumerate(sentences):
+            acc += chars[k]
+            if k == len(sentences) - 1:
+                end = total
+            else:
+                guess = total * acc / sum(chars)
+                near = [p for p in pauses if p > prev + 0.3 and abs(p - guess) < 2.0]
+                end = min(near, key=lambda p: abs(p - guess)) if near else guess
+            timeline.append((sentence, prev, end))
+            prev = end
+        return timeline
+
     gap = os.path.join(work, "gap.wav")
     if not os.path.exists(gap):
         run(["ffmpeg", "-y", "-v", "error", "-f", "lavfi", "-i", "anullsrc=r=44100:cl=mono", "-t", "0.25", gap])
@@ -300,7 +329,8 @@ def render_scene(i, scene, base, cfg, tmp, plan=False):
     audio, speech = None, 0.0
     if scene.get("narration"):
         audio = os.path.join(tmp, f"n{i}.wav")
-        timeline = narrate(scene["narration"], cfg["voice"], audio, os.path.join(base, ".tts_cache"), tmp)
+        timeline = narrate(scene["narration"], cfg["voice"], audio, os.path.join(base, ".tts_cache"), tmp,
+                            cfg["narration_mode"])
         speech = duration_of(audio)
     dur = scene.get("duration") or ((speech + 0.5) if audio else 4.0)
     tempo = cfg["voice_speed"]
@@ -439,6 +469,7 @@ def main():
            "voice": sb.get("voice", "en-US-AndrewNeural"), "captions": sb.get("captions", True),
            "fit": sb.get("fit", "cover"), "zoom": sb.get("zoom", 0.12),
            "caption_size": sb.get("caption_size", "normal"), "voice_speed": sb.get("voice_speed", 1.0),
+           "narration_mode": sb.get("narration_mode", "scene"),
            "caption_scale": sb.get("caption_scale", LARGE_CAPTION),
            "caption_y": sb.get("caption_y", 0.75 if sb.get("caption_size") == "large" else 0.72)}
 
@@ -454,7 +485,8 @@ def main():
         # Narration first (sequential, network), then render scenes in parallel.
         for i, s in enumerate(sb["scenes"]):
             if s.get("narration"):
-                narrate(s["narration"], cfg["voice"], os.path.join(tmp, f"warm{i}.wav"), os.path.join(base, ".tts_cache"), tmp)
+                narrate(s["narration"], cfg["voice"], os.path.join(tmp, f"warm{i}.wav"), os.path.join(base, ".tts_cache"), tmp,
+                        cfg["narration_mode"])
         with ThreadPoolExecutor(max_workers=max(1, (os.cpu_count() or 2) // 2)) as pool:
             clips = list(pool.map(lambda args: render_scene(*args, base, cfg, tmp), enumerate(sb["scenes"])))
         listing = os.path.join(tmp, "list.txt")
