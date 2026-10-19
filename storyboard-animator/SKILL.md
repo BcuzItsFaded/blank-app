@@ -18,7 +18,7 @@ The user's defaults are **vertical 9:16 (1080×1920)**, **narrator voiceover**, 
 
 ## Setup (check once per session)
 
-- `ffmpeg` and `ffprobe` must be installed. Python packages: `pip install pillow gTTS edge-tts`.
+- `ffmpeg` and `ffprobe` must be installed. Python packages: `pip install pillow gTTS edge-tts numpy opencv-python-headless`. OpenCV is only needed for keyframed camera paths.
 - Stock search needs at least one **free** API key, set as an environment variable:
   - `PEXELS_API_KEY`: sign up at https://www.pexels.com/api/ (instant, free)
   - `PIXABAY_API_KEY`: sign up at https://pixabay.com/api/docs/ (the key is shown on that page once logged in)
@@ -110,6 +110,11 @@ Write `storyboard.json` in the project folder. Media paths are relative to it.
 - **Caption placement**: `"caption_y"` (0–1, top-level or per scene) sets where captions sit. When panels have titles or labels baked into their bottom edge, use about 0.94 so the captions sit in the blurred area below the picture. Pull a few frames and check that nothing overlaps.
 - **Hitting a target length**: free TTS voices are slow. If the total runs long, set `"voice_speed"` (1.1–1.25) instead of cutting the user's words. The builder prints each scene's length.
 - **Outro**: for a closing line such as a call to action, reuse the user's full storyboard image as a final scene. It works as a recap card.
+- **Long-form / horizontal YouTube** (a long script or wide panels): use `"size": [1920, 1080]`, `"caption_scale": 0.036` and `"caption_y": 0.93`. Run `--plan` first: it generates the narration (cached in `.tts_cache`) and prints each scene's start and length, which you need for a cued score, without rendering any video. A full 10-minute render takes about 20 minutes, so run it in the background.
+- **Directed camera moves** (the user writes things like "open tight on X, pull back", "tilt down to the hands", "move up toward the palace"): use `"keys"` instead of `"motion"`, a keyframed camera path over the panel (see the builder docstring). Look at the panel to find the x/y fractions of the things the directions name. Keep close-ups at or below about 2.5× zoom on small source images, or they turn soft. `"cool"` on keys shifts the colour temperature toward blue. Render a short test (two scenes plus the end card) and check frames before the full render.
+- **Labels and title cards**: `"tag": "Imagined reconstruction"` puts a small label in the corner. `{"media": "black", "text": "Channel Name", "narration": "..."}` makes an end card.
+- **Caption timing**: each sentence is voiced separately, so captions follow the real speech even in minute-long scenes.
+- **What isn't possible here**: true parallax (foreground and background moving separately) needs the art in separate layers, and new imagery (for example, "transition to a modern payment symbol") needs a new image. Say so and offer the closest camera move instead.
 - **Dramatic pause**: `"pause_before": 1.0` on a scene holds the voice and captions for that many seconds, which is good before a twist. An ellipsis in the narration ("reveals... she's been pretending") gives a short natural pause.
 - **Scored music with per-scene cues** (when the user writes music directions per scene, such as "bass hit on X", "silence, then impact" or "strings rise"): build once without music to get each scene's length, then synthesize one continuous track with numpy that follows the cues. See `references/score_example.py` for piano, drone, strings, ticking, impacts and pulses, a cue word timed by its position in the narration, and silences. Then rebuild with `"music": "score.mp3"` and about 0.4 `music_volume`. Verify the cue moments with `ffmpeg -ss <t> -t 0.5 -i video.mp4 -af volumedetect -f null -`. Scene start = the sum of the earlier scene lengths the builder printed.
 - **Sound effects**: a scene can take `"sfx": [{"file": "twig.wav", "at": 5.2}]` (seconds into the scene). Leave a gap after the last spoken word so the effect doesn't land on top of it.

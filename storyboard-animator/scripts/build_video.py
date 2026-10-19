@@ -29,12 +29,27 @@ for hard cuts; "sfx": [{"file": "snap.wav", "at": 5.2, "volume": 1.0}] (at = sec
 "pause_before": seconds of silence before a scene's narration starts (captions wait too).
 If narration is longer than a scene's duration, it is sped up slightly (max 1.15x), then the scene is extended.
 duration: optional; defaults to narration length + 0.5 s (or 4 s with no narration).
+"keys" (photos): a keyframed camera path instead of "motion", e.g.
+  [{"t": 0, "x": 0.3, "y": 0.4, "zoom": 2.5}, {"t": 1, "x": 0.5, "y": 0.5, "zoom": 1}]
+  t = fraction of the scene, x/y = viewport center as a fraction of the image, zoom 1 = the largest
+  frame-shaped view that fits the image (2 = twice as close). Moves ease in and out between keys.
+  Optional "cool" (0-1) on keys shifts the colour temperature toward cold blue.
+"tag": small label in the top-left corner (e.g. "Imagined reconstruction").
+"text": big centered title text over the scene (e.g. an end card on "black").
+caption_scale: caption font size as a fraction of frame width (default 0.075 for large captions;
+  about 0.04 suits horizontal 16:9 videos).
+Narration audio is cached in .tts_cache next to the storyboard, so rebuilds are fast.
+--plan prints each scene's start and length (generating narration only) without rendering video.
 Media paths are relative to the storyboard file.
 """
 import argparse
 import asyncio
+import hashlib
+import shutil
+from concurrent.futures import ThreadPoolExecutor
 import json
 import os
+import re
 import subprocess
 import sys
 import tempfile
@@ -62,17 +77,33 @@ def duration_of(path):
     return float(run(["ffprobe", "-v", "error", "-show_entries", "format=duration", "-of", "csv=p=0", path]).strip())
 
 
-def tts(text, voice, out):
-    """Free narration: edge-tts (natural voices), falling back to gTTS."""
+EDGE_OK = [True]
+
+
+def tts(text, voice, out, cache_dir=None):
+    """Free narration: edge-tts (natural voices), falling back to gTTS. Cached by text + voice."""
+    cached = None
+    if cache_dir:
+        os.makedirs(cache_dir, exist_ok=True)
+        cached = os.path.join(cache_dir, hashlib.sha1(f"{voice}|{text}".encode()).hexdigest() + ".mp3")
+        if os.path.exists(cached):
+            shutil.copy(cached, out)
+            return
     try:
+        if not EDGE_OK[0]:
+            raise RuntimeError("edge-tts failed earlier")
         import edge_tts
         asyncio.run(edge_tts.Communicate(text, voice).save(out))
-        if os.path.getsize(out) > 0:
-            return
+        if os.path.getsize(out) == 0:
+            raise RuntimeError("empty audio")
     except Exception as e:
-        print(f"edge-tts unavailable ({type(e).__name__}); using gTTS", file=sys.stderr)
-    from gtts import gTTS
-    gTTS(text).save(out)
+        if EDGE_OK[0]:
+            print(f"edge-tts unavailable ({type(e).__name__}); using gTTS", file=sys.stderr)
+        EDGE_OK[0] = False
+        from gtts import gTTS
+        gTTS(text).save(out)
+    if cached:
+        shutil.copy(out, cached)
 
 
 def _font(size):
@@ -99,6 +130,53 @@ def caption_png(text, w, h, out, scale=0.055, y_frac=0.72, box=True):
         d.text(((w - lw) / 2, y), line, font=font, fill="white", stroke_width=max(2, size // 12), stroke_fill="black")
         y += line_h
     img.save(out)
+
+
+def narrate(text, voice, out, cache_dir, work):
+    """Voice each sentence separately (cached) and join them with short gaps.
+
+    Returns [(sentence, start, end)] in seconds so captions can follow the real speech timing."""
+    sentences = [x for x in re.split(r"(?<=[.?!])\s+", text.strip()) if x]
+    gap = os.path.join(work, "gap.wav")
+    if not os.path.exists(gap):
+        run(["ffmpeg", "-y", "-v", "error", "-f", "lavfi", "-i", "anullsrc=r=44100:cl=mono", "-t", "0.25", gap])
+    parts, timeline, t = [], [], 0.0
+    for k, sentence in enumerate(sentences):
+        mp3, wav = f"{out}.{k}.mp3", f"{out}.{k}.wav"
+        tts(sentence, voice, mp3, cache_dir)
+        run(["ffmpeg", "-y", "-v", "error", "-i", mp3, "-ar", "44100", "-ac", "1", wav])
+        d = duration_of(wav)
+        timeline.append((sentence, t, t + d))
+        parts += [wav, gap]
+        t += d + 0.25
+    listing = f"{out}.txt"
+    with open(listing, "w") as f:
+        f.writelines(f"file '{x}'\n" for x in parts[:-1])
+    run(["ffmpeg", "-y", "-v", "error", "-f", "concat", "-safe", "0", "-i", listing, "-c", "copy", out])
+    return timeline
+
+
+def ass_time(x):
+    return f"{int(x // 3600)}:{int(x % 3600 // 60):02d}:{x % 60:05.2f}"
+
+
+def write_ass(events, w, h, scale, y_frac, out):
+    """Big outlined subtitles (libass) — one filter, however many caption chunks there are."""
+    size = int(w * scale)
+    margin = max(0, int(h * (1 - y_frac) - size * 0.6))
+    lines = ["[Script Info]", "ScriptType: v4.00+", f"PlayResX: {w}", f"PlayResY: {h}", "",
+             "[V4+ Styles]",
+             "Format: Name, Fontname, Fontsize, PrimaryColour, SecondaryColour, OutlineColour, BackColour, Bold, "
+             "Italic, Underline, StrikeOut, ScaleX, ScaleY, Spacing, Angle, BorderStyle, Outline, Shadow, "
+             "Alignment, MarginL, MarginR, MarginV, Encoding",
+             f"Style: Cap,DejaVu Sans,{size},&H00FFFFFF,&H00FFFFFF,&H00000000,&H64000000,-1,0,0,0,100,100,0,0,1,"
+             f"{max(2, size // 14)},{max(1, size // 30)},2,{int(w * 0.05)},{int(w * 0.05)},{margin},1",
+             "", "[Events]", "Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text"]
+    for a, b, text in events:
+        text = text.replace("{", "(").replace("}", ")")
+        lines.append(f"Dialogue: 0,{ass_time(a)},{ass_time(b)},Cap,,0,0,0,,{text}")
+    with open(out, "w") as f:
+        f.write("\n".join(lines) + "\n")
 
 
 def caption_chunks(text, max_chars=24):
@@ -133,6 +211,66 @@ def contain_on_blur(src, w, h, out, inset=1.0):
     return out
 
 
+def render_path(src, keys, w, h, fps, frames, out):
+    """Render a keyframed camera move over a still image with sub-pixel smoothness (needs opencv)."""
+    import cv2
+    import numpy as np
+    img = cv2.imread(src, cv2.IMREAD_COLOR)
+    H, W = img.shape[:2]
+    aspect = w / h
+    base_w, base_h = (H * aspect, H) if W / H > aspect else (W, W / aspect)
+    keys = sorted(keys, key=lambda k: k["t"])
+
+    defaults = {"x": 0.5, "y": 0.5, "zoom": 1.0, "cool": 0.0}
+
+    def at(u):
+        """Camera (x, y, zoom, cool) at fraction u of the scene; "cool" tints toward blue (0-1)."""
+        if u <= keys[0]["t"]:
+            return tuple(keys[0].get(n, d) for n, d in defaults.items())
+        for a, b in zip(keys, keys[1:]):
+            if u <= b["t"]:
+                f = (u - a["t"]) / max(b["t"] - a["t"], 1e-6)
+                f = f * f * (3 - 2 * f)  # ease in/out
+                return tuple(a.get(n, d) + f * (b.get(n, d) - a.get(n, d)) for n, d in defaults.items())
+        return tuple(keys[-1].get(n, d) for n, d in defaults.items())
+
+    proc = subprocess.Popen(["ffmpeg", "-y", "-v", "error", "-f", "rawvideo", "-pix_fmt", "bgr24", "-s", f"{w}x{h}",
+                             "-r", str(fps), "-i", "-", "-c:v", "libx264", "-preset", "fast", "-crf", "18",
+                             "-pix_fmt", "yuv420p", out], stdin=subprocess.PIPE)
+    for i in range(frames):
+        cx, cy, z, cool = at(i / max(frames - 1, 1))
+        vw, vh = base_w / max(z, 1), base_h / max(z, 1)
+        x0 = min(max(cx * W - vw / 2, 0), W - vw)
+        y0 = min(max(cy * H - vh / 2, 0), H - vh)
+        sc = w / vw
+        m = np.float32([[sc, 0, -x0 * sc], [0, sc, -y0 * sc]])
+        frame = cv2.warpAffine(img, m, (w, h), flags=cv2.INTER_CUBIC, borderMode=cv2.BORDER_REFLECT)
+        if cool > 0:  # BGR: lift blue, pull red, slightly desaturate
+            f = frame.astype(np.float32)
+            gray = f.mean(axis=2, keepdims=True)
+            f = f * (1 - 0.25 * cool) + gray * 0.25 * cool
+            f *= np.array([1 + 0.18 * cool, 1 - 0.02 * cool, 1 - 0.16 * cool], dtype=np.float32)
+            frame = np.clip(f, 0, 255).astype(np.uint8)
+        proc.stdin.write(frame.tobytes())
+    proc.stdin.close()
+    if proc.wait():
+        sys.exit(f"Camera path render failed for {src}")
+    return out
+
+
+def label_png(text, w, h, out):
+    """Small tag in the top-left corner, e.g. 'Imagined reconstruction'."""
+    size = int(w * 0.018)
+    font = _font(size)
+    img = Image.new("RGBA", (w, h), (0, 0, 0, 0))
+    d = ImageDraw.Draw(img)
+    pad, m = int(size * 0.5), int(w * 0.025)
+    tw = d.textlength(text, font=font)
+    d.rounded_rectangle([m, m, m + tw + 2 * pad, m + size + 2 * pad], radius=pad, fill=(0, 0, 0, 140))
+    d.text((m + pad, m + pad * 0.8), text, font=font, fill=(255, 255, 255, 230))
+    img.save(out)
+
+
 def motion_filter(motion, w, h, fps, frames, z_amt):
     n = max(frames - 1, 1)
     center = "x='iw/2-(iw/zoom/2)':y='ih/2-(ih/zoom/2)'"
@@ -151,7 +289,7 @@ def motion_filter(motion, w, h, fps, frames, z_amt):
             f"zoompan={expr}:d={frames}:s={w}x{h}:fps={fps}")
 
 
-def render_scene(i, scene, base, cfg, tmp):
+def render_scene(i, scene, base, cfg, tmp, plan=False):
     w, h = cfg["size"]
     fps = cfg["fps"]
     color = scene["media"] if scene["media"] == "black" or scene["media"].startswith("#") else None
@@ -161,8 +299,8 @@ def render_scene(i, scene, base, cfg, tmp):
 
     audio, speech = None, 0.0
     if scene.get("narration"):
-        audio = os.path.join(tmp, f"n{i}.mp3")
-        tts(scene["narration"], cfg["voice"], audio)
+        audio = os.path.join(tmp, f"n{i}.wav")
+        timeline = narrate(scene["narration"], cfg["voice"], audio, os.path.join(base, ".tts_cache"), tmp)
         speech = duration_of(audio)
     dur = scene.get("duration") or ((speech + 0.5) if audio else 4.0)
     tempo = cfg["voice_speed"]
@@ -180,10 +318,15 @@ def render_scene(i, scene, base, cfg, tmp):
     # "pause_before": seconds of silence before the narration starts (a dramatic beat).
     pause = scene.get("pause_before", 0.0) if audio else 0.0
     dur += pause
+    if plan:
+        return {"scene": i + 1, "seconds": round(dur, 2), "speech": round(speech + pause, 2)}
     frames = int(round(dur * fps))
     fade = min(0.4, dur / 4)
 
     is_video = not color and os.path.splitext(media)[1].lower() in VIDEO_EXT
+    if scene.get("keys") and not color and not is_video:
+        media = render_path(media, scene["keys"], w, h, fps, frames, os.path.join(tmp, f"path{i}.mp4"))
+        is_video = True
     zoom = scene.get("zoom", cfg["zoom"])
     if not color and not is_video and scene.get("fit", cfg["fit"]) == "contain":
         # A centered zoom by (1+zoom) needs the image shrunk by that much; a pan also slides the
@@ -212,25 +355,43 @@ def render_scene(i, scene, base, cfg, tmp):
     if cfg["captions"] and scene.get("narration"):
         cap_y = scene.get("caption_y", cfg["caption_y"])
         if cfg["caption_size"] == "large":
-            # Big subtitles a few words at a time, timed by each phrase's share of the narration.
+            # Big subtitles a few words at a time. Each sentence was voiced separately, so its real start and
+            # end are known; phrases inside it are timed by their share of its characters.
             # One line per chunk keeps the captions compact enough to sit below the picture.
-            chunks = caption_chunks(scene["narration"], max_chars=int(w * 0.85 / (w * LARGE_CAPTION * 0.6)))
-            total_chars = sum(len(c) for c in chunks)
-            t = pause
-            for k, chunk in enumerate(chunks):
-                span = speech * len(chunk) / total_chars
-                end = t + span if k < len(chunks) - 1 else dur
-                cap = os.path.join(tmp, f"c{i}_{k}.png")
-                caption_png(chunk, w, h, cap, scale=LARGE_CAPTION, y_frac=cap_y, box=False)
-                cmd += ["-i", cap]
-                graph += f";{last}[{n_in}:v]overlay=0:0:enable='between(t,{t:.3f},{end:.3f})'[v{n_in}]"
-                last = f"[v{n_in}]"
-                n_in += 1
-                t += span
+            max_chars = int(w * 0.85 / (w * cfg["caption_scale"] * 0.6))
+            events = []
+            for sentence, a, b in timeline:
+                a, b = pause + a / tempo, pause + b / tempo
+                chunks = caption_chunks(sentence, max_chars=max_chars)
+                total_chars = sum(len(c) for c in chunks)
+                t = a
+                for chunk in chunks:
+                    span = (b - a) * len(chunk) / total_chars
+                    events.append([t, t + span, chunk])
+                    t += span
+            for k in range(len(events) - 1):  # hold each phrase until the next appears (no flicker in gaps)
+                events[k][1] = events[k + 1][0]
+            if events:
+                events[-1][1] = dur
+            ass = os.path.join(tmp, f"c{i}.ass")
+            write_ass(events, w, h, cfg["caption_scale"], cap_y, ass)
+            graph += f";{last}ass={ass}[vc]"
+            last = "[vc]"
         else:
             cap = os.path.join(tmp, f"c{i}.png")
             caption_png(scene["narration"], w, h, cap, y_frac=cap_y)
             cmd += ["-i", cap]
+            graph += f";{last}[{n_in}:v]overlay=0:0[v{n_in}]"
+            last = f"[v{n_in}]"
+            n_in += 1
+    for kind in ("tag", "text"):
+        if scene.get(kind):
+            png = os.path.join(tmp, f"{kind}{i}.png")
+            if kind == "tag":
+                label_png(scene["tag"], w, h, png)
+            else:
+                caption_png(scene["text"], w, h, png, scale=scene.get("text_scale", 0.06), y_frac=0.5, box=False)
+            cmd += ["-i", png]
             graph += f";{last}[{n_in}:v]overlay=0:0[v{n_in}]"
             last = f"[v{n_in}]"
             n_in += 1
@@ -268,6 +429,7 @@ def main():
     p = argparse.ArgumentParser()
     p.add_argument("storyboard")
     p.add_argument("--out", default="final.mp4")
+    p.add_argument("--plan", action="store_true", help="print scene timings only")
     a = p.parse_args()
 
     with open(a.storyboard) as f:
@@ -277,10 +439,24 @@ def main():
            "voice": sb.get("voice", "en-US-AndrewNeural"), "captions": sb.get("captions", True),
            "fit": sb.get("fit", "cover"), "zoom": sb.get("zoom", 0.12),
            "caption_size": sb.get("caption_size", "normal"), "voice_speed": sb.get("voice_speed", 1.0),
+           "caption_scale": sb.get("caption_scale", LARGE_CAPTION),
            "caption_y": sb.get("caption_y", 0.75 if sb.get("caption_size") == "large" else 0.72)}
 
     with tempfile.TemporaryDirectory() as tmp:
-        clips = [render_scene(i, s, base, cfg, tmp) for i, s in enumerate(sb["scenes"])]
+        if a.plan:
+            timings = [render_scene(i, s, base, cfg, tmp, plan=True) for i, s in enumerate(sb["scenes"])]
+            t = 0.0
+            for row in timings:
+                row["start"] = round(t, 2)
+                t += row["seconds"]
+            print(json.dumps({"scenes": timings, "total": round(t, 2)}, indent=1))
+            return
+        # Narration first (sequential, network), then render scenes in parallel.
+        for i, s in enumerate(sb["scenes"]):
+            if s.get("narration"):
+                narrate(s["narration"], cfg["voice"], os.path.join(tmp, f"warm{i}.wav"), os.path.join(base, ".tts_cache"), tmp)
+        with ThreadPoolExecutor(max_workers=max(1, (os.cpu_count() or 2) // 2)) as pool:
+            clips = list(pool.map(lambda args: render_scene(*args, base, cfg, tmp), enumerate(sb["scenes"])))
         listing = os.path.join(tmp, "list.txt")
         with open(listing, "w") as f:
             f.writelines(f"file '{c}'\n" for c in clips)
