@@ -26,6 +26,7 @@ voice_speed: narration speed multiplier, e.g. 1.15 to tighten a long script (kee
 caption_y (top-level or per scene): vertical center of captions as a fraction of height (default 0.75).
 Per scene: media "black" or "#rrggbb" for a solid frame (e.g. a cut to black); "fade_in"/"fade_out": false
 for hard cuts; "sfx": [{"file": "snap.wav", "at": 5.2, "volume": 1.0}] (at = seconds into the scene).
+"pause_before": seconds of silence before a scene's narration starts (captions wait too).
 If narration is longer than a scene's duration, it is sped up slightly (max 1.15x), then the scene is extended.
 duration: optional; defaults to narration length + 0.5 s (or 4 s with no narration).
 Media paths are relative to the storyboard file.
@@ -176,6 +177,9 @@ def render_scene(i, scene, base, cfg, tmp):
         if speech > dur - 0.2:
             print(f"scene {i + 1}: narration needs {speech + 0.3:.1f}s, longer than {dur}s; extending", file=sys.stderr)
             dur = speech + 0.3
+    # "pause_before": seconds of silence before the narration starts (a dramatic beat).
+    pause = scene.get("pause_before", 0.0) if audio else 0.0
+    dur += pause
     frames = int(round(dur * fps))
     fade = min(0.4, dur / 4)
 
@@ -212,7 +216,7 @@ def render_scene(i, scene, base, cfg, tmp):
             # One line per chunk keeps the captions compact enough to sit below the picture.
             chunks = caption_chunks(scene["narration"], max_chars=int(w * 0.85 / (w * LARGE_CAPTION * 0.6)))
             total_chars = sum(len(c) for c in chunks)
-            t = 0.0
+            t = pause
             for k, chunk in enumerate(chunks):
                 span = speech * len(chunk) / total_chars
                 end = t + span if k < len(chunks) - 1 else dur
@@ -232,7 +236,7 @@ def render_scene(i, scene, base, cfg, tmp):
             n_in += 1
     if audio:
         cmd += ["-i", audio]
-        graph += f";[{n_in}:a]atempo={tempo:.3f},apad,atrim=0:{dur},aresample=44100,aformat=channel_layouts=stereo[a0]"
+        graph += f";[{n_in}:a]atempo={tempo:.3f},adelay={int(pause * 1000)}|{int(pause * 1000)},apad,atrim=0:{dur},aresample=44100,aformat=channel_layouts=stereo[a0]"
     else:
         cmd += ["-f", "lavfi", "-i", "anullsrc=r=44100:cl=stereo"]
         graph += f";[{n_in}:a]atrim=0:{dur}[a0]"
