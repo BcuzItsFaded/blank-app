@@ -17,7 +17,10 @@ storyboard.json:
 }
 motion (photos only): zoom_in, zoom_out, pan_left, pan_right, pan_up, pan_down, still.
 fit (photos, top-level or per scene): "cover" (default) crops to fill the frame;
-"contain" shows the whole image over a blurred fill — use it when cropping would cut off text or subjects.
+"contain" shows the whole image over a blurred fill — use it when cropping would cut off text or subjects;
+it also shrinks the image so zooms and pans never crop it.
+zoom (top-level or per scene): how far photos zoom/pan, default 0.12 (12%).
+music_volume: background music level under the voice, default 0.12.
 duration: optional; defaults to narration length + 0.5 s (or 4 s with no narration).
 Media paths are relative to the storyboard file.
 """
@@ -85,8 +88,10 @@ def caption_png(text, w, h, out):
     img.save(out)
 
 
-def contain_on_blur(src, w, h, out):
-    """Fit the whole image inside w x h over a blurred, darkened fill of itself, so nothing is cropped."""
+def contain_on_blur(src, w, h, out, inset=1.0):
+    """Fit the whole image inside w x h over a blurred, darkened fill of itself, so nothing is cropped.
+
+    inset > 1 shrinks the image so it still fits after zoompan zooms in by that factor."""
     img = Image.open(src).convert("RGB")
     bg = img.copy()
     scale = max(w / bg.width, h / bg.height)
@@ -94,16 +99,15 @@ def contain_on_blur(src, w, h, out):
     left, top = (bg.width - w) // 2, (bg.height - h) // 2
     bg = bg.crop((left, top, left + w, top + h)).filter(ImageFilter.GaussianBlur(40))
     bg = Image.eval(bg, lambda v: int(v * 0.55))
-    scale = min(w / img.width, h / img.height)
+    scale = min(w / img.width, h / img.height) / inset
     fg = img.resize((int(img.width * scale), int(img.height * scale)), Image.LANCZOS)
     bg.paste(fg, ((w - fg.width) // 2, (h - fg.height) // 2))
     bg.save(out)
     return out
 
 
-def motion_filter(motion, w, h, fps, frames):
+def motion_filter(motion, w, h, fps, frames, z_amt):
     n = max(frames - 1, 1)
-    z_amt = 0.18
     center = "x='iw/2-(iw/zoom/2)':y='ih/2-(ih/zoom/2)'"
     exprs = {
         "zoom_in": f"z='1+{z_amt}*on/{n}':{center}",
@@ -136,14 +140,19 @@ def render_scene(i, scene, base, cfg, tmp):
     fade = min(0.4, dur / 4)
 
     is_video = os.path.splitext(media)[1].lower() in VIDEO_EXT
+    zoom = scene.get("zoom", cfg["zoom"])
     if not is_video and scene.get("fit", cfg["fit"]) == "contain":
-        media = contain_on_blur(media, w * 2, h * 2, os.path.join(tmp, f"fit{i}.png"))
+        # A centered zoom by (1+zoom) needs the image shrunk by that much; a pan also slides the
+        # window off-center by up to the zoom slack, which needs (1+zoom)/(1-zoom).
+        pan = scene.get("motion", "zoom_in").startswith("pan_")
+        inset = (1 + zoom) / (1 - zoom) if pan else 1 + zoom
+        media = contain_on_blur(media, w * 2, h * 2, os.path.join(tmp, f"fit{i}.png"), inset=inset)
     if is_video:
         inputs = ["-stream_loop", "-1", "-i", media]
         vf = f"scale={w}:{h}:force_original_aspect_ratio=increase,crop={w}:{h},fps={fps},setsar=1"
     else:
         inputs = ["-loop", "1", "-framerate", str(fps), "-i", media]
-        vf = motion_filter(scene.get("motion", "zoom_in"), w, h, fps, frames) + ",setsar=1"
+        vf = motion_filter(scene.get("motion", "zoom_in"), w, h, fps, frames, zoom) + ",setsar=1"
     vf += f",fade=t=in:st=0:d={fade},fade=t=out:st={dur - fade}:d={fade}"
 
     cmd = ["ffmpeg", "-y", "-v", "error", *inputs]
@@ -183,7 +192,7 @@ def main():
     base = os.path.dirname(os.path.abspath(a.storyboard))
     cfg = {"size": sb.get("size", [1080, 1920]), "fps": sb.get("fps", 30),
            "voice": sb.get("voice", "en-US-AndrewNeural"), "captions": sb.get("captions", True),
-           "fit": sb.get("fit", "cover")}
+           "fit": sb.get("fit", "cover"), "zoom": sb.get("zoom", 0.12)}
 
     with tempfile.TemporaryDirectory() as tmp:
         clips = [render_scene(i, s, base, cfg, tmp) for i, s in enumerate(sb["scenes"])]
@@ -199,7 +208,7 @@ def main():
             total = duration_of(joined)
             run(["ffmpeg", "-y", "-v", "error", "-i", joined, "-stream_loop", "-1", "-i", music,
                  "-filter_complex",
-                 f"[1:a]volume=0.12,atrim=0:{total},afade=t=out:st={max(total - 2, 0)}:d=2[m];"
+                 f"[1:a]volume={sb.get('music_volume', 0.12)},atrim=0:{total},afade=t=out:st={max(total - 2, 0)}:d=2[m];"
                  f"[0:a][m]amix=inputs=2:duration=first:normalize=0[a]",
                  "-map", "0:v", "-map", "[a]", "-c:v", "copy", "-c:a", "aac", a.out])
         else:

@@ -61,7 +61,15 @@ Create a project folder, for example `video-<short-name>/`. Inside it:
 - **Look at what you downloaded** before building. For photos, view the image. For videos, grab a frame with `ffmpeg -ss 1 -i s1.mp4 -frames:v 1 s1.png` and view it. Stock search often returns near misses. If a result doesn't match the scene, try `--index 1` or rephrase the keywords. Wrong visuals are the most common way these videos go bad.
 - Every download is recorded in `credits.txt`. Pexels and Pixabay don't require credit, but it's courteous, and the user may want it for a video description.
 
-Optional music: Pixabay Music (https://pixabay.com/music/) is free. If the user downloads a track, put it in the folder and set `"music"`. It's mixed quietly under the voice.
+Optional music: Pixabay Music (https://pixabay.com/music/) is free. If the user downloads a track, put it in the folder and set `"music"`. It's mixed quietly under the voice (`"music_volume"`, default 0.12).
+
+If the user wants music but has no track, you can synthesize a free dark ambient drone with ffmpeg. It suits horror, mystery and serious stories. Set `"music_volume": 0.35`, because a drone is quieter than a mixed song:
+```bash
+ffmpeg -y -f lavfi -i "sine=f=55:d=60" -f lavfi -i "sine=f=58.3:d=60" -f lavfi -i "anoisesrc=d=60:c=brown:a=0.4" \
+  -filter_complex "[0]volume=0.7[a];[1]volume=0.5[b];[2]lowpass=f=350,volume=0.6,tremolo=f=0.12:d=0.8[c];[a][b][c]amix=inputs=3:normalize=0,aecho=0.8:0.6:600:0.35,afade=t=in:d=3,loudnorm=I=-20" \
+  -ar 44100 ambient.mp3
+```
+Tell the user it's a generated placeholder and that a real track from Pixabay Music will sound better.
 
 ## Step 3: Build
 
@@ -81,6 +89,7 @@ Write `storyboard.json` in the project folder. Media paths are relative to it.
 
 - Scene length is the narration length plus 0.5 s. Set `duration` to override, or for scenes with no narration.
 - Stock videos loop if they're shorter than the scene.
+- `"zoom"` sets how strong the photo motion is (default 0.12, or 12%). Lower it for subtler motion. With `"fit": "contain"` the image is shrunk just enough that zooms and pans never cut anything off.
 - Voices (edge-tts) include `en-US-AndrewNeural` (warm male), `en-US-AvaNeural` (friendly female), `en-US-GuyNeural`, `en-US-JennyNeural` and `en-GB-SoniaNeural`. Run `edge-tts --list-voices` for more. If edge-tts can't connect, the builder falls back to gTTS (one plainer voice) and says so, so tell the user.
 - `"size": [1920, 1080]` gives horizontal output if the user asks.
 
