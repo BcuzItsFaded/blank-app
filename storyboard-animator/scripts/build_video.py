@@ -82,30 +82,54 @@ def duration_of(path):
 EDGE_OK = [True]
 
 
+def _edge_tts(text, voice, out):
+    import ssl
+
+    import aiohttp
+    import edge_tts
+
+    async def go():
+        # aiohttp ignores HTTPS_PROXY unless told; behind a TLS-inspecting proxy it also needs that CA.
+        proxy = os.environ.get("HTTPS_PROXY") or os.environ.get("https_proxy")
+        cafile = os.environ.get("SSL_CERT_FILE") or os.environ.get("REQUESTS_CA_BUNDLE")
+        if proxy and not cafile and os.path.exists("/root/.ccr/ca-bundle.crt"):
+            cafile = "/root/.ccr/ca-bundle.crt"
+        kwargs = {"proxy": proxy} if proxy else {}
+        if cafile:
+            kwargs["connector"] = aiohttp.TCPConnector(ssl=ssl.create_default_context(cafile=cafile))
+        await edge_tts.Communicate(text, voice, **kwargs).save(out)
+
+    asyncio.run(go())
+    if os.path.getsize(out) == 0:
+        raise RuntimeError("empty audio")
+
+
 def tts(text, voice, out, cache_dir=None):
-    """Free narration: edge-tts (natural voices), falling back to gTTS. Cached by text + voice."""
-    cached = None
+    """Free narration: edge-tts (natural neural voices), falling back to gTTS (robotic). Cached per engine."""
+    def cache_path(engine):
+        return os.path.join(cache_dir, hashlib.sha1(f"{engine}|{voice}|{text}".encode()).hexdigest() + ".mp3")
+
     if cache_dir:
         os.makedirs(cache_dir, exist_ok=True)
-        cached = os.path.join(cache_dir, hashlib.sha1(f"{voice}|{text}".encode()).hexdigest() + ".mp3")
-        if os.path.exists(cached):
-            shutil.copy(cached, out)
-            return
+        engines = ["edge", "gtts"] if not EDGE_OK[0] else ["edge"]
+        for engine in engines:
+            if os.path.exists(cache_path(engine)):
+                shutil.copy(cache_path(engine), out)
+                return
+    engine = "edge"
     try:
         if not EDGE_OK[0]:
             raise RuntimeError("edge-tts failed earlier")
-        import edge_tts
-        asyncio.run(edge_tts.Communicate(text, voice).save(out))
-        if os.path.getsize(out) == 0:
-            raise RuntimeError("empty audio")
+        _edge_tts(text, voice, out)
     except Exception as e:
         if EDGE_OK[0]:
-            print(f"edge-tts unavailable ({type(e).__name__}); using gTTS", file=sys.stderr)
+            print(f"edge-tts unavailable ({type(e).__name__}: {e}); using gTTS (robotic)", file=sys.stderr)
         EDGE_OK[0] = False
+        engine = "gtts"
         from gtts import gTTS
         gTTS(text).save(out)
-    if cached:
-        shutil.copy(out, cached)
+    if cache_dir:
+        shutil.copy(out, cache_path(engine))
 
 
 def _font(size):
