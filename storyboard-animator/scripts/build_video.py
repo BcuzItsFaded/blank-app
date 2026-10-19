@@ -35,7 +35,9 @@ duration: optional; defaults to narration length + 0.5 s (or 4 s with no narrati
   frame-shaped view that fits the image (2 = twice as close). Moves ease in and out between keys.
   Optional "cool" (0-1) on keys shifts the colour temperature toward cold blue.
 "tag": small label in the top-left corner (e.g. "Imagined reconstruction").
-"text": big centered title text over the scene (e.g. an end card on "black").
+"text": big title text over the scene (e.g. an end card on "black"); "text_y" (0-1) moves it, "text_scale" sizes it.
+"shots": [{"media": "a.png", "keys": [...], "share": 2}, ...] — several hard-cut camera shots under one
+  narration; each gets its share of the scene length (keys default to a gentle push-in).
 caption_scale: caption font size as a fraction of frame width (default 0.075 for large captions;
   about 0.04 suits horizontal 16:9 videos).
 narration_mode: "scene" (default: each scene voiced in one go, natural flow) or "sentences" (each
@@ -120,7 +122,15 @@ def tts(text, voice, out, cache_dir=None):
     try:
         if not EDGE_OK[0]:
             raise RuntimeError("edge-tts failed earlier")
-        _edge_tts(text, voice, out)
+        for attempt in range(4):  # the service occasionally returns no audio; retrying usually works
+            try:
+                _edge_tts(text, voice, out)
+                break
+            except Exception as e:
+                if attempt == 3 or "NoAudioReceived" not in type(e).__name__:
+                    raise
+                import time
+                time.sleep(2 * (attempt + 1))
     except Exception as e:
         if EDGE_OK[0]:
             print(f"edge-tts unavailable ({type(e).__name__}: {e}); using gTTS (robotic)", file=sys.stderr)
@@ -345,10 +355,12 @@ def motion_filter(motion, w, h, fps, frames, z_amt):
 def render_scene(i, scene, base, cfg, tmp, plan=False):
     w, h = cfg["size"]
     fps = cfg["fps"]
-    color = scene["media"] if scene["media"] == "black" or scene["media"].startswith("#") else None
-    media = os.path.join(base, scene["media"])
-    if not color and not os.path.exists(media):
-        sys.exit(f"Scene {i + 1}: media not found: {media}")
+    media_name = scene.get("media") or scene["shots"][0]["media"]
+    color = media_name if media_name == "black" or media_name.startswith("#") else None
+    media = os.path.join(base, media_name)
+    for name in [media_name] + [sh["media"] for sh in scene.get("shots", [])]:
+        if not color and not os.path.exists(os.path.join(base, name)):
+            sys.exit(f"Scene {i + 1}: media not found: {name}")
 
     audio, speech = None, 0.0
     if scene.get("narration"):
@@ -378,6 +390,23 @@ def render_scene(i, scene, base, cfg, tmp, plan=False):
     fade = min(0.4, dur / 4)
 
     is_video = not color and os.path.splitext(media)[1].lower() in VIDEO_EXT
+    if scene.get("shots"):
+        # Several camera shots (hard cuts) under one narration, each a share of the scene's length.
+        shots = scene["shots"]
+        total_share = sum(sh.get("share", 1) for sh in shots)
+        parts, used = [], 0
+        for j, sh in enumerate(shots):
+            n = frames - used if j == len(shots) - 1 else int(round(frames * sh.get("share", 1) / total_share))
+            used += n
+            src = os.path.join(base, sh["media"])
+            keys = sh.get("keys") or [{"t": 0, "x": 0.5, "y": 0.5, "zoom": 1}, {"t": 1, "x": 0.5, "y": 0.5, "zoom": 1.08}]
+            parts.append(render_path(src, keys, w, h, fps, max(n, 1), os.path.join(tmp, f"shot{i}_{j}.mp4")))
+        listing = os.path.join(tmp, f"shots{i}.txt")
+        with open(listing, "w") as f:
+            f.writelines(f"file '{x}'\n" for x in parts)
+        media = os.path.join(tmp, f"shots{i}.mp4")
+        run(["ffmpeg", "-y", "-v", "error", "-f", "concat", "-safe", "0", "-i", listing, "-c", "copy", media])
+        is_video = True
     if scene.get("keys") and not color and not is_video:
         media = render_path(media, scene["keys"], w, h, fps, frames, os.path.join(tmp, f"path{i}.mp4"))
         is_video = True
@@ -444,7 +473,8 @@ def render_scene(i, scene, base, cfg, tmp, plan=False):
             if kind == "tag":
                 label_png(scene["tag"], w, h, png)
             else:
-                caption_png(scene["text"], w, h, png, scale=scene.get("text_scale", 0.06), y_frac=0.5, box=False)
+                caption_png(scene["text"], w, h, png, scale=scene.get("text_scale", 0.06), y_frac=scene.get("text_y", 0.5),
+                            box=False)
             cmd += ["-i", png]
             graph += f";{last}[{n_in}:v]overlay=0:0[v{n_in}]"
             last = f"[v{n_in}]"
