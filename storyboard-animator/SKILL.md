@@ -18,7 +18,7 @@ The user's defaults are **vertical 9:16 (1080×1920)**, **narrator voiceover**, 
 
 ## Setup (check once per session)
 
-- `ffmpeg` and `ffprobe` must be installed. Python packages: `pip install pillow gTTS edge-tts numpy opencv-python-headless`. OpenCV is only needed for keyframed camera paths.
+- `ffmpeg` and `ffprobe` must be installed. Python packages: `pip install pillow gTTS edge-tts numpy opencv-python-headless onnxruntime`. onnxruntime is only needed for AI upscaling. OpenCV is only needed for keyframed camera paths.
 - Stock search needs at least one **free** API key, set as an environment variable:
   - `PEXELS_API_KEY`: sign up at https://www.pexels.com/api/ (instant, free)
   - `PIXABAY_API_KEY`: sign up at https://pixabay.com/api/docs/ (the key is shown on that page once logged in)
@@ -113,6 +113,7 @@ Write `storyboard.json` in the project folder. Media paths are relative to it.
 - **Long-form / horizontal YouTube** (a long script or wide panels): use `"size": [1920, 1080]`, `"caption_scale": 0.036` and `"caption_y": 0.93`. Run `--plan` first: it generates the narration (cached in `.tts_cache`) and prints each scene's start and length, which you need for a cued score, without rendering any video. A full 10-minute render takes about 20 minutes, so run it in the background.
 - **Directed camera moves** (the user writes things like "open tight on X, pull back", "tilt down to the hands", "move up toward the palace"): use `"keys"` instead of `"motion"`, a keyframed camera path over the panel (see the builder docstring). Look at the panel to find the x/y fractions of the things the directions name. Keep close-ups at or below about 2.5× zoom on small source images, or they turn soft. `"cool"` on keys shifts the colour temperature toward blue. Render a short test (two scenes plus the end card) and check frames before the full render.
 - **Multi-shot beats**: when one narration line needs several quick cuts ("snap cuts", "match cut to…"), use `"shots"` (each a panel plus keys plus a share of the time). `"text"` with `"text_y": 0.13` gives a top title per beat (on-screen text from the storyboard).
+- **Small or blurry panels** (panels cut from one board image are often only about 300 px wide): run `scripts/upscale.py` (Real-ESRGAN, 4×, ONNX; the model download link is in its docstring) on the raw crops before building, instead of a plain resize. It redraws clean ink lines. Also cap camera zoom at about 2× for such panels. The user found plain-upscaled 3× close-ups blurry.
 - **Labels and title cards**: `"tag": "Imagined reconstruction"` puts a small label in the corner. `{"media": "black", "text": "Channel Name", "narration": "..."}` makes an end card.
 - **Caption timing**: each scene is voiced in one go, which sounds natural, and captions are synced by matching sentences to the pauses in the speech. `"narration_mode": "sentences"` gives exact sync, but the user found it choppy, so avoid it.
 - **What isn't possible here**: true parallax (foreground and background moving separately) needs the art in separate layers, and new imagery (for example, "transition to a modern payment symbol") needs a new image. Say so and offer the closest camera move instead.
