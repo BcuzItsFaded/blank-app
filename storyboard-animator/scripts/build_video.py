@@ -38,6 +38,7 @@ duration: optional; defaults to narration length + 0.5 s (or 4 s with no narrati
 "text": big title text over the scene (e.g. an end card on "black"); "text_y" (0-1) moves it, "text_scale" sizes it.
 "shots": [{"media": "a.png", "keys": [...], "share": 2}, ...] — several hard-cut camera shots under one
   narration; each gets its share of the scene length (keys default to a gentle push-in).
+  A shot can add "flashes": [0.3, 0.8] — lightning flashes at those fractions of the shot.
 caption_scale: caption font size as a fraction of frame width (default 0.075 for large captions;
   about 0.04 suits horizontal 16:9 videos).
 narration_mode: "scene" (default: each scene voiced in one go, natural flow) or "sentences" (each
@@ -274,7 +275,7 @@ def contain_on_blur(src, w, h, out, inset=1.0):
     return out
 
 
-def render_path(src, keys, w, h, fps, frames, out):
+def render_path(src, keys, w, h, fps, frames, out, flashes=()):
     """Render a keyframed camera move over a still image with sub-pixel smoothness (needs opencv)."""
     import cv2
     import numpy as np
@@ -308,6 +309,10 @@ def render_path(src, keys, w, h, fps, frames, out):
         sc = w / vw
         m = np.float32([[sc, 0, -x0 * sc], [0, sc, -y0 * sc]])
         frame = cv2.warpAffine(img, m, (w, h), flags=cv2.INTER_CUBIC, borderMode=cv2.BORDER_REFLECT)
+        u = i / max(frames - 1, 1)
+        flash = max([np.exp(-(u - f) * frames / 3.0) for f in flashes if u >= f] or [0])
+        if flash > 0.02:  # lightning: blow out toward white, decaying over a few frames
+            frame = cv2.addWeighted(frame, 1 - 0.75 * flash, np.full_like(frame, 255), 0.75 * flash, 0)
         if cool > 0:  # BGR: lift blue, pull red, slightly desaturate
             f = frame.astype(np.float32)
             gray = f.mean(axis=2, keepdims=True)
@@ -400,7 +405,8 @@ def render_scene(i, scene, base, cfg, tmp, plan=False):
             used += n
             src = os.path.join(base, sh["media"])
             keys = sh.get("keys") or [{"t": 0, "x": 0.5, "y": 0.5, "zoom": 1}, {"t": 1, "x": 0.5, "y": 0.5, "zoom": 1.08}]
-            parts.append(render_path(src, keys, w, h, fps, max(n, 1), os.path.join(tmp, f"shot{i}_{j}.mp4")))
+            parts.append(render_path(src, keys, w, h, fps, max(n, 1), os.path.join(tmp, f"shot{i}_{j}.mp4"),
+                                     sh.get("flashes", ())))
         listing = os.path.join(tmp, f"shots{i}.txt")
         with open(listing, "w") as f:
             f.writelines(f"file '{x}'\n" for x in parts)
