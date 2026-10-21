@@ -35,7 +35,8 @@ duration: optional; defaults to narration length + 0.5 s (or 4 s with no narrati
   frame-shaped view that fits the image (2 = twice as close). Moves ease in and out between keys.
   Optional "cool" (0-1) on keys shifts the colour temperature toward cold blue.
 "tag": small label in the top-left corner (e.g. "Imagined reconstruction").
-"text": big title text over the scene (e.g. an end card on "black"); "text_y" (0-1) moves it, "text_scale" sizes it.
+"text": big title text over the scene (e.g. an end card on "black"); "text_y" (0-1) moves it, "text_scale" sizes it,
+  "text_from"/"text_to" (seconds into the scene) show it only for part of the scene.
 "shots": [{"media": "a.png", "keys": [...], "share": 2}, ...] — several hard-cut camera shots under one
   narration; each gets its share of the scene length (keys default to a gentle push-in).
   A shot can add "flashes": [0.3, 0.8] — lightning flashes at those fractions of the shot.
@@ -482,7 +483,11 @@ def render_scene(i, scene, base, cfg, tmp, plan=False):
                 caption_png(scene["text"], w, h, png, scale=scene.get("text_scale", 0.06), y_frac=scene.get("text_y", 0.5),
                             box=False)
             cmd += ["-i", png]
-            graph += f";{last}[{n_in}:v]overlay=0:0[v{n_in}]"
+            # "text_from"/"text_to" (seconds into the scene) limit when the title shows, e.g. a 2-second hook.
+            when = ""
+            if kind == "text" and ("text_from" in scene or "text_to" in scene):
+                when = f":enable='between(t,{scene.get('text_from', 0)},{scene.get('text_to', 9999)})'"
+            graph += f";{last}[{n_in}:v]overlay=0:0{when}[v{n_in}]"
             last = f"[v{n_in}]"
             n_in += 1
     if audio:
