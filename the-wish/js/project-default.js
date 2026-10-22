@@ -92,8 +92,11 @@ She returns as a walking corpse! Henry finally understands. The statue gives him
 
 Be careful what you wish for, kiddies. Some dreams are better left buried!`,
 
-  voice: null, // URL/data URL of a recorded narration; assets/voice.{mp3,wav,m4a,ogg} is tried
+  // Narration: Piper TTS "northern_english_male" (OpenSLR 83, CC-BY-SA 4.0) + creepy preset, made with
+  // the horror-comic-short skill. speech = real [start, end] of each script section, for subtitle sync.
+  voice: "assets/voice-final.mp3",
   voiceOffset: 0,
+  speech: [[0.18, 6.677], [7.16, 14.52], [15.16, 24.06], [27.16, 33.8], [39.16, 44.04], [47.16, 55.64], [56.16, 59.66]],
   music: null, // URL of a music bed; replaces the generative score when set
 
   settings: {

@@ -108,8 +108,22 @@ python3 "$SKILL/scripts/prepare_voice.py" "$EP" <recording> [--deepen 0.9] [--re
 - If it reports splitting by word count, the pauses weren't clear: listen to the timings and ask for
   clearer pauses if the sync is off.
 
+**No recording? Narrate it with the free built-in narrator** (Piper TTS, runs locally, no API):
+
+```bash
+python3 -m venv ~/.piper && ~/.piper/bin/pip install piper-tts      # once
+~/.piper/bin/python "$SKILL/scripts/narrate_tts.py" "$EP" --creepy [--pace 1.1]
+```
+
+It reads each script section, then runs prepare_voice.py with the same placement and the `--creepy`
+preset: deeper pitch, a faint sub-octave growl and crypt reverb. `--pace` above 1 slows the delivery;
+lower it if a section warns that it runs past its slot. The default voice
+`en_GB-northern_english_male-medium` is CC-BY-SA 4.0, so tell the user to credit it in the video
+description: "Narration: Piper TTS, northern_english_male (OpenSLR 83, CC-BY-SA 4.0)". Don't use
+`en_US-ryan-*` voices for monetized channels (non-commercial licence).
+
 The music automatically ducks under the voice in the render. Voice cloning from a short sample isn't
-part of this skill (free models aren't licensed for monetized channels); ask for a full read instead.
+part of this skill (free models aren't licensed for monetized channels).
 
 ### 6. Render the MP4
 
@@ -126,7 +140,7 @@ the audio isn't clipping (`-af volumedetect`; max should be under 0 dB).
 ### 7. Deliver
 
 Send the MP4 with SendUserFile (`display: "attach"`, so it saves straight to their phone). Mention:
-- if there's no narrator voice yet: they can record the script and send it; run step 5 and re-render;
+- if there's no narrator voice yet: offer the free creepy narrator, or they can record the script and send it (step 5);
 - they can open `$EP/index.html` to preview/tweak, or record it live with OBS (`player/OBS_GUIDE.md`).
 
 ## Requirements

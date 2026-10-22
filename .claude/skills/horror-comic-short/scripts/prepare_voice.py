@@ -21,9 +21,13 @@ ap = argparse.ArgumentParser()
 ap.add_argument("episode"); ap.add_argument("recording")
 ap.add_argument("--deepen", type=float, default=0, help="pitch ratio, e.g. 0.9 (0 = off)")
 ap.add_argument("--reverb", action="store_true")
+ap.add_argument("--creepy", action="store_true", help="preset: deeper pitch, faint sub-octave growl, crypt reverb")
 ap.add_argument("--no-denoise", action="store_true")
 ap.add_argument("--max-tempo", type=float, default=1.35)
 a = ap.parse_args()
+if a.creepy:
+    a.deepen = a.deepen or 0.86
+    a.reverb = True
 
 proj_path = os.path.join(a.episode, "assets", "project.js")
 proj = open(proj_path, encoding="utf-8").read()
@@ -125,10 +129,12 @@ raw = os.path.join(tmp, "track.f32"); track.tofile(raw)
 fx = []
 if a.deepen: fx.append(f"rubberband=pitch={a.deepen}:formant=preserved")
 fx.append("acompressor=threshold=-20dB:ratio=3:attack=5:release=120")
-if a.reverb: fx.append("aecho=0.8:0.55:45|90:0.22|0.12")
+if a.creepy:  # faint sub-octave double underneath = menacing growl
+    fx.append("asplit[d][s];[s]rubberband=pitch=0.5:formant=shifted,lowpass=f=900,volume=0.22[g];[d]equalizer=f=180:t=q:w=1:g=3[d2];[d2][g]amix=inputs=2:normalize=0")
+if a.reverb: fx.append("aecho=0.8:0.55:45|90|160:0.22|0.12|0.07")
 fx.append("loudnorm=I=-16:TP=-1.5:LRA=11")
 out = os.path.join(a.episode, "assets", "voice-final.wav")
-ff(["-f", "f32le", "-ar", str(SR), "-ac", "1", "-i", raw, "-af", ",".join(fx), "-ar", str(SR), "-ac", "2", out])
+ff(["-f", "f32le", "-ar", str(SR), "-ac", "1", "-i", raw, "-filter_complex", ",".join(fx), "-ar", str(SR), "-ac", "2", out])
 
 # ---- timings into project.js
 block = ("/* speech-timing (prepare_voice.py) */\n"
