@@ -1,0 +1,130 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>The Wish Player</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Anton&family=Creepster&family=Special+Elite&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true">
+    <symbol id="i-play" viewBox="0 0 24 24"><path d="M7 4l13 8-13 8z" fill="currentColor"/></symbol>
+    <symbol id="i-pause" viewBox="0 0 24 24"><path d="M6 4h4v16H6zM14 4h4v16h-4z" fill="currentColor"/></symbol>
+    <symbol id="i-restart" viewBox="0 0 24 24"><path d="M12 5V1L7 6l5 5V7a5 5 0 1 1-5 5H5a7 7 0 1 0 7-7z" fill="currentColor"/></symbol>
+    <symbol id="i-full" viewBox="0 0 24 24"><path d="M4 4h6v2H6v4H4zm10 0h6v6h-2V6h-4zM4 14h2v4h4v2H4zm14 0h2v6h-6v-2h4z" fill="currentColor"/></symbol>
+    <symbol id="i-rec" viewBox="0 0 24 24"><circle cx="12" cy="12" r="7" fill="currentColor"/></symbol>
+    <symbol id="i-candle" viewBox="0 0 24 24"><path d="M12 2c2 3 2 5 0 6-2-1-2-3 0-6z" fill="#ffb347"/><rect x="9" y="9" width="6" height="13" rx="1" fill="#efe4c4"/></symbol>
+  </svg>
+
+  <div id="app">
+    <main id="stageCol">
+      <div id="stageBox">
+        <canvas id="stage" width="1080" height="1920" aria-label="THE WISH animation"></canvas>
+        <button id="startOverlay" hidden>
+          <svg width="64" height="64"><use href="#i-play"/></svg>
+          <span>Click or press Space to start</span>
+        </button>
+      </div>
+      <div id="transport">
+        <button id="playBtn" title="Play / pause (Space)"><svg width="22" height="22"><use href="#i-play"/></svg></button>
+        <button id="restartBtn" title="Restart (Home)"><svg width="20" height="20"><use href="#i-restart"/></svg></button>
+        <span id="clock">0:00.0 / 1:00</span>
+        <div id="scrub"><div id="scrubSections"></div><div id="scrubPanels"></div><div id="playhead"></div></div>
+        <button id="fullBtn" title="Fullscreen stage (F)"><svg width="20" height="20"><use href="#i-full"/></svg></button>
+        <button id="recModeBtn" title="Clean record mode for OBS (R)"><svg width="18" height="18"><use href="#i-rec"/></svg> OBS mode</button>
+      </div>
+    </main>
+
+    <aside id="side">
+      <header>
+        <svg width="28" height="28"><use href="#i-candle"/></svg>
+        <div><h1>THE WISH</h1><p>DON'T SPOIL IT RG · 9:16 · 60s horror-comic Short</p></div>
+      </header>
+      <nav id="tabs">
+        <button data-tab="board" class="on">Storyboard</button>
+        <button data-tab="script">Script</button>
+        <button data-tab="audio">Audio</button>
+        <button data-tab="look">Look</button>
+        <button data-tab="export">Export</button>
+      </nav>
+
+      <section data-pane="board" class="on">
+        <label class="file">Storyboard image (combined 15 panels)
+          <input type="file" id="boardFile" accept="image/*"></label>
+        <p class="note" id="boardStatus">Looking for assets/storyboard.png…</p>
+        <div id="cropWrap"><canvas id="cropCanvas"></canvas></div>
+        <p class="note">Drag a red box to move it; drag an edge or corner to resize. Boxes cover only the art (no title bars or captions).</p>
+        <div class="row">
+          <label>Inner trim % <input type="range" id="inset" min="0" max="5" step="0.1"></label>
+          <button id="resetCrops">Reset crop boxes</button>
+        </div>
+        <h3>Panels</h3>
+        <div id="panelList"></div>
+      </section>
+
+      <section data-pane="script">
+        <p class="note">Narration with timestamps, e.g. <code>**0:00–0:07 — The Hook**</code> followed by the lines. The heading text becomes the comic caption; the lines become word-synced subtitles.</p>
+        <textarea id="scriptText" spellcheck="false"></textarea>
+        <div id="sectionList"></div>
+      </section>
+
+      <section data-pane="audio">
+        <label class="file">Narration voice-over (mp3/wav/m4a), starts at 0:00
+          <input type="file" id="voiceFile" accept="audio/*"></label>
+        <p class="note" id="voiceStatus">No voice file: subtitles only (or enable free browser TTS below).</p>
+        <label>Voice offset (s) <input type="number" id="voiceOffset" step="0.05"></label>
+        <label class="chk"><input type="checkbox" id="tts"> Browser text-to-speech narrator (free; heard live, not in in-browser export)</label>
+        <label class="file">Music bed (optional, replaces generative score)
+          <input type="file" id="musicFile" accept="audio/*"></label>
+        <label class="chk"><input type="checkbox" id="generativeMusic"> Generative horror score</label>
+        <label>Music <input type="range" id="musicVol" min="0" max="1.5" step="0.05"></label>
+        <label>SFX <input type="range" id="sfxVol" min="0" max="1.5" step="0.05"></label>
+        <label>Voice <input type="range" id="voiceVol" min="0" max="2" step="0.05"></label>
+      </section>
+
+      <section data-pane="look">
+        <label class="chk"><input type="checkbox" id="subtitles"> Word-synced subtitles</label>
+        <label>Subtitle height <input type="range" id="subtitleY" min="0.55" max="0.8" step="0.01"></label>
+        <label class="chk"><input type="checkbox" id="captions"> Comic caption boxes (section headings)</label>
+        <label class="chk"><input type="checkbox" id="titleCard"> "THE WISH" title card</label>
+        <label class="chk"><input type="checkbox" id="watermark"> Channel watermark</label>
+        <label class="chk"><input type="checkbox" id="depth"> 2.5D subject depth layer</label>
+        <label>Panel band height <input type="range" id="fill" min="0.35" max="0.9" step="0.01"></label>
+        <label>Fog <input type="range" id="fog" min="0" max="2" step="0.05"></label>
+        <label>Film grain <input type="range" id="grain" min="0" max="2" step="0.05"></label>
+        <label>Comic halftone <input type="range" id="halftone" min="0" max="2" step="0.05"></label>
+        <label>Camera shake <input type="range" id="shake" min="0" max="2" step="0.05"></label>
+      </section>
+
+      <section data-pane="export">
+        <h3>Record with OBS (recommended)</h3>
+        <ol class="steps">
+          <li>Put <code>storyboard.png</code> (and <code>voice.mp3</code> if you have one) in <code>the-wish/assets/</code>, or click <b>Download project.js</b> below and save it into <code>the-wish/assets/</code>.</li>
+          <li>OBS → Settings → Video: Base &amp; Output resolution <b>1080×1920</b>, 30 or 60 FPS.</li>
+          <li>Sources → + → <b>Browser</b> → Local file → <code>the-wish/index.html</code>; Width 1080, Height 1920; tick <b>Control audio via OBS</b>; custom URL params are below.</li>
+          <li>Use the URL <code>…/index.html?record=1&amp;autoplay=3</code>: clean frame, starts 3 s after load.</li>
+          <li>Start Recording, then right-click the source → <b>Refresh</b>. Stop at 1:03. Trim the first 3 s.</li>
+        </ol>
+        <p class="note">Full guide: <code>the-wish/OBS_GUIDE.md</code>.</p>
+        <h3>Or export directly from this browser</h3>
+        <button id="exportBtn" class="big">● Record 60 s video file</button>
+        <p class="note" id="exportStatus">Records the canvas + score + SFX + voice file in real time (MP4 where supported, else WebM). Keep this tab visible.</p>
+        <button id="projectBtn">Download project.js</button>
+        <p class="note">Bundles storyboard, crop boxes, panel timings, script and settings into one file for OBS.</p>
+      </section>
+    </aside>
+  </div>
+
+  <script src="js/project-default.js"></script>
+  <script src="assets/project.js" onerror="this.remove()"></script>
+  <script src="js/parser.js"></script>
+  <script src="js/storyboard.js"></script>
+  <script src="js/placeholders.js"></script>
+  <script src="js/audio.js"></script>
+  <script src="js/renderer.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
