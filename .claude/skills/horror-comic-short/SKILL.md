@@ -38,24 +38,25 @@ Look at the image. For **each panel** record:
   CAMERA and FX notes using `references/effects.md`. The first panel gets `title`. A big monster/corpse
   reveal gets `undead` + `sting` + `transition: "flash"`. A final "THE END" card gets `end` and `fill` ≈ 0.42.
 
-Write the file (it overrides the defaults field by field):
+Write the file as JSON after `window.WISH_PROJECT = ` (quoted keys; the voice tools parse it). It overrides the defaults field by field:
 
 ```js
 window.WISH_PROJECT = {
-  title: "THE MIRROR",                    // big title card text
-  tagline: "SOME REFLECTIONS LIE",       // under the title (storyboard subtitle line if any)
-  channel: "DON'T SPOIL IT RG",          // watermark
-  panels: [
-    { n: 1, start: 0, end: 3, title: "Crypt Keeper Intro", rect: [0.006, 0.1615, 0.240, 0.100],
-      camera: { z: [1.0, 1.16], f: [[0.5, 0.45], [0.55, 0.42]] }, light: [0.07, 0.5],
-      fx: ["candle", "fog", "title", "laugh"], mood: "creepy" },
-    // … one entry per panel, in order, covering 0 → end with no gaps
+  "title": "THE MIRROR",
+  "tagline": "SOME REFLECTIONS LIE",
+  "channel": "DON'T SPOIL IT RG",
+  "panels": [
+    { "n": 1, "start": 0, "end": 3, "title": "Crypt Keeper Intro", "rect": [0.006, 0.1615, 0.240, 0.100],
+      "camera": { "z": [1.0, 1.16], "f": [[0.5, 0.45], [0.55, 0.42]] }, "light": [0.07, 0.5],
+      "fx": ["candle", "fog", "title", "laugh"], "mood": "creepy" }
   ],
-  script: `**0:00–0:07 — The Hook**
-
-Narration lines…`
+  "script": "**0:00–0:07 — The Hook**\n\nNarration lines…\n\n**0:07–0:15 — The Statue**\n\n…"
 };
 ```
+
+`title` is the big title card, `tagline` sits under it (the storyboard's subtitle line, if any), and
+`channel` is the watermark. Give one `panels` entry per panel, in order, covering 0 to the end with no gaps.
+Writing the file with Python `json.dumps` is easiest.
 
 Rules:
 - `panels` **replaces** the example's list completely; give every panel all its fields.
@@ -90,23 +91,31 @@ Global look knobs go in `settings` in project.js: `fill` (panel band height, def
 
 ### 5. Narration voice (when the user sends a recording)
 
-The user records themselves reading the script's sections **in order**, with a short pause between
-sections (any phone voice memo: m4a/mp3/wav). Then:
+The user records the script on their phone (any format) and attaches it. **Best method:** transcribe
+it and make the video follow the voice:
 
 ```bash
-python3 "$SKILL/scripts/prepare_voice.py" "$EP" <recording> [--deepen 0.9] [--reverb]
+python3 -m venv ~/.piper && ~/.piper/bin/pip install piper-tts faster-whisper   # once (also used below)
+~/.piper/bin/python "$SKILL/scripts/fit_narration.py" "$EP" <recording> [--creepy] [--length 60]
 ```
 
-- Splits the recording into one chunk per script section at the longest pauses, places each chunk on
-  its section's timestamp, and speeds up any chunk that's too long for its slot (max 1.35×).
-- Cleans, compresses and loudness-normalizes the audio (-16 LUFS) → `assets/voice-final.wav`.
-- Appends `voice` and the real `speech` timings to project.js, so subtitles highlight words as they are spoken.
-- `--deepen 0.88–0.92` lowers the pitch (creepy narrator); `--reverb` adds a crypt-like echo. Offer both;
-  use them only if the user wants them.
-- Read the printed table: a `⚠ runs past its slot` warning means that section was read too slowly. Ask
-  for a quicker re-read of that part, or lengthen the matching panel/section times.
-- If it reports splitting by word count, the pauses weren't clear: listen to the timings and ask for
-  clearer pauses if the sync is off.
+- Transcribes locally with Whisper (free, word timestamps) and aligns the transcript to the script, so
+  stray words, false starts before or after, and "thank you" at the end are dropped. Each section is
+  found exactly, even without pauses between sections.
+- Shortens long pauses, then lays the sections end to end in `--length` seconds (default: the current
+  length). It speeds up evenly only if needed (max `--max-tempo 1.2`, pitch kept); if the read still
+  doesn't fit, the video gets longer instead (Shorts allow up to 3 minutes).
+- **Re-times the panels and caption sections around the voice**, keeping their order and relative
+  lengths, so each panel shows while its line is spoken. An `end` panel always gets the last beat.
+- Writes `assets/voice-final.wav`, plus per-word `wordTimes`, so subtitles highlight every word exactly
+  as it's spoken. Reports how much of the script it matched; below 50% it stops (wrong take).
+- `--creepy` = deeper pitch, faint sub-octave growl, crypt reverb; omit it for a natural voice. Ask the
+  user which they want if unclear.
+- `assets/project.js` must be `window.WISH_PROJECT = { JSON };` (quoted keys) for this script.
+
+Fallback without Whisper: `python3 "$SKILL/scripts/prepare_voice.py" "$EP" <recording> [--creepy]`.
+It splits at the pauses between sections (ask the user to pause about 1 s between them), keeps the
+storyboard timing, and speeds up any section that overruns its slot.
 
 **No recording? Narrate it with the free built-in narrator** (Piper TTS, runs locally, no API):
 

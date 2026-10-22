@@ -85,6 +85,11 @@
       const s = sections[i];
       if (s && sp) s.words = WishParser.timeWords(s.text, sp[0] - 0.08, sp[1] + 0.25);
     });
+    // Exact per-word times (from fit_narration.py's Whisper alignment) win when they line up.
+    (project.wordTimes || []).forEach((wt, i) => {
+      const s = sections[i];
+      if (s && wt && wt.length === s.words.length) s.words.forEach((w, j) => { w.start = wt[j][0]; w.end = wt[j][1]; });
+    });
     renderer.sections = sections;
     renderer.chunks = sections.flatMap(s => WishParser.chunk(s.words));
     renderer.settings = S;
