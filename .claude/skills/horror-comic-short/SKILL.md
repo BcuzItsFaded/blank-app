@@ -96,7 +96,7 @@ it and make the video follow the voice:
 
 ```bash
 python3 -m venv ~/.piper && ~/.piper/bin/pip install piper-tts faster-whisper   # once (also used below)
-~/.piper/bin/python "$SKILL/scripts/fit_narration.py" "$EP" <recording> [--creepy] [--length 60]
+~/.piper/bin/python "$SKILL/scripts/fit_narration.py" "$EP" <recording> [--creepy | --clown] [--length 60]
 ```
 
 - Transcribes locally with Whisper (free, word timestamps) and aligns the transcript to the script, so
@@ -113,6 +113,8 @@ python3 -m venv ~/.piper && ~/.piper/bin/pip install piper-tts faster-whisper   
   gets clarity EQ only. If the user says it's hard to understand, re-run without `--creepy` and with
   `--max-tempo 1.06 --gap 0.4`: natural speed matters more than hitting exactly 60 s. Music ducks to 45%
   under a voice (`settings.duck`).
+- `--clown` = creepy clown: about 1.2× higher, nasal, warbling, with a faint demon voice underneath
+  and big-top echo. It stays easy to understand. Pair it with `--max-tempo 1.06 --gap 0.4`.
 - `assets/project.js` must be `window.WISH_PROJECT = { JSON };` (quoted keys) for this script.
 
 Fallback without Whisper: `python3 "$SKILL/scripts/prepare_voice.py" "$EP" <recording> [--creepy]`.

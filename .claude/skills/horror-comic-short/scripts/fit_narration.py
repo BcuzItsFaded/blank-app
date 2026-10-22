@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Fit a real narration recording to an episode: the video follows the voice.
 
-    python fit_narration.py <episodeDir> <recording> [--creepy | --deepen 0.9 --reverb] [--length 60]
+    python fit_narration.py <episodeDir> <recording> [--creepy | --clown | --deepen 0.9 --reverb] [--length 60]
                             [--max-tempo 1.2] [--model small.en] [--words words.json]
 
 Needs: ffmpeg, numpy, and faster-whisper (pip install faster-whisper) unless --words is given.
@@ -30,6 +30,7 @@ ap.add_argument("--gap", type=float, default=0.5, help="silence between sections
 ap.add_argument("--end-hold", type=float, default=1.2, help="seconds after the last word (end card)")
 ap.add_argument("--deepen", type=float, default=0); ap.add_argument("--reverb", action="store_true")
 ap.add_argument("--creepy", action="store_true", help="deeper pitch, faint sub-octave growl, crypt reverb")
+ap.add_argument("--clown", action="store_true", help="creepy clown: higher, nasal, warbling, demon double underneath, big-top echo")
 ap.add_argument("--model", default="small.en"); ap.add_argument("--words", help="cached Whisper words JSON")
 a = ap.parse_args()
 if a.creepy:
@@ -217,6 +218,12 @@ fx.append("highpass=f=90,equalizer=f=300:t=q:w=1:g=-2,equalizer=f=3200:t=q:w=1.2
           "acompressor=threshold=-22dB:ratio=3.5:attack=4:release=120:makeup=2")
 if a.creepy:
     fx.append("asplit[d][s];[s]rubberband=pitch=0.5:formant=shifted,lowpass=f=900,volume=0.16[g];[d]equalizer=f=180:t=q:w=1:g=2.5[d2];[d2][g]amix=inputs=2:normalize=0")
+if a.clown:  # EQ must come before vibrato (EQ after it goes unstable in ffmpeg)
+    fx.append("equalizer=f=1100:t=q:w=1.4:g=5,equalizer=f=220:t=q:w=1:g=-3,"
+              "asplit[c][l];[l]rubberband=pitch=0.5:formant=shifted,lowpass=f=1000,volume=0.13[dm];"
+              "[c]rubberband=pitch=1.2:formant=preserved,vibrato=f=5.5:d=0.08,"
+              "chorus=0.7:0.9:45|60:0.35|0.3:0.3|0.4:2|2.6[cc];[cc][dm]amix=inputs=2:normalize=0,"
+              "aecho=0.8:0.5:70|140:0.16|0.08")
 if a.reverb: fx.append("aecho=0.8:0.5:45|90|160:0.18|0.1|0.06")
 fx.append("loudnorm=I=-16:TP=-1.5:LRA=11")
 out = os.path.join(a.episode, "assets", "voice-final.wav")
