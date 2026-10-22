@@ -212,7 +212,9 @@ proj.update(voice="assets/voice-final.wav", voiceOffset=0, speech=speech, wordTi
 raw = os.path.join(tmp, "track.f32"); track[: int((length + 0.5) * SR)].tofile(raw)
 fx = []
 if a.deepen: fx.append(f"rubberband=pitch={a.deepen}:formant=preserved")
-fx.append("equalizer=f=3500:t=q:w=1.2:g=2,acompressor=threshold=-22dB:ratio=3.5:attack=4:release=120:makeup=2")
+# clarity: cut mud, lift presence, tame sibilance, steady the level
+fx.append("highpass=f=90,equalizer=f=300:t=q:w=1:g=-2,equalizer=f=3200:t=q:w=1.2:g=2.5,equalizer=f=7500:t=q:w=2:g=-2,"
+          "acompressor=threshold=-22dB:ratio=3.5:attack=4:release=120:makeup=2")
 if a.creepy:
     fx.append("asplit[d][s];[s]rubberband=pitch=0.5:formant=shifted,lowpass=f=900,volume=0.16[g];[d]equalizer=f=180:t=q:w=1:g=2.5[d2];[d2][g]amix=inputs=2:normalize=0")
 if a.reverb: fx.append("aecho=0.8:0.5:45|90|160:0.18|0.1|0.06")

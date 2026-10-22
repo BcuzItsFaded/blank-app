@@ -64,8 +64,8 @@
       a.useGenerative = this.useGenerative;
       a.init(off);
       const hasVoice = !!this.voiceEl;
-      a.musicBus.gain.value = settings.musicVol * (hasVoice ? 0.6 : 1);
-      a.sfxBus.gain.value = settings.sfxVol;
+      a.musicBus.gain.value = settings.musicVol * (hasVoice ? settings.duck ?? 0.45 : 1);
+      a.sfxBus.gain.value = settings.sfxVol * (hasVoice ? 0.8 : 1);
       a.voiceBus.gain.value = settings.voiceVol;
       const file = async (el, bus, at) => {
         if (!el) return;
@@ -353,7 +353,7 @@
     }
     setLevels(s) {
       if (!this.ctx) return;
-      const duck = this.voiceEl ? 0.6 : 1;
+      const duck = this.voiceEl ? s.duck ?? 0.45 : 1;
       this.musicBus.gain.value = s.musicVol * duck;
       this.sfxBus.gain.value = s.sfxVol;
       this.voiceBus.gain.value = s.voiceVol;
