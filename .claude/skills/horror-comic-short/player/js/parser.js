@@ -96,5 +96,5 @@
     return out.map(ws => ({ words: ws, start: ws[0].start, end: ws[ws.length - 1].end }));
   }
 
-  window.WishParser = { parse, chunk, toSec };
+  window.WishParser = { parse, chunk, toSec, timeWords };
 })();

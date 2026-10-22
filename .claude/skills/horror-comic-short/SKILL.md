@@ -88,7 +88,30 @@ Look at the stills (montage them with PIL if helpful). Check that:
 Global look knobs go in `settings` in project.js: `fill` (panel band height, default 0.55), `subtitleY`,
 `fog`, `grain`, `halftone`, `shake`.
 
-### 5. Render the MP4
+### 5. Narration voice (when the user sends a recording)
+
+The user records themselves reading the script's sections **in order**, with a short pause between
+sections (any phone voice memo: m4a/mp3/wav). Then:
+
+```bash
+python3 "$SKILL/scripts/prepare_voice.py" "$EP" <recording> [--deepen 0.9] [--reverb]
+```
+
+- Splits the recording into one chunk per script section at the longest pauses, places each chunk on
+  its section's timestamp, and speeds up any chunk that's too long for its slot (max 1.35×).
+- Cleans, compresses and loudness-normalizes the audio (-16 LUFS) → `assets/voice-final.wav`.
+- Appends `voice` and the real `speech` timings to project.js, so subtitles highlight words as they are spoken.
+- `--deepen 0.88–0.92` lowers the pitch (creepy narrator); `--reverb` adds a crypt-like echo. Offer both;
+  use them only if the user wants them.
+- Read the printed table: a `⚠ runs past its slot` warning means that section was read too slowly. Ask
+  for a quicker re-read of that part, or lengthen the matching panel/section times.
+- If it reports splitting by word count, the pauses weren't clear: listen to the timings and ask for
+  clearer pauses if the sync is off.
+
+The music automatically ducks under the voice in the render. Voice cloning from a short sample isn't
+part of this skill (free models aren't licensed for monetized channels); ask for a full read instead.
+
+### 6. Render the MP4
 
 ```bash
 node "$SKILL/scripts/render_video.mjs" "$EP" "$EP/<EPISODE>-short.mp4" --fps 30 --crf 23
@@ -100,16 +123,15 @@ A 60 s render takes about 5–8 minutes; run it in the background or with a long
 (`ffmpeg -i out.mp4 -vf "fps=1/3,scale=150:267,tile=10x2" -frames:v 1 tiles.jpg`), view it, and confirm
 the audio isn't clipping (`-af volumedetect`; max should be under 0 dB).
 
-### 6. Deliver
+### 7. Deliver
 
 Send the MP4 with SendUserFile (`display: "attach"`, so it saves straight to their phone). Mention:
-- there is **no narrator voice** unless they gave an audio file. To add one, put it at
-  `$EP/assets/voice.mp3`, starting at 0:00 (`voiceOffset` shifts it), and re-render; music ducks under it;
+- if there's no narrator voice yet: they can record the script and send it; run step 5 and re-render;
 - they can open `$EP/index.html` to preview/tweak, or record it live with OBS (`player/OBS_GUIDE.md`).
 
 ## Requirements
 
-- Chromium via Playwright (`npm i -g playwright` or a local install) and `ffmpeg` on PATH; Python 3 with Pillow.
+- Chromium via Playwright (`npm i -g playwright` or a local install) and `ffmpeg` on PATH; Python 3 with Pillow and numpy.
 - Internet once, for Google Fonts (Anton, Creepster, Special Elite) used by titles and subtitles.
 
 ## Notes

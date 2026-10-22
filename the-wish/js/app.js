@@ -80,6 +80,11 @@
       transitionType: p.transition || (i % 2 ? "zoom" : "fade")
     }));
     sections = WishParser.parse(project.script, project.duration);
+    // Real narration timing (from prepare_voice.py): [[speechStart, speechEnd], …] per section.
+    (project.speech || []).forEach((sp, i) => {
+      const s = sections[i];
+      if (s && sp) s.words = WishParser.timeWords(s.text, sp[0] - 0.08, sp[1] + 0.25);
+    });
     renderer.sections = sections;
     renderer.chunks = sections.flatMap(s => WishParser.chunk(s.words));
     renderer.settings = S;
