@@ -53,7 +53,7 @@ window.WISH_DEFAULT_PROJECT = {
       camera: { z: [1.0, 1.2], f: [[0.4, 0.45], [0.38, 0.4]] }, light: [0.93, 0.42],
       fx: ["candle", "darkglow", "heartbeat", "shadow"], mood: "intense" },
     { n: 12, start: 43, end: 47, title: "The Twist", rect: [0.761, 0.6080, 0.233, 0.0900],
-      camera: { z: [1.0, 1.28], f: [[0.5, 0.5], [0.78, 0.45]] }, revealAt: 0.22,
+      camera: { z: [1.0, 1.28], f: [[0.5, 0.5], [0.7, 0.45]] }, revealAt: 0.22,
       fx: ["undead", "fog", "sting"], mood: "shock", transition: "flash" },
     { n: 13, start: 47, end: 56, title: "The Realization", rect: [0.006, 0.8150, 0.318, 0.0910],
       camera: { z: [1.08, 1.3], f: [[0.3, 0.5], [0.72, 0.45]] },
@@ -61,7 +61,7 @@ window.WISH_DEFAULT_PROJECT = {
     { n: 14, start: 56, end: 59, title: "Crypt Keeper Outro", rect: [0.336, 0.8150, 0.300, 0.0910],
       camera: "push", light: [0.9, 0.62], fx: ["candle", "fog", "laugh"], mood: "creepy", transition: "dip" },
     { n: 15, start: 59, end: 60, title: "The End", rect: [0.648, 0.8080, 0.346, 0.1880],
-      camera: "pull", fill: 0.36, fx: ["lightning", "thunder", "fog", "end"], mood: "end", transition: "flash" }
+      camera: { z: [1.06, 0.98], f: [[0.6, 0.5], [0.62, 0.5]] }, fill: 0.42, fx: ["lightning", "thunder", "fog", "end"], mood: "end", transition: "flash" }
   ],
 
   script: `**0:00–0:07 — The Hook**
@@ -103,11 +103,11 @@ Be careful what you wish for, kiddies. Some dreams are better left buried!`,
     sfxVol: 0.9,
     voiceVol: 1,
     subtitles: true,
-    subtitleY: 0.70,
+    subtitleY: 0.73,
     captions: true, // comic caption box with the script section heading
     titleCard: true,
     watermark: true,
-    fill: 0.42, // fraction of frame height the panel band fills (panel always fills width); per-panel `fill` overrides
+    fill: 0.55, // fraction of frame height the panel band fills (panel always fills width); per-panel `fill` overrides
     fog: 1,
     grain: 1,
     halftone: 0.5,

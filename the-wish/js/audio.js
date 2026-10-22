@@ -31,9 +31,9 @@
       this.voiceEl = null; this.musicEl = null; this.useGenerative = true;
     }
 
-    init() {
+    init(offline) {
       if (this.ctx) return;
-      const ctx = (this.ctx = new (window.AudioContext || window.webkitAudioContext)());
+      const ctx = (this.ctx = offline || new (window.AudioContext || window.webkitAudioContext)());
       const comp = ctx.createDynamicsCompressor();
       comp.threshold.value = -16; comp.ratio.value = 4; comp.attack.value = 0.005; comp.release.value = 0.2;
       this.out = ctx.createGain(); this.out.gain.value = 0.8;
@@ -42,7 +42,7 @@
       lim.threshold.value = -3; lim.knee.value = 0; lim.ratio.value = 20; lim.attack.value = 0.001; lim.release.value = 0.12;
       const ceil = this.gain(0.9);
       this.out.connect(comp); comp.connect(this.gain(1.5, lim)); lim.connect(ceil); ceil.connect(ctx.destination);
-      this.rec = ctx.createMediaStreamDestination(); ceil.connect(this.rec);
+      if (ctx.createMediaStreamDestination) { this.rec = ctx.createMediaStreamDestination(); ceil.connect(this.rec); }
       this.musicBus = this.gain(0.75, this.out);
       this.sfxBus = this.gain(0.9, this.out);
       this.voiceBus = this.gain(1, this.out);
@@ -51,8 +51,34 @@
       const len = ctx.sampleRate * 2, nb = ctx.createBuffer(1, len, ctx.sampleRate), d = nb.getChannelData(0);
       for (let i = 0; i < len; i++) d[i] = Math.random() * 2 - 1;
       this.noiseBuf = nb;
+      if (offline) return;
       if (this.voiceEl) this.attachMedia(this.voiceEl, this.voiceBus);
       if (this.musicEl) this.attachMedia(this.musicEl, this.musicBus);
+    }
+
+    // Sample-accurate render of the whole soundtrack (score, SFX, voice/music files) to an AudioBuffer,
+    // used for frame-by-frame video rendering where real-time playback can't keep up.
+    async renderOffline(project, settings, seconds, rate = 48000) {
+      const off = new OfflineAudioContext(2, Math.ceil(rate * seconds), rate);
+      const a = new WishAudio();
+      a.useGenerative = this.useGenerative;
+      a.init(off);
+      const hasVoice = !!this.voiceEl;
+      a.musicBus.gain.value = settings.musicVol * (hasVoice ? 0.6 : 1);
+      a.sfxBus.gain.value = settings.sfxVol;
+      a.voiceBus.gain.value = settings.voiceVol;
+      const file = async (el, bus, at) => {
+        if (!el) return;
+        const buf = await off.decodeAudioData(await (await fetch(el.src)).arrayBuffer());
+        const src = off.createBufferSource(); src.buffer = buf; src.connect(bus);
+        if (at >= 0) src.start(at); else src.start(0, -at);
+      };
+      await file(this.voiceEl, a.voiceBus, project.voiceOffset || 0);
+      await file(this.musicEl, a.musicBus, 0);
+      a.build(project);
+      a.startBeds(0);
+      for (const e of a.events) e.fn(Math.max(0, e.t), Math.max(0, -e.t));
+      return off.startRendering();
     }
 
     // ---------- small building blocks ----------

@@ -196,7 +196,7 @@
       if (fx.has("candle")) {
         const jx = lx + Math.sin(t * 3.1) * 10, jy = ly + Math.sin(t * 4.3) * 6, R = 900 * (0.85 + 0.2 * fl);
         const dark = g.createRadialGradient(jx, jy, 60, jx, jy, R);
-        dark.addColorStop(0, "rgba(0,0,0,0)"); dark.addColorStop(0.45, `rgba(0,0,0,${0.12 + (1 - fl) * 0.2})`); dark.addColorStop(1, `rgba(0,0,0,${0.6 + (1 - fl) * 0.3})`);
+        dark.addColorStop(0, "rgba(0,0,0,0)"); dark.addColorStop(0.45, `rgba(0,0,0,${0.12 + (1 - fl) * 0.2})`); dark.addColorStop(1, `rgba(0,0,0,${0.45 + (1 - fl) * 0.3})`);
         g.fillStyle = dark; g.fillRect(0, 0, W, H);
         g.globalCompositeOperation = "lighter";
         const glow = g.createRadialGradient(jx, jy, 0, jx, jy, 420 * fl);
