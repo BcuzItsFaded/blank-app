@@ -13,7 +13,7 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SR = 24000
 SECTIONS = json.load(open(f"{ROOT}/assets/script.json"))
 # pronunciation help for the TTS only (subtitles keep the real spelling)
-SAY = {"Renesmee": "Ruh-nez-may", "Volturi": "Vol-too-ree", "Forks, Washington": "Forks, Washington"}
+SAY = {"Renesmee": "Ruh-nez-may", "Volturi": "Voltouri", "Forks, Washington": "Forks, Washington"}
 LEAD, GAP_BEFORE, TAIL = 0.6, 0.55, 0.85  # first scene lead-in; silence before speech; hold after
 
 

@@ -9,15 +9,17 @@
   const mix = (a, b, k) => a + (b - a) * k;
   const pmix = (a, b, k) => [mix(a[0], b[0], k), mix(a[1], b[1], k)];
 
-  // walk from x0 to x1 between t0 and t1; returns x and a pose patch with the walk cycle applied
+  // walk from x0 to x1 between t0 and t1 with a natural gait: ~1.9 steps/s, stride sized to the speed
+  // (so feet never skate and legs never move in slow motion)
   function stroll(S, x0, x1, t0, t1, H, cadence = 1) {
     const k = S.clamp((S.lt - t0) / (t1 - t0));
     const x = mix(x0, x1, S.ease(k));
     const moving = S.lt > t0 && S.lt < t1;
-    const amt = moving ? Math.min(1, Math.sin(PI * k) * 2.2) : 0;
-    const dist = Math.abs(x1 - x0) * S.ease(k);
+    const stepsPerSec = 1.9 * cadence, speed = Math.abs(x1 - x0) / Math.max(0.1, t1 - t0);
+    const stride = S.clamp((speed * 1.3) / (stepsPerSec * 0.29 * H), 0.3, 1);
+    const amt = moving ? stride * Math.min(1, Math.sin(Math.PI * k) * 3) : 0;
     const p = { x, face: x1 >= x0 ? 0.7 : -0.7 };
-    R.walk(p, dist / (H * 0.23) * PI * cadence, amt);
+    R.walk(p, (S.lt - t0) * Math.PI * stepsPerSec, amt);
     return p;
   }
   const breathe = (S, seed = 0) => Math.sin(S.t * 1.7 + seed) * 0.012;
@@ -37,9 +39,9 @@
       // cars drive away into the rain
       S.sprite("cars", { dx: -S.lt * 6, dy: -S.lt * 3, scale: 1 - S.lt * 0.012 });
       S.fx.glow(S.X(0.43), S.Y(0.66), 70, "rgba(255,90,70,A)", 0.35 + 0.1 * Math.sin(S.t * 9));
-      const p = stroll(S, S.X(-0.12), S.X(0.27), 0.0, tStop, H);
+      const p = stroll(S, S.X(-0.12), S.X(0.27), 0.3, Math.min(tStop, 4.8), H);
       Object.assign(p, { y: gy, H, wind: 0.6, blink: blink(S, 1) });
-      if (S.lt > tStop) {        // stops, looks up at the sign, then turns to us, uneasy
+      if (S.lt > Math.min(tStop, 4.8)) {        // stops, looks up at the sign, then turns to us, uneasy
         const look = S.k(tStop, tStop + 0.8), back = S.k(S.cue("idea") - 0.4, S.cue("idea") + 0.4);
         p.face = mix(0.9, 0.35, back); p.look = mix(0.4, 0.0, back); p.tilt = -0.12 * look * (1 - back);
         p.brows = -1 * back; p.mouth = back > 0.5 ? "sad" : "line";
