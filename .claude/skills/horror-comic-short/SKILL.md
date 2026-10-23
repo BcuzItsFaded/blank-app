@@ -113,6 +113,9 @@ python3 -m venv ~/.piper && ~/.piper/bin/pip install piper-tts faster-whisper   
   gets clarity EQ only. If the user says it's hard to understand, re-run without `--creepy` and with
   `--max-tempo 1.06 --gap 0.4`: natural speed matters more than hitting exactly 60 s. Music ducks to 45%
   under a voice (`settings.duck`).
+- `--male` = natural male narrator from a higher voice. It measures the speaker's pitch, brings it to
+  about 130 Hz and lowers resonance slightly. Tested to keep intelligibility unchanged; going deeper
+  (about 115 Hz) cost clarity. Manual control: `--pitch 0.72 --formant 0.92`.
 - `--clown` = creepy clown: about 1.2× higher, nasal, warbling, with a faint demon voice underneath
   and big-top echo. It stays easy to understand. Pair it with `--max-tempo 1.06 --gap 0.4`.
 - `assets/project.js` must be `window.WISH_PROJECT = { JSON };` (quoted keys) for this script.

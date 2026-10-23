@@ -29,6 +29,9 @@ ap.add_argument("--max-tempo", type=float, default=1.2)
 ap.add_argument("--gap", type=float, default=0.5, help="silence between sections")
 ap.add_argument("--end-hold", type=float, default=1.2, help="seconds after the last word (end card)")
 ap.add_argument("--deepen", type=float, default=0); ap.add_argument("--reverb", action="store_true")
+ap.add_argument("--male", action="store_true", help="natural male narrator from a higher voice: pitch to ~130 Hz, resonance down a little")
+ap.add_argument("--pitch", type=float, default=0, help="explicit pitch ratio (with --formant)")
+ap.add_argument("--formant", type=float, default=1.0, help="resonance ratio; <1 = bigger, deeper-sounding speaker")
 ap.add_argument("--creepy", action="store_true", help="deeper pitch, faint sub-octave growl, crypt reverb")
 ap.add_argument("--clown", action="store_true", help="creepy clown: higher, nasal, warbling, demon double underneath, big-top echo")
 ap.add_argument("--model", default="small.en"); ap.add_argument("--words", help="cached Whisper words JSON")
@@ -213,6 +216,23 @@ proj.update(voice="assets/voice-final.wav", voiceOffset=0, speech=speech, wordTi
 # ---------------------------------------------------------------- voice colour + loudness
 raw = os.path.join(tmp, "track.f32"); track[: int((length + 0.5) * SR)].tofile(raw)
 fx = []
+if a.male and not a.pitch:
+    # measure the speaker's median pitch, aim for ~130 Hz; resonance follows ~30% of the way.
+    # (Tested: deeper targets like 115 Hz cost clarity; 130 Hz kept Whisper intelligibility unchanged.)
+    f0s = []
+    for i in range(0, len(x) - 4096, 2400):
+        w = x[i:i + 4096:3]
+        if np.sqrt(np.mean(w ** 2)) < 0.02: continue
+        w = w - w.mean(); ac = np.correlate(w, w, "full")[len(w) - 1:]
+        lo, hi = 16000 // 400, 16000 // 60; kk = lo + int(np.argmax(ac[lo:hi]))
+        if ac[kk] > 0.45 * ac[0]: f0s.append(16000 / kk)
+    f0 = float(np.median(f0s)) if f0s else 120.0
+    a.pitch = min(1.0, max(0.65, 130 / f0)); a.formant = round(1 - (1 - a.pitch) * 0.3, 3)
+    print(f"male narrator: speaker ~{f0:.0f} Hz → pitch x{a.pitch:.2f}, resonance x{a.formant:.2f}")
+if a.pitch:
+    if a.formant != 1: fx.append(f"rubberband=pitch={a.formant}:formant=shifted")  # moves pitch + resonance
+    rest = a.pitch / a.formant
+    if abs(rest - 1) > 0.005: fx.append(f"rubberband=pitch={rest:.4f}:formant=preserved")  # pitch only
 if a.deepen: fx.append(f"rubberband=pitch={a.deepen}:formant=preserved")
 # clarity: cut mud, lift presence, tame sibilance, steady the level
 fx.append("highpass=f=90,equalizer=f=300:t=q:w=1:g=-2,equalizer=f=3200:t=q:w=1.2:g=2.5,equalizer=f=7500:t=q:w=2:g=-2,"
