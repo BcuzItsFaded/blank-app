@@ -121,20 +121,24 @@ Fallback without Whisper: `python3 "$SKILL/scripts/prepare_voice.py" "$EP" <reco
 It splits at the pauses between sections (ask the user to pause about 1 s between them), keeps the
 storyboard timing, and speeds up any section that overruns its slot.
 
-**No recording? Use the free narrator** (Piper TTS, runs locally, no API, no credits):
+**No recording? Use the free narrator** (runs locally, no API, no credits):
 
 ```bash
-~/.piper/bin/python "$SKILL/scripts/narrate_tts.py" "$EP" --fit [--creepy | --clown] [--length 60 --max-tempo 1.08 --gap 0.4]
+python3 -m venv ~/.piper && ~/.piper/bin/pip install kokoro-onnx piper-tts faster-whisper   # once
+~/.piper/bin/python "$SKILL/scripts/narrate_tts.py" "$EP" --fit [--voice am_michael] [--speed 1.1] [--creepy | --clown] \
+    [--length 60 --max-tempo 1.06 --gap 0.4]
 ```
 
-- Default voice `en_US-john-medium`: a natural audiobook storyteller trained on LibriVox, **public
-  domain**, so no credit is needed and it's safe for monetized channels. Alternatives: `--voice
-  en_US-joe-medium` (clear, CC0) and `en_US-bryce-medium` (slower, public domain). Never use
-  `en_US-ryan-*` or `en_US-hfc_male-*` (non-commercial licences).
+- Default engine **Kokoro** (Kokoro-82M, Apache 2.0: commercial OK, no credit needed). It's the most
+  human-sounding free option and downloads about 350 MB once. Voices: `am_michael` (warm US storyteller,
+  default), `am_fenrir` (deeper), `am_puck` (lively), `bm_george` / `bm_fable` (British), and female
+  `af_heart` / `af_bella`. Use `--speed` to fit the script (1.1 suits about 60 s).
+- `--engine piper` is lighter but sounds more robotic (`en_US-john-medium`, public domain). Use it only
+  if Kokoro can't be installed. Never use Piper's `en_US-ryan-*` or `en_US-hfc_male-*` (non-commercial).
 - With no style flag the voice stays natural; the user can ask for `--creepy` or `--clown`.
 - `--fit` sends the take through fit_narration.py, the same as a real recording: Whisper word timing,
-  panels re-timed to the voice, word-exact subtitles. `--pace` (default 0.95; lower is faster) sets
-  the reading speed. Without `--fit`, prepare_voice.py keeps the storyboard timing.
+  panels re-timed to the voice, word-exact subtitles.
+- The most human option is ElevenLabs, if the user has the connector and agrees to spend credits.
 
 The music automatically ducks under the voice in the render. Voice cloning from a short sample isn't
 part of this skill (free models aren't licensed for monetized channels).
@@ -159,7 +163,7 @@ Send the MP4 with SendUserFile (`display: "attach"`, so it saves straight to the
 
 ## Requirements
 
-- Chromium via Playwright (`npm i -g playwright` or a local install) and `ffmpeg` on PATH; Python 3 with Pillow and numpy.
+- Chromium via Playwright (`npm i -g playwright` or a local install) and `ffmpeg` on PATH; Python 3 with Pillow and numpy; for narration, a venv with kokoro-onnx, piper-tts and faster-whisper.
 - Internet once, for Google Fonts (Anton, Creepster, Special Elite) used by titles and subtitles.
 
 ## Notes
