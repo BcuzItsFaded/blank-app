@@ -187,7 +187,7 @@
     }
     g.closePath(); g.fillStyle = h.c; g.fill(); g.lineWidth = 1.7 * u; g.strokeStyle = K; g.stroke();
     strands(g, h.c2, u, P ? (i => [hx + 9 * u - i * 3.2 * u, hy - 14 * u + Math.abs(i - 2) * u, hx + 4 * u - i * 3.8 * u, hy - 3 * u + i * 2.6 * u, -2 * u])
-                          : (i => [hx + (i - 3) * 2.6 * u, hy - 13 * u, hx + (i - 3) * 4.4 * u, hy + 4 * u + Math.abs(i - 3) * 3 * u, 0]), 7, jit);
+                          : (i => { const sd = i < 3 ? -1 : 1, k = i % 3; return [hx + sd * (2 + k * 3) * u, hy - 14 * u + k * u, hx + sd * (10 + k * 1.6) * u, hy + 10 * u + k * 2 * u, sd * 1.5 * u]; }), 6, jit);
   }
 
   // ---- torso / clothes ------------------------------------------------------------------------

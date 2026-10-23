@@ -1,0 +1,35 @@
+<!doctype html><meta charset="utf-8">
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@800&display=swap" rel="stylesheet">
+<body style="margin:0;background:#000"><canvas id="c" width="1920" height="1080"></canvas>
+<script src="js/rig.js"></script><script src="js/engine.js"></script>
+<script>
+(async()=>{
+  await document.fonts.load("800 100px 'Baloo 2'");
+  const g=document.getElementById('c').getContext('2d'), R=Rig, C=R.CAST;
+  const img=await new Promise(r=>{const i=new Image();i.onload=()=>r(i);i.src='assets/plates/scene16.jpg';});
+  g.save(); g.translate(960,540); g.scale(1.12,1.12); g.translate(-960,-540); g.drawImage(img,0,0,1920,1080); g.restore();
+  const fx=(function(){ /* reuse engine effects */ const e=new Engine(document.createElement('canvas'),{timing:{sections:[],duration:1},plates:{},images:{},sprites:{}}); return null; })();
+  // darken edges for contrast
+  const vg=g.createRadialGradient(960,620,200,960,620,1150); vg.addColorStop(0,'rgba(0,0,0,0)'); vg.addColorStop(1,'rgba(0,0,30,0.65)'); g.fillStyle=vg; g.fillRect(0,0,1920,1080);
+  // shield
+  const sh=(cx,cy,rx,ry)=>{ const gr=g.createRadialGradient(cx,cy,100,cx,cy,rx); gr.addColorStop(0,'rgba(170,215,255,0.05)'); gr.addColorStop(0.85,'rgba(150,205,255,0.25)'); gr.addColorStop(1,'rgba(210,240,255,0.6)');
+    g.fillStyle=gr; g.beginPath(); g.ellipse(cx,cy,rx,ry,0,0,7); g.fill(); g.lineWidth=10; g.strokeStyle='rgba(230,248,255,0.95)'; g.shadowColor='rgba(150,220,255,1)'; g.shadowBlur=50; g.stroke(); g.shadowBlur=0; };
+  sh(1180,640,560,470);
+  // Volturi (red eyes) on the left, attacking
+  [[170,1080,520],[330,1040,440],[470,1010,380]].forEach(([x,y,h],i)=>R.draw(g,R.VOLTURI(),R.pose({x,y,H:h,face:0.6,eyeGlow:1,t:i,still:true,brows:1.3})));
+  g.lineWidth=14; g.lineCap='round';
+  [[ '#ff3b5c',380],[ '#b14cff',460]].forEach(([c,y])=>{ g.strokeStyle=c; g.beginPath(); for(let k=0;k<9;k++) g.lineTo(560+k*28, y+Math.sin(k*1.4)*22); g.stroke(); });
+  // Jacob, Edward, Bella
+  R.draw(g,C.jacob,R.pose({x:900,y:1080,H:620,face:0.7,still:true,brows:1,armR:[0.5,0.6],armL:[0.1,0.3]}));
+  R.draw(g,C.edward,R.pose({x:1530,y:1080,H:660,face:-0.7,still:true,mouth:'o',armR:[0.5,0.5],armL:[0.1,0.3]}));
+  R.draw(g,C.bella,R.pose({x:1200,y:1110,H:760,face:0.15,still:true,brows:1.1,armL:[-1.55,0.05],armR:[1.55,0.05],wind:1,t:2}));
+  // text
+  const txt=(s,x,y,size,fill,rot=0)=>{ g.save(); g.translate(x,y); g.rotate(rot); g.font=`800 ${size}px 'Baloo 2'`; g.textAlign='left'; g.textBaseline='alphabetic'; g.lineJoin='round';
+    g.lineWidth=size*0.22; g.strokeStyle='#111'; g.strokeText(s,0,0); g.fillStyle=fill; g.fillText(s,0,0); g.restore(); };
+  txt('TWILIGHT',60,190,190,'#ffffff',-0.03);
+  txt('EXPLAINED',70,330,130,'#ffd53d',-0.03);
+  txt('NO FINAL',60,820,150,'#ffffff',-0.02);
+  txt('BATTLE?!',60,975,170,'#ff3b3b',-0.02);
+  document.title='done';
+})();
+</script>
