@@ -61,12 +61,12 @@
       // Bella at her desk: looks ahead, then turns to Edward
       const turn = S.k(tE - 0.3, tE + 0.5);
       S.char("bella", { x: S.X(0.20), y: S.Y(1.05), H: 860, face: mix(-0.2, 0.9, turn), look: mix(-0.2, 0.6, turn), blink: blink(S, 2),
-        armL: [0.6, 1.2], armR: [0.8, 1.1], tilt: 0.04 * Math.sin(S.t * 0.8), mouth: S.lt > tAv ? "line" : "line", brows: S.lt > tAv ? -0.6 : 0 });
+        armL: [0.25, 1.35], armR: [0.35, 1.25], tilt: 0.04 * Math.sin(S.t * 0.8), mouth: S.lt > tAv ? "line" : "line", brows: S.lt > tAv ? -0.6 : 0 });
       // Edward: glances, stiffens, turns away and covers his nose
       const away = S.k(tAv - 0.2, tAv + 0.5), cover = S.k(tAv + 0.2, tAv + 0.9);
       const tense = S.lt > tHide ? 1 : 0;
       S.char("edward", { x: S.X(0.77), y: S.Y(1.06), H: 900, face: mix(-0.9, 0.6, away), look: mix(-0.6, 0.5, away),
-        armR: cover > 0 ? [mix(0.2, 2.6, cover), mix(0.3, 2.2, cover)] : [0.5, 1.2], armL: [0.7, 1.2],
+        armR: cover > 0 ? [mix(0.35, 2.6, cover), mix(1.2, 2.2, cover)] : [0.35, 1.2], armL: [0.3, 1.3],
         brows: mix(0, 1, away), blink: blink(S, 3), lean: 0.05 * away + Math.sin(S.t * 30) * 0.004 * tense,
         eyeGlow: S.lt > tTer ? S.k(tTer, tTer + 0.4) * 0.6 : 0 });
       S.occluder("desks");

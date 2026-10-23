@@ -23,7 +23,7 @@
       const step = S.k(tDisc - 0.6, tDisc + 0.4), point = S.k(tDisc - 0.2, tDisc + 0.4);
       S.char(Object.assign(cloak(), { top: { style: "cloak", c: "#0e0e10", c2: "#a3161a", clasp: "#d6ae3f" } }),
         { x: S.X(0.505), y: S.Y(0.80) + 30 * step, H: 820 + 40 * step, face: 0.2, blink: blink(S, 33), eyeGlow: glow, wind: 0.4,
-          showHands: true, armR: [mix(0.1, 1.45, point), mix(0.2, 0.1, point)], armL: [-0.1, 0.2], brows: glow > 0.5 ? 1 : 0 });
+          showHands: true, armR: [mix(0.1, 0.95, point), mix(0.2, 0.05, point)], armL: [-0.1, 0.2], brows: glow > 0.5 ? 1 : 0 });
       // foreground: Bella rushes in and saves Edward
       const run = S.k(tR - 0.6, S.cue("saves") + 0.3);
       S.char("edward", { x: S.X(0.73), y: S.Y(1.2), H: 760, face: -0.6, look: mix(-0.4, 0.5, run), blink: blink(S, 34), mouth: run > 0.8 ? "o" : "sad",
@@ -88,7 +88,7 @@
       // Edward reaches for her; sparkles on "eternity"
       const reach = S.k(tCh + 0.8, tEt);
       S.char("edward", { x: S.X(0.84), y: S.Y(1.07), H: 1050, face: -0.85, look: -0.6, blink: blink(S, 60), mouth: reach > 0.5 ? "smile" : "line",
-        armR: [mix(0.1, 0.72, reach), mix(0.3, 0.15, reach)], armL: [-0.1, 0.3], sparkle: S.k(tEt - 0.2, tEt + 0.5) * 0.8, wind: 0.3 });
+        armR: [mix(0.1, 0.5, reach), mix(0.3, 0.1, reach)], armL: [-0.1, 0.3], sparkle: S.k(tEt - 0.2, tEt + 0.5) * 0.8, wind: 0.3 });
       // the heart from the storyboard pops and beats
       const hp = S.easeOut(S.k(tCh - 0.2, tCh + 0.3));
       if (hp > 0) S.fx.heart(S.X(0.60), S.Y(0.27) - 20 * S.k(tCh, S.dur), 46 * hp * (1 + 0.12 * Math.max(0, Math.sin(S.t * 7))), hp);
@@ -109,11 +109,11 @@
       const worry = S.k(tPreg - 0.4, tPreg + 0.4);
       const bride = Object.assign({}, C.bella, { top: { style: "dress", c: "#f8f4ee" }, veil: true });
       S.char(bride, { x: S.X(0.36) + 30 * kiss, y: S.Y(0.985), H: 860, face: 0.85, look: 0.6, blink: blink(S, 71), lean: 0.08 * kiss, tilt: -0.1 * kiss,
-        armR: worry > 0 ? [mix(1.2, 0.35, worry), mix(0.3, 1.55, worry)] : [1.2, 0.3], armL: [mix(0.4, 0.3, worry), mix(0.5, 1.4, worry)],
+        armR: worry > 0 ? [mix(0.8, 0.35, worry), mix(0.25, 1.55, worry)] : [0.8, 0.25], armL: [mix(0.4, 0.3, worry), mix(0.5, 1.4, worry)],
         mouth: worry > 0.5 ? "sad" : "smile", brows: -worry, eyesClosed: kiss > 0.7, wind: 0.3 });
       const groom = Object.assign({}, C.edward, { top: { style: "coat", c: "#151518", c2: "#2c2c32", shirt: "#f4f4f4", tie: "#111" } });
-      S.char(groom, { x: S.X(0.61) - 30 * kiss, y: S.Y(0.975), H: 1010, face: -0.85, look: -0.6 + 0.3 * worry, blink: blink(S, 72),
-        lean: 0.08 * kiss, tilt: -0.08 * kiss, armR: worry > 0.5 ? [0.55, 0.4] : [1.25, 0.25], armL: [-0.1, 0.3],
+      S.char(groom, { x: S.X(0.60) - 30 * kiss, y: S.Y(0.975), H: 930, face: -0.85, look: -0.6 + 0.3 * worry, blink: blink(S, 72),
+        lean: 0.08 * kiss, tilt: -0.08 * kiss, armR: worry > 0.5 ? [0.55, 0.4] : [0.8, 0.2], armL: [-0.1, 0.3],
         mouth: worry > 0.5 ? "line" : "smile", brows: worry > 0.5 ? -0.8 : 0, eyesClosed: kiss > 0.7 });
       if (kiss > 0.6) S.fx.heart(S.X(0.49), S.Y(0.15) - 40 * kiss, 38, kiss);
       S.fx.petals(46, 1 - 0.7 * worry);
@@ -290,7 +290,7 @@
       if (S.lt > tSub - 0.4) {    // subscribe button with a click
         const c = S.easeOut(S.k(tSub - 0.4, tSub + 0.2)), click = S.k(tSub + 0.6, tSub + 0.8) * (1 - S.k(tSub + 0.9, tSub + 1.1));
         const done = S.lt > tSub + 0.8;
-        g.save(); g.translate(1540, 470); g.scale(c * (1 - 0.08 * click), c * (1 - 0.08 * click));
+        g.save(); g.translate(1620, 120); g.scale(c * (1 - 0.08 * click), c * (1 - 0.08 * click));
         g.fillStyle = done ? "#606060" : "#e62117"; g.beginPath(); g.roundRect ? g.roundRect(-190, -50, 380, 100, 50) : g.rect(-190, -50, 380, 100); g.fill();
         g.lineWidth = 5; g.strokeStyle = "#111"; g.stroke();
         g.fillStyle = "#fff"; g.textAlign = "center"; g.textBaseline = "middle"; g.font = "800 52px 'Baloo 2', sans-serif"; g.fillText(done ? "SUBSCRIBED" : "SUBSCRIBE", 0, 4);

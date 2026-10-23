@@ -102,6 +102,11 @@
   function hairFront(g, c, p, hx, hy, u) {
     const h = c.hair, t = p.t, w = p.wind, look = p.look * 2.5 * u;
     const jit = k => Math.sin(t * 3 + k * 1.7) * (0.4 + w) * u;
+    if (p.back && !(h.style === "long" || h.style === "wild" || h.style === "hood")) {   // short hair from behind
+      g.beginPath(); g.ellipse(hx, hy - 0.5 * u, 12.8 * u, 13.9 * u, 0, 0, Math.PI * 2); g.fillStyle = h.c; g.fill(); g.lineWidth = 1.3 * u; g.strokeStyle = K; g.stroke();
+      g.strokeStyle = h.c2; g.lineWidth = 0.8 * u;
+      for (let i = -3; i <= 3; i++) { g.beginPath(); g.moveTo(hx + i * 2 * u, hy - 12 * u); g.lineTo(hx + i * 3 * u + jit(i), hy + 9 * u); g.stroke(); }
+    }
     if (p.back) {               // seen from behind: hair covers the whole head
       if (h.style === "long" || h.style === "wild" || h.style === "hood") {
         g.beginPath(); g.ellipse(hx, hy - 1 * u, 12.6 * u, 14 * u, 0, 0, Math.PI * 2); g.fillStyle = h.c; g.fill(); g.lineWidth = 1.3 * u; g.strokeStyle = K; g.stroke();
@@ -282,6 +287,13 @@
   // ---- main draw ------------------------------------------------------------------------------
   function draw(g, c, p) {
     if (p.alpha <= 0) return;
+    if (!p.still) {   // idle life: breathing sway and a slow drift in the arms
+      const seed = (p.x * 0.013) % 7;
+      p.lean = (p.lean || 0) + Math.sin(p.t * 1.15 + seed) * 0.012;
+      p.armL = [p.armL[0] + Math.sin(p.t * 1.3 + seed) * 0.05, p.armL[1] + Math.sin(p.t * 0.9 + seed) * 0.06];
+      p.armR = [p.armR[0] + Math.sin(p.t * 1.2 + seed + 2) * 0.05, p.armR[1] + Math.sin(p.t * 1.0 + seed + 1) * 0.06];
+      p.tilt = (p.tilt || 0) + Math.sin(p.t * 0.7 + seed) * 0.02;
+    }
     const u = p.H / 100, s = p.face < 0 ? -1 : 1;
     g.save();
     g.globalAlpha = p.alpha;
