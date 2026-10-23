@@ -189,7 +189,7 @@
         gr.addColorStop(0, color.replace("A", a)); gr.addColorStop(1, color.replace("A", 0));
         g.fillStyle = gr; g.fillRect(x - r, y - r, r * 2, r * 2); g.restore();
       },
-      shade(color, a) { g.save(); g.globalAlpha = a; g.fillStyle = color; g.fillRect(-200, -200, W + 400, H + 400); g.restore(); },
+      shade(color, a) { if (!(a > 0)) return; g.save(); g.globalAlpha = Math.min(1, a); g.fillStyle = color; g.fillRect(-200, -200, W + 400, H + 400); g.restore(); },
       sparks(x, y, r, n, color, t0 = 0, rise = 260) {
         g.save(); g.globalCompositeOperation = "lighter";
         for (let i = 0; i < n; i++) {

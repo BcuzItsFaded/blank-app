@@ -202,7 +202,9 @@
         const a = S.k(tAnother + 0.3, tAnother + 1) * (1 - S.k(S.dur - 1, S.dur - 0.3));
         for (const dx of [0, 34]) S.fx.glow(S.X(0.13) + dx, S.Y(0.42), 22, "rgba(255,200,60,A)", a * (R.blinkAt(S.t, 30) > 0.5 ? 0.1 : 1));
       }
-      if (Math.abs(S.lt - tHeart) < 0.25 || Math.abs(S.lt - tChange) < 0.2) S.fx.shade("#dfe8ff", 0.35 * (1 - Math.abs(S.lt - tHeart) * 4));
+      // lightning flashes on "Heartbroken" and "change"
+      const flash = Math.max(0, 1 - Math.abs(S.lt - tHeart) * 4) + Math.max(0, 1 - Math.abs(S.lt - tChange) * 5);
+      if (flash > 0) S.fx.shade("#dfe8ff", 0.35 * Math.min(1, flash));
       S.fx.rain(360, 0.15, 0.5, 2600, S.Y(0.97));
     },
   };
