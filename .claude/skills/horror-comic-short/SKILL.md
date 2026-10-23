@@ -121,19 +121,20 @@ Fallback without Whisper: `python3 "$SKILL/scripts/prepare_voice.py" "$EP" <reco
 It splits at the pauses between sections (ask the user to pause about 1 s between them), keeps the
 storyboard timing, and speeds up any section that overruns its slot.
 
-**No recording? Narrate it with the free built-in narrator** (Piper TTS, runs locally, no API):
+**No recording? Use the free narrator** (Piper TTS, runs locally, no API, no credits):
 
 ```bash
-python3 -m venv ~/.piper && ~/.piper/bin/pip install piper-tts      # once
-~/.piper/bin/python "$SKILL/scripts/narrate_tts.py" "$EP" --creepy [--pace 1.1]
+~/.piper/bin/python "$SKILL/scripts/narrate_tts.py" "$EP" --fit [--creepy | --clown] [--length 60 --max-tempo 1.08 --gap 0.4]
 ```
 
-It reads each script section, then runs prepare_voice.py with the same placement and the `--creepy`
-preset: deeper pitch, a faint sub-octave growl and crypt reverb. `--pace` above 1 slows the delivery;
-lower it if a section warns that it runs past its slot. The default voice
-`en_GB-northern_english_male-medium` is CC-BY-SA 4.0, so tell the user to credit it in the video
-description: "Narration: Piper TTS, northern_english_male (OpenSLR 83, CC-BY-SA 4.0)". Don't use
-`en_US-ryan-*` voices for monetized channels (non-commercial licence).
+- Default voice `en_US-john-medium`: a natural audiobook storyteller trained on LibriVox, **public
+  domain**, so no credit is needed and it's safe for monetized channels. Alternatives: `--voice
+  en_US-joe-medium` (clear, CC0) and `en_US-bryce-medium` (slower, public domain). Never use
+  `en_US-ryan-*` or `en_US-hfc_male-*` (non-commercial licences).
+- With no style flag the voice stays natural; the user can ask for `--creepy` or `--clown`.
+- `--fit` sends the take through fit_narration.py, the same as a real recording: Whisper word timing,
+  panels re-timed to the voice, word-exact subtitles. `--pace` (default 0.95; lower is faster) sets
+  the reading speed. Without `--fit`, prepare_voice.py keeps the storyboard timing.
 
 The music automatically ducks under the voice in the render. Voice cloning from a short sample isn't
 part of this skill (free models aren't licensed for monetized channels).

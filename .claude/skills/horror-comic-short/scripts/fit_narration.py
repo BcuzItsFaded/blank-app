@@ -79,9 +79,10 @@ if a.words:
     W = json.load(open(a.words))
 else:
     from faster_whisper import WhisperModel
-    a16 = x[::3].copy()  # 48 kHz → 16 kHz (afftdn+highpass already band-limit enough for ASR)
+    a16 = np.frombuffer(ff(["-i", a.recording, "-ac", "1", "-ar", "16000", "-f", "f32le", "-"]), np.float32).copy()
     model = WhisperModel(a.model, device="cpu", compute_type="int8")
-    segs, _ = model.transcribe(a16, word_timestamps=True, initial_prompt=" ".join(s["text"] for s in sections)[:400])
+    # no initial_prompt: priming Whisper with the script makes it skip the opening words as "already said"
+    segs, _ = model.transcribe(a16, word_timestamps=True, language="en")
     W = [{"w": w.word.strip(), "s": w.start, "e": w.end} for sg in segs for w in sg.words]
 norm = lambda t: re.sub(r"[^a-z0-9']", "", t.lower().replace("’", "'"))
 

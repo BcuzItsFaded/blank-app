@@ -2,25 +2,32 @@
 """Free narrator: synthesize the episode's script with Piper TTS (runs locally, no API), then hand the
 take to prepare_voice.py, which places each section on its timestamp and applies the voice preset.
 
-    python3 narrate_tts.py <episodeDir> [--voice en_GB-northern_english_male-medium] [--pace 1.12] [--creepy]
+    python3 narrate_tts.py <episodeDir> [--voice en_US-john-medium] [--pace 0.95] [--creepy | --clown] [--fit]
+
+--fit (recommended) hands the take to fit_narration.py: Whisper word timings, the panels re-timed to
+the voice, word-exact subtitles. Without it, prepare_voice.py keeps the storyboard timing.
 
 Setup once:  python3 -m venv ~/.piper && ~/.piper/bin/pip install piper-tts
              (run this script with ~/.piper/bin/python, or anywhere `piper` is importable)
 
-Default voice en_GB-northern_english_male-medium (dataset CC-BY-SA 4.0, commercial use OK with credit):
-credit it in the video description, e.g. "Narration: Piper TTS, northern_english_male (OpenSLR 83, CC-BY-SA 4.0)".
-Avoid en_US-ryan-* for monetized channels (CC BY-NC-SA).
+Voices (all commercial-safe):
+  en_US-john-medium   natural audiobook storyteller (LibriVox, public domain): the default, no credit needed
+  en_US-joe-medium    clear, neutral (CC0)        en_US-bryce-medium  slower, warm (public domain)
+  en_GB-northern_english_male-medium  British (CC-BY-SA 4.0: credit "Piper TTS, northern_english_male, OpenSLR 83")
+Avoid en_US-ryan-* and en_US-hfc_male-* for monetized channels (non-commercial licences).
 """
 import argparse, json, os, re, subprocess, sys, tempfile, urllib.request
 import numpy as np
 
 ap = argparse.ArgumentParser()
 ap.add_argument("episode")
-ap.add_argument("--voice", default="en_GB-northern_english_male-medium")
-ap.add_argument("--pace", type=float, default=1.12, help=">1 = slower, more ominous delivery")
+ap.add_argument("--voice", default="en_US-john-medium")
+ap.add_argument("--pace", type=float, default=0.95, help=">1 = slower, more ominous delivery")
 ap.add_argument("--creepy", action="store_true")
-ap.add_argument("--extra", nargs="*", default=[], help="extra args passed to prepare_voice.py")
-a = ap.parse_args()
+ap.add_argument("--clown", action="store_true")
+ap.add_argument("--fit", action="store_true", help="re-time the video to the voice with fit_narration.py")
+a, passthrough = ap.parse_known_args()  # anything else (e.g. --length 60 --max-tempo 1.08) goes to the fitter
+a.extra = passthrough
 
 # ---- voice model (cached)
 cache = os.path.expanduser("~/.cache/piper-voices"); os.makedirs(cache, exist_ok=True)
@@ -56,6 +63,10 @@ take = os.path.join(tempfile.mkdtemp(), "tts-take.wav")
 raw = take + ".f32"; np.concatenate(parts).tofile(raw)
 subprocess.run(["ffmpeg", "-v", "error", "-y", "-f", "f32le", "-ar", str(sr), "-ac", "1", "-i", raw, take], check=True)
 
-prep = os.path.join(os.path.dirname(os.path.abspath(__file__)), "prepare_voice.py")
-args = [sys.executable, prep, a.episode, take, "--no-denoise"] + (["--creepy"] if a.creepy else []) + a.extra
+here = os.path.dirname(os.path.abspath(__file__))
+style = (["--creepy"] if a.creepy else []) + (["--clown"] if a.clown else [])
+if a.fit:
+    args = [sys.executable, os.path.join(here, "fit_narration.py"), a.episode, take] + style + a.extra
+else:
+    args = [sys.executable, os.path.join(here, "prepare_voice.py"), a.episode, take, "--no-denoise"] + (["--creepy"] if a.creepy else []) + a.extra
 sys.exit(subprocess.call(args))
