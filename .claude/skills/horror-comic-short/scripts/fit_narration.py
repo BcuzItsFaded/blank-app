@@ -38,6 +38,8 @@ ap.add_argument("--denoise", choices=["rnnoise", "fft", "off"], default="rnnoise
                 help="rnnoise = neural voice isolation (removes fans/AC/room hum, keeps only the voice); fft = light")
 ap.add_argument("--keep-gaps", action="store_true",
                 help="don't turn down sound between words (by default gaps drop 30 dB: babies, TV, rustle)")
+ap.add_argument("--cut", action="append", default=[], metavar="START-END",
+                help="remove a stutter/flub, in recording seconds (e.g. --cut 67.03-67.30); repeatable")
 ap.add_argument("--model", default="small.en"); ap.add_argument("--words", help="cached Whisper words JSON")
 a = ap.parse_args()
 if a.creepy:
@@ -142,11 +144,19 @@ def cut_section(si):
     nxt = W[spans[si + 1][0]]["s"] - 0.05 if si + 1 < N else len(x) / SR
     e0 = min(W[i1]["e"] + 0.3, nxt)
     removed = []  # (start, end) in recording time
+    for c in a.cut:  # user-marked stutters / flubs inside this section
+        c0, c1 = (float(v) for v in c.split("-"))
+        if s0 < c0 < e0: removed.append((c0, min(c1, e0)))
     for i in range(i0, i1):
         g0, g1 = W[i]["e"], W[i + 1]["s"]
         keep = 0.34 if re.search(r"[.,!?;:…]$", W[i]["w"]) else 0.2
         if g1 - g0 > keep + 0.08:
             removed.append((g0 + keep / 2, g1 - keep / 2))
+    merged = []
+    for r0, r1 in sorted(removed):
+        if merged and r0 <= merged[-1][1]: merged[-1] = (merged[-1][0], max(merged[-1][1], r1))
+        else: merged.append((r0, r1))
+    removed = merged
     pieces, t = [], s0
     for r0, r1 in removed + [(e0, e0)]:
         pieces.append(x[int(t * SR): int(r0 * SR)].copy()); t = r1

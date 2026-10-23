@@ -123,6 +123,11 @@ python3 -m venv ~/.piper && ~/.piper/bin/pip install piper-tts faster-whisper   
   It keeps the separated source that matches the narrator's pitch. Tested on a baby over the narrator:
   baby sound 7.0 s → 1.0 s, about 10 dB quieter, clarity unchanged. Sounds that overlap a word can't be
   fully removed; if the user still hears them, ask for a re-take of that line.
+- **Stutters and flubs** ("Henry b-, b-, begs"): Whisper normally hides them. To find one, transcribe
+  just that stretch with `medium.en` and a disfluency prompt (`initial_prompt="H-H-Henry b-b-begs. Uh,
+  um, the-the."`), which makes it print the false start with its timestamps. Then re-run with
+  `--cut START-END` (recording seconds, repeatable) and re-check with the same prompt. Cut from the end
+  of the last good word to just before the real word starts.
 - Between words, the audio is turned down 30 dB by default (catches sounds in the gaps between words);
   `--keep-gaps` disables it.
 - Background noise is removed by default with RNNoise (`--denoise rnnoise`): neural voice isolation
