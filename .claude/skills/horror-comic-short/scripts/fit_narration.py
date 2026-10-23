@@ -36,6 +36,8 @@ ap.add_argument("--creepy", action="store_true", help="deeper pitch, faint sub-o
 ap.add_argument("--clown", action="store_true", help="creepy clown: higher, nasal, warbling, demon double underneath, big-top echo")
 ap.add_argument("--denoise", choices=["rnnoise", "fft", "off"], default="rnnoise",
                 help="rnnoise = neural voice isolation (removes fans/AC/room hum, keeps only the voice); fft = light")
+ap.add_argument("--keep-gaps", action="store_true",
+                help="don't turn down sound between words (by default gaps drop 30 dB: babies, TV, rustle)")
 ap.add_argument("--model", default="small.en"); ap.add_argument("--words", help="cached Whisper words JSON")
 a = ap.parse_args()
 if a.creepy:
@@ -103,6 +105,15 @@ else:
     segs, _ = model.transcribe(a16, word_timestamps=True, language="en")
     W = [{"w": w.word.strip(), "s": w.start, "e": w.end} for sg in segs for w in sg.words]
 norm = lambda t: re.sub(r"[^a-z0-9']", "", t.lower().replace("’", "'"))
+
+# ---- turn down everything between spoken words (background voices, a baby, rustle); 60 ms fades
+if not a.keep_gaps:
+    keep = np.full(len(x), 10 ** (-30 / 20), np.float32)
+    for w in W:
+        keep[max(0, int((w["s"] - 0.07) * SR)): int((w["e"] + 0.12) * SR)] = 1.0
+    k = int(0.06 * SR); kern = np.ones(k, np.float32) / k
+    keep = np.convolve(keep, kern, mode="same").astype(np.float32)
+    x = x * keep[: len(x)]
 
 # align script words ↔ spoken words
 script_tok = [(si, wi, norm(w)) for si, s in enumerate(sections) for wi, w in enumerate(s["words"])]

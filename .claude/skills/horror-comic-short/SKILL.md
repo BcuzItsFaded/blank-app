@@ -113,6 +113,18 @@ python3 -m venv ~/.piper && ~/.piper/bin/pip install piper-tts faster-whisper   
   gets clarity EQ only. If the user says it's hard to understand, re-run without `--creepy` and with
   `--max-tempo 1.06 --gap 0.4`: natural speed matters more than hitting exactly 60 s. Music ducks to 45%
   under a voice (`settings.duck`).
+- **Another voice in the background** (a baby, kids, TV, someone talking): RNNoise keeps all voices,
+  so separate first, then fit with `--denoise off` (the separation already cleans):
+  ```bash
+  ~/.piper/bin/pip install torch torchaudio --index-url https://download.pytorch.org/whl/cpu && ~/.piper/bin/pip install speechbrain  # once
+  ~/.piper/bin/python "$SKILL/scripts/isolate_voice.py" <recording> /tmp/voice-only.wav
+  ~/.piper/bin/python "$SKILL/scripts/fit_narration.py" "$EP" /tmp/voice-only.wav --denoise off …
+  ```
+  It keeps the separated source that matches the narrator's pitch. Tested on a baby over the narrator:
+  baby sound 7.0 s → 1.0 s, about 10 dB quieter, clarity unchanged. Sounds that overlap a word can't be
+  fully removed; if the user still hears them, ask for a re-take of that line.
+- Between words, the audio is turned down 30 dB by default (catches sounds in the gaps between words);
+  `--keep-gaps` disables it.
 - Background noise is removed by default with RNNoise (`--denoise rnnoise`): neural voice isolation
   that removes fan, AC and room hum and leaves only the voice and natural breaths. Use `--denoise fft`
   for a lighter touch, or `off`.
