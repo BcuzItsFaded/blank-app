@@ -34,6 +34,8 @@ ap.add_argument("--pitch", type=float, default=0, help="explicit pitch ratio (wi
 ap.add_argument("--formant", type=float, default=1.0, help="resonance ratio; <1 = bigger, deeper-sounding speaker")
 ap.add_argument("--creepy", action="store_true", help="deeper pitch, faint sub-octave growl, crypt reverb")
 ap.add_argument("--clown", action="store_true", help="creepy clown: higher, nasal, warbling, demon double underneath, big-top echo")
+ap.add_argument("--denoise", choices=["rnnoise", "fft", "off"], default="rnnoise",
+                help="rnnoise = neural voice isolation (removes fans/AC/room hum, keeps only the voice); fft = light")
 ap.add_argument("--model", default="small.en"); ap.add_argument("--words", help="cached Whisper words JSON")
 a = ap.parse_args()
 if a.creepy:
@@ -77,7 +79,20 @@ length = a.length or max(p["end"] for p in panels)
 # ---------------------------------------------------------------- audio + transcript
 def ff(args, inp=None):
     return subprocess.run(["ffmpeg", "-v", "error", "-y", *args], input=inp, capture_output=True, check=True).stdout
-x = np.frombuffer(ff(["-i", a.recording, "-af", "highpass=f=80,afftdn=nf=-30", "-ac", "1", "-ar", str(SR), "-f", "f32le", "-"]), np.float32).copy()
+clean = "highpass=f=80"
+if a.denoise == "rnnoise":
+    # RNNoise "bd" model (voice-tuned; tested best on a noisy phone recording: background -32 → about -55 dB,
+    # intelligibility unchanged). Downloaded once from github.com/richardpl/arnndn-models (BSD).
+    mdir = os.path.expanduser("~/.cache/rnnoise"); os.makedirs(mdir, exist_ok=True)
+    mpath = os.path.join(mdir, "bd.rnnn")
+    if not os.path.exists(mpath):
+        import urllib.request
+        urllib.request.urlretrieve("https://raw.githubusercontent.com/richardpl/arnndn-models/master/bd.rnnn", mpath)
+    # + soft gate right after isolation, where pauses are quiet and easy to tell from the voice
+    clean = f"highpass=f=100,arnndn=m={mpath},agate=threshold=0.016:ratio=4:range=0.06:attack=3:release=250:knee=3"
+elif a.denoise == "fft":
+    clean += ",afftdn=nf=-30"
+x = np.frombuffer(ff(["-i", a.recording, "-af", clean, "-ac", "1", "-ar", str(SR), "-f", "f32le", "-"]), np.float32).copy()
 if a.words:
     W = json.load(open(a.words))
 else:
@@ -246,7 +261,7 @@ if a.clown:  # EQ must come before vibrato (EQ after it goes unstable in ffmpeg)
               "chorus=0.7:0.9:45|60:0.35|0.3:0.3|0.4:2|2.6[cc];[cc][dm]amix=inputs=2:normalize=0,"
               "aecho=0.8:0.5:70|140:0.16|0.08")
 if a.reverb: fx.append("aecho=0.8:0.5:45|90|160:0.18|0.1|0.06")
-fx.append("loudnorm=I=-16:TP=-1.5:LRA=11")
+fx.append("loudnorm=I=-16:TP=-1.5:LRA=11:linear=true")
 out = os.path.join(a.episode, "assets", "voice-final.wav")
 ff(["-f", "f32le", "-ar", str(SR), "-ac", "1", "-i", raw, "-filter_complex", ",".join(fx), "-ar", str(SR), "-ac", "2", out])
 
