@@ -18,6 +18,10 @@ bg = ImageEnhance.Brightness(bg.filter(ImageFilter.GaussianBlur(28))).enhance(0.
 bg.paste(board, (OX, 0))
 S = 2
 canvas = bg.resize((CW * S, CH * S), Image.LANCZOS)
+# "Don't Spoil It with RG & AG" banner over the hosts' photo, drawn at full canvas resolution
+bn = Image.open(f"{D}/banner.png")
+bw = 400 * S; bn = bn.resize((bw, round(bn.height * bw / bn.width)), Image.LANCZOS)
+canvas.paste(bn, (round((245 + OX) * S - bw / 2), round(214 * S - bn.height / 2)), bn)
 
 def pbox(x0, y0, x1, y1, m=1.04):
     w = max(x1 - x0, (y1 - y0) * 16 / 9) * m
@@ -165,8 +169,8 @@ def build_audio():
 build_audio()
 ff = subprocess.Popen(["ffmpeg", "-y", "-loglevel", "error", "-f", "rawvideo", "-pix_fmt", "rgb24",
                        "-s", f"{OW}x{OH}", "-r", str(FPS), "-i", "-", "-i", f"{D}/mix.wav",
-                       "-vf", "noise=alls=6:allf=t,vignette=PI/5,eq=saturation=1.08",
-                       "-c:v", "libx264", "-preset", "medium", "-crf", "21", "-pix_fmt", "yuv420p",
+                       "-vf", "noise=alls=4:allf=t,vignette=PI/5,eq=saturation=1.08",
+                       "-c:v", "libx264", "-preset", "faster", "-crf", "24", "-pix_fmt", "yuv420p",
                        "-c:a", "aac", "-b:a", "192k", "-movflags", "+faststart", "-shortest", OUT],
                       stdin=subprocess.PIPE)
 black = np.zeros((OH, OW, 3), np.uint8)

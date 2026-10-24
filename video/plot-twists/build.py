@@ -18,6 +18,10 @@ bg = ImageEnhance.Brightness(bg.filter(ImageFilter.GaussianBlur(28))).enhance(0.
 bg.paste(board, (OX, 0))
 S = 2
 canvas = bg.resize((CW * S, CH * S), Image.LANCZOS)
+# "Don't Spoil It with RG & AG" banner over the hosts' photo, drawn at full canvas resolution
+bn = Image.open(f"{D}/banner.png")
+bw = 400 * S; bn = bn.resize((bw, round(bn.height * bw / bn.width)), Image.LANCZOS)
+canvas.paste(bn, (round((245 + OX) * S - bw / 2), round(214 * S - bn.height / 2)), bn)
 
 def pbox(x0, y0, x1, y1, m=1.04):
     w = max(x1 - x0, (y1 - y0) * 16 / 9) * m
