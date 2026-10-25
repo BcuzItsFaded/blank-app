@@ -1,0 +1,431 @@
+<title>Other Worlds Than These Motion Comic</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Pirata+One&family=Spectral:wght@400;600&display=swap">
+<style>
+/* Layout: letterboxed 16:9 cinema stage, slim control bar below it, single dark look */
+:root{
+  --bg:#0b0a10; --panel:#16131d; --line:#2c2638; --fg:#ece6d8; --dim:#9a92a8;
+  --gold:#e6b04a; --gold-ink:#1a1206;
+  --display:'Pirata One','Georgia',serif; --body:'Spectral','Georgia',serif;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--fg);font:15px/1.5 var(--body);margin:0;
+  padding-block:20px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.wrap{max-width:1280px;margin:0 auto;display:flex;flex-direction:column;gap:14px}
+header{display:flex;flex-wrap:wrap;align-items:baseline;justify-content:space-between;gap:4px 16px}
+h1{font:400 clamp(26px,4vw,40px)/1.1 var(--display);margin:0;letter-spacing:.02em;text-wrap:balance}
+header p{margin:0;color:var(--dim);font-size:14px}
+#stageWrap{background:#000;border:1px solid var(--line);border-radius:4px;overflow:hidden;line-height:0;position:relative}
+#stageWrap:fullscreen{display:flex;align-items:center;justify-content:center;border:0;border-radius:0}
+#stage{width:100%;height:auto;aspect-ratio:16/9;display:block;max-height:100vh}
+#stageWrap:fullscreen #stage{width:auto;height:100%;max-width:100%}
+#loading{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;line-height:1.4;color:var(--dim);font-size:16px;text-align:center;padding:24px}
+.bar{display:flex;flex-wrap:wrap;align-items:center;gap:10px}
+button,label.btn{font:600 14px/1 var(--body);color:var(--fg);background:var(--panel);border:1px solid var(--line);border-radius:4px;padding:11px 16px;cursor:pointer;min-height:40px;display:inline-flex;align-items:center;gap:6px}
+button:hover,label.btn:hover{border-color:var(--gold)}
+button.primary{background:var(--gold);color:var(--gold-ink);border-color:var(--gold)}
+button[disabled]{opacity:.45;cursor:default}
+button:focus-visible,label.btn:focus-within,input[type=range]:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+.time{font-variant-numeric:tabular-nums;color:var(--dim);min-width:92px;text-align:right}
+.scrub{flex:1 1 220px;min-width:0;display:flex;align-items:center;gap:12px}
+input[type=range]{flex:1;min-width:0;accent-color:var(--gold)}
+.chips{display:flex;gap:6px;flex-wrap:wrap}
+.chip{padding:6px 10px;min-height:0;font-size:12px;color:var(--dim)}
+.chip.on{color:var(--gold);border-color:var(--gold)}
+.note{color:var(--dim);font-size:13px;margin:0}
+.note b{color:var(--fg);font-weight:600}
+input[type=file]{position:absolute;opacity:0;width:1px;height:1px}
+</style>
+
+<div class="wrap">
+  <header>
+    <h1>Other Worlds Than These</h1>
+    <p>Brick-built horror motion comic &middot; PlotTwistWith R&amp;A &middot; 8 scenes &times; 6 s = 48 s</p>
+  </header>
+
+  <div id="stageWrap">
+    <canvas id="stage" width="1920" height="1080"></canvas>
+    <div id="loading">Loading artwork&hellip;</div>
+  </div>
+
+  <div class="bar">
+    <button id="play" class="primary">&#9654; Play</button>
+    <button id="pause">&#10074;&#10074; Pause</button>
+    <button id="restart">&#8635; Restart</button>
+    <button id="full">&#9974; Fullscreen</button>
+    <div class="scrub">
+      <input id="seek" type="range" min="0" max="48" step="0.01" value="0" aria-label="Timeline">
+      <span class="time" id="time">0:00 / 0:48</span>
+    </div>
+  </div>
+  <div class="bar">
+    <div class="chips" id="chips" aria-label="Jump to scene"></div>
+  </div>
+  <div class="bar">
+    <label class="btn" for="file">Load storyboard image&hellip;<input id="file" type="file" accept="image/*"></label>
+    <button id="rec">&#9679; Record WebM</button>
+    <span class="note" id="recnote"></span>
+  </div>
+  <p class="note">Conceptual storyboard only. Camera moves and atmosphere are animated overlays on the original artwork; the characters themselves are not individually animated. Spacebar plays and pauses.</p>
+</div>
+
+<script>
+(function(){
+'use strict';
+var SRC='__IMG__';
+var W=1920,H=1080,SCENE_LEN=6,N=8,TOTAL=48,FADE=0.8;
+// Source crops inside the 1024x1536 storyboard: below the label strip, inside the borders.
+var RECTS=[[10,332,506,566],[519,332,1015,566],[10,634,506,860],[519,634,1015,860],
+           [10,926,506,1137],[519,926,1015,1137],[10,1207,506,1476],[519,1207,1015,1476]];
+var cv=document.getElementById('stage'),ctx=cv.getContext('2d');
+var crops=[],bgs=[];
+
+/* ---------- helpers ---------- */
+function fract(x){return x-Math.floor(x)}
+function rnd(i,k){return fract(Math.sin(i*127.1+k*311.7)*43758.5453)}
+function clamp(x,a,b){return x<a?a:x>b?b:x}
+function lerp(a,b,t){return a+(b-a)*t}
+function ease(t){t=clamp(t,0,1);return t*t*(3-2*t)}
+function easeIO(t){t=clamp(t,0,1);return 0.5-0.5*Math.cos(Math.PI*t)}
+function noise1(t,s){return 0.5+0.25*Math.sin(t*s*1.0+1.3)+0.15*Math.sin(t*s*2.3+4.1)+0.10*Math.sin(t*s*5.1+2.2)}
+function glow(c,x,y,r,rgb,a){
+  var g=c.createRadialGradient(x,y,0,x,y,r);
+  g.addColorStop(0,'rgba('+rgb+','+a+')');
+  g.addColorStop(0.45,'rgba('+rgb+','+(a*0.35)+')');
+  g.addColorStop(1,'rgba('+rgb+',0)');
+  c.fillStyle=g;c.fillRect(x-r,y-r,r*2,r*2);
+}
+function blobTex(rgb,seed,n,w,h,a){
+  var c=document.createElement('canvas');c.width=w;c.height=h;var x=c.getContext('2d');
+  for(var i=0;i<n;i++){
+    var r=h*(0.12+0.18*rnd(i,seed)),px=rnd(i,seed+7)*w,py=r+(h-2*r)*rnd(i,seed+13);
+    for(var k=-1;k<=1;k++){
+      var g=x.createRadialGradient(px+k*w,py,0,px+k*w,py,r*1.6);
+      g.addColorStop(0,'rgba('+rgb+','+a+')');g.addColorStop(1,'rgba('+rgb+',0)');
+      x.fillStyle=g;x.fillRect(px+k*w-r*1.6,py-r*1.6,r*3.2,r*3.2);
+    }
+  }
+  return c;
+}
+var fogCool=blobTex('205,215,245',3,22,1024,256,0.5);
+var fogWarm=blobTex('255,200,150',9,18,1024,256,0.35);
+var smokeDark=blobTex('12,6,18',5,20,1024,256,0.7);
+
+/* scrolling fog band in art space (aw x ah). */
+function fogBand(c,aw,ah,tex,y0,y1,alpha,speed,scale,t,phase){
+  var tw=aw*scale,dh=(y1-y0)*ah,off=fract(t*speed+(phase||0))*tw;
+  c.save();c.globalAlpha*=alpha;
+  for(var x=-off;x<aw;x+=tw)c.drawImage(tex,x,y0*ah,tw+1,dh);
+  c.restore();
+}
+/* rising / drifting soft puffs */
+function puffs(c,aw,ah,n,t,o){
+  for(var i=0;i<n;i++){
+    var ph=fract(t/o.period+rnd(i,1)),a=Math.sin(Math.PI*ph);
+    var x=(o.x0+(o.x1-o.x0)*rnd(i,2))*aw+Math.sin(t*0.4+i)*aw*0.02+(o.dx||0)*ph*aw;
+    var y=(o.y0-o.rise*ph)*ah, r=aw*(o.r0+o.r1*ph)*(0.7+0.6*rnd(i,3));
+    glow(c,x,y,r,o.rgb,o.alpha*a);
+  }
+}
+/* floating sparks (additive) */
+function sparks(c,aw,ah,n,t,o){
+  c.save();c.globalCompositeOperation='lighter';
+  for(var i=0;i<n;i++){
+    var ph=fract(t/o.period*(0.7+0.6*rnd(i,4))+rnd(i,1)),a=Math.sin(Math.PI*ph);
+    var x=(o.x+(rnd(i,2)-0.5)*o.w)*aw+Math.sin(t*1.3+i*2.1)*aw*0.008;
+    var y=(o.y-o.rise*ph)*ah, r=1.2+2.6*rnd(i,5);
+    glow(c,x,y,r*4,o.rgb,0.55*a);
+    c.fillStyle='rgba(255,240,200,'+(0.8*a)+')';c.beginPath();c.arc(x,y,r*0.6,0,6.3);c.fill();
+  }
+  c.restore();
+}
+function lights(c,aw,ah,pts,t,rgb,base,amp,rf,speed){
+  c.save();c.globalCompositeOperation='lighter';
+  pts.forEach(function(p,i){
+    var k=base+amp*Math.sin(t*(speed||1.6)+i*1.7)*0.5+amp*0.5;
+    glow(c,p[0]*aw,p[1]*ah,aw*rf*(p[2]||1),rgb,k);
+  });
+  c.restore();
+}
+function flames(c,aw,ah,pts,t,rgb){
+  c.save();c.globalCompositeOperation='lighter';
+  pts.forEach(function(p,i){
+    var f=noise1(t+i*3.7,7);
+    glow(c,p[0]*aw,p[1]*ah,aw*0.075,rgb||'255,150,40',0.22+0.28*f);
+    glow(c,p[0]*aw,p[1]*ah,aw*0.022,'255,230,160',0.35+0.35*f);
+  });
+  c.restore();
+}
+function vignette(c,aw,ah,a){
+  var g=c.createRadialGradient(aw/2,ah/2,ah*0.4,aw/2,ah/2,aw*0.75);
+  g.addColorStop(0,'rgba(0,0,0,0)');g.addColorStop(1,'rgba(0,0,0,'+a+')');
+  c.fillStyle=g;c.fillRect(0,0,aw,ah);
+}
+
+/* ---------- scenes: cam(s) -> {z,fx,fy,px,py}; fx(c,aw,ah,s,t) overlays in art space ---------- */
+var SC=[
+ /* 1 reading the book */
+ {cam:function(s){var e=easeIO(s/6);return{z:lerp(1.0,1.34,e),fx:lerp(0.5,0.52,e),fy:lerp(0.5,0.66,e)}},
+  fx:function(c,aw,ah,s,t){
+    var p=0.5+0.5*Math.sin(s*2.1);
+    c.save();c.globalCompositeOperation='lighter';
+    glow(c,0.52*aw,0.62*ah,aw*(0.30+0.04*p),'255,190,70',0.20+0.16*p);
+    glow(c,0.52*aw,0.60*ah,aw*0.14,'255,225,150',0.14+0.12*p);
+    c.restore();
+    flames(c,aw,ah,[[0.03,0.14],[0.26,0.14],[0.93,0.35],[0.92,0.80]],s);
+    sparks(c,aw,ah,38,s,{x:0.52,w:0.5,y:0.66,rise:0.55,period:5.5,rgb:'255,200,90'});
+    vignette(c,aw,ah,0.35);
+  }},
+ /* 2 forest quest */
+ {cam:function(s){var e=easeIO(s/6);return{z:lerp(1.0,1.32,e),fx:0.72,fy:lerp(0.5,0.30,e)}},
+  fx:function(c,aw,ah,s,t){
+    var p=0.5+0.5*Math.sin(s*1.1);
+    c.save();c.globalCompositeOperation='lighter';
+    glow(c,0.70*aw,0.10*ah,aw*(0.22+0.02*p),'140,255,150',0.16+0.10*p);
+    glow(c,0.71*aw,0.28*ah,aw*0.10,'150,120,255',0.08+0.05*p);
+    c.restore();
+    fogBand(c,aw,ah,fogCool,0.40,0.80,0.40,0.012,1.2,s,0.1);
+    fogBand(c,aw,ah,fogCool,0.62,1.0,0.50,-0.022,1.6,s,0.5);
+    vignette(c,aw,ah,0.3);
+  }},
+ /* 3 Black House */
+ {cam:function(s){var e=easeIO(s/6);return{z:lerp(1.0,1.36,e),fx:lerp(0.5,0.62,e),fy:lerp(0.55,0.45,e)}},
+  fx:function(c,aw,ah,s,t){
+    var win=[[0.744,0.20,1],[0.744,0.45,1.3],[0.516,0.54,1],[0.60,0.66,0.8]];
+    c.save();c.globalCompositeOperation='lighter';
+    win.forEach(function(w,i){
+      var f=0.55+0.45*noise1(s*0.9+i*5.3,3.2);
+      glow(c,w[0]*aw,w[1]*ah,aw*0.05*w[2],'255,175,60',0.22*f+0.08);
+    });
+    c.restore();
+    fogBand(c,aw,ah,fogCool,0.55,0.95,0.45,0.020,1.4,s,0.2);
+    fogBand(c,aw,ah,fogCool,0.70,1.0,0.35,-0.012,1.1,s,0.7);
+    vignette(c,aw,ah,0.4);
+  }},
+ /* 4 between worlds */
+ {cam:function(s){var e=easeIO(s/6);return{z:lerp(1.12,1.34,e),fx:lerp(0.24,0.72,e),fy:lerp(0.62,0.34,e)}},
+  fx:function(c,aw,ah,s,t){
+    var p=0.5+0.5*Math.sin(s*1.4);
+    lights(c,aw,ah,[[0.20,0.09,1],[0.32,0.25,0.9],[0.40,0.35,1.1],[0.58,0.58,0.9],[0.62,0.55,0.7]],s,'255,150,50',0.10,0.26,0.09,1.5);
+    c.save();c.globalCompositeOperation='lighter';
+    glow(c,0.70*aw,0.10*ah,aw*(0.20+0.02*p),'140,255,150',0.12+0.07*p);
+    c.restore();
+    fogBand(c,aw,ah,fogWarm,0.60,1.0,0.30,0.016,1.3,s,0.3);
+    vignette(c,aw,ah,0.3);
+  }},
+ /* 5 infection */
+ {cam:function(s){var e=easeIO(s/6);return{z:lerp(1.0,1.38,e),fx:lerp(0.5,0.46,e),fy:lerp(0.5,0.50,e)}},
+  fx:function(c,aw,ah,s,t){
+    lights(c,aw,ah,[[0.23,0.09,1.1],[0.87,0.09,1.2],[0.34,0.20,0.7]],s,'255,150,50',0.10,0.30,0.08,1.2);
+    puffs(c,aw,ah,16,s,{x0:0.0,x1:1.0,y0:0.95,rise:0.35,period:9,r0:0.10,r1:0.10,rgb:'18,8,24',alpha:0.55,dx:0.12});
+    fogBand(c,aw,ah,smokeDark,0.0,0.55,0.35,0.010,1.5,s,0.4);
+    // slow shadows creeping in from both sides
+    var l=0.5+0.5*Math.sin(s*0.5);
+    var g=c.createLinearGradient(0,0,aw*(0.30+0.10*l),0);g.addColorStop(0,'rgba(8,2,12,0.55)');g.addColorStop(1,'rgba(8,2,12,0)');
+    c.fillStyle=g;c.fillRect(0,0,aw*0.5,ah);
+    var g2=c.createLinearGradient(aw,0,aw*(0.70-0.10*l),0);g2.addColorStop(0,'rgba(8,2,12,0.55)');g2.addColorStop(1,'rgba(8,2,12,0)');
+    c.fillStyle=g2;c.fillRect(aw*0.5,0,aw*0.5,ah);
+    vignette(c,aw,ah,0.4);
+  }},
+ /* 6 the Gullet */
+ {cam:function(s){var e=easeIO(s/6);return{z:lerp(1.36,1.0,e),fx:lerp(0.34,0.5,e),fy:lerp(0.40,0.5,e)}},
+  fx:function(c,aw,ah,s,t){
+    var p=0.5+0.5*Math.sin(s*1.1);
+    c.save();c.globalCompositeOperation='lighter';
+    glow(c,0.27*aw,0.05*ah,aw*(0.20+0.02*p),'140,255,150',0.13+0.07*p);
+    c.restore();
+    puffs(c,aw,ah,22,s,{x0:0.15,x1:1.0,y0:1.05,rise:0.70,period:6.5,r0:0.07,r1:0.07,rgb:'215,225,255',alpha:0.34});
+    fogBand(c,aw,ah,fogCool,0.45,0.9,0.25,0.010,1.3,s,0.6);
+    vignette(c,aw,ah,0.3);
+  }},
+ /* 7 worlds at stake */
+ {cam:function(s){var e=easeIO(s/6);
+    return{z:lerp(1.04,1.14,e),fx:0.5,fy:0.55,px:aw_shake(s,0),py:aw_shake(s,1)}},
+  fx:function(c,aw,ah,s,t){
+    var p1=0.5+0.5*Math.sin(s*1.9),p2=0.5+0.5*Math.sin(s*1.9+2.1),p3=0.5+0.5*Math.sin(s*1.9+4.2);
+    c.save();c.globalCompositeOperation='lighter';
+    glow(c,0.26*aw,0.19*ah,aw*(0.20+0.03*p1),'120,255,160',0.16+0.14*p1);
+    glow(c,0.72*aw,0.19*ah,aw*(0.20+0.03*p2),'170,120,255',0.16+0.14*p2);
+    glow(c,0.50*aw,0.52*ah,aw*(0.20+0.03*p3),'255,110,70',0.14+0.14*p3);
+    glow(c,0.50*aw,0.20*ah,aw*0.12,'255,90,120',0.07+0.05*p3);
+    c.restore();
+    // two slow lightning events (smooth envelope, no strobing)
+    [1.5,4.1].forEach(function(t0,k){
+      var d=(s-t0)/1.1; if(d<0||d>1)return;
+      var a=Math.sin(Math.PI*d);a*=a;
+      c.save();c.globalCompositeOperation='lighter';
+      c.fillStyle='rgba(190,150,255,'+(0.10*a)+')';c.fillRect(0,0,aw,ah);
+      c.strokeStyle='rgba(235,215,255,'+(0.55*a)+')';c.lineWidth=2.2;c.lineCap='round';c.lineJoin='round';
+      c.shadowColor='rgba(200,150,255,'+a+')';c.shadowBlur=14;
+      c.beginPath();var x=(k?0.86:0.40)*aw,y=0;c.moveTo(x,y);
+      for(var i=1;i<=7;i++){x+=(rnd(i,k+20)-0.5)*aw*0.07;y=i/7*ah*0.5;c.lineTo(x,y);}
+      c.stroke();c.restore();
+    });
+    vignette(c,aw,ah,0.35);
+  }},
+ /* 8 closing */
+ {cam:function(s){var e=easeIO(s/6);return{z:lerp(1.0,1.30,e),fx:lerp(0.5,0.56,e),fy:lerp(0.5,0.60,e)}},
+  fx:function(c,aw,ah,s,t){
+    var p=0.5+0.5*Math.sin(s*2.1);
+    c.save();c.globalCompositeOperation='lighter';
+    glow(c,0.52*aw,0.58*ah,aw*(0.26+0.04*p),'255,190,70',0.18+0.14*p);
+    glow(c,0.52*aw,0.58*ah,aw*0.12,'255,225,150',0.12+0.10*p);
+    c.restore();
+    flames(c,aw,ah,[[0.07,0.48],[0.92,0.41],[0.975,0.74]],s);
+    sparks(c,aw,ah,34,s,{x:0.52,w:0.45,y:0.62,rise:0.5,period:5.5,rgb:'255,200,90'});
+    vignette(c,aw,ah,0.35);
+  },
+  top:function(c,s){ // end card text in stage space, over a dimmed scene
+    var a1=ease((s-1.4)/1.3),a2=ease((s-3.0)/1.3),dim=ease((s-1.0)/1.6);
+    var g=c.createRadialGradient(W/2,H/2,H*0.15,W/2,H/2,W*0.7);
+    g.addColorStop(0,'rgba(6,4,10,'+(0.55*dim)+')');g.addColorStop(1,'rgba(6,4,10,'+(0.80*dim)+')');
+    c.fillStyle=g;c.fillRect(0,0,W,H);
+    c.textAlign='center';c.textBaseline='middle';
+    c.save();c.shadowColor='rgba(0,0,0,0.9)';c.shadowBlur=24;
+    c.globalAlpha=a1;c.fillStyle='#f6eed8';c.font='400 128px "Pirata One",Georgia,serif';
+    c.fillText('Would you cross over?',W/2,H*0.43+(1-a1)*16);
+    c.globalAlpha=a2;c.fillStyle='#e9b650';c.font='400 84px "Pirata One",Georgia,serif';
+    c.fillText('PlotTwistWith R&A',W/2,H*0.60+(1-a2)*16);
+    c.restore();
+  }}
+];
+function aw_shake(s,k){ // subtle, slow camera shake in normalized px units
+  return (Math.sin(s*3.1+k*1.7)*0.5+Math.sin(s*7.3+k*4.1)*0.25)*0.0045;
+}
+
+/* ---------- drawing ---------- */
+function drawScene(i,s,alpha){
+  var cr=crops[i];if(!cr)return;
+  var sc=SC[i];
+  // blurred fill
+  ctx.save();ctx.globalAlpha=alpha;
+  ctx.drawImage(bgs[i],0,0,W,H);
+  ctx.fillStyle='rgba(0,0,0,0.35)';ctx.fillRect(0,0,W,H);
+  // art rect (contain, no stretching)
+  var ar=cr.width/cr.height,aw,ah;
+  if(ar>W/H){aw=W;ah=W/ar}else{ah=H;aw=H*ar}
+  var ax=(W-aw)/2,ay=(H-ah)/2;
+  ctx.beginPath();ctx.rect(ax,ay,aw,ah);ctx.clip();
+  ctx.translate(ax,ay);
+  var cm=sc.cam(s),z=cm.z,fx=cm.fx*aw,fy=cm.fy*ah;
+  var pxMin=aw-z*aw-fx*(1-z),pxMax=-fx*(1-z),pyMin=ah-z*ah-fy*(1-z),pyMax=-fy*(1-z);
+  var px=clamp((cm.px||0)*aw,pxMin,pxMax),py=clamp((cm.py||0)*ah,pyMin,pyMax);
+  ctx.translate(fx+px,fy+py);ctx.scale(z,z);ctx.translate(-fx,-fy);
+  ctx.imageSmoothingEnabled=true;ctx.imageSmoothingQuality='high';
+  ctx.drawImage(cr,0,0,aw,ah);
+  sc.fx(ctx,aw,ah,s,s);
+  ctx.restore();
+  if(sc.top){ctx.save();ctx.globalAlpha=alpha;sc.top(ctx,s);ctx.restore()}
+}
+function render(t){
+  t=clamp(t,0,TOTAL-0.0001);
+  ctx.fillStyle='#000';ctx.fillRect(0,0,W,H);
+  var i=Math.min(N-1,Math.floor(t/SCENE_LEN)),s=t-i*SCENE_LEN;
+  var a=ease(s/FADE);
+  if(i>0&&s<FADE){drawScene(i-1,SCENE_LEN,1);}
+  drawScene(i,s,i===0?a:(s<FADE?a:1));
+}
+
+/* ---------- loading + cropping ---------- */
+function build(img){
+  crops=[];bgs=[];
+  RECTS.forEach(function(r){
+    var w=r[2]-r[0],h=r[3]-r[1],k=3;
+    var c=document.createElement('canvas');c.width=w*k;c.height=h*k;
+    var x=c.getContext('2d');x.imageSmoothingEnabled=true;x.imageSmoothingQuality='high';
+    x.drawImage(img,r[0],r[1],w,h,0,0,w*k,h*k);
+    crops.push(c);
+    var b=document.createElement('canvas');b.width=192;b.height=108;
+    var bx=b.getContext('2d');bx.filter='blur(6px)';
+    var sc=Math.max(192/c.width,108/c.height)*1.15,dw=c.width*sc,dh=c.height*sc;
+    bx.drawImage(c,(192-dw)/2,(108-dh)/2,dw,dh);
+    bgs.push(b);
+  });
+  document.getElementById('loading').hidden=true;
+  render(T);
+}
+function loadSrc(src){
+  var im=new Image();
+  im.onload=function(){
+    if(im.naturalWidth<900||im.naturalHeight<1300){
+      var l=document.getElementById('loading');l.hidden=false;
+      l.textContent='That image is smaller than the expected 1024×1536 storyboard. Crops may be off.';
+    }
+    var sx=im.naturalWidth/1024; // support other resolutions of the same layout
+    if(Math.abs(sx-1)>0.01){var c=document.createElement('canvas');c.width=1024;c.height=1536;c.getContext('2d').drawImage(im,0,0,1024,1536);build(c)}
+    else build(im);
+  };
+  im.onerror=function(){var l=document.getElementById('loading');l.hidden=false;l.innerHTML='Artwork could not load.<br>Use “Load storyboard image…” below.'};
+  im.src=src;
+}
+
+/* ---------- transport ---------- */
+var T=0,playing=false,last=0,reduce=window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches;
+var $=function(id){return document.getElementById(id)};
+function fmt(x){x=Math.floor(x);return Math.floor(x/60)+':'+('0'+x%60).slice(-2)}
+function ui(){
+  $('seek').value=T;$('time').textContent=fmt(T)+' / 0:48';
+  $('play').disabled=playing;$('pause').disabled=!playing;
+  var cur=Math.min(N-1,Math.floor(T/SCENE_LEN));
+  document.querySelectorAll('.chip').forEach(function(c,i){c.classList.toggle('on',i===cur)});
+}
+function tick(ts){
+  if(playing){
+    T+=Math.min(0.1,(ts-last)/1000);last=ts;
+    if(T>=TOTAL){T=TOTAL-0.0001;playing=false;if(recording)stopRec()}
+  }
+  last=ts;
+  render(T);ui();
+  requestAnimationFrame(tick);
+}
+function play(){if(T>=TOTAL-0.01)T=0;playing=true;last=performance.now();ui()}
+function pause(){playing=false;ui()}
+$('play').onclick=play;$('pause').onclick=pause;
+$('restart').onclick=function(){T=0;playing=true;last=performance.now();ui()};
+$('seek').oninput=function(e){T=parseFloat(e.target.value);render(T);ui()};
+$('full').onclick=function(){
+  var w=$('stageWrap');
+  if(document.fullscreenElement){document.exitFullscreen()}
+  else if(w.requestFullscreen){w.requestFullscreen().catch(function(){$('recnote').textContent='Fullscreen was blocked here. Open the page in its own tab and try again.'})}
+};
+document.addEventListener('keydown',function(e){
+  if(e.code==='Space'&&e.target.tagName!=='INPUT'&&e.target.tagName!=='BUTTON'){e.preventDefault();playing?pause():play()}
+});
+var chips=$('chips');
+for(var k=0;k<N;k++)(function(k){
+  var b=document.createElement('button');b.className='chip';b.textContent='Scene '+(k+1);
+  b.onclick=function(){T=k*SCENE_LEN;render(T);ui()};chips.appendChild(b);
+})(k);
+$('file').onchange=function(e){
+  var f=e.target.files[0];if(!f)return;
+  loadSrc(URL.createObjectURL(f));
+};
+
+/* ---------- optional in-browser WebM recording (real time) ---------- */
+var recording=false,mr=null,chunks=[];
+function stopRec(){recording=false;if(mr&&mr.state!=='inactive')mr.stop();$('rec').textContent='● Record WebM'}
+$('rec').onclick=function(){
+  if(recording){stopRec();return}
+  if(!window.MediaRecorder||!cv.captureStream){$('recnote').textContent='This browser cannot record the canvas.';return}
+  var mime=['video/webm;codecs=vp9','video/webm;codecs=vp8','video/webm'].filter(function(m){return MediaRecorder.isTypeSupported(m)})[0];
+  chunks=[];mr=new MediaRecorder(cv.captureStream(30),{mimeType:mime,videoBitsPerSecond:12e6});
+  mr.ondataavailable=function(e){if(e.data.size)chunks.push(e.data)};
+  mr.onstop=function(){
+    var url=URL.createObjectURL(new Blob(chunks,{type:'video/webm'}));
+    var a=document.createElement('a');a.href=url;a.download='other-worlds-than-these.webm';document.body.appendChild(a);a.click();a.remove();
+    $('recnote').textContent='Recording finished. If no download started, this page is sandboxed: save the HTML locally and record there.';
+  };
+  T=0;recording=true;mr.start();$('rec').textContent='■ Stop recording';
+  $('recnote').textContent='Recording in real time (48 s). Keep this tab visible.';play();
+};
+
+window.__renderAt=function(t){T=t;render(t)};
+window.__ready=function(){return crops.length===8};
+(document.fonts&&document.fonts.load?Promise.all([document.fonts.load('128px "Pirata One"'),document.fonts.load('84px "Pirata One"')]).catch(function(){}):Promise.resolve()).then(function(){
+  loadSrc(SRC);
+  if(!reduce&&!/[?&]render/.test(location.search)){/* idle on first frame until Play */}
+  requestAnimationFrame(tick);
+});
+})();
+</script>
