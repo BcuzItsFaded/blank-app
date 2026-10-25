@@ -22,8 +22,7 @@ bg.alpha_composite(sh)
 # hosts panel (12) with banner, bottom-left
 hb = b.copy().convert("RGBA"); bn = Image.open("banner.png"); w = 300
 bn = bn.resize((w, round(bn.height * w / bn.width)), Image.LANCZOS)
-hb.alpha_composite(bn, (1456 - w // 2, 802 - bn.height // 2))
-hosts = up(hb.crop((1306, 728, 1610, 922)).convert("RGB"), w=470)
+hosts = up(hb.crop((1290, 722, 1625, 860)).convert("RGB"), w=520)
 fr = Image.new("RGB", (hosts.width + 16, hosts.height + 16), (235, 185, 70)); fr.paste(hosts, (8, 8))
 bg.alpha_composite(fr.convert("RGBA"), (30, TH - fr.height - 28))
 _tb = Image.new("RGBA", (TW, TH), (0, 0, 0, 0)); _td = ImageDraw.Draw(_tb)
@@ -35,6 +34,6 @@ def t(xy, s, size, col, sw=None):
     d.text(xy, s, font=ImageFont.truetype(F, size), fill=col, stroke_width=sw or max(8, size // 13), stroke_fill=(0, 0, 0))
 t((34, 22), "CHILDREN OF", 94, (245, 232, 205))
 t((34, 108), "THE CORN", 130, (235, 30, 40))
-t((34, 238), "ENDING EXPLAINED", 70, (255, 221, 0))
+t((34, 238), "PLOT TWISTS WITH R & A", 70, (255, 221, 0))
 d.text((40, 318), "Stephen King's Original Story", font=ImageFont.truetype(F, 50), fill=(245, 232, 205), stroke_width=5, stroke_fill=(0, 0, 0))
 bg.convert("RGB").save("thumb_corn.jpg", quality=92)
