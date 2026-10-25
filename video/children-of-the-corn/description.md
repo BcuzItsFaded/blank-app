@@ -14,17 +14,17 @@ In this R & A Book Breakdown we dive into Stephen King's original short story Ch
 
 ⏱️ CHAPTERS
 0:00 Opening — R & A
-0:39 On the Road: A Marriage Falling Apart
-1:51 Gatlin: The Empty Town
-2:54 The Children of Gatlin
-3:48 The Terrifying Rules
-4:49 The Truth About Gatlin
-5:52 Isaac & Malachai
-6:47 The Entity Is Real
-7:45 The Final Escape
-9:03 The Book's Real Ending
-10:01 The Final Twist: The Age of Sacrifice
-11:47 R & A Reaction & Analysis
+0:41 On the Road: A Marriage Falling Apart
+1:52 Gatlin: The Empty Town
+2:56 The Children of Gatlin
+3:50 The Terrifying Rules
+4:51 The Truth About Gatlin
+5:55 Isaac & Malachai
+6:50 The Entity Is Real
+7:48 The Final Escape
+9:06 The Book's Real Ending
+10:04 The Final Twist: The Age of Sacrifice
+11:50 R & A Reaction & Analysis
 
 💬 Which is scarier — Stephen King's original story or the 1984 movie? And do you think Ruth could ever destroy He Who Walks Behind the Rows? Drop your theories in the comments!
 
