@@ -18,7 +18,9 @@ h1{font:400 clamp(26px,4vw,40px)/1.1 var(--display);margin:0;letter-spacing:.02e
 header p{margin:0;color:var(--dim);font-size:14px}
 #stageWrap{background:#000;border:1px solid var(--line);border-radius:4px;overflow:hidden;line-height:0;position:relative}
 #stageWrap:fullscreen{display:flex;align-items:center;justify-content:center;border:0;border-radius:0}
-#stage{width:100%;height:auto;aspect-ratio:16/9;display:block;max-height:100vh}
+#stage{width:100%;height:auto;display:block;max-height:100vh}
+#stageWrap.vert{max-width:min(100%,calc(78vh*9/16));margin:0 auto}
+#stageWrap:fullscreen{max-width:none}
 #stageWrap:fullscreen #stage{width:auto;height:100%;max-width:100%}
 #loading{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;line-height:1.4;color:var(--dim);font-size:16px;text-align:center;padding:24px}
 .bar{display:flex;flex-wrap:wrap;align-items:center;gap:10px}
@@ -45,7 +47,7 @@ input[type=file]{position:absolute;opacity:0;width:1px;height:1px}
   </header>
 
   <div id="stageWrap">
-    <canvas id="stage" width="1920" height="1080"></canvas>
+    <canvas id="stage" width="1080" height="1920"></canvas>
     <div id="loading">Loading artwork&hellip;</div>
   </div>
 
@@ -66,6 +68,7 @@ input[type=file]{position:absolute;opacity:0;width:1px;height:1px}
     <label class="btn" for="file">Load storyboard image&hellip;<input id="file" type="file" accept="image/*"></label>
     <label class="btn" for="narr"><input id="narr" type="checkbox" checked style="position:static;opacity:1;width:auto"> Narration (device voice)</label>
     <label class="btn" for="caps"><input id="caps" type="checkbox" checked style="position:static;opacity:1;width:auto"> Captions</label>
+    <button id="fmt"></button>
     <button id="rec">&#9679; Record WebM</button>
     <span class="note" id="recnote"></span>
   </div>
@@ -76,7 +79,7 @@ input[type=file]{position:absolute;opacity:0;width:1px;height:1px}
 (function(){
 'use strict';
 var SRC='__IMG__';
-var W=1920,H=1080,SCENE_LEN=6,N=8,TOTAL=48,FADE=0.8;
+var VERT=!/[?&]landscape/.test(location.search),W=VERT?1080:1920,H=VERT?1920:1080,SCENE_LEN=6,N=8,TOTAL=48,FADE=0.8;
 // Source crops inside the 1024x1536 storyboard: below the label strip, inside the borders.
 var RECTS=[[10,332,506,566],[519,332,1015,566],[10,634,506,860],[519,634,1015,860],
            [10,926,506,1137],[519,926,1015,1137],[10,1207,506,1476],[519,1207,1015,1476]];
@@ -89,12 +92,19 @@ var LINES=["A glowing book opens. Jack Sawyer returns.","The Talisman. His first
 var showCaps=true;
 function drawCaption(c,i,s){
   if(!showCaps||i>6)return;
-  var a=ease((s-0.6)/0.6)*(1-ease((s-5.3)/0.5));if(a<=0)return;
-  c.save();c.globalAlpha=a;c.textAlign='center';c.textBaseline='middle';
-  c.font='italic 600 44px Spectral,Georgia,serif';
-  var t=LINES[i],w=Math.min(W*0.9,c.measureText(t).width+72);
-  c.fillStyle='rgba(6,4,10,0.62)';c.fillRect((W-w)/2,H-132,w,76);
-  c.fillStyle='#f6eed8';c.fillText(t,W/2,H-94);c.restore();
+  var a=ease((s-0.6)/0.6)*(1-ease((s-5.3)/0.5)),ta=ease((s-0.3)/0.6)*(1-ease((s-5.4)/0.5));
+  c.save();c.textBaseline='middle';
+  if(typeof TAGS!=='undefined'&&ta>0){c.globalAlpha=ta;c.textAlign='left';c.font='600 '+(VERT?30:26)+'px Spectral,Georgia,serif';
+    if(c.letterSpacing!==undefined)c.letterSpacing='4px';
+    var tw=c.measureText(TAGS[i]).width+40,tx=VERT?40:48,ty=VERT?96:40;c.fillStyle='rgba(6,4,10,0.6)';c.fillRect(tx,ty,tw,48);
+    c.fillStyle='#e9e2d6';c.fillText(TAGS[i],tx+20,ty+24);if(c.letterSpacing!==undefined)c.letterSpacing='0px'}
+  if(a>0){c.globalAlpha=a;c.textAlign='center';var fs=VERT?46:40,lh=Math.round(fs*1.35);c.font='italic 600 '+fs+'px Spectral,Georgia,serif';
+    var words=LINES[i].split(' '),rows=[],cur='',maxw=W*(VERT?0.84:0.78);
+    words.forEach(function(wd){var t=cur?cur+' '+wd:wd;if(c.measureText(t).width>maxw&&cur){rows.push(cur);cur=wd}else cur=t});rows.push(cur);
+    var bw=Math.min(W*0.94,Math.max.apply(null,rows.map(function(r){return c.measureText(r).width}))+72),bh=rows.length*lh+24,by=H-(VERT?300:56)-bh;
+    c.fillStyle='rgba(6,4,10,0.68)';c.fillRect((W-bw)/2,by,bw,bh);
+    c.fillStyle='#f6efe0';rows.forEach(function(r,k){c.fillText(r,W/2,by+12+lh/2+k*lh)})}
+  c.restore();
 }
 
 /* ---------- helpers ---------- */
@@ -194,7 +204,7 @@ var SC=[
     vignette(c,aw,ah,0.35);
   }},
  /* 2 forest quest */
- {cam:function(s){var e=easeIO(s/6);return{z:lerp(1.0,1.32,e),fx:0.72,fy:lerp(0.5,0.30,e)}},
+ {cam:function(s){var e=easeIO(s/6);return{z:lerp(1.0,1.32,e),fx:0.72,vx:lerp(0.5,0.72,e),fy:lerp(0.5,0.30,e)}},
   fx:function(c,aw,ah,s,t){
     var p=0.5+0.5*Math.sin(s*1.1);
     c.save();c.globalCompositeOperation='lighter';
@@ -299,9 +309,9 @@ var SC=[
     c.fillStyle=g;c.fillRect(0,0,W,H);
     c.textAlign='center';c.textBaseline='middle';
     c.save();c.shadowColor='rgba(0,0,0,0.9)';c.shadowBlur=24;
-    c.globalAlpha=a1;c.fillStyle='#f6eed8';c.font='400 128px "Pirata One",Georgia,serif';
+    c.globalAlpha=a1;c.fillStyle='#f6eed8';c.font='400 '+Math.round(128*(VERT?0.72:1))+'px "Pirata One",Georgia,serif';
     c.fillText('Would you cross over?',W/2,H*0.43+(1-a1)*16);
-    c.globalAlpha=a2;c.fillStyle='#e9b650';c.font='400 84px "Pirata One",Georgia,serif';
+    c.globalAlpha=a2;c.fillStyle='#e9b650';c.font='400 '+Math.round(84*(VERT?0.72:1))+'px "Pirata One",Georgia,serif';
     c.fillText('PlotTwistWith R&A',W/2,H*0.60+(1-a2)*16);
     c.restore();
   }}
@@ -317,17 +327,26 @@ function drawScene(i,s,alpha){
   // blurred fill
   ctx.save();ctx.globalAlpha=alpha;
   ctx.drawImage(bgs[i],0,0,W,H);
-  ctx.fillStyle='rgba(0,0,0,0.35)';ctx.fillRect(0,0,W,H);
+  ctx.fillStyle='rgba(0,0,0,'+(VERT?0.22:0.35)+')';ctx.fillRect(0,0,W,H);
   // art rect (contain, no stretching)
-  var ar=cr.width/cr.height,aw,ah;
+  var ar=cr.width/cr.height,aw,ah,cm=sc.cam(s);
+  if(VERT&&ar>1.15){
+    // Shorts: wide panels fill the width; the camera frames a 9:10 window and pans across the art
+    var wh=1100;ah=wh;aw=ar*wh;
+    ctx.beginPath();ctx.rect(0,(H-wh)/2,W,wh);ctx.clip();
+    var zz=1+(cm.z-1)*0.6,cx=(cm.vx!==undefined?cm.vx:cm.fx)*aw+(cm.px||0)*aw,cy=cm.fy*ah+(cm.py||0)*ah;
+    cx=clamp(cx,W/(2*zz),aw-W/(2*zz));cy=clamp(cy,wh/(2*zz),ah-wh/(2*zz));
+    ctx.translate(W/2,H/2);ctx.scale(zz,zz);ctx.translate(-cx,-cy);
+  }else{
   if(ar>W/H){aw=W;ah=W/ar}else{ah=H;aw=H*ar}
   var ax=(W-aw)/2,ay=(H-ah)/2;
   ctx.beginPath();ctx.rect(ax,ay,aw,ah);ctx.clip();
   ctx.translate(ax,ay);
-  var cm=sc.cam(s),z=cm.z,fx=cm.fx*aw,fy=cm.fy*ah;
+  var z=cm.z,fx=cm.fx*aw,fy=cm.fy*ah;
   var pxMin=aw-z*aw-fx*(1-z),pxMax=-fx*(1-z),pyMin=ah-z*ah-fy*(1-z),pyMax=-fy*(1-z);
   var px=clamp((cm.px||0)*aw,pxMin,pxMax),py=clamp((cm.py||0)*ah,pyMin,pyMax);
   ctx.translate(fx+px,fy+py);ctx.scale(z,z);ctx.translate(-fx,-fy);
+  }
   ctx.imageSmoothingEnabled=true;ctx.imageSmoothingQuality='high';
   ctx.drawImage(cr,0,0,aw,ah);
   sc.fx(ctx,aw,ah,s,s);
@@ -346,18 +365,19 @@ function render(t){
 }
 
 /* ---------- loading + cropping ---------- */
+var lastSrc=null;
 function build(img){
-  crops=[];bgs=[];
+  lastSrc=img;crops=[];bgs=[];
   RECTS.forEach(function(r){
     var w=r[2]-r[0],h=r[3]-r[1],k=3;
     var c=document.createElement('canvas');c.width=w*k;c.height=h*k;
     var x=c.getContext('2d');x.imageSmoothingEnabled=true;x.imageSmoothingQuality='high';
     x.drawImage(img,r[0],r[1],w,h,0,0,w*k,h*k);
     crops.push(c);
-    var b=document.createElement('canvas');b.width=192;b.height=108;
+    var b=document.createElement('canvas');b.width=Math.round(W/10);b.height=Math.round(H/10);
     var bx=b.getContext('2d');bx.filter='blur(6px)';
-    var sc=Math.max(192/c.width,108/c.height)*1.15,dw=c.width*sc,dh=c.height*sc;
-    bx.drawImage(c,(192-dw)/2,(108-dh)/2,dw,dh);
+    var sc=Math.max(b.width/c.width,b.height/c.height)*1.15,dw=c.width*sc,dh=c.height*sc;
+    bx.drawImage(c,(b.width-dw)/2,(b.height-dh)/2,dw,dh);
     bgs.push(b);
   });
   document.getElementById('loading').hidden=true;
@@ -461,6 +481,13 @@ $('rec').onclick=function(){
   $('recnote').textContent='Recording in real time (48 s). Keep this tab visible.';play();
 };
 
+function setFormat(v){
+  VERT=v;W=v?1080:1920;H=v?1920:1080;cv.width=W;cv.height=H;
+  $('stageWrap').classList.toggle('vert',v);$('fmt').textContent=v?'Format: Shorts 9:16':'Format: Landscape 16:9';
+  if(lastSrc)build(lastSrc);
+}
+$('fmt').onclick=function(){setFormat(!VERT)};
+setFormat(VERT);
 window.__renderAt=function(t){T=t;render(t)};
 window.__ready=function(){return crops.length===8};
 (document.fonts&&document.fonts.load?Promise.all([document.fonts.load('128px "Pirata One"'),document.fonts.load('84px "Pirata One"')]).catch(function(){}):Promise.resolve()).then(function(){
