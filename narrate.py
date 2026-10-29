@@ -23,7 +23,7 @@ async def go(d,video,out):
     for i,c in enumerate(clips):
         ins+=['-i',c];fl.append(f'[{i+1}:a]adelay={int((i*6+0.45)*1000)}|{int((i*6+0.45)*1000)}[a{i}]')
     mix=''.join(f'[a{i}]' for i in range(8))+'amix=inputs=8:normalize=0,loudnorm=I=-16:TP=-1.5[a]'
-    subprocess.run(['ffmpeg','-y','-v','error','-i',video]+ins+['-filter_complex',';'.join(fl)+';'+mix,'-map','0:v','-map','[a]','-c:v','copy','-c:a','aac','-b:a','192k','-t','48',out],check=True)
+    subprocess.run(['ffmpeg','-y','-v','error','-i',video]+ins+['-filter_complex',';'.join(fl)+';'+mix,'-map','0:v','-map','[a]','-c:v','copy','-c:a','aac','-ar','48000','-b:a','192k','-t','48',out],check=True)
 for d,v,o in [('hp-motion-comic','hp-motion-comic/harry-potter-philosophers-stone-shorts.mp4','hp-motion-comic/harry-potter-philosophers-stone-shorts-narrated.mp4'),
               ('hp2-motion-comic','hp2-motion-comic/harry-potter-chamber-of-secrets-shorts.mp4','hp2-motion-comic/harry-potter-chamber-of-secrets-shorts-narrated.mp4')]:
     asyncio.run(go(d,v,o))
