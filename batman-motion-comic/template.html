@@ -1,0 +1,474 @@
+<title>The Batman Who Laughs Motion Comic</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@900&family=Spectral:wght@400;600&display=swap">
+<style>
+/* Layout: letterboxed 16:9 cinema stage, slim control bar below it, single dark look */
+:root{
+  --bg:#0b0a10; --panel:#16131d; --line:#2c2638; --fg:#ece6d8; --dim:#9a92a8;
+  --gold:#d9453b; --gold-ink:#fff5f0;
+  --display:'Playfair Display','Georgia',serif; --body:'Spectral','Georgia',serif;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--fg);font:15px/1.5 var(--body);margin:0;
+  padding-block:20px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.wrap{max-width:1280px;margin:0 auto;display:flex;flex-direction:column;gap:14px}
+header{display:flex;flex-wrap:wrap;align-items:baseline;justify-content:space-between;gap:4px 16px}
+h1{font:400 clamp(26px,4vw,40px)/1.1 var(--display);margin:0;letter-spacing:.02em;text-wrap:balance}
+header p{margin:0;color:var(--dim);font-size:14px}
+#stageWrap{background:#000;border:1px solid var(--line);border-radius:4px;overflow:hidden;line-height:0;position:relative}
+#stageWrap:fullscreen{display:flex;align-items:center;justify-content:center;border:0;border-radius:0}
+#stage{width:100%;height:auto;aspect-ratio:16/9;display:block;max-height:100vh}
+#stageWrap:fullscreen #stage{width:auto;height:100%;max-width:100%}
+#loading{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;line-height:1.4;color:var(--dim);font-size:16px;text-align:center;padding:24px}
+.bar{display:flex;flex-wrap:wrap;align-items:center;gap:10px}
+button,label.btn{font:600 14px/1 var(--body);color:var(--fg);background:var(--panel);border:1px solid var(--line);border-radius:4px;padding:11px 16px;cursor:pointer;min-height:40px;display:inline-flex;align-items:center;gap:6px}
+button:hover,label.btn:hover{border-color:var(--gold)}
+button.primary{background:var(--gold);color:var(--gold-ink);border-color:var(--gold)}
+button[disabled]{opacity:.45;cursor:default}
+button:focus-visible,label.btn:focus-within,input[type=range]:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+.time{font-variant-numeric:tabular-nums;color:var(--dim);min-width:92px;text-align:right}
+.scrub{flex:1 1 220px;min-width:0;display:flex;align-items:center;gap:12px}
+input[type=range]{flex:1;min-width:0;accent-color:var(--gold)}
+.chips{display:flex;gap:6px;flex-wrap:wrap}
+.chip{padding:6px 10px;min-height:0;font-size:12px;color:var(--dim)}
+.chip.on{color:var(--gold);border-color:var(--gold)}
+.note{color:var(--dim);font-size:13px;margin:0}
+.note b{color:var(--fg);font-weight:600}
+input[type=file]{position:absolute;opacity:0;width:1px;height:1px}
+</style>
+
+<div class="wrap">
+  <header>
+    <h1>The Batman Who Laughs</h1>
+    <p>Noir motion comic &middot; high-level storyboard &middot; 8 scenes &times; 6 s = 48 s</p>
+  </header>
+
+  <div id="stageWrap">
+    <canvas id="stage" width="1920" height="1080"></canvas>
+    <div id="loading">Loading artwork&hellip;</div>
+  </div>
+
+  <div class="bar">
+    <button id="play" class="primary">&#9654; Play</button>
+    <button id="pause">&#10074;&#10074; Pause</button>
+    <button id="restart">&#8635; Restart</button>
+    <button id="full">&#9974; Fullscreen</button>
+    <div class="scrub">
+      <input id="seek" type="range" min="0" max="48" step="0.01" value="0" aria-label="Timeline">
+      <span class="time" id="time">0:00 / 0:48</span>
+    </div>
+  </div>
+  <div class="bar">
+    <div class="chips" id="chips" aria-label="Jump to scene"></div>
+  </div>
+  <div class="bar">
+    <label class="btn" for="file">Load storyboard image&hellip;<input id="file" type="file" accept="image/*"></label>
+    <label class="btn" for="narr"><input id="narr" type="checkbox" checked style="position:static;opacity:1;width:auto"> Narration (device voice)</label>
+    <label class="btn" for="caps"><input id="caps" type="checkbox" checked style="position:static;opacity:1;width:auto"> Captions</label>
+    <button id="rec">&#9679; Record WebM</button>
+    <span class="note" id="recnote"></span>
+  </div>
+  <p class="note">High-level storyboard. Camera moves and atmosphere are animated overlays on the original artwork; the characters themselves are not individually animated. Spacebar plays and pauses.</p>
+</div>
+
+<script>
+(function(){
+'use strict';
+var SRC='__IMG__';
+var W=1920,H=1080,SCENE_LEN=6,N=8,TOTAL=48,FADE=0.8;
+// Source crops inside the 1024x1536 storyboard: below the label strip, inside the borders.
+var RECTS=[[16,140,500,396],[523,140,1008,396],[16,444,500,702],[523,444,1008,702],
+           [16,752,500,1054],[523,752,1008,1054],[16,1102,500,1434],[523,1102,1008,1434]];
+var cv=document.getElementById('stage'),ctx=cv.getContext('2d');
+var crops=[],bgs=[];
+// Draft narration: only wording taken from the storyboard's own panel titles and what is visible in each panel.
+var LINES=["Batman faces a twisted reflection, born when his code collides with the Joker\u2019s madness.",
+ "The Batman Who Laughs begins a plan that forces Bruce to confront his choices.",
+ "Bruce wonders whether stopping this enemy means breaking his rule against killing.",
+ "Bruce relies on those closest to him, while the villain exploits the strain.",
+ "He claims to make Bruce happy, by persuading him to abandon who he is.",
+ "Bruce\u2019s allies and a new generation of heroes rally around him.",
+ "The crisis ends, but Gordon is infected, and the danger is unresolved.",
+ "The danger remains."];
+var TAGS=["01  A DARK REFLECTION","02  THE THREAT SPREADS","03  THE MORAL LINE","04  ALLIES IN DANGER","05  THE VILLAIN\u2019S VISION","06  HELP ARRIVES","07  AN UNEASY VICTORY","08  THE DANGER REMAINS"];
+var showCaps=true;
+function drawCaption(c,i,s){
+  if(!showCaps)return;
+  var a=ease((s-0.6)/0.6)*(1-ease((s-5.3)/0.5)),ta=ease((s-0.3)/0.6)*(1-ease((s-5.4)/0.5));
+  c.save();c.textBaseline='middle';
+  if(ta>0){c.globalAlpha=ta;c.textAlign='left';c.font='600 26px Spectral,Georgia,serif';
+    if(c.letterSpacing!==undefined)c.letterSpacing='4px';
+    var tw=c.measureText(TAGS[i]).width+40;c.fillStyle='rgba(6,4,10,0.6)';c.fillRect(48,40,tw,48);
+    c.fillStyle='#e9e2d6';c.fillText(TAGS[i],68,64);if(c.letterSpacing!==undefined)c.letterSpacing='0px'}
+  if(a>0){c.globalAlpha=a;c.textAlign='center';c.font='italic 600 42px Spectral,Georgia,serif';
+    var t=LINES[i],w=Math.min(W*0.92,c.measureText(t).width+72);
+    c.fillStyle='rgba(6,4,10,0.66)';c.fillRect((W-w)/2,H-132,w,76);
+    c.fillStyle='#f4efe6';c.fillText(t,W/2,H-94)}
+  c.restore();
+}
+
+/* ---------- helpers ---------- */
+function fract(x){return x-Math.floor(x)}
+function rnd(i,k){return fract(Math.sin(i*127.1+k*311.7)*43758.5453)}
+function clamp(x,a,b){return x<a?a:x>b?b:x}
+function lerp(a,b,t){return a+(b-a)*t}
+function ease(t){t=clamp(t,0,1);return t*t*(3-2*t)}
+function easeIO(t){t=clamp(t,0,1);return 0.5-0.5*Math.cos(Math.PI*t)}
+function noise1(t,s){return 0.5+0.25*Math.sin(t*s*1.0+1.3)+0.15*Math.sin(t*s*2.3+4.1)+0.10*Math.sin(t*s*5.1+2.2)}
+function glow(c,x,y,r,rgb,a){
+  var g=c.createRadialGradient(x,y,0,x,y,r);
+  g.addColorStop(0,'rgba('+rgb+','+a+')');
+  g.addColorStop(0.45,'rgba('+rgb+','+(a*0.35)+')');
+  g.addColorStop(1,'rgba('+rgb+',0)');
+  c.fillStyle=g;c.fillRect(x-r,y-r,r*2,r*2);
+}
+function blobTex(rgb,seed,n,w,h,a){
+  var c=document.createElement('canvas');c.width=w;c.height=h;var x=c.getContext('2d');
+  for(var i=0;i<n;i++){
+    var r=h*(0.12+0.18*rnd(i,seed)),px=rnd(i,seed+7)*w,py=r+(h-2*r)*rnd(i,seed+13);
+    for(var k=-1;k<=1;k++){
+      var g=x.createRadialGradient(px+k*w,py,0,px+k*w,py,r*1.6);
+      g.addColorStop(0,'rgba('+rgb+','+a+')');g.addColorStop(1,'rgba('+rgb+',0)');
+      x.fillStyle=g;x.fillRect(px+k*w-r*1.6,py-r*1.6,r*3.2,r*3.2);
+    }
+  }
+  return c;
+}
+var fogCool=blobTex('205,215,245',3,22,1024,256,0.5);
+var fogWarm=blobTex('255,200,150',9,18,1024,256,0.35);
+var smokeDark=blobTex('12,6,18',5,20,1024,256,0.7);
+
+/* scrolling fog band in art space (aw x ah). */
+function fogBand(c,aw,ah,tex,y0,y1,alpha,speed,scale,t,phase){
+  var tw=aw*scale,dh=(y1-y0)*ah,off=fract(t*speed+(phase||0))*tw;
+  c.save();c.globalAlpha*=alpha;
+  for(var x=-off;x<aw;x+=tw)c.drawImage(tex,x,y0*ah,tw+1,dh);
+  c.restore();
+}
+/* rising / drifting soft puffs */
+function puffs(c,aw,ah,n,t,o){
+  for(var i=0;i<n;i++){
+    var ph=fract(t/o.period+rnd(i,1)),a=Math.sin(Math.PI*ph);
+    var x=(o.x0+(o.x1-o.x0)*rnd(i,2))*aw+Math.sin(t*0.4+i)*aw*0.02+(o.dx||0)*ph*aw;
+    var y=(o.y0-o.rise*ph)*ah, r=aw*(o.r0+o.r1*ph)*(0.7+0.6*rnd(i,3));
+    glow(c,x,y,r,o.rgb,o.alpha*a);
+  }
+}
+/* floating sparks (additive) */
+function sparks(c,aw,ah,n,t,o){
+  c.save();c.globalCompositeOperation='lighter';
+  for(var i=0;i<n;i++){
+    var ph=fract(t/o.period*(0.7+0.6*rnd(i,4))+rnd(i,1)),a=Math.sin(Math.PI*ph);
+    var x=(o.x+(rnd(i,2)-0.5)*o.w)*aw+Math.sin(t*1.3+i*2.1)*aw*0.008;
+    var y=(o.y-o.rise*ph)*ah, r=1.2+2.6*rnd(i,5);
+    glow(c,x,y,r*4,o.rgb,0.55*a);
+    c.fillStyle='rgba(255,240,200,'+(0.8*a)+')';c.beginPath();c.arc(x,y,r*0.6,0,6.3);c.fill();
+  }
+  c.restore();
+}
+function lights(c,aw,ah,pts,t,rgb,base,amp,rf,speed){
+  c.save();c.globalCompositeOperation='lighter';
+  pts.forEach(function(p,i){
+    var k=base+amp*Math.sin(t*(speed||1.6)+i*1.7)*0.5+amp*0.5;
+    glow(c,p[0]*aw,p[1]*ah,aw*rf*(p[2]||1),rgb,k);
+  });
+  c.restore();
+}
+function flames(c,aw,ah,pts,t,rgb){
+  c.save();c.globalCompositeOperation='lighter';
+  pts.forEach(function(p,i){
+    var f=noise1(t+i*3.7,7);
+    glow(c,p[0]*aw,p[1]*ah,aw*0.075,rgb||'255,150,40',0.22+0.28*f);
+    glow(c,p[0]*aw,p[1]*ah,aw*0.022,'255,230,160',0.35+0.35*f);
+  });
+  c.restore();
+}
+function vignette(c,aw,ah,a){
+  var g=c.createRadialGradient(aw/2,ah/2,ah*0.4,aw/2,ah/2,aw*0.75);
+  g.addColorStop(0,'rgba(0,0,0,0)');g.addColorStop(1,'rgba(0,0,0,'+a+')');
+  c.fillStyle=g;c.fillRect(0,0,aw,ah);
+}
+
+/* ---------- scenes: cam(s) -> {z,fx,fy,px,py}; fx(c,aw,ah,s,t) overlays in art space ---------- */
+function rain(c,aw,ah,t,n,alpha){
+  c.save();c.strokeStyle='rgba(205,214,228,'+alpha+')';c.lineWidth=1.3;c.beginPath();
+  for(var i=0;i<n;i++){
+    var ph=fract(t*0.9*(0.8+0.4*rnd(i,1))+rnd(i,2)),x=(rnd(i,3)*1.2-0.1)*aw+ph*aw*0.05,y=(ph*1.2-0.1)*ah;
+    c.moveTo(x,y);c.lineTo(x+aw*0.006,y+ah*0.05);
+  }
+  c.stroke();c.restore();
+}
+function sheen(c,aw,ah,t,speed,alpha,ph0){
+  var xc=(fract(t*speed+(ph0||0))*1.8-0.4)*aw,w=aw*0.22;
+  var g=c.createLinearGradient(xc-w,0,xc+w,ah*0.6);
+  g.addColorStop(0,'rgba(255,255,255,0)');g.addColorStop(0.5,'rgba(235,240,255,'+alpha+')');g.addColorStop(1,'rgba(255,255,255,0)');
+  c.save();c.globalCompositeOperation='lighter';c.fillStyle=g;c.fillRect(0,0,aw,ah);c.restore();
+}
+function tint(c,aw,ah,rgb,a){c.fillStyle='rgba('+rgb+','+a+')';c.fillRect(0,0,aw,ah)}
+var SC=[
+ /* 1 a dark reflection: push toward the red moon and skyline */
+ {cam:function(s){var e=easeIO(s/6);return{z:lerp(1.0,1.30,e),fx:lerp(0.5,0.64,e),fy:lerp(0.5,0.34,e)}},
+  fx:function(c,aw,ah,s,t){
+    var p=0.5+0.5*Math.sin(s*1.2);
+    c.save();c.globalCompositeOperation='lighter';
+    glow(c,0.77*aw,0.18*ah,aw*(0.24+0.03*p),'255,40,40',0.14+0.10*p);
+    c.restore();
+    fogBand(c,aw,ah,fogCool,0.0,0.35,0.16,0.006,1.4,s,0.2);
+    fogBand(c,aw,ah,fogCool,0.60,1.0,0.28,0.012,1.3,s,0.6);
+    puffs(c,aw,ah,8,s,{x0:0.7,x1:0.95,y0:1.0,rise:0.5,period:8,r0:0.05,r1:0.06,rgb:'190,195,210',alpha:0.14});
+    vignette(c,aw,ah,0.35);
+  }},
+ /* 2 the threat spreads: pulsing map markers on the monitors */
+ {cam:function(s){var e=easeIO(s/6);return{z:lerp(1.0,1.30,e),fx:lerp(0.55,0.64,e),fy:lerp(0.5,0.40,e)}},
+  fx:function(c,aw,ah,s,t){
+    lights(c,aw,ah,[[0.50,0.25,1],[0.66,0.27,1],[0.68,0.45,1.1],[0.56,0.59,0.9],[0.83,0.66,0.8],[0.90,0.33,1.2]],s,'255,45,45',0.10,0.26,0.05,1.9);
+    c.save();c.globalCompositeOperation='lighter';
+    glow(c,0.62*aw,0.36*ah,aw*0.30,'150,170,200',0.04+0.03*noise1(s,2.2));
+    var y=(0.12+0.5*fract(s*0.18))*ah,g=c.createLinearGradient(0,y-ah*0.05,0,y+ah*0.05);
+    g.addColorStop(0,'rgba(180,200,230,0)');g.addColorStop(0.5,'rgba(180,200,230,0.07)');g.addColorStop(1,'rgba(180,200,230,0)');
+    c.fillStyle=g;c.fillRect(0.43*aw,y-ah*0.05,0.35*aw,ah*0.1);
+    c.restore();
+    vignette(c,aw,ah,0.35);
+  }},
+ /* 3 the moral line: slow push to the eyes, sheen across the shards */
+ {cam:function(s){var e=easeIO(s/6);return{z:lerp(1.0,1.36,e),fx:0.52,fy:0.42}},
+  fx:function(c,aw,ah,s,t){
+    var p=0.5+0.5*Math.sin(s*1.3);
+    c.save();c.globalCompositeOperation='lighter';
+    glow(c,0.455*aw,0.42*ah,aw*0.035,'255,255,255',0.10+0.10*p);
+    glow(c,0.60*aw,0.42*ah,aw*0.035,'255,255,255',0.10+0.10*p);
+    c.restore();
+    sheen(c,aw,ah,s,0.12,0.09,0.1);
+    vignette(c,aw,ah,0.40+0.08*p);
+  }},
+ /* 4 allies in danger: rain, lamp flicker, wet-street mist */
+ {cam:function(s){var e=easeIO(s/6);return{z:lerp(1.0,1.34,e),fx:lerp(0.5,0.42,e),fy:0.5}},
+  fx:function(c,aw,ah,s,t){
+    c.save();c.globalCompositeOperation='lighter';
+    var f=0.5+0.5*noise1(s,4.0);
+    glow(c,0.72*aw,0.37*ah,aw*0.09,'255,190,90',0.10+0.18*f);
+    c.restore();
+    fogBand(c,aw,ah,fogCool,0.62,1.0,0.22,0.010,1.3,s,0.3);
+    rain(c,aw,ah,s,70,0.20);
+    vignette(c,aw,ah,0.40);
+  }},
+ /* 5 the villain's vision: push toward the grin, slow sheen, creeping smoke */
+ {cam:function(s){var e=easeIO(s/6);return{z:lerp(1.0,1.34,e),fx:0.51,fy:lerp(0.5,0.34,e)}},
+  fx:function(c,aw,ah,s,t){
+    var p=0.5+0.5*Math.sin(s*1.0);
+    sheen(c,aw,ah,s,0.10,0.07,0.5);
+    c.save();c.globalCompositeOperation='lighter';
+    glow(c,0.51*aw,0.45*ah,aw*0.26,'200,20,30',0.04+0.05*p);
+    c.restore();
+    fogBand(c,aw,ah,smokeDark,0.45,1.0,0.30,0.008,1.5,s,0.4);
+    puffs(c,aw,ah,12,s,{x0:0.0,x1:1.0,y0:1.0,rise:0.3,period:9,r0:0.09,r1:0.09,rgb:'10,6,14',alpha:0.35,dx:0.08});
+    vignette(c,aw,ah,0.45);
+  }},
+ /* 6 help arrives: pan from Batman toward Nightwing and Batgirl */
+ {cam:function(s){var e=easeIO(s/6);return{z:1.2,fx:lerp(0.15,0.88,e),fy:0.5}},
+  fx:function(c,aw,ah,s,t){
+    lights(c,aw,ah,[[0.18,0.19,1],[0.50,0.25,0.9],[0.93,0.42,1],[0.03,0.60,1.1]],s,'255,170,70',0.07,0.10,0.09,1.2);
+    fogBand(c,aw,ah,fogWarm,0.62,1.0,0.20,0.012,1.3,s,0.5);
+    rain(c,aw,ah,s,50,0.14);
+    vignette(c,aw,ah,0.35);
+  }},
+ /* 7 an uneasy victory: warm lamp, dust, then a slow red cast */
+ {cam:function(s){var e=easeIO(s/6);return{z:lerp(1.0,1.30,e),fx:0.5,fy:lerp(0.5,0.65,e)}},
+  fx:function(c,aw,ah,s,t){
+    c.save();c.globalCompositeOperation='lighter';
+    glow(c,0.74*aw,0.23*ah,aw*0.26,'255,185,90',0.12+0.06*noise1(s,1.5));
+    glow(c,0.88*aw,0.30*ah,aw*0.10,'120,170,255',0.05+0.04*noise1(s,3.1));
+    c.restore();
+    sparks(c,aw,ah,22,s,{x:0.5,w:0.8,y:0.8,rise:0.4,period:8,rgb:'255,215,160'});
+    var e=ease((s-3.3)/2.5);
+    if(e>0){tint(c,aw,ah,'110,10,20',0.16*e)}
+    vignette(c,aw,ah,0.32+0.20*e);
+  }},
+ /* 8 the danger remains: pulse the red reflection in the lens */
+ {cam:function(s){var e=easeIO(s/6);return{z:lerp(1.0,1.32,e),fx:lerp(0.5,0.62,e),fy:lerp(0.5,0.30,e)}},
+  fx:function(c,aw,ah,s,t){
+    var p=0.5+0.5*Math.sin(s*1.6);
+    c.save();c.globalCompositeOperation='lighter';
+    glow(c,0.64*aw,0.30*ah,aw*(0.08+0.01*p),'255,40,40',0.10+0.12*p);
+    c.restore();
+    lights(c,aw,ah,[[0.045,0.39,1.1],[0.12,0.45,0.8],[0.12,0.57,0.7]],s,'255,170,60',0.07,0.12,0.09,1.0);
+    vignette(c,aw,ah,0.38);
+  },
+  top:function(c,s){
+    var a1=ease((s-3.0)/1.4),dim=ease((s-2.6)/1.6);
+    var g=c.createRadialGradient(W/2,H/2,H*0.15,W/2,H/2,W*0.7);
+    g.addColorStop(0,'rgba(6,4,10,'+(0.55*dim)+')');g.addColorStop(1,'rgba(6,4,10,'+(0.82*dim)+')');
+    c.fillStyle=g;c.fillRect(0,0,W,H);
+    c.textAlign='center';c.textBaseline='middle';
+    c.save();c.shadowColor='rgba(0,0,0,0.9)';c.shadowBlur=24;
+    c.globalAlpha=a1;c.fillStyle='#f4efe6';c.font='900 120px "Playfair Display",Georgia,serif';
+    c.fillText('THE BATMAN',W/2,H*0.40+(1-a1)*14);
+    c.fillStyle='#c4271f';c.fillText('WHO LAUGHS',W/2,H*0.40+130+(1-a1)*14);
+    c.restore();
+  }}
+];
+function aw_shake(s,k){ // subtle, slow camera shake in normalized px units
+  return (Math.sin(s*3.1+k*1.7)*0.5+Math.sin(s*7.3+k*4.1)*0.25)*0.0045;
+}
+
+/* ---------- drawing ---------- */
+function drawScene(i,s,alpha){
+  var cr=crops[i];if(!cr)return;
+  var sc=SC[i];
+  // blurred fill
+  ctx.save();ctx.globalAlpha=alpha;
+  ctx.drawImage(bgs[i],0,0,W,H);
+  ctx.fillStyle='rgba(0,0,0,0.35)';ctx.fillRect(0,0,W,H);
+  // art rect (contain, no stretching)
+  var ar=cr.width/cr.height,aw,ah;
+  if(ar>W/H){aw=W;ah=W/ar}else{ah=H;aw=H*ar}
+  var ax=(W-aw)/2,ay=(H-ah)/2;
+  ctx.beginPath();ctx.rect(ax,ay,aw,ah);ctx.clip();
+  ctx.translate(ax,ay);
+  var cm=sc.cam(s),z=cm.z,fx=cm.fx*aw,fy=cm.fy*ah;
+  var pxMin=aw-z*aw-fx*(1-z),pxMax=-fx*(1-z),pyMin=ah-z*ah-fy*(1-z),pyMax=-fy*(1-z);
+  var px=clamp((cm.px||0)*aw,pxMin,pxMax),py=clamp((cm.py||0)*ah,pyMin,pyMax);
+  ctx.translate(fx+px,fy+py);ctx.scale(z,z);ctx.translate(-fx,-fy);
+  ctx.imageSmoothingEnabled=true;ctx.imageSmoothingQuality='high';
+  ctx.drawImage(cr,0,0,aw,ah);
+  sc.fx(ctx,aw,ah,s,s);
+  ctx.restore();
+  if(sc.top){ctx.save();ctx.globalAlpha=alpha;sc.top(ctx,s);ctx.restore()}
+}
+function render(t){
+  t=clamp(t,0,TOTAL-0.0001);
+  ctx.fillStyle='#000';ctx.fillRect(0,0,W,H);
+  var i=Math.min(N-1,Math.floor(t/SCENE_LEN)),s=t-i*SCENE_LEN;
+  var a=ease(s/FADE);
+  window.__cap=[i,s];
+  if(i>0&&s<FADE){drawScene(i-1,SCENE_LEN,1);}
+  drawScene(i,s,i===0?a:(s<FADE?a:1));
+  drawCaption(ctx,i,s);
+}
+
+/* ---------- loading + cropping ---------- */
+function build(img){
+  crops=[];bgs=[];
+  RECTS.forEach(function(r){
+    var w=r[2]-r[0],h=r[3]-r[1],k=3;
+    var c=document.createElement('canvas');c.width=w*k;c.height=h*k;
+    var x=c.getContext('2d');x.imageSmoothingEnabled=true;x.imageSmoothingQuality='high';
+    x.drawImage(img,r[0],r[1],w,h,0,0,w*k,h*k);
+    crops.push(c);
+    var b=document.createElement('canvas');b.width=192;b.height=108;
+    var bx=b.getContext('2d');bx.filter='blur(6px)';
+    var sc=Math.max(192/c.width,108/c.height)*1.15,dw=c.width*sc,dh=c.height*sc;
+    bx.drawImage(c,(192-dw)/2,(108-dh)/2,dw,dh);
+    bgs.push(b);
+  });
+  document.getElementById('loading').hidden=true;
+  render(T);
+}
+function loadSrc(src){
+  var im=new Image();
+  im.onload=function(){
+    if(im.naturalWidth<900||im.naturalHeight<1300){
+      var l=document.getElementById('loading');l.hidden=false;
+      l.textContent='That image is smaller than the expected 1024×1536 storyboard. Crops may be off.';
+    }
+    var sx=im.naturalWidth/1024; // support other resolutions of the same layout
+    if(Math.abs(sx-1)>0.01){var c=document.createElement('canvas');c.width=1024;c.height=1536;c.getContext('2d').drawImage(im,0,0,1024,1536);build(c)}
+    else build(im);
+  };
+  im.onerror=function(){var l=document.getElementById('loading');l.hidden=false;l.innerHTML='Artwork could not load.<br>Use “Load storyboard image…” below.'};
+  im.src=src;
+}
+
+/* ---------- transport ---------- */
+var T=0,playing=false,last=0,reduce=window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches;
+var $=function(id){return document.getElementById(id)};
+function fmt(x){x=Math.floor(x);return Math.floor(x/60)+':'+('0'+x%60).slice(-2)}
+function ui(){
+  $('seek').value=T;$('time').textContent=fmt(T)+' / 0:48';
+  $('play').disabled=playing;$('pause').disabled=!playing;
+  var cur=Math.min(N-1,Math.floor(T/SCENE_LEN));
+  document.querySelectorAll('.chip').forEach(function(c,i){c.classList.toggle('on',i===cur)});
+}
+function tick(ts){
+  if(playing){
+    T+=Math.min(0.1,(ts-last)/1000);last=ts;
+    if(T>=TOTAL){T=TOTAL-0.0001;playing=false;if(recording)stopRec()}
+  }
+  last=ts;
+  narrate();render(T);ui();
+  requestAnimationFrame(tick);
+}
+var narrOn=true,spokenFor=-1,voice=null,synth=window.speechSynthesis;
+function pickVoice(){
+  if(!synth)return;var vs=synth.getVoices().filter(function(v){return /^en/i.test(v.lang)});
+  var pref=[/natural/i,/neural/i,/online/i,/google us english/i,/samantha|ava|allison|daniel|aaron|alex/i];
+  for(var k=0;k<pref.length;k++){var m=vs.filter(function(v){return pref[k].test(v.name)})[0];if(m){voice=m;return}}
+  voice=vs[0]||null;
+}
+if(synth){pickVoice();synth.onvoiceschanged=pickVoice}
+function speakScene(i){
+  if(!synth||!narrOn)return;
+  synth.cancel();spokenFor=i;
+  var u=new SpeechSynthesisUtterance(LINES[i]);
+  if(voice)u.voice=voice;u.lang=voice?voice.lang:'en-US';u.rate=0.92;u.pitch=0.95;
+  setTimeout(function(){if(playing&&spokenFor===i&&narrOn)synth.speak(u)},500);
+}
+function narrate(){
+  if(!playing||!narrOn)return;
+  var i=Math.min(N-1,Math.floor(T/SCENE_LEN));
+  if(i!==spokenFor)speakScene(i);
+}
+function play(){if(T>=TOTAL-0.01)T=0;playing=true;last=performance.now();ui()}
+function pause(){playing=false;if(synth)synth.cancel();spokenFor=-1;ui()}
+$('play').onclick=play;$('pause').onclick=pause;
+$('restart').onclick=function(){if(synth)synth.cancel();spokenFor=-1;T=0;playing=true;last=performance.now();ui()};
+$('seek').oninput=function(e){if(synth)synth.cancel();spokenFor=-1;T=parseFloat(e.target.value);render(T);ui()};
+$('full').onclick=function(){
+  var w=$('stageWrap');
+  if(document.fullscreenElement){document.exitFullscreen()}
+  else if(w.requestFullscreen){w.requestFullscreen().catch(function(){$('recnote').textContent='Fullscreen was blocked here. Open the page in its own tab and try again.'})}
+};
+document.addEventListener('keydown',function(e){
+  if(e.code==='Space'&&e.target.tagName!=='INPUT'&&e.target.tagName!=='BUTTON'){e.preventDefault();playing?pause():play()}
+});
+var chips=$('chips');
+for(var k=0;k<N;k++)(function(k){
+  var b=document.createElement('button');b.className='chip';b.textContent='Scene '+(k+1);
+  b.onclick=function(){if(synth)synth.cancel();spokenFor=-1;T=k*SCENE_LEN;render(T);ui()};chips.appendChild(b);
+})(k);
+$('narr').onchange=function(e){narrOn=e.target.checked;if(!narrOn&&synth){synth.cancel();spokenFor=-1}};
+$('caps').onchange=function(e){showCaps=e.target.checked;render(T)};
+if(!synth){$('narr').disabled=true}
+$('file').onchange=function(e){
+  var f=e.target.files[0];if(!f)return;
+  loadSrc(URL.createObjectURL(f));
+};
+
+/* ---------- optional in-browser WebM recording (real time) ---------- */
+var recording=false,mr=null,chunks=[];
+function stopRec(){recording=false;if(mr&&mr.state!=='inactive')mr.stop();$('rec').textContent='● Record WebM'}
+$('rec').onclick=function(){
+  if(recording){stopRec();return}
+  if(!window.MediaRecorder||!cv.captureStream){$('recnote').textContent='This browser cannot record the canvas.';return}
+  var mime=['video/webm;codecs=vp9','video/webm;codecs=vp8','video/webm'].filter(function(m){return MediaRecorder.isTypeSupported(m)})[0];
+  chunks=[];mr=new MediaRecorder(cv.captureStream(30),{mimeType:mime,videoBitsPerSecond:12e6});
+  mr.ondataavailable=function(e){if(e.data.size)chunks.push(e.data)};
+  mr.onstop=function(){
+    var url=URL.createObjectURL(new Blob(chunks,{type:'video/webm'}));
+    var a=document.createElement('a');a.href=url;a.download='the-batman-who-laughs.webm';document.body.appendChild(a);a.click();a.remove();
+    $('recnote').textContent='Recording finished. If no download started, this page is sandboxed: save the HTML locally and record there.';
+  };
+  T=0;recording=true;mr.start();$('rec').textContent='■ Stop recording';
+  $('recnote').textContent='Recording in real time (48 s). Keep this tab visible.';play();
+};
+
+window.__renderAt=function(t){T=t;render(t)};
+window.__ready=function(){return crops.length===8};
+(document.fonts&&document.fonts.load?Promise.all([document.fonts.load('900 120px "Playfair Display"'),document.fonts.load('900 40px "Playfair Display"')]).catch(function(){}):Promise.resolve()).then(function(){
+  loadSrc(SRC);
+  if(!reduce&&!/[?&]render/.test(location.search)){/* idle on first frame until Play */}
+  requestAnimationFrame(tick);
+});
+})();
+</script>
