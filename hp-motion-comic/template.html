@@ -1,0 +1,446 @@
+<title>The Philosopher’s Stone Motion Comic</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700&family=Spectral:wght@400;600&display=swap">
+<style>
+/* Layout: letterboxed 16:9 cinema stage, slim control bar below it, single dark look */
+:root{
+  --bg:#0b0a10; --panel:#16131d; --line:#2c2638; --fg:#ece6d8; --dim:#9a92a8;
+  --gold:#e2ad45; --gold-ink:#1a1206;
+  --display:'Cinzel','Georgia',serif; --body:'Spectral','Georgia',serif;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--fg);font:15px/1.5 var(--body);margin:0;
+  padding-block:20px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.wrap{max-width:1280px;margin:0 auto;display:flex;flex-direction:column;gap:14px}
+header{display:flex;flex-wrap:wrap;align-items:baseline;justify-content:space-between;gap:4px 16px}
+h1{font:400 clamp(26px,4vw,40px)/1.1 var(--display);margin:0;letter-spacing:.02em;text-wrap:balance}
+header p{margin:0;color:var(--dim);font-size:14px}
+#stageWrap{background:#000;border:1px solid var(--line);border-radius:4px;overflow:hidden;line-height:0;position:relative}
+#stageWrap:fullscreen{display:flex;align-items:center;justify-content:center;border:0;border-radius:0}
+#stage{width:100%;height:auto;aspect-ratio:16/9;display:block;max-height:100vh}
+#stageWrap:fullscreen #stage{width:auto;height:100%;max-width:100%}
+#loading{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;line-height:1.4;color:var(--dim);font-size:16px;text-align:center;padding:24px}
+.bar{display:flex;flex-wrap:wrap;align-items:center;gap:10px}
+button,label.btn{font:600 14px/1 var(--body);color:var(--fg);background:var(--panel);border:1px solid var(--line);border-radius:4px;padding:11px 16px;cursor:pointer;min-height:40px;display:inline-flex;align-items:center;gap:6px}
+button:hover,label.btn:hover{border-color:var(--gold)}
+button.primary{background:var(--gold);color:var(--gold-ink);border-color:var(--gold)}
+button[disabled]{opacity:.45;cursor:default}
+button:focus-visible,label.btn:focus-within,input[type=range]:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+.time{font-variant-numeric:tabular-nums;color:var(--dim);min-width:92px;text-align:right}
+.scrub{flex:1 1 220px;min-width:0;display:flex;align-items:center;gap:12px}
+input[type=range]{flex:1;min-width:0;accent-color:var(--gold)}
+.chips{display:flex;gap:6px;flex-wrap:wrap}
+.chip{padding:6px 10px;min-height:0;font-size:12px;color:var(--dim)}
+.chip.on{color:var(--gold);border-color:var(--gold)}
+.note{color:var(--dim);font-size:13px;margin:0}
+.note b{color:var(--fg);font-weight:600}
+input[type=file]{position:absolute;opacity:0;width:1px;height:1px}
+</style>
+
+<div class="wrap">
+  <header>
+    <h1>The Philosopher’s Stone</h1>
+    <p>Brick-built motion comic &middot; Book 1 &middot; 8 scenes &times; 6 s = 48 s</p>
+  </header>
+
+  <div id="stageWrap">
+    <canvas id="stage" width="1920" height="1080"></canvas>
+    <div id="loading">Loading artwork&hellip;</div>
+  </div>
+
+  <div class="bar">
+    <button id="play" class="primary">&#9654; Play</button>
+    <button id="pause">&#10074;&#10074; Pause</button>
+    <button id="restart">&#8635; Restart</button>
+    <button id="full">&#9974; Fullscreen</button>
+    <div class="scrub">
+      <input id="seek" type="range" min="0" max="48" step="0.01" value="0" aria-label="Timeline">
+      <span class="time" id="time">0:00 / 0:48</span>
+    </div>
+  </div>
+  <div class="bar">
+    <div class="chips" id="chips" aria-label="Jump to scene"></div>
+  </div>
+  <div class="bar">
+    <label class="btn" for="file">Load storyboard image&hellip;<input id="file" type="file" accept="image/*"></label>
+    <label class="btn" for="narr"><input id="narr" type="checkbox" checked style="position:static;opacity:1;width:auto"> Narration (device voice)</label>
+    <label class="btn" for="caps"><input id="caps" type="checkbox" checked style="position:static;opacity:1;width:auto"> Captions</label>
+    <button id="rec">&#9679; Record WebM</button>
+    <span class="note" id="recnote"></span>
+  </div>
+  <p class="note">Storyboard motion comic. Camera moves and atmosphere are animated overlays on the original artwork; the characters themselves are not individually animated. Spacebar plays and pauses.</p>
+</div>
+
+<script>
+(function(){
+'use strict';
+var SRC='__IMG__';
+var W=1920,H=1080,SCENE_LEN=6,N=8,TOTAL=48,FADE=0.8;
+// Source crops inside the 1024x1536 storyboard: below the label strip, inside the borders.
+var RECTS=[[2,2,378,490],[387,2,764,490],[773,2,1149,490],[1158,2,1534,490],
+           [2,498,378,1022],[387,498,764,1022],[773,498,1149,1022],[1158,498,1534,1022]];
+var cv=document.getElementById('stage'),ctx=cv.getContext('2d');
+var crops=[],bgs=[];
+// Draft narration: only wording taken from the storyboard's own panel titles and what is visible in each panel.
+var LINES=["Harry\u2019s ordinary life changes when letters arrive from a school he never knew existed.",
+ "A kind giant opens the door to a world of magic\u2014and to the truth about Harry\u2019s past.",
+ "On the way to Hogwarts, Harry begins to find the friends who will stand beside him.",
+ "At Hogwarts, Harry finds a home filled with lessons, surprises, and new challenges.",
+ "As the year unfolds, Harry and his friends discover that something powerful may be hidden inside the castle.",
+ "Following the clues, they venture into a place no student is meant to enter.",
+ "Harry must protect the stone and face the danger connected to his family\u2019s past.",
+ "The danger passes, and Harry ends the year knowing he has friends\u2014and a place where he belongs."];
+var TAGS=["1  THE LETTER","2  A MAGICAL INTRODUCTION","3  NEW FRIENDS","4  HOGWARTS","5  A YEAR OF MAGIC","6  THE HIDDEN PATH","7  THE STONE","8  A PLACE TO BELONG"];
+var showCaps=true;
+function drawCaption(c,i,s){
+  if(!showCaps)return;
+  var a=ease((s-0.6)/0.6)*(1-ease((s-5.3)/0.5)),ta=ease((s-0.3)/0.6)*(1-ease((s-5.4)/0.5));
+  c.save();c.textBaseline='middle';
+  if(ta>0){c.globalAlpha=ta;c.textAlign='left';c.font='600 26px Spectral,Georgia,serif';
+    if(c.letterSpacing!==undefined)c.letterSpacing='4px';
+    var tw=c.measureText(TAGS[i]).width+40;c.fillStyle='rgba(6,4,10,0.6)';c.fillRect(48,40,tw,48);
+    c.fillStyle='#e9e2d6';c.fillText(TAGS[i],68,64);if(c.letterSpacing!==undefined)c.letterSpacing='0px'}
+  if(a>0){c.globalAlpha=a;c.textAlign='center';c.font='italic 600 40px Spectral,Georgia,serif';
+    var words=LINES[i].split(' '),rows=[],cur='',maxw=1500;
+    words.forEach(function(wd){var t=cur?cur+' '+wd:wd;if(c.measureText(t).width>maxw&&cur){rows.push(cur);cur=wd}else cur=t});rows.push(cur);
+    var bw=Math.min(W*0.92,Math.max.apply(null,rows.map(function(r){return c.measureText(r).width}))+72),bh=rows.length*54+22,by=H-56-bh;
+    c.fillStyle='rgba(6,4,10,0.68)';c.fillRect((W-bw)/2,by,bw,bh);
+    c.fillStyle='#f6efe0';rows.forEach(function(r,k){c.fillText(r,W/2,by+11+27+k*54)})}
+  c.restore();
+}
+
+/* ---------- helpers ---------- */
+function fract(x){return x-Math.floor(x)}
+function rnd(i,k){return fract(Math.sin(i*127.1+k*311.7)*43758.5453)}
+function clamp(x,a,b){return x<a?a:x>b?b:x}
+function lerp(a,b,t){return a+(b-a)*t}
+function ease(t){t=clamp(t,0,1);return t*t*(3-2*t)}
+function easeIO(t){t=clamp(t,0,1);return 0.5-0.5*Math.cos(Math.PI*t)}
+function noise1(t,s){return 0.5+0.25*Math.sin(t*s*1.0+1.3)+0.15*Math.sin(t*s*2.3+4.1)+0.10*Math.sin(t*s*5.1+2.2)}
+function glow(c,x,y,r,rgb,a){
+  var g=c.createRadialGradient(x,y,0,x,y,r);
+  g.addColorStop(0,'rgba('+rgb+','+a+')');
+  g.addColorStop(0.45,'rgba('+rgb+','+(a*0.35)+')');
+  g.addColorStop(1,'rgba('+rgb+',0)');
+  c.fillStyle=g;c.fillRect(x-r,y-r,r*2,r*2);
+}
+function blobTex(rgb,seed,n,w,h,a){
+  var c=document.createElement('canvas');c.width=w;c.height=h;var x=c.getContext('2d');
+  for(var i=0;i<n;i++){
+    var r=h*(0.12+0.18*rnd(i,seed)),px=rnd(i,seed+7)*w,py=r+(h-2*r)*rnd(i,seed+13);
+    for(var k=-1;k<=1;k++){
+      var g=x.createRadialGradient(px+k*w,py,0,px+k*w,py,r*1.6);
+      g.addColorStop(0,'rgba('+rgb+','+a+')');g.addColorStop(1,'rgba('+rgb+',0)');
+      x.fillStyle=g;x.fillRect(px+k*w-r*1.6,py-r*1.6,r*3.2,r*3.2);
+    }
+  }
+  return c;
+}
+var fogCool=blobTex('205,215,245',3,22,1024,256,0.5);
+var fogWarm=blobTex('255,200,150',9,18,1024,256,0.35);
+var smokeDark=blobTex('12,6,18',5,20,1024,256,0.7);
+
+/* scrolling fog band in art space (aw x ah). */
+function fogBand(c,aw,ah,tex,y0,y1,alpha,speed,scale,t,phase){
+  var tw=aw*scale,dh=(y1-y0)*ah,off=fract(t*speed+(phase||0))*tw;
+  c.save();c.globalAlpha*=alpha;
+  for(var x=-off;x<aw;x+=tw)c.drawImage(tex,x,y0*ah,tw+1,dh);
+  c.restore();
+}
+/* rising / drifting soft puffs */
+function puffs(c,aw,ah,n,t,o){
+  for(var i=0;i<n;i++){
+    var ph=fract(t/o.period+rnd(i,1)),a=Math.sin(Math.PI*ph);
+    var x=(o.x0+(o.x1-o.x0)*rnd(i,2))*aw+Math.sin(t*0.4+i)*aw*0.02+(o.dx||0)*ph*aw;
+    var y=(o.y0-o.rise*ph)*ah, r=aw*(o.r0+o.r1*ph)*(0.7+0.6*rnd(i,3));
+    glow(c,x,y,r,o.rgb,o.alpha*a);
+  }
+}
+/* floating sparks (additive) */
+function sparks(c,aw,ah,n,t,o){
+  c.save();c.globalCompositeOperation='lighter';
+  for(var i=0;i<n;i++){
+    var ph=fract(t/o.period*(0.7+0.6*rnd(i,4))+rnd(i,1)),a=Math.sin(Math.PI*ph);
+    var x=(o.x+(rnd(i,2)-0.5)*o.w)*aw+Math.sin(t*1.3+i*2.1)*aw*0.008;
+    var y=(o.y-o.rise*ph)*ah, r=1.2+2.6*rnd(i,5);
+    glow(c,x,y,r*4,o.rgb,0.55*a);
+    c.fillStyle='rgba(255,240,200,'+(0.8*a)+')';c.beginPath();c.arc(x,y,r*0.6,0,6.3);c.fill();
+  }
+  c.restore();
+}
+function lights(c,aw,ah,pts,t,rgb,base,amp,rf,speed){
+  c.save();c.globalCompositeOperation='lighter';
+  pts.forEach(function(p,i){
+    var k=base+amp*Math.sin(t*(speed||1.6)+i*1.7)*0.5+amp*0.5;
+    glow(c,p[0]*aw,p[1]*ah,aw*rf*(p[2]||1),rgb,k);
+  });
+  c.restore();
+}
+function flames(c,aw,ah,pts,t,rgb){
+  c.save();c.globalCompositeOperation='lighter';
+  pts.forEach(function(p,i){
+    var f=noise1(t+i*3.7,7);
+    glow(c,p[0]*aw,p[1]*ah,aw*0.075,rgb||'255,150,40',0.22+0.28*f);
+    glow(c,p[0]*aw,p[1]*ah,aw*0.022,'255,230,160',0.35+0.35*f);
+  });
+  c.restore();
+}
+function vignette(c,aw,ah,a){
+  var g=c.createRadialGradient(aw/2,ah/2,ah*0.4,aw/2,ah/2,aw*0.75);
+  g.addColorStop(0,'rgba(0,0,0,0)');g.addColorStop(1,'rgba(0,0,0,'+a+')');
+  c.fillStyle=g;c.fillRect(0,0,aw,ah);
+}
+
+/* ---------- scenes: cam(s) -> {z,fx,fy,px,py}; fx(c,aw,ah,s,t) overlays in art space ---------- */
+function glints(c,aw,ah,t,rect,n){
+  c.save();c.beginPath();c.rect(rect[0]*aw,rect[1]*ah,rect[2]*aw,rect[3]*ah);c.clip();
+  c.globalCompositeOperation='lighter';
+  for(var i=0;i<n;i++){
+    var ph=fract(t*0.30+i/n),x=(rect[0]+rect[2]*(1.1-1.2*ph))*aw,w=aw*0.05;
+    var g=c.createLinearGradient(x-w,0,x+w,0);
+    g.addColorStop(0,'rgba(255,255,255,0)');g.addColorStop(0.5,'rgba(255,255,255,0.07)');g.addColorStop(1,'rgba(255,255,255,0)');
+    c.fillStyle=g;c.fillRect(x-w,rect[1]*ah,w*2,rect[3]*ah);
+  }
+  c.restore();
+}
+function sway(s,k,a){return (Math.sin(s*4.6+k)*0.6+Math.sin(s*9.1+k*2)*0.4)*a}
+var SC=[
+ /* 1 the letter: warm lamp flicker and dust beside Harry */
+ {cam:function(s){var e=easeIO(s/6);return{z:lerp(1.0,1.32,e),fx:lerp(0.5,0.32,e),fy:lerp(0.5,0.55,e)}},
+  fx:function(c,aw,ah,s,t){
+    c.save();c.globalCompositeOperation='lighter';
+    glow(c,0.55*aw,0.15*ah,aw*0.40,'255,220,170',0.05+0.03*noise1(s,1.7));
+    c.restore();
+    flames(c,aw,ah,[[0.78,0.06],[0.86,0.44]],s);
+    sparks(c,aw,ah,18,s,{x:0.6,w:0.8,y:0.9,rise:0.5,period:9,rgb:'255,225,180'});
+    vignette(c,aw,ah,0.30);
+  }},
+ /* 2 a magical introduction: lantern glow, drifting sparkle, push toward Harry and Hagrid */
+ {cam:function(s){var e=easeIO(s/6);return{z:lerp(1.0,1.30,e),fx:lerp(0.5,0.45,e),fy:lerp(0.5,0.55,e)}},
+  fx:function(c,aw,ah,s,t){
+    c.save();c.globalCompositeOperation='lighter';
+    glow(c,0.11*aw,0.62*ah,aw*0.22,'255,170,70',0.10+0.08*noise1(s,2.6));
+    c.restore();
+    flames(c,aw,ah,[[0.11,0.60],[0.07,0.19],[0.57,0.20],[0.80,0.35],[0.96,0.34]],s);
+    sparks(c,aw,ah,26,s,{x:0.55,w:0.9,y:0.9,rise:0.6,period:8,rgb:'255,220,150'});
+    vignette(c,aw,ah,0.30);
+  }},
+ /* 3 new friends: train sway, light passing the window */
+ {cam:function(s){var e=easeIO(s/6);return{z:lerp(1.0,1.28,e),fx:0.5,fy:lerp(0.5,0.55,e),px:sway(s,0,0.0022),py:sway(s,1.3,0.0016)}},
+  fx:function(c,aw,ah,s,t){
+    flames(c,aw,ah,[[0.11,0.22],[0.98,0.19]],s);
+    glints(c,aw,ah,s,[0.24,0.10,0.74,0.26],4);
+    c.save();c.globalCompositeOperation='lighter';
+    glow(c,0.61*aw,0.2*ah,aw*0.35,'200,225,255',0.04+0.02*noise1(s,1.1));
+    c.restore();
+    vignette(c,aw,ah,0.30);
+  }},
+ /* 4 Hogwarts: castle and boat lanterns, shimmer on the water */
+ {cam:function(s){var e=easeIO(s/6);return{z:lerp(1.0,1.30,e),fx:lerp(0.5,0.55,e),fy:lerp(0.55,0.34,e)}},
+  fx:function(c,aw,ah,s,t){
+    lights(c,aw,ah,[[0.30,0.50,1],[0.48,0.52,1],[0.62,0.55,1],[0.75,0.50,1],[0.55,0.45,1.2]],s,'255,190,100',0.07,0.10,0.06,1.0);
+    flames(c,aw,ah,[[0.20,0.67],[0.48,0.78],[0.93,0.68]],s);
+    fogBand(c,aw,ah,fogWarm,0.0,0.30,0.12,0.006,1.4,s,0.2);
+    sparks(c,aw,ah,22,s,{x:0.5,w:1.0,y:0.97,rise:0.12,period:5,rgb:'190,215,255'});
+    vignette(c,aw,ah,0.28);
+  }},
+ /* 5 a year of magic: pan from the spells down to Quidditch */
+ {cam:function(s){var e=easeIO(s/6);return{z:1.5,fx:0.5,fy:lerp(0.0,1.0,e)}},
+  fx:function(c,aw,ah,s,t){
+    lights(c,aw,ah,[[0.51,0.13,1.2],[0.80,0.06,1.6],[0.77,0.47,0.9]],s,'110,160255'.replace('160255','160,255'),0.10,0.25,0.07,2.0);
+    lights(c,aw,ah,[[0.78,0.69,1]],s,'255,210,90',0.10,0.25,0.05,2.4);
+    sparks(c,aw,ah,18,s,{x:0.7,w:0.4,y:0.2,rise:0.25,period:4,rgb:'150,190,255'});
+    vignette(c,aw,ah,0.25);
+  }},
+ /* 6 the hidden path: wandlight, lantern, dim eyes in the dark */
+ {cam:function(s){var e=easeIO(s/6);return{z:lerp(1.0,1.30,e),fx:lerp(0.5,0.48,e),fy:lerp(0.5,0.65,e)}},
+  fx:function(c,aw,ah,s,t){
+    lights(c,aw,ah,[[0.65,0.62,1]],s,'255,220,150',0.12,0.20,0.07,3.0);
+    flames(c,aw,ah,[[0.90,0.75]],s);
+    lights(c,aw,ah,[[0.17,0.20,1],[0.42,0.17,1],[0.62,0.24,1]],s,'255,170,60',0.04,0.08,0.035,1.1);
+    fogBand(c,aw,ah,smokeDark,0.6,1.0,0.30,0.008,1.4,s,0.3);
+    vignette(c,aw,ah,0.42);
+  }},
+ /* 7 the stone: pulsing red stone, red sparks, slow camera tremor */
+ {cam:function(s){var e=easeIO(s/6);return{z:lerp(1.0,1.30,e),fx:lerp(0.5,0.7,e),fy:0.5,px:sway(s,2,0.0030),py:sway(s,3,0.0026)}},
+  fx:function(c,aw,ah,s,t){
+    lights(c,aw,ah,[[0.85,0.44,1]],s,'255,50,70',0.14,0.22,0.13,1.8);
+    lights(c,aw,ah,[[0.65,0.50,1]],s,'255,120,140',0.10,0.15,0.06,2.4);
+    sparks(c,aw,ah,24,s,{x:0.85,w:0.2,y:0.5,rise:0.35,period:3.5,rgb:'255,90,110'});
+    fogBand(c,aw,ah,smokeDark,0.6,1.0,0.30,0.010,1.4,s,0.5);
+    vignette(c,aw,ah,0.40);
+  }},
+ /* 8 a place to belong: candles and warm drifting sparks over the Great Hall */
+ {cam:function(s){var e=easeIO(s/6);return{z:lerp(1.0,1.30,e),fx:lerp(0.5,0.55,e),fy:lerp(0.5,0.65,e)}},
+  fx:function(c,aw,ah,s,t){
+    flames(c,aw,ah,[[0.23,0.05],[0.14,0.14],[0.38,0.11],[0.38,0.21],[0.68,0.08],[0.56,0.22]],s);
+    lights(c,aw,ah,[[0.82,0.77,1.2]],s,'255,200,90',0.08,0.10,0.10,1.0);
+    sparks(c,aw,ah,30,s,{x:0.5,w:1.0,y:0.85,rise:0.7,period:9,rgb:'255,215,140'});
+    vignette(c,aw,ah,0.28);
+  }}
+];
+function aw_shake(s,k){ // subtle, slow camera shake in normalized px units
+  return (Math.sin(s*3.1+k*1.7)*0.5+Math.sin(s*7.3+k*4.1)*0.25)*0.0045;
+}
+
+/* ---------- drawing ---------- */
+function drawScene(i,s,alpha){
+  var cr=crops[i];if(!cr)return;
+  var sc=SC[i];
+  // blurred fill
+  ctx.save();ctx.globalAlpha=alpha;
+  ctx.drawImage(bgs[i],0,0,W,H);
+  ctx.fillStyle='rgba(0,0,0,0.35)';ctx.fillRect(0,0,W,H);
+  // art rect (contain, no stretching)
+  var ar=cr.width/cr.height,aw,ah;
+  if(ar>W/H){aw=W;ah=W/ar}else{ah=H;aw=H*ar}
+  var ax=(W-aw)/2,ay=(H-ah)/2;
+  ctx.beginPath();ctx.rect(ax,ay,aw,ah);ctx.clip();
+  ctx.translate(ax,ay);
+  var cm=sc.cam(s),z=cm.z,fx=cm.fx*aw,fy=cm.fy*ah;
+  var pxMin=aw-z*aw-fx*(1-z),pxMax=-fx*(1-z),pyMin=ah-z*ah-fy*(1-z),pyMax=-fy*(1-z);
+  var px=clamp((cm.px||0)*aw,pxMin,pxMax),py=clamp((cm.py||0)*ah,pyMin,pyMax);
+  ctx.translate(fx+px,fy+py);ctx.scale(z,z);ctx.translate(-fx,-fy);
+  ctx.imageSmoothingEnabled=true;ctx.imageSmoothingQuality='high';
+  ctx.drawImage(cr,0,0,aw,ah);
+  sc.fx(ctx,aw,ah,s,s);
+  ctx.restore();
+  if(sc.top){ctx.save();ctx.globalAlpha=alpha;sc.top(ctx,s);ctx.restore()}
+}
+function render(t){
+  t=clamp(t,0,TOTAL-0.0001);
+  ctx.fillStyle='#000';ctx.fillRect(0,0,W,H);
+  var i=Math.min(N-1,Math.floor(t/SCENE_LEN)),s=t-i*SCENE_LEN;
+  var a=ease(s/FADE);
+  window.__cap=[i,s];
+  if(i>0&&s<FADE){drawScene(i-1,SCENE_LEN,1);}
+  drawScene(i,s,i===0?a:(s<FADE?a:1));
+  drawCaption(ctx,i,s);
+}
+
+/* ---------- loading + cropping ---------- */
+function build(img){
+  crops=[];bgs=[];
+  RECTS.forEach(function(r){
+    var w=r[2]-r[0],h=r[3]-r[1],k=3;
+    var c=document.createElement('canvas');c.width=w*k;c.height=h*k;
+    var x=c.getContext('2d');x.imageSmoothingEnabled=true;x.imageSmoothingQuality='high';
+    x.drawImage(img,r[0],r[1],w,h,0,0,w*k,h*k);
+    crops.push(c);
+    var b=document.createElement('canvas');b.width=192;b.height=108;
+    var bx=b.getContext('2d');bx.filter='blur(6px)';
+    var sc=Math.max(192/c.width,108/c.height)*1.15,dw=c.width*sc,dh=c.height*sc;
+    bx.drawImage(c,(192-dw)/2,(108-dh)/2,dw,dh);
+    bgs.push(b);
+  });
+  document.getElementById('loading').hidden=true;
+  render(T);
+}
+function loadSrc(src){
+  var im=new Image();
+  im.onload=function(){
+    if(im.naturalWidth<1000||im.naturalHeight<660){
+      var l=document.getElementById('loading');l.hidden=false;
+      l.textContent='That image is smaller than the expected 1024×1536 storyboard. Crops may be off.';
+    }
+    var sx=im.naturalWidth/1536; // support other resolutions of the same layout
+    if(Math.abs(sx-1)>0.01){var c=document.createElement('canvas');c.width=1536;c.height=1024;c.getContext('2d').drawImage(im,0,0,1536,1024);build(c)}
+    else build(im);
+  };
+  im.onerror=function(){var l=document.getElementById('loading');l.hidden=false;l.innerHTML='Artwork could not load.<br>Use “Load storyboard image…” below.'};
+  im.src=src;
+}
+
+/* ---------- transport ---------- */
+var T=0,playing=false,last=0,reduce=window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches;
+var $=function(id){return document.getElementById(id)};
+function fmt(x){x=Math.floor(x);return Math.floor(x/60)+':'+('0'+x%60).slice(-2)}
+function ui(){
+  $('seek').value=T;$('time').textContent=fmt(T)+' / 0:48';
+  $('play').disabled=playing;$('pause').disabled=!playing;
+  var cur=Math.min(N-1,Math.floor(T/SCENE_LEN));
+  document.querySelectorAll('.chip').forEach(function(c,i){c.classList.toggle('on',i===cur)});
+}
+function tick(ts){
+  if(playing){
+    T+=Math.min(0.1,(ts-last)/1000);last=ts;
+    if(T>=TOTAL){T=TOTAL-0.0001;playing=false;if(recording)stopRec()}
+  }
+  last=ts;
+  narrate();render(T);ui();
+  requestAnimationFrame(tick);
+}
+var narrOn=true,spokenFor=-1,voice=null,synth=window.speechSynthesis;
+function pickVoice(){
+  if(!synth)return;var vs=synth.getVoices().filter(function(v){return /^en/i.test(v.lang)});
+  var pref=[/natural/i,/neural/i,/online/i,/google us english/i,/samantha|ava|allison|daniel|aaron|alex/i];
+  for(var k=0;k<pref.length;k++){var m=vs.filter(function(v){return pref[k].test(v.name)})[0];if(m){voice=m;return}}
+  voice=vs[0]||null;
+}
+if(synth){pickVoice();synth.onvoiceschanged=pickVoice}
+function speakScene(i,hard){
+  if(!synth||!narrOn)return;
+  if(hard)synth.cancel();spokenFor=i;
+  var u=new SpeechSynthesisUtterance(LINES[i]),words=LINES[i].split(' ').length;
+  if(voice)u.voice=voice;u.lang=voice?voice.lang:'en-US';u.rate=clamp(words/14,0.95,1.25);u.pitch=0.97;
+  setTimeout(function(){if(playing&&spokenFor===i&&narrOn)synth.speak(u)},300);
+}
+function narrate(){
+  if(!playing||!narrOn)return;
+  var i=Math.min(N-1,Math.floor(T/SCENE_LEN));
+  if(i!==spokenFor)speakScene(i,spokenFor<0||i<spokenFor||i>spokenFor+1);
+}
+function play(){if(T>=TOTAL-0.01)T=0;playing=true;last=performance.now();ui()}
+function pause(){playing=false;if(synth)synth.cancel();spokenFor=-1;ui()}
+$('play').onclick=play;$('pause').onclick=pause;
+$('restart').onclick=function(){if(synth)synth.cancel();spokenFor=-1;T=0;playing=true;last=performance.now();ui()};
+$('seek').oninput=function(e){if(synth)synth.cancel();spokenFor=-1;T=parseFloat(e.target.value);render(T);ui()};
+$('full').onclick=function(){
+  var w=$('stageWrap');
+  if(document.fullscreenElement){document.exitFullscreen()}
+  else if(w.requestFullscreen){w.requestFullscreen().catch(function(){$('recnote').textContent='Fullscreen was blocked here. Open the page in its own tab and try again.'})}
+};
+document.addEventListener('keydown',function(e){
+  if(e.code==='Space'&&e.target.tagName!=='INPUT'&&e.target.tagName!=='BUTTON'){e.preventDefault();playing?pause():play()}
+});
+var chips=$('chips');
+for(var k=0;k<N;k++)(function(k){
+  var b=document.createElement('button');b.className='chip';b.textContent='Scene '+(k+1);
+  b.onclick=function(){if(synth)synth.cancel();spokenFor=-1;T=k*SCENE_LEN;render(T);ui()};chips.appendChild(b);
+})(k);
+$('narr').onchange=function(e){narrOn=e.target.checked;if(!narrOn&&synth){synth.cancel();spokenFor=-1}};
+$('caps').onchange=function(e){showCaps=e.target.checked;render(T)};
+if(!synth){$('narr').disabled=true}
+$('file').onchange=function(e){
+  var f=e.target.files[0];if(!f)return;
+  loadSrc(URL.createObjectURL(f));
+};
+
+/* ---------- optional in-browser WebM recording (real time) ---------- */
+var recording=false,mr=null,chunks=[];
+function stopRec(){recording=false;if(mr&&mr.state!=='inactive')mr.stop();$('rec').textContent='● Record WebM'}
+$('rec').onclick=function(){
+  if(recording){stopRec();return}
+  if(!window.MediaRecorder||!cv.captureStream){$('recnote').textContent='This browser cannot record the canvas.';return}
+  var mime=['video/webm;codecs=vp9','video/webm;codecs=vp8','video/webm'].filter(function(m){return MediaRecorder.isTypeSupported(m)})[0];
+  chunks=[];mr=new MediaRecorder(cv.captureStream(30),{mimeType:mime,videoBitsPerSecond:12e6});
+  mr.ondataavailable=function(e){if(e.data.size)chunks.push(e.data)};
+  mr.onstop=function(){
+    var url=URL.createObjectURL(new Blob(chunks,{type:'video/webm'}));
+    var a=document.createElement('a');a.href=url;a.download='harry-potter-philosophers-stone.webm';document.body.appendChild(a);a.click();a.remove();
+    $('recnote').textContent='Recording finished. If no download started, this page is sandboxed: save the HTML locally and record there.';
+  };
+  T=0;recording=true;mr.start();$('rec').textContent='■ Stop recording';
+  $('recnote').textContent='Recording in real time (48 s). Keep this tab visible.';play();
+};
+
+window.__renderAt=function(t){T=t;render(t)};
+window.__ready=function(){return crops.length===8};
+(document.fonts&&document.fonts.load?Promise.all([document.fonts.load('700 30px Cinzel')]).catch(function(){}):Promise.resolve()).then(function(){
+  loadSrc(SRC);
+  if(!reduce&&!/[?&]render/.test(location.search)){/* idle on first frame until Play */}
+  requestAnimationFrame(tick);
+});
+})();
+</script>
