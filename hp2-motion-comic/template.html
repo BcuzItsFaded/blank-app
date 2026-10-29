@@ -48,6 +48,7 @@ input[type=file]{position:absolute;opacity:0;width:1px;height:1px}
 
   <div id="stageWrap">
     <canvas id="stage" width="1080" height="1920"></canvas>
+    <audio id="snd" preload="auto" src="__AUDIO__"></audio>
     <div id="loading">Loading artwork&hellip;</div>
   </div>
 
@@ -66,7 +67,7 @@ input[type=file]{position:absolute;opacity:0;width:1px;height:1px}
   </div>
   <div class="bar">
     <label class="btn" for="file">Load storyboard image&hellip;<input id="file" type="file" accept="image/*"></label>
-    <label class="btn" for="narr"><input id="narr" type="checkbox" checked style="position:static;opacity:1;width:auto"> Narration (device voice)</label>
+    <label class="btn" for="narr"><input id="narr" type="checkbox" checked style="position:static;opacity:1;width:auto"> Sound (narration + music)</label>
     <label class="btn" for="caps"><input id="caps" type="checkbox" checked style="position:static;opacity:1;width:auto"> Captions</label>
     <button id="fmt"></button>
     <button id="rec">&#9679; Record WebM</button>
@@ -391,10 +392,18 @@ function tick(ts){
     if(T>=TOTAL){T=TOTAL-0.0001;playing=false;if(recording)stopRec()}
   }
   last=ts;
-  narrate();render(T);ui();
+  syncSound();render(T);ui();
   requestAnimationFrame(tick);
 }
-var narrOn=true,spokenFor=-1,voice=null,synth=window.speechSynthesis;
+function syncSound(){
+  var a=document.getElementById('snd');if(!a)return;
+  try{
+    if(playing){if(a.paused){a.currentTime=Math.min(T,47.9);var p=a.play();if(p&&p.catch)p.catch(function(){})}
+      else if(Math.abs(a.currentTime-T)>0.4)a.currentTime=Math.min(T,47.9)}
+    else if(!a.paused)a.pause();
+  }catch(e){}
+}
+var narrOn=false,spokenFor=-1,voice=null,synth=window.speechSynthesis;
 function pickVoice(){
   if(!synth)return;var vs=synth.getVoices().filter(function(v){return /^en/i.test(v.lang)});
   var pref=[/natural/i,/neural/i,/online/i,/google us english/i,/samantha|ava|allison|daniel|aaron|alex/i];
@@ -432,7 +441,7 @@ for(var k=0;k<N;k++)(function(k){
   var b=document.createElement('button');b.className='chip';b.textContent='Scene '+(k+1);
   b.onclick=function(){if(synth)synth.cancel();spokenFor=-1;T=k*SCENE_LEN;render(T);ui()};chips.appendChild(b);
 })(k);
-$('narr').onchange=function(e){narrOn=e.target.checked;if(!narrOn&&synth){synth.cancel();spokenFor=-1}};
+$('narr').onchange=function(e){$('snd').muted=!e.target.checked};
 $('caps').onchange=function(e){showCaps=e.target.checked;render(T)};
 if(!synth){$('narr').disabled=true}
 $('file').onchange=function(e){
