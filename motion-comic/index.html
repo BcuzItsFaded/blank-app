@@ -64,6 +64,8 @@ input[type=file]{position:absolute;opacity:0;width:1px;height:1px}
   </div>
   <div class="bar">
     <label class="btn" for="file">Load storyboard image&hellip;<input id="file" type="file" accept="image/*"></label>
+    <label class="btn" for="narr"><input id="narr" type="checkbox" checked style="position:static;opacity:1;width:auto"> Narration (device voice)</label>
+    <label class="btn" for="caps"><input id="caps" type="checkbox" checked style="position:static;opacity:1;width:auto"> Captions</label>
     <button id="rec">&#9679; Record WebM</button>
     <span class="note" id="recnote"></span>
   </div>
@@ -80,6 +82,20 @@ var RECTS=[[10,332,506,566],[519,332,1015,566],[10,634,506,860],[519,634,1015,86
            [10,926,506,1137],[519,926,1015,1137],[10,1207,506,1476],[519,1207,1015,1476]];
 var cv=document.getElementById('stage'),ctx=cv.getContext('2d');
 var crops=[],bgs=[];
+// Draft narration: only wording taken from the storyboard's own panel titles and what is visible in each panel.
+var LINES=["A glowing book opens. Jack Sawyer returns.","The Talisman. His first quest begins, and the road leads west.",
+ "In the Black House, the darkness returns.","Back between worlds, the way ahead leads toward a distant castle.",
+ "An infection spreads.","Above the mysterious Gullet, mist rises from the ravine.","All worlds are at stake.","Would you cross over? PlotTwistWith R and A."];
+var showCaps=true;
+function drawCaption(c,i,s){
+  if(!showCaps||i>6)return;
+  var a=ease((s-0.6)/0.6)*(1-ease((s-5.3)/0.5));if(a<=0)return;
+  c.save();c.globalAlpha=a;c.textAlign='center';c.textBaseline='middle';
+  c.font='italic 600 44px Spectral,Georgia,serif';
+  var t=LINES[i],w=Math.min(W*0.9,c.measureText(t).width+72);
+  c.fillStyle='rgba(6,4,10,0.62)';c.fillRect((W-w)/2,H-132,w,76);
+  c.fillStyle='#f6eed8';c.fillText(t,W/2,H-94);c.restore();
+}
 
 /* ---------- helpers ---------- */
 function fract(x){return x-Math.floor(x)}
@@ -323,8 +339,10 @@ function render(t){
   ctx.fillStyle='#000';ctx.fillRect(0,0,W,H);
   var i=Math.min(N-1,Math.floor(t/SCENE_LEN)),s=t-i*SCENE_LEN;
   var a=ease(s/FADE);
+  window.__cap=[i,s];
   if(i>0&&s<FADE){drawScene(i-1,SCENE_LEN,1);}
   drawScene(i,s,i===0?a:(s<FADE?a:1));
+  drawCaption(ctx,i,s);
 }
 
 /* ---------- loading + cropping ---------- */
@@ -376,14 +394,34 @@ function tick(ts){
     if(T>=TOTAL){T=TOTAL-0.0001;playing=false;if(recording)stopRec()}
   }
   last=ts;
-  render(T);ui();
+  narrate();render(T);ui();
   requestAnimationFrame(tick);
 }
+var narrOn=true,spokenFor=-1,voice=null,synth=window.speechSynthesis;
+function pickVoice(){
+  if(!synth)return;var vs=synth.getVoices().filter(function(v){return /^en/i.test(v.lang)});
+  var pref=[/natural/i,/neural/i,/online/i,/google us english/i,/samantha|ava|allison|daniel|aaron|alex/i];
+  for(var k=0;k<pref.length;k++){var m=vs.filter(function(v){return pref[k].test(v.name)})[0];if(m){voice=m;return}}
+  voice=vs[0]||null;
+}
+if(synth){pickVoice();synth.onvoiceschanged=pickVoice}
+function speakScene(i){
+  if(!synth||!narrOn)return;
+  synth.cancel();spokenFor=i;
+  var u=new SpeechSynthesisUtterance(LINES[i]);
+  if(voice)u.voice=voice;u.lang=voice?voice.lang:'en-US';u.rate=0.92;u.pitch=0.95;
+  setTimeout(function(){if(playing&&spokenFor===i&&narrOn)synth.speak(u)},500);
+}
+function narrate(){
+  if(!playing||!narrOn)return;
+  var i=Math.min(N-1,Math.floor(T/SCENE_LEN));
+  if(i!==spokenFor)speakScene(i);
+}
 function play(){if(T>=TOTAL-0.01)T=0;playing=true;last=performance.now();ui()}
-function pause(){playing=false;ui()}
+function pause(){playing=false;if(synth)synth.cancel();spokenFor=-1;ui()}
 $('play').onclick=play;$('pause').onclick=pause;
-$('restart').onclick=function(){T=0;playing=true;last=performance.now();ui()};
-$('seek').oninput=function(e){T=parseFloat(e.target.value);render(T);ui()};
+$('restart').onclick=function(){if(synth)synth.cancel();spokenFor=-1;T=0;playing=true;last=performance.now();ui()};
+$('seek').oninput=function(e){if(synth)synth.cancel();spokenFor=-1;T=parseFloat(e.target.value);render(T);ui()};
 $('full').onclick=function(){
   var w=$('stageWrap');
   if(document.fullscreenElement){document.exitFullscreen()}
@@ -395,8 +433,11 @@ document.addEventListener('keydown',function(e){
 var chips=$('chips');
 for(var k=0;k<N;k++)(function(k){
   var b=document.createElement('button');b.className='chip';b.textContent='Scene '+(k+1);
-  b.onclick=function(){T=k*SCENE_LEN;render(T);ui()};chips.appendChild(b);
+  b.onclick=function(){if(synth)synth.cancel();spokenFor=-1;T=k*SCENE_LEN;render(T);ui()};chips.appendChild(b);
 })(k);
+$('narr').onchange=function(e){narrOn=e.target.checked;if(!narrOn&&synth){synth.cancel();spokenFor=-1}};
+$('caps').onchange=function(e){showCaps=e.target.checked;render(T)};
+if(!synth){$('narr').disabled=true}
 $('file').onchange=function(e){
   var f=e.target.files[0];if(!f)return;
   loadSrc(URL.createObjectURL(f));
