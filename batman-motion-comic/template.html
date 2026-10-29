@@ -47,7 +47,7 @@ input[type=file]{position:absolute;opacity:0;width:1px;height:1px}
   </header>
 
   <div id="stageWrap">
-    <canvas id="stage" width="1080" height="1920"></canvas>
+    <canvas id="stage" width="1920" height="1080"></canvas>
     <div id="loading">Loading artwork&hellip;</div>
   </div>
 
@@ -79,7 +79,7 @@ input[type=file]{position:absolute;opacity:0;width:1px;height:1px}
 (function(){
 'use strict';
 var SRC='__IMG__';
-var VERT=!/[?&]landscape/.test(location.search),W=VERT?1080:1920,H=VERT?1920:1080,SCENE_LEN=6,N=8,TOTAL=48,FADE=0.8;
+var VERT=/[?&]shorts/.test(location.search),W=VERT?1080:1920,H=VERT?1920:1080,SCENE_LEN=6,N=8,TOTAL=48,FADE=0.8;
 // Source crops inside the 1024x1536 storyboard: below the label strip, inside the borders.
 var RECTS=[[16,140,500,396],[523,140,1008,396],[16,444,500,702],[523,444,1008,702],
            [16,752,500,1054],[523,752,1008,1054],[16,1102,500,1434],[523,1102,1008,1434]];
