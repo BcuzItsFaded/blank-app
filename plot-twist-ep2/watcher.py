@@ -17,7 +17,7 @@ FSUB = ImageFont.truetype(F_BLACK, 56)
 # (narration, voice, camera (z0, z1, (cx0, cy0), (cx1, cy1)), effects, label, caption y)
 SCENES = [
     ("What if buying your dream home meant someone started watching your children?",
-     'am_michael', (1.02, 1.12, (0.5, 0.5), (0.5, 0.46)), ['studio'], None, 1720),
+     'am_michael', (1.0, 1.04, (0.5, 0.5), (0.5, 0.5)), ['studio2'], None, 1700),
     ("In 2014, a New Jersey couple bought a beautiful house in Westfield.",
      'af_heart', (1.03, 1.08, (0.5, 0.5), (0.52, 0.48)), ['sunset'], None, 1500),
     ("Days later, an anonymous envelope arrived. The sender called themselves 'The Watcher.'",
@@ -267,6 +267,10 @@ def render_scene(i, T):
     def Y(ny):
         return (ny * H - by) * z
     sec = T - s['start']
+    if 'studio2' in fx:
+        fl = 0.8 + 0.2 * math.sin(T * 11) * math.sin(T * 4.3)
+        glow(f, *P(0.035, 0.295), 60 * z, (255, 170, 80), 0.7 * fl)
+        glow(f, *P(0.86, 0.247), 50 * z, (170, 185, 230), 0.35 + 0.1 * math.sin(T * 2))
     if 'studio' in fx:
         fl = 0.8 + 0.2 * math.sin(T * 11) * math.sin(T * 4.3)
         glow(f, *P(0.07, 0.235), 70 * z, (255, 170, 80), 0.7 * fl)
@@ -373,8 +377,8 @@ def frame(T):
     s = segs[7]
     if i == 7 and T > s['vo_start'] + s['vo_dur'] + 1.9:
         draw_words(d, [['THE', 'WATCHER', 'WAS'], ['NEVER', 'IDENTIFIED']], H / 2 - 40, FEND, 118)
-        tw = d.textlength('PLOT TWIST WITH R&A', font=FSUB)
-        d.text((W / 2 - tw / 2, H / 2 + 120), 'PLOT TWIST WITH R&A', font=FSUB, fill=(235, 35, 35), stroke_width=8, stroke_fill=(0, 0, 0))
+        tw = d.textlength('PLOT TWIST WITH A&R', font=FSUB)
+        d.text((W / 2 - tw / 2, H / 2 + 120), 'PLOT TWIST WITH A&R', font=FSUB, fill=(235, 35, 35), stroke_width=8, stroke_fill=(0, 0, 0))
     return out
 
 

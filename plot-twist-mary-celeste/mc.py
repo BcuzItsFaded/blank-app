@@ -17,7 +17,7 @@ FSUB = ImageFont.truetype(F_BLACK, 56)
 # (narration, voice, camera (z0, z1, (cx0, cy0), (cx1, cy1)), effects, label, caption y)
 SCENES = [
     ("Imagine finding a ship sailing through the ocean... with absolutely nobody on board.",
-     'am_michael', (1.02, 1.12, (0.5, 0.5), (0.45, 0.56)), ['studio'], None, 1560),
+     'am_michael', (1.0, 1.04, (0.5, 0.5), (0.5, 0.5)), ['studio2'], None, 1700),
     ("In November 1872, the Mary Celeste left New York carrying a captain, his family, and seven sailors.",
      'af_heart', (1.1, 1.1, (0.43, 0.5), (0.57, 0.5)), ['harbor'], None, 1500),
     ("On December fourth, another ship spotted her drifting near the Azores. Nobody answered their calls.",
@@ -286,6 +286,10 @@ def render_scene(i, T):
     def Y(ny):
         return (ny * H - by) * z
     sec = T - s['start']
+    if 'studio2' in fx:
+        fl = 0.8 + 0.2 * math.sin(T * 11) * math.sin(T * 4.3)
+        glow(f, *P(0.035, 0.295), 60 * z, (255, 170, 80), 0.7 * fl)
+        glow(f, *P(0.86, 0.247), 50 * z, (170, 185, 230), 0.35 + 0.1 * math.sin(T * 2))
     if 'studio' in fx:
         fl = 0.8 + 0.2 * math.sin(T * 11) * math.sin(T * 4.3)
         glow(f, *P(0.05, 0.17), 60 * z, (255, 170, 80), 0.6 * fl)
@@ -387,8 +391,8 @@ def frame(T):
     s = segs[7]
     if i == 7 and T > s['vo_start'] + s['vo_dur'] + 1.9:
         draw_words(d, [['10', 'PEOPLE'], ['MISSING.'], ['NO', 'ONE'], ['EVER', 'FOUND.']], H / 2 - 80, FEND, 118)
-        tw = d.textlength('PLOT TWIST WITH R&A', font=FSUB)
-        d.text((W / 2 - tw / 2, H / 2 + 230), 'PLOT TWIST WITH R&A', font=FSUB, fill=(235, 35, 35), stroke_width=8, stroke_fill=(0, 0, 0))
+        tw = d.textlength('PLOT TWIST WITH A&R', font=FSUB)
+        d.text((W / 2 - tw / 2, H / 2 + 230), 'PLOT TWIST WITH A&R', font=FSUB, fill=(235, 35, 35), stroke_width=8, stroke_fill=(0, 0, 0))
     return out
 
 

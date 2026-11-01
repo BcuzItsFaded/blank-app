@@ -17,7 +17,7 @@ FSUB = ImageFont.truetype(F_BLACK, 56)
 # (narration, voice, camera (z0, z1, (cx0, cy0), (cx1, cy1)), effects, label, caption y)
 SCENES = [
     ("What if the motel room beside yours was empty... But someone kept knocking from inside?",
-     'am_michael', (1.02, 1.1, (0.5, 0.5), (0.5, 0.46)), ['studio'], None, 1560),
+     'am_michael', (1.0, 1.04, (0.5, 0.5), (0.5, 0.5)), ['studio2'], None, 1700),
     ("At 11:40 p.m., Elena checked into a roadside motel and locked her door.",
      'af_heart', (0.0, 1.0, 1.0, 1.0), ['neon'], None, 1520),
     ("Minutes later, three slow knocks came through the wall. She called reception.",
@@ -365,6 +365,10 @@ def render_scene(i, T):
     def Y(ny):
         return (ny * H - by) * z
     sec = T - s['start']
+    if 'studio2' in fx:
+        fl = 0.8 + 0.2 * math.sin(T * 11) * math.sin(T * 4.3)
+        glow(f, *P(0.035, 0.295), 60 * z, (255, 170, 80), 0.7 * fl)
+        glow(f, *P(0.86, 0.247), 50 * z, (170, 185, 230), 0.35 + 0.1 * math.sin(T * 2))
     if 'studio' in fx:
         fl = 0.8 + 0.2 * math.sin(T * 11) * math.sin(T * 4.3)
         glow(f, *P(0.05, 0.17), 60 * z, (255, 170, 80), 0.6 * fl)
@@ -473,8 +477,8 @@ def frame(T):
         draw_words(d, [['THE', 'ROOM'], ['NEXT', 'DOOR']], H / 2 - 120, FEND, 118)
         tw3 = d.textlength('A FICTIONALIZED HORROR STORY', font=FTAG)
         d.text((W / 2 - tw3 / 2, H / 2 + 140), 'A FICTIONALIZED HORROR STORY', font=FTAG, fill=(220, 210, 190))
-        tw = d.textlength('PLOT TWIST WITH R&A', font=FSUB)
-        d.text((W / 2 - tw / 2, H / 2 + 230), 'PLOT TWIST WITH R&A', font=FSUB, fill=(235, 35, 35), stroke_width=8, stroke_fill=(0, 0, 0))
+        tw = d.textlength('PLOT TWIST WITH A&R', font=FSUB)
+        d.text((W / 2 - tw / 2, H / 2 + 230), 'PLOT TWIST WITH A&R', font=FSUB, fill=(235, 35, 35), stroke_width=8, stroke_fill=(0, 0, 0))
     return out
 
 
