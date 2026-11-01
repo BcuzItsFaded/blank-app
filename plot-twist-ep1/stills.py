@@ -17,21 +17,21 @@ FSUB = ImageFont.truetype(F_BLACK, 56)
 # (narration, voice, camera (z0, z1, (cx0, cy0), (cx1, cy1)), effects, label, caption y)
 SCENES = [
     ("On December 15, 1900, a passing ship noticed something strange.",
-     'am_michael', (1.0, 1.08, (0.5, 0.5), (0.5, 0.45)), ['studio'], None, 1720),
+     'am_michael', (1.02, 1.06, (0.5, 0.5), (0.5, 0.52)), ['studio'], None, 1720),
     ("A lighthouse off the coast of Scotland had gone dark. Eleven days later, a relief ship arrived.",
-     'af_heart', (1.1, 1.3, (0.5, 0.55), (0.62, 0.42)), ['darklamp2', 'shiplights', 'sea2', 'rain', 'moon'], 'ILLUSTRATED REENACTMENT', 1420),
+     'af_heart', (1.04, 1.08, (0.54, 0.52), (0.55, 0.47)), ['darklamp2', 'shiplights', 'sea2', 'rain', 'moon'], 'ILLUSTRATED REENACTMENT', 1420),
     ("Its horn sounded. A signal rocket was fired. Nobody answered.",
-     'am_michael', (1.15, 1.3, (0.5, 0.6), (0.62, 0.45)), ['rocket', 'darklamp3'], 'ILLUSTRATED REENACTMENT', 1420),
+     'am_michael', (1.02, 1.07, (0.5, 0.52), (0.52, 0.47)), ['rocket', 'darklamp3'], 'ILLUSTRATED REENACTMENT', 1420),
     ("Lighthouse keeper Joseph Moore went ashore to investigate.",
-     'af_heart', (1.1, 1.3, (0.45, 0.6), (0.65, 0.55)), ['lantern'], 'ILLUSTRATED REENACTMENT', 1420),
+     'af_heart', (1.02, 1.07, (0.5, 0.5), (0.52, 0.52)), ['lantern'], 'ILLUSTRATED REENACTMENT', 1420),
     ("Inside, the station was completely deserted. The lamps were prepared. The machinery was clean. The kitchen was tidy. But two sets of outdoor clothing were missing.",
-     'am_michael', (1.25, 1.35, (0.35, 0.6), (0.75, 0.45)), ['lamps'], 'ILLUSTRATED REENACTMENT', 1420),
+     'am_michael', (1.03, 1.08, (0.49, 0.52), (0.52, 0.49)), ['lamps'], 'ILLUSTRATED REENACTMENT', 1420),
     ("Outside, iron railings were twisted. A massive stone had been dislodged near the landing.",
-     'af_heart', (1.1, 1.3, (0.5, 0.45), (0.45, 0.6)), ['sea6', 'rain'], 'ILLUSTRATED REENACTMENT', 1420),
+     'af_heart', (1.03, 1.07, (0.5, 0.5), (0.5, 0.53)), ['sea6', 'rain'], 'ILLUSTRATED REENACTMENT', 1420),
     ("Investigators believed the three keepers had gone outside to secure equipment when an enormous wave swept them into the ocean.",
-     'am_michael', (1.1, 1.35, (0.5, 0.55), (0.5, 0.42)), ['wave7', 'rain'], 'RECONSTRUCTION · THEORY ONLY', 1420),
+     'am_michael', (1.03, 1.09, (0.5, 0.52), (0.5, 0.48)), ['wave7', 'rain'], 'RECONSTRUCTION · THEORY ONLY', 1420),
     ("Their names were James Ducat, Thomas Marshall, and Donald McArthur. No trace of the three men was ever found. More than a century later, nobody knows exactly what happened during their final moments.",
-     'af_heart', (1.08, 1.3, (0.5, 0.5), (0.5, 0.66)), ['darklamp8'], 'ILLUSTRATIVE PORTRAITS', 1420),
+     'af_heart', (1.03, 1.08, (0.5, 0.48), (0.5, 0.54)), ['darklamp8'], 'ILLUSTRATIVE PORTRAITS', 1420),
 ]
 RED = {'STRANGE', 'DARK', 'NOBODY', 'ANSWERED', 'DESERTED', 'MISSING', 'TWISTED', 'MASSIVE', 'ENORMOUS', 'WAVE', 'OCEAN',
        'TRACE', 'NEVER', 'FOUND', 'KNOWS', '1900,'}
@@ -256,7 +256,7 @@ def render_scene(i, T):
     s, sc = segs[i], SCENES[i]
     lt = min(1, max(0, (T - s['start']) / s['dur']))
     z0, z1, c0, c1 = sc[2]
-    e = ease(min(1, lt / 0.6)) if i == 7 else ease(lt)
+    e = ease(lt)
     z = z0 + (z1 - z0) * e
     cx = (c0[0] + (c1[0] - c0[0]) * e) * W
     cy = (c0[1] + (c1[1] - c0[1]) * e) * H
