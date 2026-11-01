@@ -278,8 +278,10 @@ def render_scene(i, T):
     sec = T - s['start']
     if 'studio' in fx:
         fl = 0.8 + 0.2 * math.sin(T * 11) * math.sin(T * 4.3)
-        glow(f, *P(0.97, 0.97), 90 * z, (255, 170, 80), 0.6 * fl)
-        glow(f, *P(0.3, 0.55), 400, (60, 10, 40), 0.25 + 0.1 * math.sin(T * 1.5))
+        glow(f, *P(0.07, 0.235), 70 * z, (255, 170, 80), 0.7 * fl)
+        fl2 = 0.8 + 0.2 * math.sin(T * 9 + 1) * math.sin(T * 3.7)
+        glow(f, *P(0.93, 0.83), 110 * z, (255, 140, 40), 0.55 * fl2)
+        glow(f, *P(0.5, 0.45), 450, (60, 10, 60), 0.2 + 0.08 * math.sin(T * 1.5))
     if 'darklamp2' in fx:
         for px, py, r in ((0.77, 0.09, 40), (0.78, 0.14, 25), (0.62, 0.27, 60)):
             f *= 1 - 0.8 * gauss(*P(px, py), r * z)
