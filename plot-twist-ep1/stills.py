@@ -10,7 +10,7 @@ PREVIEW = '--preview' in sys.argv
 W, H, FPS, SR = 1080, 1920, 30, 24000
 F_BLACK = '/usr/share/fonts/opentype/inter/Inter-Black.otf'
 FCAP = ImageFont.truetype(F_BLACK, 80)
-FLAB = ImageFont.truetype(F_BLACK, 40)
+FLAB = ImageFont.truetype(F_BLACK, 60)
 FEND = ImageFont.truetype(F_BLACK, 96)
 FSUB = ImageFont.truetype(F_BLACK, 56)
 
@@ -154,6 +154,41 @@ pad = sum(np.sin(2 * np.pi * f_ * tt[:pad_n]) for f_ in (196, 233.1, 293.7, 98))
 pad *= np.minimum(1, tt[:pad_n] / 1.5) * np.minimum(1, (pad_n / SR - tt[:pad_n]) / 1.0)
 place(pad, segs[7]['start'], 0.07)
 place(horn, segs[7]['vo_start'] + segs[7]['vo_dur'] + 0.3, 0.12)
+# original eerie score: D minor i-VI-iv-V at 70 bpm
+beat = 60 / 70
+bar = beat * 4
+chords = [(146.8, 174.6, 220.0), (116.5, 146.8, 174.6), (98.0, 116.5, 146.8), (110.0, 138.6, 164.8)]
+music = np.zeros(N)
+nb = int(TOTAL / bar) + 1
+for b in range(nb):
+    ch = chords[b % 4]
+    a0 = int(b * bar * SR)
+    ln = int(bar * SR * 1.15)
+    seg_t = np.arange(ln) / SR
+    pad_env = np.minimum(1, seg_t / 1.2) * np.minimum(1, np.maximum(0, (bar * 1.15 - seg_t)) / 0.6)
+    padv = sum(np.sin(2 * np.pi * f_ * seg_t) + 0.5 * np.sin(2 * np.pi * f_ * 1.003 * seg_t) for f_ in ch) * pad_env / 6
+    music[a0:a0 + ln] += padv[:max(0, min(ln, N - a0))]
+    bass = np.sin(2 * np.pi * ch[0] / 2 * seg_t) * np.exp(-seg_t / 0.9)
+    for k_ in (0, 2):
+        a1 = a0 + int(k_ * beat * SR)
+        m_ = max(0, min(ln, N - a1))
+        music[a1:a1 + m_] += 0.6 * bass[:m_]
+    arp = [ch[0] * 2, ch[1] * 2, ch[2] * 2, ch[1] * 2, ch[0] * 4, ch[2] * 2, ch[1] * 2, ch[2] * 2]
+    for k_, f_ in enumerate(arp):
+        a1 = a0 + int(k_ * beat / 2 * SR)
+        nl = int(1.5 * SR)
+        nt = np.arange(nl) / SR
+        note = (np.sin(2 * np.pi * f_ * nt) + 0.3 * np.sin(2 * np.pi * f_ * 2 * nt)) * np.exp(-nt / 0.45) * np.minimum(1, nt / 0.004)
+        m_ = max(0, min(nl, N - a1))
+        music[a1:a1 + m_] += 0.35 * note[:m_]
+wet = music.copy()
+for dl, g in ((0.11, 0.35), (0.23, 0.25), (0.37, 0.18), (0.53, 0.12)):
+    n_ = int(dl * SR)
+    wet[n_:] += g * music[:-n_]
+music = lp(3500, wet)
+music /= np.abs(music).max()
+music *= np.minimum(1, tt / 2.0) * np.clip((TOTAL - tt) / 2.5, 0, 1)
+bed += 0.16 * music
 duck = np.convolve(np.abs(narr) > 0.02, np.ones(int(0.25 * SR)) / int(0.25 * SR), 'same')
 mix = np.tanh((narr + bed * (1 - 0.4 * duck)) * 1.1) * 0.95
 sf.write(D + 'mix.wav', mix[:int(TOTAL * SR)], SR)
@@ -342,9 +377,15 @@ def frame(T):
     d = ImageDraw.Draw(out)
     lab = SCENES[i][4]
     if lab and xf > 0.2:
-        tw = d.textlength(lab, font=FLAB)
-        d.rounded_rectangle([W / 2 - tw / 2 - 22, 170, W / 2 + tw / 2 + 22, 232], 12, fill=(0, 0, 0))
-        d.text((W / 2 - tw / 2, 178), lab, font=FLAB, fill=(240, 220, 170))
+        lines = lab.split(' · ')
+        lh = FLAB.size + 14
+        tw = max(d.textlength(l_, font=FLAB) for l_ in lines)
+        y0 = 150
+        d.rounded_rectangle([W / 2 - tw / 2 - 30, y0, W / 2 + tw / 2 + 30, y0 + lh * len(lines) + 24], 16, fill=(0, 0, 0),
+                            outline=(240, 220, 170), width=3)
+        for li, l_ in enumerate(lines):
+            lw = d.textlength(l_, font=FLAB)
+            d.text((W / 2 - lw / 2, y0 + 14 + li * lh), l_, font=FLAB, fill=(240, 220, 170))
     for t0, t1, c, cy in caps:
         if t0 <= T < t1:
             draw_words(d, wrap(c, FCAP, d), cy, FCAP, 98)
