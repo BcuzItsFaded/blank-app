@@ -19,23 +19,23 @@ SCENES = [
     ("What if police discovered eight different names for one dead woman? And not one was hers?",
      'af_heart', (1.0, 1.04, (0.5, 0.5), (0.5, 0.5)), ['studio2'], None, 1700),
     ("November 29th, 1970. A family hiking near Bergen, Norway, discovered a woman's badly burned body.",
-     'am_michael', (0.3, 0.7, 1.0, 1.0), ['mist'], None, 1700),
+     'am_michael', (1.03, 1.08, (0.48, 0.5), (0.53, 0.5)), ['mist'], None, 1620),
     ("Her clothing labels had been removed. Identifying marks on her belongings were scraped away.",
-     'af_heart', (0.5, 0.5, 1.0, 1.0), ['flashlight'], None, 1700),
+     'af_heart', (1.03, 1.08, (0.5, 0.5), (0.5, 0.48)), ['flashlight'], None, 1420),
     ("Investigators found two mysterious suitcases at a railway station. Fingerprint evidence connected them to the dead woman.",
-     'am_michael', (0.2, 0.8, 1.0, 1.0), ['station'], None, 1700),
+     'am_michael', (1.02, 1.1, (0.5, 0.48), (0.5, 0.55)), ['station'], None, 1700),
     ("Inside were wigs, foreign currency, and a notebook containing strange coded entries.",
-     'af_heart', (0.8, 0.2, 1.0, 1.0), ['belongings'], None, 1700),
+     'af_heart', (1.03, 1.08, (0.45, 0.5), (0.55, 0.5)), ['belongings'], None, 820),
     ("Police deciphered the notes, tracing her travels. Hotel records revealed at least eight different identities.",
-     'am_michael', (0.2, 0.8, 1.0, 1.0), ['route'], None, 1700),
+     'am_michael', (1.02, 1.08, (0.5, 0.42), (0.5, 0.55)), ['route'], None, 1050),
     ("Not one name could be confirmed as hers. Some suspected she was a spy, but that theory was never proven.",
-     'af_heart', (0.5, 0.5, 1.0, 1.0), ['lamp'], 'SPY THEORY: NEVER PROVEN', 1700),
+     'af_heart', (1.03, 1.07, (0.5, 0.5), (0.52, 0.5)), ['lamp'], 'SPY THEORY: NEVER PROVEN', 1320),
     ("Investigators traced her movements across Europe. Yet more than fifty years later, nobody knows who she really was.",
-     'am_michael', (0.5, 0.5, 1.0, 1.0), ['platform'], None, 1700),
+     'am_michael', (1.02, 1.08, (0.5, 0.45), (0.5, 0.5)), ['platform'], None, 1040),
 ]
 SPLIT1 = ("What if police discovered eight different names for one dead woman?", "And not one was hers?")
-RED = {'EIGHT', 'DEAD', 'HERS?', 'BURNED', 'REMOVED.', 'REMOVED', 'SCRAPED', 'SUITCASES', 'FINGERPRINT', 'WIGS',
-       'CODED', 'IDENTITIES.', 'IDENTITIES', 'SPY', 'NEVER', 'NOBODY', 'NAMES', 'MYSTERIOUS'}
+RED = {'EIGHT', 'DEAD', 'HERS?', 'BURNED', 'REMOVED.', 'SCRAPED', 'SUITCASES', 'FINGERPRINT', 'WIGS,',
+       'CODED', 'IDENTITIES.', 'SPY,', 'NEVER', 'NOBODY', 'NAMES', 'MYSTERIOUS'}
 
 
 def say(t):
@@ -49,7 +49,7 @@ vo = [kk.create(say(t), voice=v, speed=1.0, lang='en-us')[0] for t, v, *_ in SCE
 _a = kk.create(SPLIT1[0], voice='af_heart', speed=1.0, lang='en-us')[0]
 _b = kk.create(SPLIT1[1], voice='am_michael', speed=1.0, lang='en-us')[0]
 vo = [np.concatenate([_a, np.zeros(int(0.25 * SR)), _b])] + vo
-XF, TAIL = 0.35, 3.2
+XF, TAIL = 0.45, 3.0
 segs, t = [], 0.0
 for i, v in enumerate(vo):
     pre = 0.35 if i == 0 else 0.25
@@ -115,10 +115,8 @@ place(boom, 0.0, 0.4)
 hit_n = int(2.5 * SR)
 sting = (np.sin(2 * np.pi * 70 * tt[:hit_n]) + 0.5 * np.sin(2 * np.pi * 466 * tt[:hit_n]) + 0.5 * np.sin(2 * np.pi * 494 * tt[:hit_n])
          + 0.4 * np.sin(2 * np.pi * 740 * tt[:hit_n])) * env(hit_n, 0.002, 0.8)
-windn = lp(400, brown)
-windn /= np.abs(windn).max()
-region(1, windn, 0.45)
-region(7, windn, 0.25)
+region(1, wind, 0.45)
+region(7, wind, 0.25)
 place(sting, at(1, 0.55), 0.16)
 cl_n = int(0.04 * SR)
 click = white[:cl_n] * env(cl_n, 0.0005, 0.008)
@@ -147,9 +145,51 @@ train = lp(250, white[:train_n]) * (0.5 + 0.5 * (np.sin(2 * np.pi * 2.2 * tt[:tr
 train /= np.abs(train).max()
 place(train, segs[7]['start'], 0.25)
 place(lp(2000, whistle), at(7, 0.1), 0.04)
+pad_n = int(segs[7]['dur'] * SR)
+pad = sum(np.sin(2 * np.pi * f_ * tt[:pad_n]) for f_ in (196, 233.1, 293.7, 98)) / 4
+pad *= np.minimum(1, tt[:pad_n] / 1.5) * np.minimum(1, (pad_n / SR - tt[:pad_n]) / 1.0)
+place(pad, segs[7]['start'], 0.07)
+place(sting, segs[7]['vo_start'] + segs[7]['vo_dur'] + 0.2, 0.2)
 _sil = np.ones(N)
+_s0, _s1 = int((segs[7]['start'] - 0.15) * SR), int((segs[7]['vo_start'] - 0.05) * SR)
+
+# original eerie score: D minor i-VI-iv-V at 70 bpm
+beat = 60 / 70
+bar = beat * 4
+chords = [(146.8, 174.6, 220.0), (116.5, 146.8, 174.6), (98.0, 116.5, 146.8), (110.0, 138.6, 164.8)]
+music = np.zeros(N)
+nb = int(TOTAL / bar) + 1
+for b in range(nb):
+    ch = chords[b % 4]
+    a0 = int(b * bar * SR)
+    ln = int(bar * SR * 1.15)
+    seg_t = np.arange(ln) / SR
+    pad_env = np.minimum(1, seg_t / 1.2) * np.minimum(1, np.maximum(0, (bar * 1.15 - seg_t)) / 0.6)
+    padv = sum(np.sin(2 * np.pi * f_ * seg_t) + 0.5 * np.sin(2 * np.pi * f_ * 1.003 * seg_t) for f_ in ch) * pad_env / 6
+    music[a0:a0 + ln] += padv[:max(0, min(ln, N - a0))]
+    bass = np.sin(2 * np.pi * ch[0] / 2 * seg_t) * np.exp(-seg_t / 0.9)
+    for k_ in (0, 2):
+        a1 = a0 + int(k_ * beat * SR)
+        m_ = max(0, min(ln, N - a1))
+        music[a1:a1 + m_] += 0.6 * bass[:m_]
+    arp = [ch[0] * 2, ch[1] * 2, ch[2] * 2, ch[1] * 2, ch[0] * 4, ch[2] * 2, ch[1] * 2, ch[2] * 2]
+    for k_, f_ in enumerate(arp):
+        a1 = a0 + int(k_ * beat / 2 * SR)
+        nl = int(1.5 * SR)
+        nt = np.arange(nl) / SR
+        note = (np.sin(2 * np.pi * f_ * nt) + 0.3 * np.sin(2 * np.pi * f_ * 2 * nt)) * np.exp(-nt / 0.45) * np.minimum(1, nt / 0.004)
+        m_ = max(0, min(nl, N - a1))
+        music[a1:a1 + m_] += 0.35 * note[:m_]
+wet = music.copy()
+for dl, g in ((0.11, 0.35), (0.23, 0.25), (0.37, 0.18), (0.53, 0.12)):
+    n_ = int(dl * SR)
+    wet[n_:] += g * music[:-n_]
+music = lp(3500, wet)
+music /= np.abs(music).max()
+music *= np.minimum(1, tt / 2.0) * np.clip((TOTAL - tt) / 2.5, 0, 1)
+bed += 0.16 * music
 duck = np.convolve(np.abs(narr) > 0.02, np.ones(int(0.25 * SR)) / int(0.25 * SR), 'same')
-mix = np.tanh((narr + bed * _sil[:N] * (1 - 0.4 * duck)) * 1.1) * 0.95
+mix = np.tanh((narr + bed * _sil * (1 - 0.4 * duck)) * 1.1) * 0.95
 sf.write(D + 'mix.wav', mix[:int(TOTAL * SR)], SR)
 
 caps = []
@@ -171,21 +211,8 @@ for s, sc in zip(segs, SCENES):
         t0 += dd
 
 # ------------------------------------------------------------------ video
-imgs = [Image.open(D + 's1.png').convert('RGB')] + [Image.open(D + f'p{i}.png').convert('RGB') for i in range(2, 9)]
+imgs = [Image.open(D + f's{i + 1}.png').convert('RGB') for i in range(8)]
 HIDDEN = {}
-PY0, PHD = 470, 1059
-BGS = {}
-for _i in range(1, 8):
-    _p = imgs[_i]
-    _sc = max(W / _p.width, H / _p.height)
-    _bg = _p.resize((int(_p.width * _sc) + 1, int(_p.height * _sc) + 1), Image.BICUBIC)
-    _bx = (_bg.width - W) // 2
-    _bg = _bg.crop((_bx, 0, _bx + W, H)).filter(ImageFilter.GaussianBlur(30))
-    BGS[_i] = np.asarray(_bg, np.float32) * 0.32
-    _pw = int(_p.width * PHD / _p.height)
-    imgs[_i] = _p.resize((_pw, PHD), Image.LANCZOS).filter(ImageFilter.UnsharpMask(2, 60, 2))
-FHEAD = ImageFont.truetype(F_BLACK, 54)
-FTAG = ImageFont.truetype(F_BLACK, 34)
 rr = np.random.default_rng(1)
 grains = [rr.normal(0, 5, (H, W, 1)).astype(np.float32) for _ in range(6)]
 yy, xx = np.mgrid[0:H, 0:W].astype(np.float32)
@@ -225,93 +252,7 @@ def warp(f, y0, y1, amp, freq, speed, T):
     f[y0:y1] = f[y0:y1][np.arange(y1 - y0)[:, None], cols]
 
 
-def render_panel(i, T):
-    s, sc = segs[i], SCENES[i]
-    lt = min(1, max(0, (T - s['start']) / s['dur']))
-    sec = T - s['start']
-    p0, p1, z0, z1 = sc[2]
-    fx = sc[3]
-    pim = imgs[i]
-    e = ease(lt)
-    z = z0 + (z1 - z0) * e
-    if 'reveal' in fx:
-        zz = ease((lt - 0.55) / 0.35)
-        z = 1.0 + 1.6 * zz
-    vw, vh = W / z, PHD / z
-    pan = p0 + (p1 - p0) * e
-    fxn, fyn = pan, 0.5
-    if 'reveal' in fx:
-        fxn = 0.3 + 0.35 * ease(lt / 0.5)
-        fyn = 0.5 + (0.45 - 0.5) * zz
-    cxp = fxn * pim.width
-    cyp = fyn * PHD
-    cxp = min(max(cxp, vw / 2), pim.width - vw / 2)
-    cyp = min(max(cyp, vh / 2), PHD - vh / 2)
-    bx, by = cxp - vw / 2, cyp - vh / 2
-    if 'knocks' in fx:
-        for kt in KNOCK_T:
-            dt = sec - (0.15 + (kt - 0.08) * 6)
-            if 0 <= dt < 0.25:
-                bx += math.sin(dt * 90) * 10 * (1 - dt / 0.25)
-    if 'whisper' in fx and lt > 0.55:
-        bx += math.sin(T * 37) * 2
-        by += math.cos(T * 31) * 2
-    bx = min(max(bx, 0), pim.width - vw)
-    by = min(max(by, 0), PHD - vh)
-    view = np.asarray(pim.resize((W, PHD), Image.BICUBIC, box=(bx, by, bx + vw, by + vh)), np.float32).copy()
-    sx = W / vw
-
-    def P(nx, ny):
-        return (nx * pim.width - bx) * sx, (ny * PHD - by) * sx
-    gyp, gxp = np.ogrid[0:PHD, 0:W]
-
-    def pg(px, py, rad):
-        return np.exp(-(((gxp - px) ** 2 + (gyp - py) ** 2) / (2 * rad * rad))).astype(np.float32)[..., None]
-
-    def pglow(px, py, rad, col, amt):
-        view[:] += pg(px, py, rad) * np.array(col, np.float32) * amt
-    if 'mist' in fx:
-        view[:] = view * (1 - 0.12 * pg(*P(0.2 + 0.6 * lt, 0.35), 380)) + pg(*P(0.2 + 0.6 * lt, 0.35), 380) * 30
-        pglow(*P(0.7, 0.12), 200, (120, 140, 190), 0.15)
-    if 'flashlight' in fx:
-        ph = ease(lt)
-        sp = pg(*P(0.3 + 0.45 * math.sin(ph * 2.6), 0.35 + 0.35 * ph), 230)
-        view[:] = view * (0.5 + 0.7 * sp) + sp * np.array([60, 55, 40], np.float32)
-    if 'station' in fx:
-        for j, px in enumerate((0.5, 0.62, 0.74, 0.86)):
-            pglow(*P(px, 0.42), 30, (255, 200, 110), 0.3 + 0.15 * math.sin(T * 5 + j))
-        pglow(*P(0.6, 0.87), 60, (220, 230, 255), 0.25 + 0.2 * math.sin(T * 3))
-    if 'belongings' in fx:
-        pglow(*P(0.5, 0.35), 260, (255, 170, 80), 0.14 + 0.05 * math.sin(T * 7) * math.sin(T * 2.3))
-        for j, (px, py) in enumerate(((0.1, 0.86), (0.2, 0.87), (0.31, 0.88), (0.27, 0.96))):
-            g = max(0, math.sin(T * 2.4 - j * 1.5)) ** 8
-            pglow(*P(px, py), 22, (255, 245, 210), 0.8 * g)
-    if 'route' in fx:
-        for j, (px, py) in enumerate(((0.72, 0.2), (0.88, 0.52), (0.75, 0.6), (0.82, 0.66), (0.97, 0.6), (0.83, 0.84))):
-            on = ease((lt - j * 0.12) / 0.1)
-            pglow(*P(px, py), 26, (255, 40, 40), 0.9 * on * (0.75 + 0.25 * math.sin(T * 5 + j)))
-    if 'lamp' in fx:
-        fl = 0.8 + 0.2 * math.sin(T * 11) * math.sin(T * 4.3)
-        view *= 0.9 + 0.1 * fl
-        pglow(*P(0.72, 0.03), 160, (255, 190, 90), 0.5 * fl)
-    if 'platform' in fx:
-        for j, (px, py) in enumerate(((0.07, 0.07), (0.14, 0.11), (0.2, 0.14))):
-            pglow(*P(px, py), 35, (255, 190, 90), 0.45 * (0.8 + 0.2 * math.sin(T * 6 + j)))
-        view[:] = view * (1 - 0.15 * pg(*P(0.6 - 0.3 * lt, 0.3), 400)) + pg(*P(0.6 - 0.3 * lt, 0.3), 400) * 25
-        pglow(*P(0.87, 0.8), 70, (255, 30, 30), 0.3 + 0.2 * math.sin(T * 3))
-    f = BGS[i].copy()
-    f[PY0:PY0 + PHD] = view
-    f[PY0 - 4:PY0] = [200, 30, 30]
-    f[PY0 + PHD:PY0 + PHD + 4] = [200, 30, 30]
-    if 'platform' in fx:
-        endf = ease((sec - (s['vo_start'] - s['start'] + s['vo_dur'] + 0.6)) / 1.0)
-        f *= 1 - endf
-    return f
-
-
 def render_scene(i, T):
-    if i > 0:
-        return render_panel(i, T)
     s, sc = segs[i], SCENES[i]
     lt = min(1, max(0, (T - s['start']) / s['dur']))
     z0, z1, c0, c1 = sc[2]
@@ -343,42 +284,37 @@ def render_scene(i, T):
         fl = 0.8 + 0.2 * math.sin(T * 11) * math.sin(T * 4.3)
         glow(f, *P(0.035, 0.295), 60 * z, (255, 170, 80), 0.7 * fl)
         glow(f, *P(0.86, 0.247), 50 * z, (170, 185, 230), 0.35 + 0.1 * math.sin(T * 2))
-    if 'studio' in fx:
+    if 'mist' in fx:
+        g = gauss(*P(0.2 + 0.6 * lt, 0.3), 380 * z)
+        f[:] = f * (1 - 0.15 * g) + g * 35
+        glow(f, *P(0.7, 0.2), 200 * z, (120, 140, 190), 0.12)
+    if 'flashlight' in fx:
+        ph = ease(lt)
+        sp = gauss(*P(0.25 + 0.5 * math.sin(ph * 2.6), 0.3 + 0.35 * ph), 260 * z)
+        f[:] = f * (0.55 + 0.6 * sp) + sp * np.array([60, 55, 40], np.float32)
+    if 'station' in fx:
+        glow(f, *P(0.42, 0.09), 80 * z, (255, 190, 90), 0.55 * (0.8 + 0.2 * math.sin(T * 9) * math.sin(T * 3)))
+        for j, px in enumerate((0.7, 0.8, 0.9)):
+            glow(f, *P(px, 0.2), 40 * z, (255, 200, 110), 0.25 + 0.12 * math.sin(T * 5 + j))
+    if 'belongings' in fx:
+        glow(f, *P(0.63, 0.24), 90 * z, (255, 190, 90), 0.55 * (0.8 + 0.2 * math.sin(T * 7) * math.sin(T * 2.3)))
+        for j, (px, py) in enumerate(((0.08, 0.6), (0.12, 0.66), (0.06, 0.7))):
+            g_ = max(0, math.sin(T * 2.4 - j * 1.5)) ** 8
+            glow(f, *P(px, py), 22 * z, (255, 245, 210), 0.8 * g_)
+    if 'route' in fx:
+        glow(f, *P(0.19, 0.06), 70 * z, (255, 170, 80), 0.6 * (0.8 + 0.2 * math.sin(T * 11) * math.sin(T * 4)))
+        for j, (px, py) in enumerate(((0.58, 0.19), (0.53, 0.24), (0.67, 0.25), (0.72, 0.28), (0.61, 0.28), (0.52, 0.31), (0.75, 0.34))):
+            on = ease((lt - j * 0.1) / 0.08)
+            glow(f, *P(px, py), 22 * z, (255, 40, 40), 0.9 * on * (0.75 + 0.25 * math.sin(T * 5 + j)))
+    if 'lamp' in fx:
         fl = 0.8 + 0.2 * math.sin(T * 11) * math.sin(T * 4.3)
-        glow(f, *P(0.05, 0.17), 60 * z, (255, 170, 80), 0.6 * fl)
-        glow(f, *P(0.17, 0.82), 50 * z, (255, 190, 90), 0.7 * (0.75 + 0.25 * math.sin(T * 13) * math.sin(T * 5)))
-        glow(f, *P(0.37, 0.23), 45 * z, (170, 185, 230), 0.4 + 0.1 * math.sin(T * 2))
-        warp(f, Y(0.32), Y(0.4), 2, 6, 3, T)
-    if 'harbor' in fx:
-        fl = 0.8 + 0.2 * math.sin(T * 10) * math.sin(T * 3.3)
-        glow(f, *P(0.1, 0.36), 50 * z, (255, 190, 90), 0.6 * fl)
-        glow(f, *P(0.3, 0.45), 200 * z, (255, 140, 60), 0.2 + 0.05 * math.sin(T * 1.2))
-        warp(f, Y(0.47), Y(0.55), 2, 5, 2.5, T)
-    if 'lookout' in fx:
-        warp(f, Y(0.38), Y(0.6), 4, 9, 2.8, T)
-        glow(f, *P(0.73, 0.25), 80 * z, (180, 195, 235), 0.35 + 0.1 * math.sin(T * 1.6))
-        glow(f, *P(0.15, 0.77), 70 * z, (255, 190, 90), 0.55 * (0.8 + 0.2 * math.sin(T * 11) * math.sin(T * 4)))
-        f *= 1 - 0.18 * gauss(*P(0.3 + 0.4 * lt, 0.2), 300 * z)
-    if 'deck' in fx:
-        glow(f, *P(0.6, 0.47), 70 * z, (255, 190, 90), 0.6 * (0.8 + 0.2 * math.sin(T * 9) * math.sin(T * 3.1)))
-        glow(f, *P(0.63, 0.06), 70 * z, (180, 195, 235), 0.35)
-        glow(f, *P(0.6, 0.38), 140 * z, (90, 70, 40), 0.2 + 0.1 * math.sin(T * 1.5))
-    if 'quarters' in fx:
-        glow(f, *P(0.17, 0.72), 70 * z, (255, 190, 90), 0.6 * (0.8 + 0.2 * math.sin(T * 10) * math.sin(T * 3.7)))
-        glow(f, *P(0.77, 0.36), 60 * z, (255, 190, 90), 0.5 * (0.8 + 0.2 * math.sin(T * 8 + 1)))
-        f *= 1 + 0.03 * math.sin(T * 0.9)
-    if 'hold' in fx:
-        warp(f, Y(0.74), Y(0.97), 4, 6, 3.2, T)
-        glow(f, *P(0.48, 0.38), 120 * z, (255, 40, 40), 0.25 + 0.2 * math.sin(T * 3))
-        glow(f, *P(0.85, 0.37), 50 * z, (255, 190, 90), 0.5)
-        glow(f, *P(0.42, 0.3), 60 * z, (180, 195, 235), 0.3)
-    if 'logbook' in fx:
-        fl = 0.8 + 0.2 * math.sin(T * 11) * math.sin(T * 4.3)
-        glow(f, *P(0.15, 0.38), 90 * z, (255, 190, 90), 0.6 * fl)
-        glow(f, *P(0.5, 0.5), 300 * z, (90, 60, 20), 0.18 * fl)
-    if 'gibraltar' in fx:
-        glow(f, *P(0.5, 0.35), 300 * z, (110, 120, 170), 0.2 * ease((lt - 0.1) / 0.5))
-        warp(f, Y(0.72), Y(0.8), 2, 5, 2.5, T)
+        f *= 0.92 + 0.08 * fl
+        glow(f, *P(0.9, 0.54), 90 * z, (255, 190, 90), 0.55 * fl)
+    if 'platform' in fx:
+        for j, (px, py) in enumerate(((0.3, 0.05), (0.18, 0.2), (0.88, 0.33))):
+            glow(f, *P(px, py), 45 * z, (255, 190, 90), 0.4 * (0.8 + 0.2 * math.sin(T * 6 + j)))
+        g = gauss(*P(0.7 - 0.3 * lt, 0.3), 400 * z)
+        f[:] = f * (1 - 0.15 * g) + g * 25
     if i == 7:
         endf = ease((sec - (s['vo_start'] - s['start'] + s['vo_dur'] + 1.0)) / 1.2)
         f *= 1 - endf
@@ -427,11 +363,6 @@ def frame(T):
         f *= T / 0.15
     out = Image.fromarray(np.clip(f, 0, 255).astype(np.uint8))
     d = ImageDraw.Draw(out)
-    if i > 0 and not (i == 7 and T > segs[7]['vo_start'] + segs[7]['vo_dur'] + 1.2):
-        hw = d.textlength('THE WOMAN WITH EIGHT NAMES', font=FHEAD)
-        d.text((W / 2 - hw / 2, 290), 'THE WOMAN WITH EIGHT NAMES', font=FHEAD, fill=(225, 30, 30), stroke_width=8, stroke_fill=(0, 0, 0))
-        tw2 = d.textlength('TRUE STORY · ILLUSTRATED REENACTMENT', font=FTAG)
-        d.text((W / 2 - tw2 / 2, 388), 'TRUE STORY · ILLUSTRATED REENACTMENT', font=FTAG, fill=(220, 210, 190))
     lab = SCENES[i][4]
     if lab and xf > 0.2:
         lines = lab.split(' · ')
@@ -447,10 +378,12 @@ def frame(T):
         if t0 <= T < t1:
             draw_words(d, wrap(c, FCAP, d), cy, FCAP, 98)
     s = segs[7]
-    if i == 7 and T > s['vo_start'] + s['vo_dur'] + 1.7:
-        draw_words(d, [['NOBODY', 'KNOWS'], ['WHO', 'SHE', 'WAS']], H / 2 - 120, FEND, 118)
-        tw3 = d.textlength('THE ISDAL WOMAN · UNIDENTIFIED SINCE 1970', font=FTAG)
-        d.text((W / 2 - tw3 / 2, H / 2 + 140), 'THE ISDAL WOMAN · UNIDENTIFIED SINCE 1970', font=FTAG, fill=(220, 210, 190))
+    if i == 7 and T > s['vo_start'] + s['vo_dur'] + 1.9:
+        draw_words(d, [['NOBODY', 'KNOWS'], ['WHO', 'SHE', 'WAS']], H / 2 - 110, FEND, 118)
+        _t = 'THE ISDAL WOMAN · UNIDENTIFIED SINCE 1970'
+        _F = ImageFont.truetype(F_BLACK, 40)
+        _w = d.textlength(_t, font=_F)
+        d.text((W / 2 - _w / 2, H / 2 + 120), _t, font=_F, fill=(240, 230, 215), stroke_width=5, stroke_fill=(0, 0, 0))
         tw = d.textlength('PLOT TWIST WITH A&R', font=FSUB)
         d.text((W / 2 - tw / 2, H / 2 + 230), 'PLOT TWIST WITH A&R', font=FSUB, fill=(235, 35, 35), stroke_width=8, stroke_fill=(0, 0, 0))
     return out
