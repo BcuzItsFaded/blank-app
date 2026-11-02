@@ -100,6 +100,9 @@ Per scene tuple: `(exact narration, voice, camera, [effects], label, caption_y)`
   `0.55` under speech, music at `0.13`. After rendering, run
   `ffmpeg -i in.mp4 -c:v copy -af "loudnorm=I=-14:TP=-1.0:LRA=11" -c:a aac -b:a 192k out.mp4`
   so the Reel plays at social-media loudness (the user asked for louder voices).
+- **Keep images bright and visible:** grain 2.5, vignette 0.18, then after `f *= vign` apply a
+  brightness lift `f = 255*(f/255)**0.82*1.06` and +8% saturation. Effects must not dim the picture
+  much (flashlight floor ≥0.85, darkening ≤10%). The user asked for "more visible" images.
 - **More motion:** every scene gets a slow handheld drift (`cx += sin(T*0.7+i)*8`) on top of its
   push/pan; add flashes, strobes and shakes on impact beats.
 - **If the user supplies a branded intro image** (small A&R logo + title), use it as Scene 1 instead

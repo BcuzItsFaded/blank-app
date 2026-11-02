@@ -252,9 +252,9 @@ for s, sc in zip(segs, SCENES):
 imgs = [Image.open(D + f's{i + 1}.png').convert('RGB') for i in range(8)]
 HIDDEN = {}
 rr = np.random.default_rng(1)
-grains = [rr.normal(0, 5, (H, W, 1)).astype(np.float32) for _ in range(6)]
+grains = [rr.normal(0, 2.5, (H, W, 1)).astype(np.float32) for _ in range(6)]
 yy, xx = np.mgrid[0:H, 0:W].astype(np.float32)
-vign = (1 - 0.45 * (np.sqrt(((xx - W / 2) / (W / 2)) ** 2 + ((yy - H / 2) / (H / 2)) ** 2) / math.sqrt(2)) ** 2.2)[..., None]
+vign = (1 - 0.18 * (np.sqrt(((xx - W / 2) / (W / 2)) ** 2 + ((yy - H / 2) / (H / 2)) ** 2) / math.sqrt(2)) ** 2.2)[..., None]
 rains = []
 for k in range(4):
     L = Image.new('L', (W, H), 0)
@@ -341,16 +341,16 @@ def render_scene(i, T):
         f[..., 0] *= 1 + 0.06 * red
         f[..., 2] *= 1 + 0.06 * (1 - red)
     if 'doorway' in fx:
-        f *= 1 - 0.3 * ease(lt)
+        f *= 1 - 0.1 * ease(lt)
         glow(f, *P(0.65, 0.2), 200 * z, (255, 210, 180), 0.12 * (1 - ease(lt)))
     if 'room' in fx:
         fl = 0.8 + 0.2 * math.sin(T * 9) * math.sin(T * 3.3)
         glow(f, *P(0.17, 0.13), 110 * z, (255, 190, 90), 0.55 * fl)
-        f *= 0.93 + 0.07 * fl
+        f *= 0.97 + 0.03 * fl
     if 'flashlight' in fx:
         ph = ease(lt)
         sp = gauss(*P(0.25 + 0.5 * math.sin(ph * 2.6), 0.3 + 0.4 * ph), 280 * z)
-        f[:] = f * (0.5 + 0.7 * sp) + sp * np.array([60, 55, 40], np.float32)
+        f[:] = f * (0.85 + 0.35 * sp) + sp * np.array([60, 55, 40], np.float32)
     if 'street' in fx:
         glow(f, *P(0.5, 0.05), 250 * z, (255, 220, 160), 0.18 + 0.05 * math.sin(T * 1.5))
         sh = (gx - P(0.3 + 0.4 * lt, 0)[0]) / (90 * z)
@@ -416,6 +416,9 @@ def frame(T):
         if i in (2, 6):
             f += 160 * (1 - abs(a - 0.5) * 2)
     f *= vign
+    f = 255.0 * np.power(np.clip(f, 0, 255) / 255.0, 0.82) * 1.06
+    _l = f.mean(axis=2, keepdims=True)
+    f = _l + (f - _l) * 1.08
     f += grains[int(T * FPS) % 6]
     if T < 0.15:
         f *= T / 0.15
