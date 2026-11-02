@@ -442,7 +442,7 @@ def frame(T):
     if i == 7 and T > s['vo_start'] + s['vo_dur'] + 1.9:
         draw_words(d, [['THE', 'LADY'], ['OF', 'SILENCE']], H / 2 - 110, FEND, 118)
         _t = 'JUANA BARRAZA · CONVICTED OF 16 MURDERS (2008)'
-        _F = ImageFont.truetype(F_BLACK, 38)
+        _F = ImageFont.truetype(F_BLACK, 46)
         _w = d.textlength(_t, font=_F)
         d.text((W / 2 - _w / 2, H / 2 + 120), _t, font=_F, fill=(240, 230, 215), stroke_width=5, stroke_fill=(0, 0, 0))
         tw = d.textlength('PLOT TWIST WITH A&R', font=FSUB)
