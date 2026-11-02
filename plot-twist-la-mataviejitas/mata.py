@@ -17,21 +17,21 @@ FSUB = ImageFont.truetype(F_BLACK, 56)
 # (narration, voice, camera (z0, z1, (cx0, cy0), (cx1, cy1)), effects, label, caption y)
 SCENES = [
     ("Someone was murdering elderly women in Mexico City. And the victims were letting the killer inside.",
-     'af_heart', (1.0, 1.06, (0.5, 0.5), (0.5, 0.47)), ['intro'], None, 520),
+     'af_heart', (1.0, 1.03, (0.5, 0.5), (0.5, 0.5)), ['intro'], None, 520),
     ("In the early 2000s, elderly women were being found dead inside their homes. Fear spread across the capital.",
-     'am_michael', (1.08, 1.08, (0.42, 0.5), (0.58, 0.5)), ['sirens'], None, 1640),
+     'am_michael', (1.0, 1.03, (0.5, 0.5), (0.5, 0.5)), ['sirens'], None, 1640),
     ("The killer sometimes pretended to be a nurse or social worker, offering assistance to women living alone.",
-     'af_heart', (1.0, 1.12, (0.5, 0.5), (0.62, 0.42)), ['doorway'], None, 1640),
+     'af_heart', (1.0, 1.03, (0.5, 0.5), (0.5, 0.5)), ['doorway'], None, 1640),
     ("Once inside, the visitor attacked. Police desperately searched for someone the newspapers called La Mataviejitas.",
-     'am_michael', (1.08, 1.1, (0.35, 0.5), (0.62, 0.48)), ['room'], None, 1180),
+     'am_michael', (1.0, 1.03, (0.5, 0.5), (0.5, 0.5)), ['room'], None, 1180),
     ("Investigators collected fingerprints, but their early assumptions about the killer's identity led them astray.",
-     'af_heart', (1.02, 1.1, (0.5, 0.5), (0.55, 0.55)), ['flashlight'], None, 1680),
+     'af_heart', (1.0, 1.03, (0.5, 0.5), (0.5, 0.5)), ['flashlight'], None, 1680),
     ("On January 25th, 2006, a witness saw a woman leaving the home of an 82-year-old victim.",
-     'am_michael', (1.0, 1.12, (0.5, 0.55), (0.56, 0.4)), ['street'], None, 1640),
+     'am_michael', (1.0, 1.03, (0.5, 0.5), (0.5, 0.5)), ['street'], None, 1640),
     ("Police arrested Juana Barraza. Investigators connected her fingerprints to multiple murders.",
-     'af_heart', (1.0, 1.12, (0.5, 0.45), (0.55, 0.62)), ['arrest'], None, 1280),
+     'af_heart', (1.0, 1.03, (0.5, 0.5), (0.5, 0.5)), ['arrest'], None, 1280),
     ("The terrifying twist? The killer was also a masked wrestler called The Lady of Silence. She was convicted of sixteen murders.",
-     'am_michael', (1.0, 1.1, (0.5, 0.55), (0.5, 0.35)), ['ring'], None, 1180),
+     'am_michael', (1.0, 1.03, (0.5, 0.5), (0.5, 0.5)), ['ring'], None, 1180),
 ]
 SPLIT1 = ("Someone was murdering elderly women in Mexico City.", "And the victims were letting the killer inside.")
 RED = {'MURDERING', 'KILLER', 'INSIDE.', 'DEAD', 'FEAR', 'NURSE', 'ALONE.', 'ATTACKED.', 'MATAVIEJITAS.', 'FINGERPRINTS,',
@@ -299,8 +299,8 @@ def render_scene(i, T):
     cx = (c0[0] + (c1[0] - c0[0]) * e) * W
     cy = (c0[1] + (c1[1] - c0[1]) * e) * H
     fx = sc[3]
-    cx += math.sin(T * 0.7 + i) * 8
-    cy += math.cos(T * 0.55 + i) * 6
+    cx += math.sin(T * 0.7 + i) * 4
+    cy += math.cos(T * 0.55 + i) * 3
     if 'arrest' in fx:
         for x in FLASH_T:
             dc = (T - s['start']) - x * s['dur']
@@ -441,12 +441,12 @@ def frame(T):
     s = segs[7]
     if i == 7 and T > s['vo_start'] + s['vo_dur'] + 1.9:
         draw_words(d, [['THE', 'LADY'], ['OF', 'SILENCE']], H / 2 - 110, FEND, 118)
-        _t = 'JUANA BARRAZA · CONVICTED OF 16 MURDERS (2008)'
         _F = ImageFont.truetype(F_BLACK, 46)
-        _w = d.textlength(_t, font=_F)
-        d.text((W / 2 - _w / 2, H / 2 + 120), _t, font=_F, fill=(240, 230, 215), stroke_width=5, stroke_fill=(0, 0, 0))
+        for _j, _t in enumerate(('JUANA BARRAZA', 'CONVICTED OF 16 MURDERS (2008)')):
+            _w = d.textlength(_t, font=_F)
+            d.text((W / 2 - _w / 2, H / 2 + 110 + _j * 60), _t, font=_F, fill=(240, 230, 215), stroke_width=5, stroke_fill=(0, 0, 0))
         tw = d.textlength('PLOT TWIST WITH A&R', font=FSUB)
-        d.text((W / 2 - tw / 2, H / 2 + 230), 'PLOT TWIST WITH A&R', font=FSUB, fill=(235, 35, 35), stroke_width=8, stroke_fill=(0, 0, 0))
+        d.text((W / 2 - tw / 2, H / 2 + 270), 'PLOT TWIST WITH A&R', font=FSUB, fill=(235, 35, 35), stroke_width=8, stroke_fill=(0, 0, 0))
     return out
 
 
