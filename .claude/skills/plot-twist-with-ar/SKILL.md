@@ -96,6 +96,14 @@ Per scene tuple: `(exact narration, voice, camera, [effects], label, caption_y)`
   "sudden silence" reveal = zero the bed for that span (see `_sil` in `rnd.py`).
 - **Ending:** fade to black, then end card text + **"PLOT TWIST WITH A&R"**.
 - Target 50–62s. Adjust `speed=` (0.95–1.15) rather than cutting words.
+- **Voices louder than the bed:** narration normalized to 1.0, mixed at `1.15 * narr`, bed ducked
+  `0.55` under speech, music at `0.13`. After rendering, run
+  `ffmpeg -i in.mp4 -c:v copy -af "loudnorm=I=-14:TP=-1.0:LRA=11" -c:a aac -b:a 192k out.mp4`
+  so the Reel plays at social-media loudness (the user asked for louder voices).
+- **More motion:** every scene gets a slow handheld drift (`cx += sin(T*0.7+i)*8`) on top of its
+  push/pan; add flashes, strobes and shakes on impact beats.
+- **If the user supplies a branded intro image** (small A&R logo + title), use it as Scene 1 instead
+  of the generic opener; fix the episode number on it if it's wrong.
 
 ### Render loop
 1. `python3 <script>.py x --preview` → open `preview.png` (two frames per scene + end). Fix framing,
