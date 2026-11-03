@@ -1,0 +1,551 @@
+{
+  "meta": {
+    "brand": "Plot Twist with A&R",
+    "title": "The Island of the Dolls — Plot Twist with A&R",
+    "fps": 30,
+    "width": 1080,
+    "height": 1920,
+    "duration": 60,
+    "source": "User script + 8-panel storyboard (source/storyboard.png); narration used verbatim",
+    "speakers": {
+      "wife": {
+        "voice": "voices/en_US-lessac-high.onnx",
+        "color": "#ff8ad8"
+      },
+      "you": {
+        "voice": "voices/en_US-ryan-high.onnx",
+        "color": "#9fe0ff"
+      }
+    }
+  },
+  "scenes": [
+    {
+      "id": 1,
+      "name": "Hosts — the island",
+      "start": 0,
+      "dur": 7,
+      "lines": [
+        {
+          "speaker": "wife",
+          "text": "Deep in Mexico City’s canals, there’s an island covered in broken dolls."
+        },
+        {
+          "speaker": "you",
+          "text": "And it’s real."
+        }
+      ],
+      "tag": "REAL PLACE",
+      "note": "Isla de las Muñecas · Xochimilco, Mexico City",
+      "camera": [
+        [
+          0,
+          1.0,
+          0.5,
+          0.5
+        ],
+        [
+          2.5,
+          1.02,
+          0.5,
+          0.5
+        ],
+        [
+          7,
+          1.18,
+          0.55,
+          0.62
+        ]
+      ],
+      "fx": {
+        "shimmer": 0.74,
+        "lantern": [
+          [
+            0.57,
+            0.6
+          ]
+        ],
+        "mist": 0.7,
+        "fireflies": 14
+      },
+      "transitionOut": "dissolve",
+      "cues": [
+        [
+          0.0,
+          "sting_open"
+        ],
+        [
+          5.0,
+          "real_hit"
+        ]
+      ]
+    },
+    {
+      "id": 2,
+      "name": "Julián arrives",
+      "start": 7,
+      "dur": 8,
+      "lines": [
+        {
+          "speaker": "wife",
+          "text": "In the 1950s, Julián Santana Barrera moved to a small island in Xochimilco, surrounded by quiet waterways."
+        }
+      ],
+      "spoken": [
+        "In the nineteen fifties, Julián Santana Barrera moved to a small island in Sochimilco, surrounded by quiet waterways."
+      ],
+      "tag": "DOCUMENTED",
+      "note": "Julián Santana Barrera moved to the island in the 1950s",
+      "camera": [
+        [
+          0,
+          1.08,
+          0.42,
+          0.55
+        ],
+        [
+          8,
+          1.26,
+          0.7,
+          0.36
+        ]
+      ],
+      "fx": {
+        "shimmer": 0.45,
+        "ripples": [
+          [
+            0.85,
+            0.88
+          ]
+        ],
+        "mist": 0.42,
+        "bob": 1
+      },
+      "transitionOut": "dissolve",
+      "cues": [
+        [
+          0.6,
+          "paddle"
+        ],
+        [
+          2.3,
+          "paddle"
+        ],
+        [
+          4.0,
+          "paddle"
+        ],
+        [
+          5.7,
+          "paddle"
+        ],
+        [
+          1.2,
+          "canoe_creak"
+        ]
+      ]
+    },
+    {
+      "id": 3,
+      "name": "The legend of the girl",
+      "start": 15,
+      "dur": 8,
+      "lines": [
+        {
+          "speaker": "you",
+          "text": "According to local legend, a young girl drowned nearby. Julián believed her spirit remained there."
+        }
+      ],
+      "tag": "LOCAL LEGEND",
+      "note": "The drowned-girl story has never been verified",
+      "camera": [
+        [
+          0,
+          1.22,
+          0.24,
+          0.32
+        ],
+        [
+          3.5,
+          1.22,
+          0.3,
+          0.36
+        ],
+        [
+          8,
+          1.3,
+          0.78,
+          0.5
+        ]
+      ],
+      "fx": {
+        "shimmer": 0.62,
+        "mist": 0.6,
+        "fireflies": 10,
+        "crossGlow": [
+          0.84,
+          0.4
+        ],
+        "reflection": [
+          0.81,
+          0.77
+        ]
+      },
+      "transitionOut": "dissolve",
+      "cues": [
+        [
+          0.0,
+          "drone_low"
+        ],
+        [
+          3.4,
+          "girl_hum"
+        ],
+        [
+          6.2,
+          "water_drip"
+        ]
+      ]
+    },
+    {
+      "id": 4,
+      "name": "The first dolls",
+      "start": 23,
+      "dur": 7,
+      "lines": [
+        {
+          "speaker": "wife",
+          "text": "He began hanging discarded dolls in the trees, hoping they would protect him from the supposed presence."
+        }
+      ],
+      "tag": "DOCUMENTED",
+      "note": "He hung discarded dolls in the trees around his home",
+      "camera": [
+        [
+          0,
+          1.1,
+          0.3,
+          0.3
+        ],
+        [
+          7,
+          1.28,
+          0.62,
+          0.4
+        ]
+      ],
+      "fx": {
+        "sway": [
+          [
+            0.6,
+            0.2,
+            0.96,
+            0.84,
+            0.71,
+            0.2,
+            2.2,
+            3.4
+          ]
+        ],
+        "leaves": 10
+      },
+      "transitionOut": "dissolve",
+      "cues": [
+        [
+          0.8,
+          "rope_creak"
+        ],
+        [
+          3.2,
+          "rope_creak"
+        ],
+        [
+          0.0,
+          "leaves_rustle"
+        ]
+      ]
+    },
+    {
+      "id": 5,
+      "name": "Decades of dolls",
+      "start": 30,
+      "dur": 8,
+      "lines": [
+        {
+          "speaker": "you",
+          "text": "For decades, he collected them from canals and trash. Rain cracked their faces. Trees filled with staring eyes."
+        }
+      ],
+      "tag": "DOCUMENTED",
+      "note": "He collected dolls from canals and trash for decades",
+      "camera": [
+        [
+          0,
+          1.1,
+          0.55,
+          0.62
+        ],
+        [
+          4.5,
+          1.16,
+          0.5,
+          0.45
+        ],
+        [
+          8,
+          1.42,
+          0.17,
+          0.18
+        ]
+      ],
+      "fx": {
+        "rain": 1,
+        "eyes": [
+          [
+            0.1,
+            0.165
+          ],
+          [
+            0.19,
+            0.175
+          ]
+        ],
+        "eyesWord": 15,
+        "sway": [
+          [
+            0.62,
+            0.02,
+            0.95,
+            0.34,
+            0.78,
+            0.02,
+            1.6,
+            4.1
+          ]
+        ]
+      },
+      "transitionOut": "dissolve",
+      "cues": [
+        [
+          0.0,
+          "rain_bed"
+        ],
+        [
+          3.2,
+          "thunder_far"
+        ],
+        [
+          6.0,
+          "eyes_sting"
+        ]
+      ]
+    },
+    {
+      "id": 6,
+      "name": "Visitors",
+      "start": 38,
+      "dur": 7,
+      "lines": [
+        {
+          "speaker": "wife",
+          "text": "Visitors came to see the disturbing collection. Some claimed the dolls whispered or moved, but no haunting was ever verified."
+        }
+      ],
+      "tag": "CLAIMS ONLY",
+      "note": "Whispering and moving dolls are visitor claims, never verified",
+      "camera": [
+        [
+          0,
+          1.1,
+          0.45,
+          0.5
+        ],
+        [
+          7,
+          1.22,
+          0.55,
+          0.3
+        ]
+      ],
+      "fx": {
+        "flash": [
+          [
+            0.4,
+            0.3,
+            1.1
+          ],
+          [
+            0.4,
+            0.3,
+            4.3
+          ]
+        ],
+        "phone": [
+          0.82,
+          0.43
+        ],
+        "sway": [
+          [
+            0.55,
+            0.0,
+            0.85,
+            0.36,
+            0.7,
+            0.0,
+            1.8,
+            2.6
+          ]
+        ],
+        "whisperMove": 1
+      },
+      "transitionOut": "dissolve",
+      "cues": [
+        [
+          1.1,
+          "shutter"
+        ],
+        [
+          4.3,
+          "shutter"
+        ],
+        [
+          2.6,
+          "phone_click"
+        ],
+        [
+          3.0,
+          "whispers"
+        ]
+      ]
+    },
+    {
+      "id": 7,
+      "name": "Julián dies",
+      "start": 45,
+      "dur": 7,
+      "lines": [
+        {
+          "speaker": "you",
+          "text": "In 2001, Julián died. Accounts differ about how he died. But his island of dolls remained."
+        }
+      ],
+      "spoken": [
+        "In two thousand one, Julián died. Accounts differ about how he died. But his island of dolls remained."
+      ],
+      "tag": "DOCUMENTED",
+      "note": "Died in 2001 · accounts of how he died differ",
+      "camera": [
+        [
+          0,
+          1.3,
+          0.36,
+          0.34
+        ],
+        [
+          3.5,
+          1.22,
+          0.32,
+          0.5
+        ],
+        [
+          7,
+          1.14,
+          0.42,
+          0.62
+        ]
+      ],
+      "fx": {
+        "lantern": [
+          [
+            0.36,
+            0.31
+          ]
+        ],
+        "lanternFade": 2.0,
+        "mist": 0.85,
+        "fireflies": 8
+      },
+      "transitionOut": "twist",
+      "cues": [
+        [
+          0.3,
+          "bell"
+        ],
+        [
+          3.6,
+          "bell_soft"
+        ]
+      ]
+    },
+    {
+      "id": 8,
+      "name": "The real twist",
+      "start": 52,
+      "dur": 8,
+      "lines": [
+        {
+          "speaker": "wife",
+          "text": "The dolls are real. The island is real. But no official record has been found confirming the girl whose ghost supposedly started everything."
+        }
+      ],
+      "tag": "THE TWIST",
+      "note": "No official record of the drowned girl has been found",
+      "camera": [
+        [
+          0,
+          1.08,
+          0.5,
+          0.55
+        ],
+        [
+          3.8,
+          1.12,
+          0.5,
+          0.5
+        ],
+        [
+          8,
+          1.5,
+          0.82,
+          0.24
+        ]
+      ],
+      "fx": {
+        "shimmer": 0.7,
+        "lantern": [
+          [
+            0.33,
+            0.55
+          ]
+        ],
+        "sway": [
+          [
+            0.66,
+            0.04,
+            0.98,
+            0.5,
+            0.8,
+            0.02,
+            2.8,
+            3.0
+          ]
+        ],
+        "mist": 0.68
+      },
+      "transitionOut": "none",
+      "cues": [
+        [
+          0.0,
+          "twist_hit"
+        ],
+        [
+          4.0,
+          "twist_turn"
+        ],
+        [
+          7.3,
+          "final_creak"
+        ]
+      ]
+    }
+  ]
+}
