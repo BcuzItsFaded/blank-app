@@ -78,159 +78,307 @@ def prisoner(i):
 
 
 # ------------------------------------------------------------------ the creature
-def xeno(ctx, x, y, s, t, walk=None, facing=1, crouch=0.0, jaw=0.0, glow=0.0, alpha=1.0, color=hx("#1c1c24"), rear=0.0):
-    """Four-legged runner Xenomorph, side view (head to the right), feet at (x, y). rear: 0..1 rears up on hind legs."""
+def _bez(pts, f):
+    p0, p1, p2, p3 = pts
+    u = 1 - f
+    return (u ** 3 * p0[0] + 3 * u * u * f * p1[0] + 3 * u * f * f * p2[0] + f ** 3 * p3[0],
+            u ** 3 * p0[1] + 3 * u * u * f * p1[1] + 3 * u * f * f * p2[1] + f ** 3 * p3[1])
+
+
+def _teeth(ctx, x0, x1, y, h, n, up=False):
+    ctx.set_source_rgb(0.9, 0.92, 0.96)
+    step = (x1 - x0) / n
+    for k in range(n):
+        tx = x0 + k * step
+        ctx.move_to(tx, y)
+        ctx.line_to(tx + step * 0.5, y + (-h if up else h))
+        ctx.line_to(tx + step, y)
+        ctx.close_path()
+    ctx.fill()
+
+
+def xeno_skull(ctx, t, color, jaw, strike, hiss, scale=1.0):
+    """The long head in profile, origin at the back of the neck. Drawn facing +x."""
+    sheen = (0.78, 0.86, 1.0)
+    jd = 34 * jaw
+    lip = 12 * hiss
+    # lower jaw (behind the dome)
+    ctx.new_path()
+    ctx.move_to(170, 70)
+    ctx.curve_to(260, 92 + jd, 360, 96 + jd, 420, 70 + jd)
+    ctx.line_to(400, 55)
+    ctx.curve_to(330, 70, 250, 70, 170, 55)
+    ctx.close_path()
+    fs(ctx, C.mix(color, (0.25, 0.25, 0.3), 0.35), 4, ink=RIM)
+    _teeth(ctx, 300, 410, 62 + jd * 0.8, 16 + lip, 8, up=True)
+    # inner jaw striking out of the mouth
+    if strike > 0:
+        ex = 400 + 150 * strike
+        ctx.new_path()
+        ctx.move_to(330, 52 + jd * 0.5)
+        ctx.line_to(ex, 50 + jd * 0.4)
+        ctx.set_line_width(26)
+        src(ctx, RIM)
+        ctx.stroke_preserve()
+        ctx.set_line_width(19)
+        src(ctx, C.mix(color, (0.35, 0.3, 0.35), 0.4))
+        ctx.stroke()
+        rrect(ctx, ex - 6, 32 + jd * 0.4, 34, 36, 8)
+        fs(ctx, C.mix(color, (0.3, 0.3, 0.35), 0.3), 3, ink=RIM)
+        _teeth(ctx, ex + 2, ex + 26, 38 + jd * 0.4, 12, 3)
+        _teeth(ctx, ex + 2, ex + 26, 62 + jd * 0.4, 12, 3, up=True)
+    # the dome: smooth, glossy and long, with the ridged skull faintly visible beneath
+    ctx.new_path()
+    ctx.move_to(-90, -40)
+    ctx.curve_to(-20, -140, 260, -120, 440, 0)
+    ctx.curve_to(460, 18, 445, 48, 405, 52)
+    ctx.curve_to(330, 58 - lip, 230, 62 - lip, 160, 50)
+    ctx.curve_to(80, 40, 0, 30, -60, 10)
+    ctx.close_path()
+    fs(ctx, color, 7, ink=RIM)
+    ctx.save()
+    ctx.new_path()
+    ctx.move_to(-90, -40)
+    ctx.curve_to(-20, -140, 260, -120, 440, 0)
+    ctx.curve_to(460, 18, 445, 48, 405, 52)
+    ctx.curve_to(330, 58, 230, 62, 160, 50)
+    ctx.curve_to(80, 40, 0, 30, -60, 10)
+    ctx.close_path()
+    ctx.clip()
+    ctx.set_line_width(3)
+    ctx.set_source_rgba(*sheen, 0.22)
+    for k in range(9):  # ridged skull under the translucent dome
+        rx = -20 + k * 34
+        ctx.move_to(rx, -70 + k * 3)
+        ctx.curve_to(rx + 10, -40, rx + 4, -10, rx - 6, 20)
+    ctx.stroke()
+    g = cairo.LinearGradient(0, -110, 0, 50)
+    g.add_color_stop_rgba(0, *sheen, 0.25)
+    g.add_color_stop_rgba(0.4, *sheen, 0.0)
+    ctx.set_source(g)
+    ctx.paint()
+    ctx.restore()
+    ctx.set_source_rgba(*sheen, 0.8)  # glossy highlight along the dome
+    ctx.set_line_width(8)
+    ctx.move_to(0, -95)
+    ctx.curve_to(120, -122, 300, -80, 420, -8)
+    ctx.stroke()
+    for k in range(3):  # wet glints that travel along the dome
+        f = (t * 0.25 + k / 3) % 1
+        px, py = lerp(20, 400, f), lerp(-100, -20, f)
+        ell(ctx, px, py, 6, 3)
+        ctx.set_source_rgba(1, 1, 1, 0.8 * math.sin(f * PI))
+        ctx.fill()
+    # lips peel back over the upper teeth
+    ctx.new_path()
+    ctx.move_to(250, 56 - lip)
+    ctx.curve_to(320, 64 - lip, 380, 60 - lip, 420, 46)
+    ctx.set_line_width(6)
+    src(ctx, C.mix(color, (0.5, 0.3, 0.35), 0.25))
+    ctx.stroke()
+    _teeth(ctx, 270, 420, 50 - lip * 0.3, 18 + lip, 10)
+    # slime strands and a drip that falls and re-forms
+    ctx.set_line_width(3)
+    for k, (sx, ln) in enumerate(((330, 40), (380, 60), (405, 30))):
+        ph = (t * 0.5 + k * 0.33) % 1
+        ctx.move_to(sx, 60 + jd * 0.6)
+        ctx.line_to(sx + 2, 60 + jd * 0.6 + ln * (0.5 + ph))
+        ctx.set_source_rgba(0.75, 0.95, 0.65, 0.65)
+        ctx.stroke()
+        ell(ctx, sx + 2, 60 + jd * 0.6 + ln * (0.5 + ph) + ph * ph * 120, 4, 6)
+        ctx.set_source_rgba(0.75, 0.95, 0.65, 0.7 * (1 - ph))
+        ctx.fill()
+
+
+def xeno(ctx, x, y, s, t, walk=None, facing=1, crouch=0.0, jaw=0.0, glow=0.0, alpha=1.0, color=hx("#1c1c24"), rear=0.0,
+         strike=0.0, look=0.0):
+    """Four-legged runner Xenomorph, side view (head to the right), feet at (x, y).
+
+    walk: gait phase (None = idle). rear: rears up on hind legs. jaw: mouth open. strike: inner jaw out.
+    look: head tilt (-1 up .. 1 down). Idle breathing, head twitches and a traveling tail wave are automatic."""
     ctx.save()
     ctx.translate(x, y)
     ctx.scale(s * facing, s)
     if alpha < 1:
         ctx.push_group()
-    ell(ctx, 0, 0, 280, 22)
-    ctx.set_source_rgba(0, 0, 0, 0.35)
+    ell(ctx, 0, 0, 290, 22)
+    ctx.set_source_rgba(0, 0, 0, 0.4)
     ctx.fill()
     ctx.translate(-150, 0)
     ctx.rotate(-0.75 * rear)
     ctx.translate(150, 0)
     ph = walk if walk is not None else 0
-    bob = -abs(math.sin(ph)) * 8 if walk is not None else 3 * math.sin(t * 1.6)
+    breath = math.sin(t * 2.4)
+    bob = -abs(math.sin(ph)) * 10 if walk is not None else 3 * breath
     by = -245 + 70 * crouch + bob
+    hiss = max(jaw, 0.25 * (0.5 + 0.5 * math.sin(t * 1.3)))
     sheen = (0.75, 0.82, 0.95)
 
-    def stroke2(w):
+    def stroke2(w, col=None):
         ctx.set_line_width(w + 7)
         src(ctx, RIM)
         ctx.stroke_preserve()
         ctx.set_line_width(w)
-        src(ctx, color)
+        src(ctx, col or color)
         ctx.stroke()
 
-    # tail: thick at the base, sweeping back and down, ending in a blade
-    sw = math.sin(t * 2.2) * 25
-    for w, a0, a1 in ((30, 0.0, 0.35), (22, 0.3, 0.7), (14, 0.65, 1.0)):
-        ctx.new_path()
-        pts = [(-170, by + 10), (-330, by - 40 + sw), (-470, by + 60 - sw), (-600, by + 10 + sw)]
-
-        def bez(f):
-            p0, p1, p2, p3 = pts
-            u = 1 - f
-            return (u ** 3 * p0[0] + 3 * u * u * f * p1[0] + 3 * u * f * f * p2[0] + f ** 3 * p3[0],
-                    u ** 3 * p0[1] + 3 * u * u * f * p1[1] + 3 * u * f * f * p2[1] + f ** 3 * p3[1])
-        for k in range(12):
-            ctx.line_to(*bez(lerp(a0, a1, k / 11)))
-        stroke2(w)
-    tx, ty = -600, by + 10 + sw
+    # tail: segmented, a wave travels from base to blade
+    pts = [(-170, by + 10), (-330, by - 40), (-470, by + 60), (-620, by + 5)]
+    segs = 22
+    prev = None
+    for k in range(segs + 1):
+        f = k / segs
+        bx, byy = _bez(pts, f)
+        byy += 34 * f * math.sin(t * 3 - f * 6 + ph * 0.5)
+        if prev:
+            ctx.new_path()
+            ctx.move_to(*prev)
+            ctx.line_to(bx, byy)
+            stroke2(lerp(32, 10, f))
+        if k % 2 == 0 and k < segs:  # vertebra knobs
+            ell(ctx, bx, byy - lerp(14, 5, f), lerp(9, 3, f), lerp(7, 3, f))
+            ctx.set_source_rgba(*sheen, 0.5)
+            ctx.fill()
+        prev = (bx, byy)
+    tx, ty = prev
     ctx.new_path()
     ctx.move_to(tx + 10, ty - 8)
-    ctx.line_to(tx - 70, ty - 40)
-    ctx.line_to(tx - 30, ty + 12)
+    ctx.line_to(tx - 80, ty - 46)
+    ctx.line_to(tx - 34, ty + 14)
     ctx.close_path()
     fs(ctx, color, 4, ink=RIM)
 
-    def leg(hx_, hy_, a, far):
+    def leg(hx_, hy_, a, far, front):
         ctx.save()
         ctx.translate(hx_, hy_)
         ctx.rotate(a)
         col = C.mix(color, (0, 0, 0), 0.45) if far else color
+        rim = RIM if not far else C.mix(RIM, (0, 0, 0), 0.45)
         L = -hy_
-        ctx.new_path()  # digitigrade: hip -> knee (forward) -> ankle (back) -> toe
+        kx = 50 if front else 45
+        knee, ankle, toe = (kx, L * 0.42), (-28, L * 0.8), (18, L)
+        ctx.new_path()  # digitigrade: hip -> knee -> ankle -> toe
         ctx.move_to(0, 0)
-        ctx.line_to(45, L * 0.42)
-        ctx.line_to(-25, L * 0.8)
-        ctx.line_to(15, L)
-        ctx.set_line_width(30)
-        src(ctx, RIM if not far else C.mix(RIM, (0, 0, 0), 0.4))
+        ctx.line_to(*knee)
+        ctx.line_to(*ankle)
+        ctx.line_to(*toe)
+        ctx.set_line_width(32)
+        src(ctx, rim)
         ctx.stroke_preserve()
-        ctx.set_line_width(22)
+        ctx.set_line_width(24)
         src(ctx, col)
         ctx.stroke()
-        for cx in (-4, 14, 30):
-            ctx.move_to(15, L)
-            ctx.line_to(15 + cx, L + 14)
-        ctx.set_line_width(5)
-        src(ctx, RIM)
+        for jx, jy in (knee, ankle):  # bony knuckles
+            ell(ctx, jx, jy, 17, 14)
+            fs(ctx, col, 3, ink=rim)
+        ctx.set_line_width(6)  # three long claws
+        src(ctx, rim)
+        for cx in (-10, 16, 40):
+            ctx.move_to(toe[0], toe[1] - 4)
+            ctx.curve_to(toe[0] + cx * 0.5, toe[1] - 2, toe[0] + cx, toe[1] + 4, toe[0] + cx + 6, toe[1] + 14)
         ctx.stroke()
         ctx.restore()
 
-    for k, (lx, far) in enumerate(((-150, True), (110, True))):
-        leg(lx, by + 20, (0.45 * math.sin(ph + k * PI) if walk is not None else 0.04 * math.sin(t + k)), far)
-    # torso with ridged ribcage
+    gait = lambda k: (0.5 * math.sin(ph + k * PI) if walk is not None else 0.04 * math.sin(t + k))
+    leg(-150, by + 20, gait(0), True, False)
+    leg(110, by + 20, gait(1), True, True)
+    # torso: ribcage that expands with each breath
+    ctx.save()
+    ctx.translate(0, by)
+    ctx.scale(1, 1 + 0.03 * breath)
     ctx.new_path()
-    ctx.move_to(-200, by + 10)
-    ctx.curve_to(-180, by - 95, 120, by - 115, 200, by - 45)
-    ctx.curve_to(230, by + 5, 180, by + 60, 100, by + 55)
-    ctx.curve_to(0, by + 75, -170, by + 60, -200, by + 10)
+    ctx.move_to(-200, 10)
+    ctx.curve_to(-180, -95, 120, -115, 200, -45)
+    ctx.curve_to(230, 5, 180, 60, 100, 55)
+    ctx.curve_to(0, 75, -170, 60, -200, 10)
     ctx.close_path()
     fs(ctx, color, 7, ink=RIM)
     ctx.set_line_width(4)
     ctx.set_source_rgba(*sheen, 0.55)
-    for k in range(8):
-        rx = -150 + k * 38
-        ctx.move_to(rx, by - 75)
-        ctx.curve_to(rx + 14, by - 35, rx + 10, by + 15, rx - 4, by + 45)
+    for k in range(9):
+        rx = -160 + k * 36
+        ctx.move_to(rx, -78)
+        ctx.curve_to(rx + 14, -38, rx + 10, 12, rx - 4, 45)
     ctx.stroke()
-    for k, bx in enumerate((-30, 40)):  # two short dorsal tubes, swept back
+    ctx.set_source_rgba(*sheen, 0.35)  # wet sheen along the back
+    ctx.set_line_width(6)
+    ctx.move_to(-150, -70)
+    ctx.curve_to(-50, -100, 80, -102, 170, -55)
+    ctx.stroke()
+    for k in range(10):  # spine spikes
+        f = k / 9
+        sx, sy = lerp(-170, 160, f), -75 - 30 * math.sin(f * PI)
         ctx.new_path()
-        ctx.move_to(bx, by - 95)
-        ctx.line_to(bx - 70, by - 150)
-        stroke2(14)
-    for k, (lx, far) in enumerate(((-120, False), (140, False))):
-        leg(lx, by + 25, (0.45 * math.sin(ph + PI / 2 + k * PI) if walk is not None else 0.04 * math.sin(t + k + 2)), far)
-    # neck and the long, smooth skull
-    hy = by - 70
-    ctx.new_path()
-    ctx.move_to(150, by - 40)
-    ctx.line_to(260, hy + 30)
-    stroke2(40)
-    ctx.new_path()
-    ctx.move_to(90, hy - 90)
-    ctx.curve_to(170, hy - 150, 400, hy - 110, 540, hy - 10)
-    ctx.curve_to(560, hy + 10, 540, hy + 35, 500, hy + 40)
-    ctx.curve_to(400, hy + 55, 280, hy + 60, 210, hy + 30)
-    ctx.curve_to(150, hy, 100, hy - 50, 90, hy - 90)
-    ctx.close_path()
-    fs(ctx, color, 7, ink=RIM)
-    ctx.set_source_rgba(*sheen, 0.75)  # glossy highlight along the dome
-    ctx.set_line_width(7)
-    ctx.move_to(150, hy - 100)
-    ctx.curve_to(260, hy - 125, 400, hy - 95, 500, hy - 30)
-    ctx.stroke()
-    jd = 34 * jaw
-    ctx.new_path()  # lower jaw
-    ctx.move_to(360, hy + 45)
-    ctx.curve_to(420, hy + 60 + jd, 480, hy + 60 + jd, 515, hy + 38 + jd)
-    ctx.line_to(500, hy + 30)
-    ctx.close_path()
-    fs(ctx, C.mix(color, (0.3, 0.3, 0.35), 0.3), 4, ink=RIM)
-    ctx.set_source_rgb(0.88, 0.9, 0.95)  # silver teeth
-    for k in range(8):
-        tx_ = 400 + k * 14
-        ctx.move_to(tx_, hy + 36)
-        ctx.line_to(tx_ + 5, hy + 52 + jd * 0.3)
-        ctx.line_to(tx_ + 10, hy + 36)
+        ctx.move_to(sx - 8, sy + 6)
+        ctx.line_to(sx - 16, sy - 22)
+        ctx.line_to(sx + 8, sy + 4)
         ctx.close_path()
-        ctx.fill()
-    if jaw > 0.5:  # inner jaw
+        fs(ctx, color, 3, ink=RIM)
+    ctx.restore()
+    for bx in (-40, 30):  # two dorsal tubes, swept back
         ctx.new_path()
-        ctx.move_to(460, hy + 46)
-        ctx.line_to(460 + 110 * (jaw - 0.5) * 2, hy + 46)
-        stroke2(12)
-    ctx.set_source_rgba(0.6, 0.9, 0.5, 0.6 * (0.5 + 0.5 * math.sin(t * 9)))  # drool
-    ctx.set_line_width(3)
-    ctx.move_to(490, hy + 55 + jd)
-    ctx.line_to(492, hy + 100 + jd + 10 * math.sin(t * 3))
-    ctx.stroke()
+        ctx.move_to(bx, by - 100)
+        ctx.line_to(bx - 75, by - 160 + 4 * breath)
+        stroke2(15)
+    leg(-120, by + 25, gait(0.5), False, False)
+    leg(140, by + 25, gait(1.5), False, True)
+    # neck + head; head bobs with the gait and twitches when idle
+    twitch = 0.0
+    if walk is None:
+        tp = (t * 0.6) % 3.0
+        twitch = 0.25 * math.sin(tp * 30) * math.exp(-tp * 4) if tp < 0.6 else 0
+    ang = 0.12 * look + twitch + (0.05 * math.sin(ph * 2) if walk is not None else 0.03 * breath)
+    nx, ny = 170, by - 40
+    ctx.new_path()
+    ctx.move_to(150, by - 30)
+    ctx.line_to(nx + 70, ny - 20)
+    stroke2(44)
+    for k in range(4):  # neck ridges
+        ell(ctx, 170 + k * 18, by - 52 - k * 6, 8, 5)
+        ctx.set_source_rgba(*sheen, 0.5)
+        ctx.fill()
+    ctx.save()
+    ctx.translate(nx + 60, ny - 40)
+    ctx.rotate(ang)
+    xeno_skull(ctx, t, color, jaw, strike, hiss)
+    ctx.restore()
     if glow > 0:  # molten / overheated
         ctx.set_operator(cairo.OPERATOR_ADD)
-        g = cairo.RadialGradient(100, by - 40, 20, 100, by - 40, 560)
+        g = cairo.RadialGradient(100, by - 40, 20, 100, by - 40, 600)
         g.add_color_stop_rgba(0, 1, 0.55, 0.15, 0.85 * glow)
         g.add_color_stop_rgba(1, 1, 0.3, 0.05, 0)
         ctx.set_source(g)
-        ctx.rectangle(-800, -800, 1500, 900)
+        ctx.rectangle(-850, -850, 1600, 950)
         ctx.fill()
         ctx.set_operator(cairo.OPERATOR_OVER)
     if alpha < 1:
         ctx.pop_group_to_source()
         ctx.paint_with_alpha(alpha)
+    ctx.restore()
+
+
+def xeno_closeup(ctx, x, y, s, t, jaw=0.0, strike=0.0, facing=-1, color=hx("#1c1c24")):
+    """Big head-and-neck close-up for the most important creature moments."""
+    ctx.save()
+    ctx.translate(x, y)
+    ctx.scale(s * facing, s)
+    breath = math.sin(t * 2.4)
+    ctx.new_path()  # neck and shoulder mass going off frame
+    ctx.move_to(-700, 420)
+    ctx.curve_to(-500, 100, -260, -50, -70, -45)
+    ctx.line_to(190, 58)
+    ctx.curve_to(-150, 240, -400, 420, -500, 720)
+    ctx.close_path()
+    fs(ctx, color, 7, ink=RIM)
+    ctx.set_line_width(4)
+    ctx.set_source_rgba(0.75, 0.82, 0.95, 0.45)
+    for k in range(7):
+        ctx.move_to(-520 + k * 70, 320 - k * 40)
+        ctx.curve_to(-470 + k * 70, 380 - k * 40, -430 + k * 70, 450 - k * 40, -420 + k * 70, 520 - k * 40)
+    ctx.stroke()
+    ctx.translate(0, 6 * breath)
+    ctx.rotate(0.04 * math.sin(t * 0.9))
+    xeno_skull(ctx, t, color, jaw, strike, max(jaw, 0.4))
     ctx.restore()
 
 
@@ -872,6 +1020,21 @@ def vhs(ctx, R, t, k):
         ctx.fill()
 
 
+def speed_lines(ctx, R, t, k, direction=1):
+    if k <= 0:
+        return
+    rnd = random.Random(int(t * 20))
+    ctx.set_line_width(3)
+    for i in range(26):
+        y = rnd.uniform(0, R.H)
+        x = rnd.uniform(0, R.W)
+        ln = rnd.uniform(120, 420)
+        ctx.move_to(x, y)
+        ctx.line_to(x - direction * ln, y)
+        ctx.set_source_rgba(1, 0.95, 0.85, 0.25 * k)
+        ctx.stroke()
+
+
 def black_frame(ctx, R, t, t0, d=0.25):
     if t0 <= t < t0 + d:
         tint(ctx, R, (0, 0, 0), 1.0)
@@ -1121,11 +1284,22 @@ def S4(ctx, R, t, p):
         grade(ctx, R, strength=0.75)
         badge(ctx, W / 2, H * 0.14, "A FACEHUGGER FOUND A HOST: A DOG", 40 * u, BONE, hx("#3a2a1a"))
 
+    def closeup(ctx, R, lt):
+        jaw = ap(lt, 0.8, 0.6)
+        strike = ap(lt, 2.0, 0.15) * (1 - ap(lt, 2.6, 0.4))
+        with cam(ctx, R, 960, 540, 1.0 + 0.06 * min(1, lt / 4) + (0.02 * math.sin(lt * 40) if 2.0 < lt < 2.4 else 0),
+                 vfx=V(R, 960, 1100)):
+            tunnel(ctx, t, flick=0.2)
+            xeno_closeup(ctx, 1500, 520, 1.15, t, jaw=jaw, strike=strike, facing=-1)
+        grade(ctx, R, strength=0.75)
+        flash(ctx, R, lt, 2.05, 0.12, (0.85, 0.9, 1))
+
     def reveal(ctx, R, lt):
         with cam(ctx, R, 960, 600, 1.0, vfx=V(R, 960, lerp(300, 1500, min(1, lt / 7)))):
             bg_foundry(ctx, t, heat=0.7)
-            xeno(ctx, lerp(100, 1700, min(1, lt / 7)), 1000, 0.85, t, walk=t * 7, jaw=0.3)
+            xeno(ctx, lerp(100, 1700, min(1, lt / 7)), 1000, 0.85, t, walk=t * 9, jaw=0.3)
         grade(ctx, R, strength=0.7)
+        speed_lines(ctx, R, t, 0.8)
         if lt > 1:
             text(ctx, "IT RUNS ON FOUR LEGS", W / 2, H * V(R, 0.2, 0.16), V(R, 80, 60) * u, BONE, "Liberation Serif", outline=6 * u)
 
@@ -1164,7 +1338,8 @@ def S4(ctx, R, t, p):
         grade(ctx, R, strength=0.75)
         badge(ctx, W / 2, H * 0.14, "NO ONE KNOWS WHAT'S HUNTING THEM", 40 * u, BONE, hx("#3a1a14"))
 
-    shots(ctx, R, t, [(0, funeral), (t_dog, dog), (t_new, reveal), (t_first, ceiling), (t_murphy, murphy), (t_still, quiet)])
+    shots(ctx, R, t, [(0, funeral), (t_dog, dog), (t_new, closeup), (p.cue("This one moves"), reveal), (t_first, ceiling),
+                      (t_murphy, murphy), (t_still, quiet)])
     scene_header(ctx, R, 4, t)
 
 
@@ -1236,8 +1411,12 @@ def S6(ctx, R, t, p):
             tunnel(ctx, t, flick=0.4)
             if lt < 3:
                 for i in range(2):
-                    prisoner(i + 30).draw(ctx, 700 + i * 380, 1010, 0.8, t=t + i, expr="scared" if lt > 2 else "neutral",
+                    prisoner(i + 30).draw(ctx, 600 + i * 300, 1010, 0.8, t=t + i, expr="scared" if lt > 1.8 else "neutral",
                                           hold={"R": "flashlight"}, armR=75, elbowR=10, look=1)
+                if lt > 1.6:
+                    lk = ap(lt, 1.6, 0.9)
+                    xeno(ctx, lerp(2300, 1350, lk), 1010 - 160 * math.sin(lk * PI) * (lk < 1), 0.8, t, facing=-1,
+                         walk=t * 10 if lk < 1 else None, jaw=lk, strike=ap(lt, 2.4, 0.15))
             else:
                 A3["golic"].draw(ctx, 960, 1010, 0.9, t=t, expr="manic", look=0.3 * math.sin(t * 7), blink=0)
         grade(ctx, R, strength=0.8)
@@ -1272,7 +1451,8 @@ def S6(ctx, R, t, p):
         with cam(ctx, R, 900, 470, 1.4 + 0.25 * k, vfx=900):
             bg_medical(ctx, t, flick=0.1)
             A3["ripley_bald"].draw(ctx, 760, 1010, 0.95, t=t, expr="scared", look=1, tears=True, lean=-5)
-            xeno(ctx, lerp(1650, 1380, k), 1010, 0.75, t, facing=-1, jaw=0.6 + 0.2 * math.sin(t * 2), rear=0.7)
+            xeno(ctx, lerp(1650, 1380, k), 1010, 0.75, t, facing=-1, jaw=0.6 + 0.2 * math.sin(t * 2), rear=0.7,
+                 strike=0.55 * ap(lt, 3.5, 2.0) * (1 - ap(lt, 6.5, 1.0)), look=0.3 * math.sin(t * 0.7))
         ctx.set_source_rgba(0, 0, 0, 0.35)
         ctx.paint()
         grade(ctx, R, strength=0.85)
@@ -1368,6 +1548,11 @@ def S7(ctx, R, t, p):
         if lt < 1.6:
             with cam(ctx, R, 960, 560, 1.2, vfx=960):
                 tunnel(ctx, t, flick=0.3)
+                ctx.save()
+                ctx.translate(0, 260)
+                ctx.scale(1, -1)
+                xeno(ctx, lerp(2300, 1300, min(1, lt / 1.4)), 0, 0.7, t, facing=-1, walk=t * 10, jaw=0.8)
+                ctx.restore()
                 fy = lerp(300, 950, ease(lt / 1.4))
                 ctx.save()
                 ctx.translate(960, fy)
@@ -1530,6 +1715,8 @@ def S10(ctx, R, t, p):
             for i in range(3):
                 prisoner(i + 70).draw(ctx, lerp(-200, 2200, ((lt / 5) + i * 0.25) % 1), 1010, 0.8, t=t + i, walk=t * 9,
                                       expr="scared", look=1)
+            xk = ((lt / 5) + 0.95) % 1
+            xeno(ctx, lerp(-600, 1800, xk), 1000, 0.7, t, walk=t * 10, jaw=0.5)
             dk = ap(lt % 2.5, 1.8, 0.3)
             ctx.rectangle(1500, lerp(-400, 360, dk), 260, 640)  # slamming door
             C.fs(ctx, hx("#3a3a3e"), 6)
@@ -1572,10 +1759,13 @@ def S11(ctx, R, t, p):
             bg_foundry(ctx, t, red=1)
             k = min(1, lt / 6)
             prisoner(80).draw(ctx, lerp(200, 2300, k), 1010, 0.8, t=t, walk=t * 10, expr="scared", look=1)
-            xeno(ctx, lerp(-200, 1700, k), 1000, 0.8, t, walk=t * 10, jaw=0.4)
+            hop = max(0, math.sin(lt * 1.6)) ** 3
+            xeno(ctx, lerp(-200, 1700, k), 1000 - 220 * hop, 0.8, t, walk=t * 10 if hop < 0.3 else None, jaw=0.4 + 0.6 * hop,
+                 strike=hop if hop > 0.7 else 0, crouch=0.3 * (1 - hop))
             for i in range(2):
                 poof(ctx, 600 + i * 800, 760, t, ((lt + i) % 3) / 2, (0.3, 0.1, 0.08))
         grade(ctx, R, strength=0.65)
+        speed_lines(ctx, R, t, 0.7)
         badge(ctx, W / 2, H * 0.14, "THE CHASE BECOMES A MASSACRE", 42 * u, BONE, hx("#5a0a0a"))
 
     def mold(ctx, R, lt):
@@ -1583,7 +1773,8 @@ def S11(ctx, R, t, p):
             bg_foundry(ctx, t, heat=1.2)
             ctx.rectangle(500, 860, 920, 220)  # the mold
             C.fs(ctx, hx("#3a2a20"), 6)
-            xeno(ctx, 1100, 900, 0.6, t, facing=-1, jaw=0.6)
+            xeno(ctx, 1100 + 40 * math.sin(t * 0.8), 900, 0.6, t, facing=-1, jaw=0.5 + 0.4 * math.sin(t * 1.7) ** 2,
+                 crouch=0.3, strike=ap(lt % 4, 3.0, 0.15) * (1 - ap(lt % 4, 3.4, 0.3)))
             A3["dillon"].draw(ctx, 760, 900, 0.9, t=t, expr="angry", look=1, armL=60, armR=60)
             A3["ripley_bald"].draw(ctx, 300, 350, 0.55, t=t, expr="scared", look=1)
             A3["morse"].draw(ctx, 1600, 350, 0.55, t=t, facing=-1, expr="scared", look=-1)
@@ -1618,6 +1809,7 @@ def S11(ctx, R, t, p):
             bg_foundry(ctx, t, heat=1.3)
             molten_pit(ctx, 960, 900, 1400, t)
             xeno(ctx, lerp(900, 1300, min(1, lt / 2)), lerp(1200, 900, min(1, lt / 1)), 0.75, t, facing=1, jaw=1, glow=1.0,
+                 strike=ap(lt % 2, 1.2, 0.15) * (1 - ap(lt % 2, 1.5, 0.3)),
                  color=hx("#3a1a0c"))
             A3["ripley_bald"].draw(ctx, 1750, 1000, 0.8, t=t, facing=-1, expr="scared", look=-1)
         grade(ctx, R, (0.2, 0.04, 0), 0.7)
@@ -1627,7 +1819,8 @@ def S11(ctx, R, t, p):
         k = ap(lt, 0.4, 0.6)
         with cam(ctx, R, 960, 560, 1.0, vfx=V(R, 960, 1000)):
             bg_foundry(ctx, t, heat=1.0)
-            xeno(ctx, 1100, 1000, 0.75, t, facing=-1, jaw=1, glow=1 - k * 0.8, color=hx("#3a1a0c"))
+            xeno(ctx, 1100, 1000, 0.75, t, facing=-1, jaw=1, glow=1 - k * 0.8, color=hx("#3a1a0c"),
+                 rear=0.3 + 0.3 * math.sin(t * 9) * k, look=0.8 * math.sin(t * 7) * k)
             A3["ripley_bald"].draw(ctx, 500, 1000, 0.85, t=t, expr="angry", look=1, armR=150, elbowR=10)
             ctx.set_line_width(6)
             for i in range(40):  # sprinkler water
