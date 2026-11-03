@@ -356,7 +356,7 @@ def xeno(ctx, x, y, s, t, walk=None, facing=1, crouch=0.0, jaw=0.0, glow=0.0, al
     ctx.save()
     ctx.translate(nx + 60, ny - 40)
     ctx.rotate(ang)
-    xeno_skull(ctx, t, color, jaw, strike, hiss, bloody=bloody)
+    xeno_skull(ctx, t, color, jaw, strike, hiss, bloody=bloody and GORE)
     ctx.restore()
     if glow > 0:  # molten / overheated
         ctx.set_operator(cairo.OPERATOR_ADD)
@@ -1126,13 +1126,14 @@ def eye_fire(ctx, head, R_, s, t):
         ctx.fill()
 
 
+GORE = os.environ.get("GORE") == "1"  # default build is the monetizable (ad-friendly) cut
 BLOOD = (0.55, 0.02, 0.03)
 ACID = (0.75, 0.9, 0.15)
 
 
 def blood_burst(ctx, x, y, s, k, seed=0, dir_=0.0, col=BLOOD, n=46):
     """Spray of droplets k seconds after an impact: they fly, fall and land as splats."""
-    if k < 0:
+    if k < 0 or (not GORE and col == BLOOD):
         return
     rnd = random.Random(seed)
     if k < 0.35:  # mist at the moment of impact
@@ -1159,7 +1160,7 @@ def blood_burst(ctx, x, y, s, k, seed=0, dir_=0.0, col=BLOOD, n=46):
 
 def blood_splats(ctx, x, y, s, seed=0, a=1.0, col=BLOOD, drips=True, t=0.0):
     """Splatter left on a wall or floor: blobs, specks and running drips."""
-    if a <= 0:
+    if a <= 0 or (not GORE and col == BLOOD):
         return
     rnd = random.Random(seed)
     for i in range(7):
@@ -1185,7 +1186,7 @@ def blood_splats(ctx, x, y, s, seed=0, a=1.0, col=BLOOD, drips=True, t=0.0):
 
 
 def blood_pool(ctx, x, y, w, k, col=BLOOD):
-    if k <= 0:
+    if k <= 0 or not GORE:
         return
     ell(ctx, x, y, w * min(1, k), w * 0.22 * min(1, k))
     ctx.set_source_rgba(*col, 0.9)
@@ -1833,7 +1834,7 @@ def S6(ctx, R, t, p):
                                armL=150 * pull, armR=150 * pull)
             for i in range(3):
                 prisoner(i + 40).draw(ctx, 1350 + i * 180, 1020, 0.78, t=t + i, facing=-1, expr="shock" if pull else "neutral", look=-1)
-            if lt > 3.05:
+            if lt > 3.05 and GORE:
                 for i in range(5):  # blood running down from the vent
                     x = 930 + i * 40
                     L = min(900, (lt - 3.05) * (300 + 60 * i))
@@ -2560,7 +2561,7 @@ GORE_SFX = {3: [("A facehugger", 2.5, "splat", 0.8, None), ("One maintenance wor
             10: [(1.0, 0, "splat", 0.7, None), (2.0, 0, "splat", 0.7, None), (4.0, 0, "splat", 0.7, None), (5.0, 0, "splat", 0.7, None),
                  ("The resulting", 0.6, "hiss", 0.7, 2.5)],
             11: [("As the confrontation", 1.75, "splat", 0.8, None), ("Ripley falls", 1.0, "splat", 0.6, None)]}
-for _k, _v in GORE_SFX.items():
+for _k, _v in (GORE_SFX.items() if GORE else ()):
     SFX[_k] = SFX[_k] + _v
 # the storyboard's "three-second absence of music" right after the crash
 SILENCE = [(0, "a remote prison", 3.0, 3.0)]
