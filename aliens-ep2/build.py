@@ -322,7 +322,7 @@ def main():
     if os.path.exists(os.path.join(ROOT, "assets", "voice.mp3")):
         audio.append(f'<audio id="voice" class="clip" src="assets/voice.mp3" data-start="0" data-duration="{media_len('assets/voice.mp3')}" data-track-index="10" data-volume="1"></audio>')
     if os.path.exists(os.path.join(ROOT, "assets", "music.mp3")):
-        audio.append(f'<audio id="music" class="clip" src="assets/music.mp3" data-start="0" data-duration="{total}" data-track-index="11" data-volume="0.14" data-fade-out="2"></audio>')
+        audio.append(f'<audio id="music" class="clip" src="assets/music.mp3" data-start="0" data-duration="{min(total, media_len('assets/music.mp3'))}" data-track-index="11" data-volume="1" data-automation=\'{json.dumps({"version": 1, "lanes": [{"target": "volume", "points": [{"t": 0, "v": 0.6}, {"t": 2.2, "v": 0.3}, {"t": story_end - 1.0, "v": 0.3}, {"t": story_end + 0.3, "v": 0.85}]}]})}\'></audio>')
     hosts_s = "\n      ".join(hosts + audio)
     index = f"""<!doctype html>
 <html lang="en" data-resolution="portrait">
