@@ -4,16 +4,15 @@
     #s02-head { position: absolute; left: 70px; right: 70px; top: 190px; display: flex; flex-direction: column; }
     #s02-num { align-self: flex-start; background: var(--accent); color: var(--ink); font: 400 40px/1 'League Gothic'; padding: 6px 14px 4px; letter-spacing: 0.04em; margin-bottom: 10px; }
     #s02-title { color: var(--ink); font: 400 112px/0.92 'League Gothic'; letter-spacing: 0.01em; text-transform: uppercase; text-shadow: 0 4px 0 #000, 0 0 24px rgba(0,0,0,0.7); }
-    #s02-win { position: absolute; left: 0; top: 0; width: 1080px; height: 1640px; overflow: hidden; border-bottom: 6px solid var(--paper); background: #000; }
-    #s02-cam { position: absolute; left: 0; top: 0; width: 2297px; height: 1640px; transform-origin: 0 0; }
+    #s02-win { position: absolute; left: 0; top: 0; width: 1080px; height: 1920px; overflow: hidden; background: #000; }
+    #s02-cam { position: absolute; left: 0; top: 0; width: 2690px; height: 1920px; transform-origin: 0 0; }
     #s02-cam img { width: 100%; height: 100%; display: block; }
     #s02-scrim { position: absolute; left: 0; top: 0; width: 1080px; height: 620px; background: linear-gradient(rgba(6,8,12,0.88) 0%, rgba(6,8,12,0.55) 55%, rgba(6,8,12,0) 100%); }
-    #s02-veil, #s02-flash { position: absolute; inset: 0; opacity: 0; pointer-events: none; }
-    #s02-veil { background: #000; }
-    #s02-flash { background: #fff7e8; }
+    #s02-all { position: absolute; inset: 0; }
     .logo { position: absolute; left: 0; top: 196px; width: 1080px; height: auto; }
   </style>
   <div id="root" data-composition-id="s02" data-width="1080" data-height="1920">
+   <div id="s02-all">
     <div id="s02-win" data-layout-allow-overflow>
       <div id="s02-cam"><img id="s02-img" src="assets/panels/p02.jpg" alt="Who started the outbreak?" /></div>
       <div id="s02-scrim"></div>
@@ -23,19 +22,18 @@
       <div id="s02-title"><span class="w">WHO</span> <span class="w">STARTED</span> <span class="w">THE</span> <span class="w">OUTBREAK?</span></div>
     </div>
     
-    <div id="s02-veil"></div>
-    <div id="s02-flash"></div>
+   </div>
   </div>
   <script>
     const tl = gsap.timeline({ paused: true });
-    const D = 8.100;
-    tl.fromTo('#s02-cam', {"scale": 1.25, "x": -321.4, "y": -102.5}, { scale: 1.300, duration: 4.050, ease: 'none' }, 0);
-    tl.to('#s02-cam', { ...{"scale": 1.3, "x": -1729.4, "y": -492.0}, duration: 1.2, ease: 'power2.inOut' }, 3.450);
-    tl.to('#s02-cam', { scale: 1.352, duration: 3.450, ease: 'none' }, 4.650);
-    tl.fromTo('#s02-win', { x: 1100 }, { x: 0, duration: 0.3, ease: 'expo.out' }, 0);
-    tl.fromTo('#s02-title', { opacity: 0, filter: 'blur(8px)' }, { opacity: 1, filter: 'blur(0px)', duration: 0.18, ease: 'power2.out' }, 0.15);
-    tl.fromTo('#s02-num', { opacity: 0 }, { opacity: 1, duration: 0.1 }, 0.15);
-    tl.to(['#s02-title', '#s02-num'], { opacity: 0, filter: 'blur(6px)', duration: 0.2, ease: 'power2.in' }, D - 0.25);
+    const D = 8.700;
+    tl.fromTo('#s02-cam', {"scale": 1.25, "x": -468.8, "y": -120.0}, { scale: 1.300, duration: 4.350, ease: 'none' }, 0);
+    tl.to('#s02-cam', { ...{"scale": 1.3, "x": -2117.7, "y": -576.0}, duration: 1.2, ease: 'power2.inOut' }, 3.750);
+    tl.to('#s02-cam', { scale: 1.352, duration: 3.750, ease: 'none' }, 4.950);
+    tl.fromTo('#s02-all', { opacity: 0 }, { opacity: 1, duration: 0.6, ease: 'power1.inOut' }, 0);
+    tl.fromTo('#s02-title', { opacity: 0, filter: 'blur(8px)' }, { opacity: 1, filter: 'blur(0px)', duration: 0.18, ease: 'power2.out' }, 0.7);
+    tl.fromTo('#s02-num', { opacity: 0 }, { opacity: 1, duration: 0.1 }, 0.7);
+    tl.to(['#s02-title', '#s02-num'], { opacity: 0, filter: 'blur(6px)', duration: 0.2, ease: 'power2.in' }, 7.900);
     window.__timelines['s02'] = tl;
   </script>
 </template>

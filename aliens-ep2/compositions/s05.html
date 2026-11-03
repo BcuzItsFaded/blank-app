@@ -4,16 +4,15 @@
     #s05-head { position: absolute; left: 70px; right: 70px; top: 190px; display: flex; flex-direction: column; }
     #s05-num { align-self: flex-start; background: var(--accent); color: var(--ink); font: 400 40px/1 'League Gothic'; padding: 6px 14px 4px; letter-spacing: 0.04em; margin-bottom: 10px; }
     #s05-title { color: var(--ink); font: 400 112px/0.92 'League Gothic'; letter-spacing: 0.01em; text-transform: uppercase; text-shadow: 0 4px 0 #000, 0 0 24px rgba(0,0,0,0.7); }
-    #s05-win { position: absolute; left: 0; top: 0; width: 1080px; height: 1640px; overflow: hidden; border-bottom: 6px solid var(--paper); background: #000; }
-    #s05-cam { position: absolute; left: 0; top: 0; width: 2453px; height: 1640px; transform-origin: 0 0; }
+    #s05-win { position: absolute; left: 0; top: 0; width: 1080px; height: 1920px; overflow: hidden; background: #000; }
+    #s05-cam { position: absolute; left: 0; top: 0; width: 2871px; height: 1920px; transform-origin: 0 0; }
     #s05-cam img { width: 100%; height: 100%; display: block; }
     #s05-scrim { position: absolute; left: 0; top: 0; width: 1080px; height: 620px; background: linear-gradient(rgba(6,8,12,0.88) 0%, rgba(6,8,12,0.55) 55%, rgba(6,8,12,0) 100%); }
-    #s05-veil, #s05-flash { position: absolute; inset: 0; opacity: 0; pointer-events: none; }
-    #s05-veil { background: #000; }
-    #s05-flash { background: #fff7e8; }
+    #s05-all { position: absolute; inset: 0; }
     .logo { position: absolute; left: 0; top: 196px; width: 1080px; height: auto; }
   </style>
   <div id="root" data-composition-id="s05" data-width="1080" data-height="1920">
+   <div id="s05-all">
     <div id="s05-win" data-layout-allow-overflow>
       <div id="s05-cam"><img id="s05-img" src="assets/panels/p05.jpg" alt="The reactor mistake" /></div>
       <div id="s05-scrim"></div>
@@ -23,17 +22,16 @@
       <div id="s05-title"><span class="w">THE</span> <span class="w">REACTOR</span> <span class="w">MISTAKE</span></div>
     </div>
     
-    <div id="s05-veil"></div>
-    <div id="s05-flash"></div>
+   </div>
   </div>
   <script>
     const tl = gsap.timeline({ paused: true });
-    const D = 9.460;
-    tl.fromTo('#s05-cam', {"scale": 1.15, "x": -870.5, "y": -246.0}, { ...{"scale": 1.06, "x": -760.1, "y": 0}, duration: D, ease: 'power1.inOut' }, 0);
-    tl.fromTo('#s05-win', { x: -1100 }, { x: 0, duration: 0.3, ease: 'expo.out' }, 0);
-    tl.fromTo('#s05-title .w', { opacity: 0, filter: 'blur(6px)' }, { opacity: 1, filter: 'blur(0px)', duration: 0.13, stagger: 0.067, ease: 'power2.out' }, 0.15);
-    tl.fromTo('#s05-num', { opacity: 0 }, { opacity: 1, duration: 0.1 }, 0.15);
-    tl.to(['#s05-title', '#s05-num'], { opacity: 0, filter: 'blur(6px)', duration: 0.2, ease: 'power2.in' }, D - 0.25);
+    const D = 10.060;
+    tl.fromTo('#s05-cam', {"scale": 1.15, "x": -1110.8, "y": -288.0}, { ...{"scale": 1.06, "x": -981.6, "y": 0}, duration: D, ease: 'power1.inOut' }, 0);
+    tl.fromTo('#s05-all', { opacity: 0 }, { opacity: 1, duration: 0.6, ease: 'power1.inOut' }, 0);
+    tl.fromTo('#s05-title .w', { opacity: 0, filter: 'blur(6px)' }, { opacity: 1, filter: 'blur(0px)', duration: 0.13, stagger: 0.067, ease: 'power2.out' }, 0.7);
+    tl.fromTo('#s05-num', { opacity: 0 }, { opacity: 1, duration: 0.1 }, 0.7);
+    tl.to(['#s05-title', '#s05-num'], { opacity: 0, filter: 'blur(6px)', duration: 0.2, ease: 'power2.in' }, 9.260);
     window.__timelines['s05'] = tl;
   </script>
 </template>

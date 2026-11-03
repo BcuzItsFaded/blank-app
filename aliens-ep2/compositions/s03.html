@@ -4,16 +4,15 @@
     #s03-head { position: absolute; left: 70px; right: 70px; top: 190px; display: flex; flex-direction: column; }
     #s03-num { align-self: flex-start; background: var(--accent); color: var(--ink); font: 400 40px/1 'League Gothic'; padding: 6px 14px 4px; letter-spacing: 0.04em; margin-bottom: 10px; }
     #s03-title { color: var(--ink); font: 400 112px/0.92 'League Gothic'; letter-spacing: 0.01em; text-transform: uppercase; text-shadow: 0 4px 0 #000, 0 0 24px rgba(0,0,0,0.7); }
-    #s03-win { position: absolute; left: 0; top: 0; width: 1080px; height: 1640px; overflow: hidden; border-bottom: 6px solid var(--paper); background: #000; }
-    #s03-cam { position: absolute; left: 0; top: 0; width: 2214px; height: 1640px; transform-origin: 0 0; }
+    #s03-win { position: absolute; left: 0; top: 0; width: 1080px; height: 1920px; overflow: hidden; background: #000; }
+    #s03-cam { position: absolute; left: 0; top: 0; width: 2592px; height: 1920px; transform-origin: 0 0; }
     #s03-cam img { width: 100%; height: 100%; display: block; }
     #s03-scrim { position: absolute; left: 0; top: 0; width: 1080px; height: 620px; background: linear-gradient(rgba(6,8,12,0.88) 0%, rgba(6,8,12,0.55) 55%, rgba(6,8,12,0) 100%); }
-    #s03-veil, #s03-flash { position: absolute; inset: 0; opacity: 0; pointer-events: none; }
-    #s03-veil { background: #000; }
-    #s03-flash { background: #fff7e8; }
+    #s03-all { position: absolute; inset: 0; }
     .logo { position: absolute; left: 0; top: 196px; width: 1080px; height: auto; }
   </style>
   <div id="root" data-composition-id="s03" data-width="1080" data-height="1920">
+   <div id="s03-all">
     <div id="s03-win" data-layout-allow-overflow>
       <div id="s03-cam"><img id="s03-img" src="assets/panels/p03.jpg" alt="The Marines don&#x27;t believe her" /></div>
       <div id="s03-scrim"></div>
@@ -23,17 +22,16 @@
       <div id="s03-title"><span class="w">THE</span> <span class="w">MARINES</span> <span class="w">DON&#x27;T</span> <span class="w">BELIEVE</span> <span class="w">HER</span></div>
     </div>
     
-    <div id="s03-veil"></div>
-    <div id="s03-flash"></div>
+   </div>
   </div>
   <script>
     const tl = gsap.timeline({ paused: true });
-    const D = 8.020;
-    tl.fromTo('#s03-cam', {"scale": 1.05, "x": -41.2, "y": -41.0}, { ...{"scale": 1.125, "x": -1328.1, "y": -194.8}, duration: D, ease: 'power1.inOut' }, 0);
-    tl.fromTo('#s03-win', { scale: 1.5 }, { scale: 1, duration: 0.6, ease: 'expo.out' }, 0);
-    tl.fromTo('#s03-title .w', { opacity: 0, filter: 'blur(6px)' }, { opacity: 1, filter: 'blur(0px)', duration: 0.13, stagger: 0.067, ease: 'power2.out' }, 0.15);
-    tl.fromTo('#s03-num', { opacity: 0 }, { opacity: 1, duration: 0.1 }, 0.15);
-    tl.to(['#s03-title', '#s03-num'], { opacity: 0, filter: 'blur(6px)', duration: 0.2, ease: 'power2.in' }, D - 0.25);
+    const D = 8.620;
+    tl.fromTo('#s03-cam', {"scale": 1.05, "x": -140.4, "y": -48.0}, { ...{"scale": 1.125, "x": -1647.0, "y": -228.0}, duration: D, ease: 'power1.inOut' }, 0);
+    tl.fromTo('#s03-all', { opacity: 0 }, { opacity: 1, duration: 0.6, ease: 'power1.inOut' }, 0);
+    tl.fromTo('#s03-title .w', { opacity: 0, filter: 'blur(6px)' }, { opacity: 1, filter: 'blur(0px)', duration: 0.13, stagger: 0.067, ease: 'power2.out' }, 0.7);
+    tl.fromTo('#s03-num', { opacity: 0 }, { opacity: 1, duration: 0.1 }, 0.7);
+    tl.to(['#s03-title', '#s03-num'], { opacity: 0, filter: 'blur(6px)', duration: 0.2, ease: 'power2.in' }, 7.820);
     window.__timelines['s03'] = tl;
   </script>
 </template>

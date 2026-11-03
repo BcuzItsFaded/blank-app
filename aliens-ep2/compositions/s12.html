@@ -4,16 +4,15 @@
     #s12-head { position: absolute; left: 70px; right: 70px; top: 190px; display: flex; flex-direction: column; }
     #s12-num { align-self: flex-start; background: var(--accent); color: var(--ink); font: 400 40px/1 'League Gothic'; padding: 6px 14px 4px; letter-spacing: 0.04em; margin-bottom: 10px; }
     #s12-title { color: var(--ink); font: 400 112px/0.92 'League Gothic'; letter-spacing: 0.01em; text-transform: uppercase; text-shadow: 0 4px 0 #000, 0 0 24px rgba(0,0,0,0.7); }
-    #s12-win { position: absolute; left: 0; top: 0; width: 1080px; height: 1640px; overflow: hidden; border-bottom: 6px solid var(--paper); background: #000; }
-    #s12-cam { position: absolute; left: 0; top: 0; width: 2003px; height: 1640px; transform-origin: 0 0; }
+    #s12-win { position: absolute; left: 0; top: 0; width: 1080px; height: 1920px; overflow: hidden; background: #000; }
+    #s12-cam { position: absolute; left: 0; top: 0; width: 2345px; height: 1920px; transform-origin: 0 0; }
     #s12-cam img { width: 100%; height: 100%; display: block; }
     #s12-scrim { position: absolute; left: 0; top: 0; width: 1080px; height: 620px; background: linear-gradient(rgba(6,8,12,0.88) 0%, rgba(6,8,12,0.55) 55%, rgba(6,8,12,0) 100%); }
-    #s12-veil, #s12-flash { position: absolute; inset: 0; opacity: 0; pointer-events: none; }
-    #s12-veil { background: #000; }
-    #s12-flash { background: #fff7e8; }
+    #s12-all { position: absolute; inset: 0; }
     .logo { position: absolute; left: 0; top: 196px; width: 1080px; height: auto; }
   </style>
   <div id="root" data-composition-id="s12" data-width="1080" data-height="1920">
+   <div id="s12-all">
     <div id="s12-win" data-layout-allow-overflow>
       <div id="s12-cam"><img id="s12-img" src="assets/panels/p12.jpg" alt="The final battle" /></div>
       <div id="s12-scrim"></div>
@@ -23,21 +22,20 @@
       <div id="s12-title"><span class="w">THE</span> <span class="w">FINAL</span> <span class="w">BATTLE</span></div>
     </div>
     
-    <div id="s12-veil"></div>
-    <div id="s12-flash"></div>
+   </div>
   </div>
   <script>
     const tl = gsap.timeline({ paused: true });
-    const D = 8.970;
-    tl.fromTo('#s12-cam', {"scale": 1.25, "x": -711.9, "y": 0}, { scale: 1.300, duration: 2.990, ease: 'none' }, 0);
-    tl.to('#s12-cam', { ...{"scale": 1.45, "x": -1824.3, "y": -738.0}, duration: 1.2, ease: 'power2.inOut' }, 2.390);
-    tl.to('#s12-cam', { scale: 1.508, duration: 1.790, ease: 'none' }, 3.590);
-    tl.to('#s12-cam', { ...{"scale": 1.45, "x": -331.3, "y": -738.0}, duration: 1.2, ease: 'power2.inOut' }, 5.380);
-    tl.to('#s12-cam', { scale: 1.508, duration: 2.390, ease: 'none' }, 6.580);
-    tl.fromTo('#s12-win', { x: -1100 }, { x: 0, duration: 0.3, ease: 'expo.out' }, 0);
-    tl.fromTo('#s12-title', { opacity: 0, filter: 'blur(8px)' }, { opacity: 1, filter: 'blur(0px)', duration: 0.18, ease: 'power2.out' }, 0.15);
-    tl.fromTo('#s12-num', { opacity: 0 }, { opacity: 1, duration: 0.1 }, 0.15);
-    tl.to(['#s12-title', '#s12-num'], { opacity: 0, filter: 'blur(6px)', duration: 0.2, ease: 'power2.in' }, D - 0.25);
+    const D = 9.570;
+    tl.fromTo('#s12-cam', {"scale": 1.25, "x": -925.6, "y": 0}, { scale: 1.300, duration: 3.190, ease: 'none' }, 0);
+    tl.to('#s12-cam', { ...{"scale": 1.45, "x": -2320.2, "y": -864.0}, duration: 1.2, ease: 'power2.inOut' }, 2.590);
+    tl.to('#s12-cam', { scale: 1.508, duration: 1.990, ease: 'none' }, 3.790);
+    tl.to('#s12-cam', { ...{"scale": 1.45, "x": -480.1, "y": -864.0}, duration: 1.2, ease: 'power2.inOut' }, 5.780);
+    tl.to('#s12-cam', { scale: 1.508, duration: 2.590, ease: 'none' }, 6.980);
+    tl.fromTo('#s12-all', { opacity: 0 }, { opacity: 1, duration: 0.6, ease: 'power1.inOut' }, 0);
+    tl.fromTo('#s12-title', { opacity: 0, filter: 'blur(8px)' }, { opacity: 1, filter: 'blur(0px)', duration: 0.18, ease: 'power2.out' }, 0.7);
+    tl.fromTo('#s12-num', { opacity: 0 }, { opacity: 1, duration: 0.1 }, 0.7);
+    tl.to(['#s12-title', '#s12-num'], { opacity: 0, filter: 'blur(6px)', duration: 0.2, ease: 'power2.in' }, 8.770);
     window.__timelines['s12'] = tl;
   </script>
 </template>

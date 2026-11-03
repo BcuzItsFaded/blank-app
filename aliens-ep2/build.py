@@ -85,7 +85,8 @@ def cam_state(s, fx, fy):
     return dict(scale=s, xPercent=round(x, 2), yPercent=round(y, 2))
 
 
-WIN_H = 1640  # the panel fills the frame from the top edge down to the strip
+WIN_H = 1920  # the panel fills the whole frame
+XF = 0.6  # crossfade between scenes, seconds
 
 
 def panel_size(n):
@@ -121,24 +122,17 @@ def scene_html(i, title, entry, stops, dur):
             t0 = seg * k - 0.6
             js.append(f"tl.to('#{sid}-cam', {{ ...{json.dumps(st)}, duration: 1.2, ease: 'power2.inOut' }}, {t0:.3f});")
             js.append(f"tl.to('#{sid}-cam', {{ scale: {st['scale'] * 1.04:.3f}, duration: {seg - 0.6 - (0.6 if k < len(stops) - 1 else 0):.3f}, ease: 'none' }}, {t0 + 1.2:.3f});")
-    # entry
-    if entry == "whip-l" or entry == "whip-r":
-        sign = 1 if entry == "whip-l" else -1
-        js.append(f"tl.fromTo('#{sid}-win', {{ x: {sign * 1100} }}, {{ x: 0, duration: 0.3, ease: 'expo.out' }}, 0);")
-    elif entry == "zoom":
-        js.append(f"tl.fromTo('#{sid}-win', {{ scale: 1.5 }}, {{ scale: 1, duration: 0.6, ease: 'expo.out' }}, 0);")
-    elif entry == "dip":
-        js.append(f"tl.fromTo('#{sid}-veil', {{ opacity: 1 }}, {{ opacity: 0, duration: 0.25, ease: 'power2.out' }}, 0);")
-    elif entry == "flash":
-        js.append(f"tl.fromTo('#{sid}-flash', {{ opacity: 1 }}, {{ opacity: 0, duration: 0.35, ease: 'power2.out' }}, 0);")
+    # entry: every scene after the first fades in over the one before
+    if n > 1:
+        js.append(f"tl.fromTo('#{sid}-all', {{ opacity: 0 }}, {{ opacity: 1, duration: {XF}, ease: 'power1.inOut' }}, 0);")
     # title
-    t_in = TITLE_SWAP if n == 1 else 0.15
+    t_in = TITLE_SWAP if n == 1 else XF + 0.1
     if n % 2:
         js.append(f"tl.fromTo('#{sid}-title .w', {{ opacity: 0, filter: 'blur(6px)' }}, {{ opacity: 1, filter: 'blur(0px)', duration: 0.13, stagger: 0.067, ease: 'power2.out' }}, {t_in});")
     else:
         js.append(f"tl.fromTo('#{sid}-title', {{ opacity: 0, filter: 'blur(8px)' }}, {{ opacity: 1, filter: 'blur(0px)', duration: 0.18, ease: 'power2.out' }}, {t_in});")
     js.append(f"tl.fromTo('#{sid}-num', {{ opacity: 0 }}, {{ opacity: 1, duration: 0.1 }}, {t_in});")
-    js.append(f"tl.to(['#{sid}-title', '#{sid}-num'], {{ opacity: 0, filter: 'blur(6px)', duration: 0.2, ease: 'power2.in' }}, D - 0.25);")
+    js.append(f"tl.to(['#{sid}-title', '#{sid}-num'], {{ opacity: 0, filter: 'blur(6px)', duration: 0.2, ease: 'power2.in' }}, {dur - XF - 0.2:.3f});")
     logo = ""
     if n == 1:
         logo = f'<img id="{sid}-logo" class="logo" src="assets/title.png" alt="Aliens (1986): The colony that never came home" />'
@@ -151,16 +145,15 @@ def scene_html(i, title, entry, stops, dur):
     #{sid}-head {{ position: absolute; left: 70px; right: 70px; top: 190px; display: flex; flex-direction: column; }}
     #{sid}-num {{ align-self: flex-start; background: var(--accent); color: var(--ink); font: 400 40px/1 'League Gothic'; padding: 6px 14px 4px; letter-spacing: 0.04em; margin-bottom: 10px; }}
     #{sid}-title {{ color: var(--ink); font: 400 112px/0.92 'League Gothic'; letter-spacing: 0.01em; text-transform: uppercase; text-shadow: 0 4px 0 #000, 0 0 24px rgba(0,0,0,0.7); }}
-    #{sid}-win {{ position: absolute; left: 0; top: 0; width: {W}px; height: {WIN_H}px; overflow: hidden; border-bottom: 6px solid var(--paper); background: #000; }}
+    #{sid}-win {{ position: absolute; left: 0; top: 0; width: {W}px; height: {WIN_H}px; overflow: hidden; background: #000; }}
     #{sid}-cam {{ position: absolute; left: 0; top: 0; width: {cw_}px; height: {ch_}px; transform-origin: 0 0; }}
     #{sid}-cam img {{ width: 100%; height: 100%; display: block; }}
     #{sid}-scrim {{ position: absolute; left: 0; top: 0; width: {W}px; height: 620px; background: linear-gradient(rgba(6,8,12,0.88) 0%, rgba(6,8,12,0.55) 55%, rgba(6,8,12,0) 100%); }}
-    #{sid}-veil, #{sid}-flash {{ position: absolute; inset: 0; opacity: 0; pointer-events: none; }}
-    #{sid}-veil {{ background: #000; }}
-    #{sid}-flash {{ background: #fff7e8; }}
+    #{sid}-all {{ position: absolute; inset: 0; }}
     .logo {{ position: absolute; left: 0; top: 196px; width: {W}px; height: auto; }}
   </style>
   <div id="root" data-composition-id="{sid}" data-width="{W}" data-height="{H}">
+   <div id="{sid}-all">
     <div id="{sid}-win" data-layout-allow-overflow>
       <div id="{sid}-cam"><img id="{sid}-img" src="assets/panels/p{n:02d}.jpg" alt="{html.escape(title)}" /></div>
       <div id="{sid}-scrim"></div>
@@ -170,8 +163,7 @@ def scene_html(i, title, entry, stops, dur):
       <div id="{sid}-title">{word_spans.strip()}</div>
     </div>
     {logo}
-    <div id="{sid}-veil"></div>
-    <div id="{sid}-flash"></div>
+   </div>
   </div>
   <script>
     {script}
@@ -232,62 +224,29 @@ def captions_html(cw, total):
 def endcard_html():
     return f"""<template>
   <style>
-    #root {{ position: absolute; inset: 0; background: var(--ground); }}
+    #root {{ position: absolute; inset: 0; }}
+    #end-all {{ position: absolute; inset: 0; background: var(--ground); }}
     #end-badge {{ position: absolute; left: 165px; top: 560px; width: 750px; height: auto; }}
     #end-title {{ position: absolute; left: 0; top: 260px; width: {W}px; height: auto; }}
     #end-ep {{ position: absolute; left: 0; width: {W}px; top: 1000px; text-align: center; color: var(--ink); font: 400 120px/1 'League Gothic'; letter-spacing: 0.03em; }}
     #end-cta {{ position: absolute; left: 0; width: {W}px; top: 1150px; text-align: center; color: var(--ink); font: 700 56px/1 'Roboto'; letter-spacing: 0.06em; }}
   </style>
   <div id="root" data-composition-id="endcard" data-width="{W}" data-height="{H}">
+   <div id="end-all">
     <img id="end-title" src="assets/title.png" alt="Aliens (1986)" />
     <img id="end-badge" src="assets/badge.png" alt="Don't Spoil It RG" />
     <div id="end-ep">EPISODE 2</div>
     <div id="end-cta">FOLLOW FOR MORE</div>
+   </div>
   </div>
   <script>
     const tl = gsap.timeline({{ paused: true }});
-    tl.fromTo('#end-title', {{ opacity: 0, filter: 'blur(8px)' }}, {{ opacity: 1, filter: 'blur(0px)', duration: 0.2, ease: 'power2.out' }}, 0);
-    tl.fromTo('#end-badge', {{ scale: 2.2, rotation: -9, opacity: 0 }}, {{ scale: 1, rotation: -3, opacity: 1, duration: 0.6, ease: 'expo.out' }}, 0.1);
-    tl.fromTo('#end-ep', {{ opacity: 0, filter: 'blur(8px)' }}, {{ opacity: 1, filter: 'blur(0px)', duration: 0.18 }}, 0.55);
-    tl.fromTo('#end-cta', {{ opacity: 0 }}, {{ opacity: 1, duration: 0.15 }}, 0.8);
+    tl.fromTo('#end-all', {{ opacity: 0 }}, {{ opacity: 1, duration: {XF}, ease: 'power1.inOut' }}, 0);
+    tl.fromTo('#end-title', {{ opacity: 0, filter: 'blur(8px)' }}, {{ opacity: 1, filter: 'blur(0px)', duration: 0.2, ease: 'power2.out' }}, {XF});
+    tl.fromTo('#end-badge', {{ scale: 2.2, rotation: -9, opacity: 0 }}, {{ scale: 1, rotation: -3, opacity: 1, duration: 0.6, ease: 'expo.out' }}, {XF + 0.1});
+    tl.fromTo('#end-ep', {{ opacity: 0, filter: 'blur(8px)' }}, {{ opacity: 1, filter: 'blur(0px)', duration: 0.18 }}, {XF + 0.55});
+    tl.fromTo('#end-cta', {{ opacity: 0 }}, {{ opacity: 1, duration: 0.15 }}, {XF + 0.8});
     window.__timelines['endcard'] = tl;
-  </script>
-</template>
-"""
-
-
-def strip_html(starts):
-    """The 12 board panels as a strip under the platform UI; the current one centred and lit."""
-    tw, th, gap, top = 272, 198, 18, 1672
-    thumbs = "\n    ".join(
-        f'<div class="th" id="strip-t{k + 1:02d}" style="left:{k * (tw + gap)}px"><img src="assets/panels/p{k + 1:02d}.jpg" alt="" /></div>'
-        for k in range(len(SCENES)))
-    js = ["const tl = gsap.timeline({ paused: true });"]
-    x = lambda k: round(W / 2 - tw / 2 - k * (tw + gap))
-    js.append(f"tl.fromTo('#strip-row', {{ x: {x(0)} }}, {{ x: {x(0)}, duration: 0.01 }}, 0);")
-    js.append("tl.fromTo('.th', { opacity: 0.32 }, { opacity: 0.32, duration: 0.01 }, 0);")
-    js.append("tl.fromTo('#strip-t01', { opacity: 0.32 }, { opacity: 1, duration: 0.3 }, 0);")
-    for k in range(1, len(SCENES)):
-        t = starts[k]
-        js.append(f"tl.to('#strip-row', {{ x: {x(k)}, duration: 0.5, ease: 'power3.inOut' }}, {max(0, t - 0.25):.3f});")
-        js.append(f"tl.to('#strip-t{k:02d}', {{ opacity: 0.32, duration: 0.3 }}, {t:.3f});")
-        js.append(f"tl.to('#strip-t{k + 1:02d}', {{ opacity: 1, duration: 0.3 }}, {t:.3f});")
-    js.append("window.__timelines['strip'] = tl;")
-    script = "\n    ".join(js)
-    return f"""<template>
-  <style>
-    #root {{ position: absolute; inset: 0; }}
-    #strip-row {{ position: absolute; left: 0; top: {top}px; height: {th}px; width: {len(SCENES) * (tw + gap)}px; }}
-    .th {{ position: absolute; top: 0; width: {tw}px; height: {th}px; border: 4px solid var(--paper); overflow: hidden; background: #000; }}
-    .th img {{ width: 100%; height: 100%; object-fit: cover; display: block; }}
-  </style>
-  <div id="root" data-composition-id="strip" data-width="{W}" data-height="{H}" data-layout-ignore>
-    <div id="strip-row" data-layout-allow-overflow data-layout-ignore>
-    {thumbs}
-    </div>
-  </div>
-  <script>
-    {script}
   </script>
 </template>
 """
@@ -307,17 +266,17 @@ def main():
     for i, (title, entry, stops, _) in enumerate(SCENES):
         st = starts[i]
         en = starts[i + 1] if i + 1 < len(starts) else story_end
+        if i > 0:
+            st = round(st - XF, 3)
         dur = round(en - st, 3)
         sid = f"s{i + 1:02d}"
         open(os.path.join(ROOT, "compositions", f"{sid}.html"), "w").write(scene_html(i, title, entry, stops, dur))
         vals = json.dumps({"title": title.upper()})
-        hosts.append(f'<div id="{sid}" class="clip" data-composition-id="{sid}" data-composition-src="compositions/{sid}.html" data-start="{st}" data-duration="{dur}" data-track-index="1" data-track-kind="graphics" data-width="{W}" data-height="{H}" style="z-index: 2"></div>')
+        hosts.append(f'<div id="{sid}" class="clip" data-composition-id="{sid}" data-composition-src="compositions/{sid}.html" data-start="{st}" data-duration="{dur}" data-track-index="1" data-track-kind="graphics" data-width="{W}" data-height="{H}" style="z-index: {2 + i}"></div>')
     open(os.path.join(ROOT, "compositions", "captions.html"), "w").write(captions_html(cw, story_end))
     open(os.path.join(ROOT, "compositions", "endcard.html"), "w").write(endcard_html())
-    hosts.append(f'<div id="captions" class="clip" data-composition-id="captions" data-composition-src="compositions/captions.html" data-start="0" data-duration="{story_end}" data-track-index="2" data-track-kind="captions" data-width="{W}" data-height="{H}" style="z-index: 5"></div>')
-    hosts.append(f'<div id="endcard" class="clip" data-composition-id="endcard" data-composition-src="compositions/endcard.html" data-start="{story_end}" data-duration="{END_CARD}" data-track-index="1" data-track-kind="graphics" data-width="{W}" data-height="{H}" style="z-index: 3"></div>')
-    open(os.path.join(ROOT, "compositions", "strip.html"), "w").write(strip_html(starts))
-    hosts.append(f'<div id="strip" class="clip" data-composition-id="strip" data-composition-src="compositions/strip.html" data-start="0" data-duration="{story_end}" data-track-index="3" data-track-kind="graphics" data-width="{W}" data-height="{H}" style="z-index: 1"></div>')
+    hosts.append(f'<div id="captions" class="clip" data-composition-id="captions" data-composition-src="compositions/captions.html" data-start="0" data-duration="{story_end}" data-track-index="2" data-track-kind="captions" data-width="{W}" data-height="{H}" style="z-index: 50"></div>')
+    hosts.append(f'<div id="endcard" class="clip" data-composition-id="endcard" data-composition-src="compositions/endcard.html" data-start="{round(story_end - XF, 3)}" data-duration="{END_CARD + XF}" data-track-index="1" data-track-kind="graphics" data-width="{W}" data-height="{H}" style="z-index: 30"></div>')
     audio = []
     if os.path.exists(os.path.join(ROOT, "assets", "voice.mp3")):
         audio.append(f'<audio id="voice" class="clip" src="assets/voice.mp3" data-start="0" data-duration="{media_len('assets/voice.mp3')}" data-track-index="10" data-volume="1"></audio>')

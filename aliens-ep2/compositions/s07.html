@@ -4,16 +4,15 @@
     #s07-head { position: absolute; left: 70px; right: 70px; top: 190px; display: flex; flex-direction: column; }
     #s07-num { align-self: flex-start; background: var(--accent); color: var(--ink); font: 400 40px/1 'League Gothic'; padding: 6px 14px 4px; letter-spacing: 0.04em; margin-bottom: 10px; }
     #s07-title { color: var(--ink); font: 400 112px/0.92 'League Gothic'; letter-spacing: 0.01em; text-transform: uppercase; text-shadow: 0 4px 0 #000, 0 0 24px rgba(0,0,0,0.7); }
-    #s07-win { position: absolute; left: 0; top: 0; width: 1080px; height: 1640px; overflow: hidden; border-bottom: 6px solid var(--paper); background: #000; }
-    #s07-cam { position: absolute; left: 0; top: 0; width: 2109px; height: 1640px; transform-origin: 0 0; }
+    #s07-win { position: absolute; left: 0; top: 0; width: 1080px; height: 1920px; overflow: hidden; background: #000; }
+    #s07-cam { position: absolute; left: 0; top: 0; width: 2469px; height: 1920px; transform-origin: 0 0; }
     #s07-cam img { width: 100%; height: 100%; display: block; }
     #s07-scrim { position: absolute; left: 0; top: 0; width: 1080px; height: 620px; background: linear-gradient(rgba(6,8,12,0.88) 0%, rgba(6,8,12,0.55) 55%, rgba(6,8,12,0) 100%); }
-    #s07-veil, #s07-flash { position: absolute; inset: 0; opacity: 0; pointer-events: none; }
-    #s07-veil { background: #000; }
-    #s07-flash { background: #fff7e8; }
+    #s07-all { position: absolute; inset: 0; }
     .logo { position: absolute; left: 0; top: 196px; width: 1080px; height: auto; }
   </style>
   <div id="root" data-composition-id="s07" data-width="1080" data-height="1920">
+   <div id="s07-all">
     <div id="s07-win" data-layout-allow-overflow>
       <div id="s07-cam"><img id="s07-img" src="assets/panels/p07.jpg" alt="They came through the ceiling" /></div>
       <div id="s07-scrim"></div>
@@ -23,18 +22,18 @@
       <div id="s07-title"><span class="w">THEY</span> <span class="w">CAME</span> <span class="w">THROUGH</span> <span class="w">THE</span> <span class="w">CEILING</span></div>
     </div>
     
-    <div id="s07-veil"></div>
-    <div id="s07-flash"></div>
+   </div>
   </div>
   <script>
     const tl = gsap.timeline({ paused: true });
-    const D = 7.760;
-    tl.fromTo('#s07-cam', {"scale": 1.1, "x": -504.0, "y": 0}, { scale: 1.144, duration: 3.880, ease: 'none' }, 0);
-    tl.to('#s07-cam', { ...{"scale": 1.225, "x": 0, "y": -369.0}, duration: 1.2, ease: 'power2.inOut' }, 3.280);
-    tl.to('#s07-cam', { scale: 1.274, duration: 3.280, ease: 'none' }, 4.480);
-    tl.fromTo('#s07-title .w', { opacity: 0, filter: 'blur(6px)' }, { opacity: 1, filter: 'blur(0px)', duration: 0.13, stagger: 0.067, ease: 'power2.out' }, 0.15);
-    tl.fromTo('#s07-num', { opacity: 0 }, { opacity: 1, duration: 0.1 }, 0.15);
-    tl.to(['#s07-title', '#s07-num'], { opacity: 0, filter: 'blur(6px)', duration: 0.2, ease: 'power2.in' }, D - 0.25);
+    const D = 8.360;
+    tl.fromTo('#s07-cam', {"scale": 1.1, "x": -682.2, "y": 0}, { scale: 1.144, duration: 4.180, ease: 'none' }, 0);
+    tl.to('#s07-cam', { ...{"scale": 1.225, "x": -64.9, "y": -432.0}, duration: 1.2, ease: 'power2.inOut' }, 3.580);
+    tl.to('#s07-cam', { scale: 1.274, duration: 3.580, ease: 'none' }, 4.780);
+    tl.fromTo('#s07-all', { opacity: 0 }, { opacity: 1, duration: 0.6, ease: 'power1.inOut' }, 0);
+    tl.fromTo('#s07-title .w', { opacity: 0, filter: 'blur(6px)' }, { opacity: 1, filter: 'blur(0px)', duration: 0.13, stagger: 0.067, ease: 'power2.out' }, 0.7);
+    tl.fromTo('#s07-num', { opacity: 0 }, { opacity: 1, duration: 0.1 }, 0.7);
+    tl.to(['#s07-title', '#s07-num'], { opacity: 0, filter: 'blur(6px)', duration: 0.2, ease: 'power2.in' }, 7.560);
     window.__timelines['s07'] = tl;
   </script>
 </template>
