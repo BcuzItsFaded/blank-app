@@ -26,10 +26,10 @@
   </div>
   <script>
     const tl = gsap.timeline({ paused: true });
-    const D = 7.000;
-    tl.fromTo('#s11-cam', {"scale": 1.8, "xPercent": -21.6, "yPercent": 40.0}, { scale: 1.872, duration: 3.500, ease: 'none' }, 0);
-    tl.to('#s11-cam', { ...{"scale": 1.5, "xPercent": -15.0, "yPercent": -25.0}, duration: 1.2, ease: 'power2.inOut' }, 2.900);
-    tl.to('#s11-cam', { scale: 1.560, duration: 2.900, ease: 'none' }, 4.100);
+    const D = 6.000;
+    tl.fromTo('#s11-cam', {"scale": 1.8, "xPercent": -21.6, "yPercent": 40.0}, { scale: 1.872, duration: 3.000, ease: 'none' }, 0);
+    tl.to('#s11-cam', { ...{"scale": 1.5, "xPercent": -15.0, "yPercent": -25.0}, duration: 1.2, ease: 'power2.inOut' }, 2.400);
+    tl.to('#s11-cam', { scale: 1.560, duration: 2.400, ease: 'none' }, 3.600);
     tl.fromTo('#s11-flash', { opacity: 1 }, { opacity: 0, duration: 0.35, ease: 'power2.out' }, 0);
     tl.fromTo('#s11-title .w', { opacity: 0, filter: 'blur(6px)' }, { opacity: 1, filter: 'blur(0px)', duration: 0.13, stagger: 0.067, ease: 'power2.out' }, 0.15);
     tl.fromTo('#s11-num', { opacity: 0 }, { opacity: 1, duration: 0.1 }, 0.15);

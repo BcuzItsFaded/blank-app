@@ -26,10 +26,10 @@
   </div>
   <script>
     const tl = gsap.timeline({ paused: true });
-    const D = 8.000;
-    tl.fromTo('#s07-cam', {"scale": 1.2, "xPercent": 6.0, "yPercent": 10.0}, { scale: 1.248, duration: 4.000, ease: 'none' }, 0);
-    tl.to('#s07-cam', { ...{"scale": 1.45, "xPercent": 22.5, "yPercent": -22.5}, duration: 1.2, ease: 'power2.inOut' }, 3.400);
-    tl.to('#s07-cam', { scale: 1.508, duration: 3.400, ease: 'none' }, 4.600);
+    const D = 7.760;
+    tl.fromTo('#s07-cam', {"scale": 1.2, "xPercent": 6.0, "yPercent": 10.0}, { scale: 1.248, duration: 3.880, ease: 'none' }, 0);
+    tl.to('#s07-cam', { ...{"scale": 1.45, "xPercent": 22.5, "yPercent": -22.5}, duration: 1.2, ease: 'power2.inOut' }, 3.280);
+    tl.to('#s07-cam', { scale: 1.508, duration: 3.280, ease: 'none' }, 4.480);
     tl.fromTo('#s07-title .w', { opacity: 0, filter: 'blur(6px)' }, { opacity: 1, filter: 'blur(0px)', duration: 0.13, stagger: 0.067, ease: 'power2.out' }, 0.15);
     tl.fromTo('#s07-num', { opacity: 0 }, { opacity: 1, duration: 0.1 }, 0.15);
     tl.to(['#s07-title', '#s07-num'], { opacity: 0, filter: 'blur(6px)', duration: 0.2, ease: 'power2.in' }, D - 0.25);

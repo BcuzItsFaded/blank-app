@@ -273,6 +273,12 @@ def strip_html(starts):
 """
 
 
+def media_len(rel):
+    import subprocess
+    out = subprocess.run(["ffprobe", "-v", "error", "-show_entries", "format=duration", "-of", "csv=p=0", os.path.join(ROOT, rel)], capture_output=True, text=True).stdout
+    return round(float(out) - 0.01, 2)
+
+
 def main():
     starts, story_end, cw = timing()
     total = round(story_end + END_CARD, 3)
@@ -294,7 +300,7 @@ def main():
     hosts.append(f'<div id="strip" class="clip" data-composition-id="strip" data-composition-src="compositions/strip.html" data-start="0" data-duration="{story_end}" data-track-index="3" data-track-kind="graphics" data-width="{W}" data-height="{H}" style="z-index: 1"></div>')
     audio = []
     if os.path.exists(os.path.join(ROOT, "assets", "voice.mp3")):
-        audio.append(f'<audio id="voice" class="clip" src="assets/voice.mp3" data-start="0" data-duration="{story_end}" data-track-index="10" data-volume="1"></audio>')
+        audio.append(f'<audio id="voice" class="clip" src="assets/voice.mp3" data-start="0" data-duration="{media_len('assets/voice.mp3')}" data-track-index="10" data-volume="1"></audio>')
     if os.path.exists(os.path.join(ROOT, "assets", "music.mp3")):
         audio.append(f'<audio id="music" class="clip" src="assets/music.mp3" data-start="0" data-duration="{total}" data-track-index="11" data-volume="0.14" data-fade-out="2"></audio>')
     hosts_s = "\n      ".join(hosts + audio)

@@ -26,7 +26,7 @@
   </div>
   <script>
     const tl = gsap.timeline({ paused: true });
-    const D = 7.000;
+    const D = 8.020;
     tl.fromTo('#s03-cam', {"scale": 1.1, "xPercent": 5.0, "yPercent": 0.0}, { ...{"scale": 1.25, "xPercent": -12.5, "yPercent": -6.25}, duration: D, ease: 'power1.inOut' }, 0);
     tl.fromTo('#s03-win', { scale: 1.5 }, { scale: 1, duration: 0.6, ease: 'expo.out' }, 0);
     tl.fromTo('#s03-title .w', { opacity: 0, filter: 'blur(6px)' }, { opacity: 1, filter: 'blur(0px)', duration: 0.13, stagger: 0.067, ease: 'power2.out' }, 0.15);

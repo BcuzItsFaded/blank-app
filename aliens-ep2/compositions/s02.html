@@ -26,10 +26,10 @@
   </div>
   <script>
     const tl = gsap.timeline({ paused: true });
-    const D = 7.000;
-    tl.fromTo('#s02-cam', {"scale": 1.5, "xPercent": 25.0, "yPercent": 7.5}, { scale: 1.560, duration: 3.500, ease: 'none' }, 0);
-    tl.to('#s02-cam', { ...{"scale": 1.6, "xPercent": -30.0, "yPercent": -25.6}, duration: 1.2, ease: 'power2.inOut' }, 2.900);
-    tl.to('#s02-cam', { scale: 1.664, duration: 2.900, ease: 'none' }, 4.100);
+    const D = 8.100;
+    tl.fromTo('#s02-cam', {"scale": 1.5, "xPercent": 25.0, "yPercent": 7.5}, { scale: 1.560, duration: 4.050, ease: 'none' }, 0);
+    tl.to('#s02-cam', { ...{"scale": 1.6, "xPercent": -30.0, "yPercent": -25.6}, duration: 1.2, ease: 'power2.inOut' }, 3.450);
+    tl.to('#s02-cam', { scale: 1.664, duration: 3.450, ease: 'none' }, 4.650);
     tl.fromTo('#s02-win', { x: 1100 }, { x: 0, duration: 0.3, ease: 'expo.out' }, 0);
     tl.fromTo('#s02-title', { opacity: 0, filter: 'blur(8px)' }, { opacity: 1, filter: 'blur(0px)', duration: 0.18, ease: 'power2.out' }, 0.15);
     tl.fromTo('#s02-num', { opacity: 0 }, { opacity: 1, duration: 0.1 }, 0.15);

@@ -26,12 +26,12 @@
   </div>
   <script>
     const tl = gsap.timeline({ paused: true });
-    const D = 7.000;
-    tl.fromTo('#s08-cam', {"scale": 1.8, "xPercent": 40.0, "yPercent": 30.6}, { scale: 1.872, duration: 2.333, ease: 'none' }, 0);
-    tl.to('#s08-cam', { ...{"scale": 1.6, "xPercent": -30.0, "yPercent": 27.2}, duration: 1.2, ease: 'power2.inOut' }, 1.733);
-    tl.to('#s08-cam', { scale: 1.664, duration: 1.133, ease: 'none' }, 2.933);
-    tl.to('#s08-cam', { ...{"scale": 1.7, "xPercent": 0.0, "yPercent": -35.0}, duration: 1.2, ease: 'power2.inOut' }, 4.067);
-    tl.to('#s08-cam', { scale: 1.768, duration: 1.733, ease: 'none' }, 5.267);
+    const D = 9.500;
+    tl.fromTo('#s08-cam', {"scale": 1.8, "xPercent": 40.0, "yPercent": 30.6}, { scale: 1.872, duration: 3.167, ease: 'none' }, 0);
+    tl.to('#s08-cam', { ...{"scale": 1.6, "xPercent": -30.0, "yPercent": 27.2}, duration: 1.2, ease: 'power2.inOut' }, 2.567);
+    tl.to('#s08-cam', { scale: 1.664, duration: 1.967, ease: 'none' }, 3.767);
+    tl.to('#s08-cam', { ...{"scale": 1.7, "xPercent": 0.0, "yPercent": -35.0}, duration: 1.2, ease: 'power2.inOut' }, 5.733);
+    tl.to('#s08-cam', { scale: 1.768, duration: 2.567, ease: 'none' }, 6.933);
     tl.fromTo('#s08-win', { scale: 1.5 }, { scale: 1, duration: 0.6, ease: 'expo.out' }, 0);
     tl.fromTo('#s08-title', { opacity: 0, filter: 'blur(8px)' }, { opacity: 1, filter: 'blur(0px)', duration: 0.18, ease: 'power2.out' }, 0.15);
     tl.fromTo('#s08-num', { opacity: 0 }, { opacity: 1, duration: 0.1 }, 0.15);
