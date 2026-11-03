@@ -166,3 +166,5 @@ cython_debug/
 # HyperFrames working files
 ultracode-film/.hyperframes/
 ultracode-film/node_modules/
+alien3-recap/.hyperframes/
+alien3-recap/node_modules/

@@ -1,0 +1,25 @@
+<template>
+  <style>
+    #root { position: absolute; inset: 0; background: #070707; overflow: hidden; }
+    #in-t { position: absolute; left: 160px; top: 300px; font-family: "League Gothic", sans-serif; font-size: 300px; line-height: 0.9; color: #f4f1ea; letter-spacing: 6px; white-space: nowrap; }
+    #in-t span { display: inline-block; }
+    #in-s { position: absolute; left: 168px; top: 600px; font-family: "Inter", sans-serif; font-weight: 700; font-size: 46px; letter-spacing: 6px; color: #f2c14e; white-space: nowrap; }
+    #in-l { position: absolute; left: 168px; top: 580px; width: 760px; height: 4px; background: #f2c14e; transform-origin: 0 50%; }
+  </style>
+  <div id="root" data-composition-id="intro" data-width="1920" data-height="1080">
+    <div id="in-t"><span>A</span><span>L</span><span>I</span><span>E</span><span>N</span><span>&nbsp;</span><span>3</span></div>
+    <div id="in-l"></div>
+    <div id="in-s">THE WHOLE STORY IN 12 SCENES</div>
+  </div>
+  <script>
+    (function () {
+      var tl = gsap.timeline({ paused: true });
+      gsap.set("#in-t span", { opacity: 0.35 });
+      tl.fromTo("#in-t span", { opacity: 0.35, filter: "blur(4px)" }, { opacity: 1, filter: "blur(0px)", duration: 0.2, stagger: 0.06, ease: "power2.out" }, 0);
+      tl.fromTo("#in-l", { scaleX: 0 }, { scaleX: 1, duration: 0.5, ease: "expo.out" }, 0.4);
+      tl.fromTo("#in-s", { opacity: 0, filter: "blur(8px)" }, { opacity: 1, filter: "blur(0px)", duration: 0.2, ease: "power3.out" }, 0.5);
+      tl.to(["#in-t", "#in-l", "#in-s"], { opacity: 0, duration: 0.2, ease: "power2.in" }, 2.35);
+      window.__timelines["intro"] = tl;
+    })();
+  </script>
+</template>

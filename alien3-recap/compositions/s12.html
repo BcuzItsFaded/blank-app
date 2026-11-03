@@ -1,0 +1,98 @@
+<template>
+  <style>
+    #root { position: absolute; inset: 0; background: #070707; overflow: hidden; }
+    #s12-v { position: absolute; left: 0; top: 189px; width: 1920px; height: 702px; overflow: hidden; background: #070707; }
+    #s12-sh, #s12-p, #s12-k { position: absolute; inset: 0; }
+    #s12-img { position: absolute; left: 0; top: 0; width: 1920px; height: 702px; object-fit: cover; }
+    #s12-scan { position: absolute; left: 20px; top: 0; width: 12px; height: 702px; background: #9dffbe; opacity: 0; }
+    #s12-blink { position: absolute; left: 0; top: 0; width: 560px; height: 702px; background: #5dff8a; opacity: 0; mix-blend-mode: screen; }
+    #s12-emb { position: absolute; inset: 0; }
+    #s12-emb .ember { position: absolute; border-radius: 50%; opacity: 0; }
+    #s12-fl { position: absolute; inset: 0; background: #ff7a1f; mix-blend-mode: screen; opacity: 0; }
+    #s12-flash { position: absolute; inset: 0; background: #fff7ea; opacity: 0; }
+    #s12-dip { position: absolute; inset: 0; background: #070707; opacity: 0; }
+    #s12-tt { position: absolute; left: 96px; top: 58px; height: 90px; display: flex; align-items: center; gap: 22px; }
+    #s12-num { font-family: "League Gothic", sans-serif; font-size: 64px; line-height: 1; color: #070707; background: #f2c14e; padding: 8px 14px 4px; border-radius: 6px; }
+    #s12-ttl { font-family: "League Gothic", sans-serif; font-size: 80px; line-height: 1; letter-spacing: 1px; color: #f2c14e; white-space: nowrap; }
+    #s12-cap { position: absolute; left: 96px; top: 916px; font-family: "Inter", sans-serif; font-weight: 700; font-size: 46px; line-height: 1.2; color: #f4f1ea; white-space: nowrap; }
+    #s12-cap .w { display: inline-block; margin-right: 0.26em; }
+  </style>
+  <div id="root" data-composition-id="s12" data-width="1920" data-height="1080" data-layout-allow-overflow>
+    <div id="s12-v">
+      <div id="s12-sh"><div id="s12-p"><div id="s12-k">
+        <img id="s12-img" src="assets/panels/p12.png" alt="" />
+        <div id="s12-scan"></div>
+        <div id="s12-blink"></div>
+      </div></div></div>
+      <div id="s12-fl"></div>
+      <div id="s12-emb"><div class="ember" style="left:650px;top:435px;width:5px;height:5px;background:#ffb347"></div><div class="ember" style="left:1238px;top:547px;width:4px;height:4px;background:#ff6a1a"></div><div class="ember" style="left:929px;top:517px;width:5px;height:5px;background:#ff6a1a"></div><div class="ember" style="left:1042px;top:466px;width:8px;height:8px;background:#ffb347"></div><div class="ember" style="left:981px;top:466px;width:7px;height:7px;background:#ffd36b"></div><div class="ember" style="left:358px;top:627px;width:10px;height:10px;background:#ff8a2a"></div><div class="ember" style="left:644px;top:576px;width:6px;height:6px;background:#ffb347"></div><div class="ember" style="left:100px;top:449px;width:5px;height:5px;background:#ff8a2a"></div><div class="ember" style="left:65px;top:723px;width:7px;height:7px;background:#ffd36b"></div><div class="ember" style="left:984px;top:408px;width:7px;height:7px;background:#ffd36b"></div><div class="ember" style="left:307px;top:494px;width:8px;height:8px;background:#ffd36b"></div><div class="ember" style="left:780px;top:551px;width:5px;height:5px;background:#ffd36b"></div><div class="ember" style="left:357px;top:642px;width:5px;height:5px;background:#ff6a1a"></div><div class="ember" style="left:1375px;top:753px;width:7px;height:7px;background:#ff8a2a"></div><div class="ember" style="left:1630px;top:704px;width:7px;height:7px;background:#ffd36b"></div><div class="ember" style="left:1879px;top:576px;width:9px;height:9px;background:#ff8a2a"></div><div class="ember" style="left:1014px;top:496px;width:10px;height:10px;background:#ffd36b"></div><div class="ember" style="left:1307px;top:738px;width:5px;height:5px;background:#ffb347"></div><div class="ember" style="left:846px;top:416px;width:7px;height:7px;background:#ffd36b"></div><div class="ember" style="left:1520px;top:502px;width:9px;height:9px;background:#ff6a1a"></div><div class="ember" style="left:1133px;top:571px;width:10px;height:10px;background:#ffb347"></div><div class="ember" style="left:1190px;top:473px;width:5px;height:5px;background:#ff6a1a"></div><div class="ember" style="left:1462px;top:590px;width:8px;height:8px;background:#ff8a2a"></div><div class="ember" style="left:1101px;top:680px;width:5px;height:5px;background:#ffd36b"></div><div class="ember" style="left:1177px;top:489px;width:8px;height:8px;background:#ffd36b"></div><div class="ember" style="left:1725px;top:533px;width:8px;height:8px;background:#ffb347"></div><div class="ember" style="left:1792px;top:759px;width:8px;height:8px;background:#ffd36b"></div><div class="ember" style="left:244px;top:736px;width:6px;height:6px;background:#ff6a1a"></div><div class="ember" style="left:1532px;top:407px;width:8px;height:8px;background:#ff6a1a"></div><div class="ember" style="left:1331px;top:443px;width:4px;height:4px;background:#ff6a1a"></div><div class="ember" style="left:1520px;top:569px;width:6px;height:6px;background:#ff8a2a"></div><div class="ember" style="left:482px;top:735px;width:9px;height:9px;background:#ffb347"></div><div class="ember" style="left:1826px;top:716px;width:5px;height:5px;background:#ff8a2a"></div><div class="ember" style="left:495px;top:452px;width:6px;height:6px;background:#ffd36b"></div><div class="ember" style="left:1021px;top:598px;width:9px;height:9px;background:#ff8a2a"></div><div class="ember" style="left:1714px;top:476px;width:9px;height:9px;background:#ffd36b"></div><div class="ember" style="left:823px;top:665px;width:5px;height:5px;background:#ffd36b"></div><div class="ember" style="left:1210px;top:418px;width:6px;height:6px;background:#ff8a2a"></div><div class="ember" style="left:1005px;top:657px;width:5px;height:5px;background:#ff8a2a"></div><div class="ember" style="left:1507px;top:592px;width:7px;height:7px;background:#ffb347"></div><div class="ember" style="left:773px;top:568px;width:7px;height:7px;background:#ffd36b"></div><div class="ember" style="left:346px;top:443px;width:6px;height:6px;background:#ff6a1a"></div><div class="ember" style="left:1162px;top:460px;width:9px;height:9px;background:#ffd36b"></div><div class="ember" style="left:586px;top:593px;width:10px;height:10px;background:#ffb347"></div><div class="ember" style="left:405px;top:456px;width:9px;height:9px;background:#ff6a1a"></div><div class="ember" style="left:486px;top:679px;width:6px;height:6px;background:#ffd36b"></div></div>
+    </div>
+    <div id="s12-tt"><div id="s12-num">12</div><div id="s12-ttl">THE BEST THING WEYLAND-YUTANI WILL EVER GET</div></div>
+    <div id="s12-cap"><span class="w">Ripley</span><span class="w">falls</span><span class="w">into</span><span class="w">the</span><span class="w">fire,</span><span class="w">taking</span><span class="w">the</span><span class="w">Queen</span><span class="w">with</span><span class="w">her.</span></div>
+    <div id="s12-flash"></div>
+    <div id="s12-dip"></div>
+  </div>
+  <script>
+    (function () {
+      var C = {"id": "s12", "D": 4.6, "kb": [1.1, 1.34, -60, -300, 0, 40], "enter": "cut", "fx": ["embers", "flicker", "fadeout"], "embers": [[-0.04, 2.51, -16, -366], [1.22, 2.27, 94, -271], [1.15, 2.38, -90, -354], [1.06, 2.93, 96, -283], [0.91, 1.91, 62, -504], [0.35, 2.83, 11, -345], [-0.02, 2.52, 7, -426], [1.2, 1.92, 48, -301], [0.56, 2.62, 50, -270], [0.65, 2.15, -90, -446], [0.74, 2.97, -66, -284], [-0.0, 1.79, -41, -356], [0.77, 2.94, -47, -269], [0.64, 1.61, 56, -494], [0.8, 2.67, -100, -498], [0.48, 2.96, -17, -327], [0.3, 2.5, 7, -517], [0.94, 2.95, -82, -510], [-0.8, 1.62, 69, -463], [-0.56, 1.86, 14, -423], [-0.13, 2.64, 19, -328], [1.39, 2.22, 67, -260], [-0.67, 2.16, 101, -314], [0.56, 2.31, -69, -313], [-0.44, 2.2, -9, -277], [0.94, 2.03, -81, -378], [-0.67, 2.1, 82, -508], [0.52, 2.83, 6, -472], [-0.59, 1.82, 95, -285], [0.2, 2.62, -48, -280], [0.3, 2.0, 97, -283], [-0.71, 2.38, 7, -348], [0.83, 1.69, -77, -428], [1.09, 2.6, 85, -476], [-0.13, 2.16, -72, -422], [0.12, 2.84, 112, -271], [0.24, 2.4, -40, -411], [0.6, 2.84, 22, -412], [0.81, 1.66, -76, -400], [1.28, 2.4, 118, -412], [-0.6, 2.88, 89, -284], [-0.63, 2.94, 0, -425], [0.72, 2.39, 23, -360], [0.24, 1.61, -47, -467], [-0.24, 2.75, 9, -273], [1.12, 2.68, 71, -404]], "flick": [0.226, 0.215, 0.202, 0.237, 0.171, 0.095, 0.145, 0.232, 0.263, 0.262, 0.091, 0.094, 0.264, 0.086, 0.238, 0.108, 0.262, 0.17, 0.118, 0.213, 0.198, 0.099, 0.212, 0.157, 0.052, 0.105, 0.125, 0.174, 0.212, 0.277, 0.263, 0.135, 0.092, 0.12, 0.159, 0.118, 0.207, 0.131, 0.227, 0.271], "shakes": [], "punches": [], "jitter": [[-0.79, 0.11], [0.47, -0.29], [-0.08, -0.78], [-0.63, -0.73], [-0.12, 0.2], [-0.38, -0.39], [0.64, -0.71], [0.21, 0.44], [-0.34, -0.39], [-0.36, 0.3]]};
+      var P = "#" + C.id + "-";
+      var D = C.D, kb = C.kb;
+      var tl = gsap.timeline({ paused: true });
+      gsap.set([P + "num", P + "ttl", P + "cap .w"], { opacity: 0 });
+
+      // camera: one continuous move across the panel
+      tl.fromTo(P + "k", { scale: kb[0], x: kb[2], y: kb[4] }, { scale: kb[1], x: kb[3], y: kb[5], duration: D, ease: "sine.inOut" }, 0);
+
+      // entrance, caused by the cut
+      if (C.enter === "dip") tl.fromTo(P + "dip", { opacity: 1 }, { opacity: 0, duration: 0.5, ease: "power2.out" }, 0);
+      if (C.enter === "flash") tl.fromTo(P + "flash", { opacity: 1 }, { opacity: 0, duration: 0.42, ease: "power2.out" }, 0);
+      if (C.enter === "whipR") tl.fromTo(P + "p", { x: 1500 }, { x: 0, duration: 0.34, ease: "power3.out" }, 0);
+      if (C.enter === "whipL") tl.fromTo(P + "p", { x: -1500 }, { x: 0, duration: 0.34, ease: "power3.out" }, 0);
+      if (C.enter === "glitch") {
+        [[-60, 0], [42, 0.05], [-24, 0.1], [70, 0.14], [-12, 0.19], [0, 0.24]].forEach(function (g) { tl.set(P + "p", { x: g[0] }, g[1]); });
+        tl.fromTo(P + "dip", { opacity: 0.7 }, { opacity: 0, duration: 0.24, ease: "steps(4)" }, 0);
+      }
+
+      // story effects
+      C.punches.forEach(function (t) { tl.set(P + "p", { scale: 1.22 }, t); });
+      C.shakes.forEach(function (t) {
+        C.jitter.forEach(function (j, k) {
+          var a = 22 * (1 - k / C.jitter.length);
+          tl.set(P + "sh", { x: j[0] * a, y: j[1] * a }, t + k * 0.04);
+        });
+        tl.set(P + "sh", { x: 0, y: 0 }, t + C.jitter.length * 0.04);
+      });
+      if (C.fx.indexOf("scan") >= 0) {
+        tl.set(P + "scan", { opacity: 0.6 }, 0.6);
+        tl.fromTo(P + "scan", { x: 0 }, { x: 700, duration: 1.5, ease: "none" }, 0.6);
+        tl.fromTo(P + "scan", { x: 0 }, { x: 700, duration: 1.5, ease: "none", immediateRender: false }, 2.4);
+        tl.set(P + "scan", { opacity: 0 }, 3.9);
+      }
+      if (C.fx.indexOf("blink") >= 0) {
+        tl.fromTo(P + "blink", { opacity: 0 }, { opacity: 0.32, duration: 0.16, ease: "steps(1)", yoyo: true, repeat: 7 }, 1.0);
+      }
+      if (C.fx.indexOf("flicker") >= 0) {
+        C.flick.forEach(function (v, k) { tl.set(P + "fl", { opacity: v }, k * (D / C.flick.length)); });
+      }
+      if (C.embers.length) {
+        var els = document.querySelectorAll(P + "emb .ember");
+        C.embers.forEach(function (e, k) {
+          var d = e[0], L = e[1], dx = e[2], dy = e[3];
+          var start = Math.max(0, d), f = d < 0 ? -d / L : 0, dur = L - (start - d);
+          tl.fromTo(els[k], { x: dx * f, y: dy * f }, { x: dx, y: dy, duration: dur, ease: "none" }, start);
+          tl.fromTo(els[k], { opacity: d < 0 ? 0.9 : 0 }, { opacity: 0.9, duration: 0.25 }, start);
+          tl.to(els[k], { opacity: 0, duration: 0.5 }, start + dur - 0.5);
+        });
+      }
+      if (C.fx.indexOf("fadeout") >= 0) tl.fromTo(P + "dip", { opacity: 0 }, { opacity: 1, duration: 0.8, ease: "power2.in", immediateRender: false }, D - 0.85);
+
+      // type: number chip, title wipes on, caption word by word
+      tl.fromTo(P + "num", { opacity: 0, scale: 0.6 }, { opacity: 1, scale: 1, duration: 0.3, ease: "back.out(2.2)" }, 0.18);
+      tl.fromTo(P + "ttl", { opacity: 1, clipPath: "inset(0% 100% 0% 0%)" }, { clipPath: "inset(0% 0% 0% 0%)", duration: 0.45, ease: "power3.out" }, 0.26);
+      tl.fromTo(P + "cap .w", { opacity: 0, filter: "blur(6px)" }, { opacity: 1, filter: "blur(0px)", duration: 0.14, stagger: 0.06, ease: "power2.out" }, 0.55);
+      tl.to([P + "tt", P + "cap"], { opacity: 0, duration: 0.18, ease: "power2.in" }, D - 0.24);
+
+      window.__timelines[C.id] = tl;
+    })();
+  </script>
+</template>

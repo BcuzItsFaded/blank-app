@@ -1,0 +1,98 @@
+<template>
+  <style>
+    #root { position: absolute; inset: 0; background: #070707; overflow: hidden; }
+    #s02-v { position: absolute; left: 0; top: 189px; width: 1920px; height: 702px; overflow: hidden; background: #070707; }
+    #s02-sh, #s02-p, #s02-k { position: absolute; inset: 0; }
+    #s02-img { position: absolute; left: 0; top: 0; width: 1920px; height: 702px; object-fit: cover; }
+    #s02-scan { position: absolute; left: 20px; top: 0; width: 12px; height: 702px; background: #9dffbe; opacity: 0; }
+    #s02-blink { position: absolute; left: 0; top: 0; width: 560px; height: 702px; background: #5dff8a; opacity: 0; mix-blend-mode: screen; }
+    #s02-emb { position: absolute; inset: 0; }
+    #s02-emb .ember { position: absolute; border-radius: 50%; opacity: 0; }
+    #s02-fl { position: absolute; inset: 0; background: #ff7a1f; mix-blend-mode: screen; opacity: 0; }
+    #s02-flash { position: absolute; inset: 0; background: #fff7ea; opacity: 0; }
+    #s02-dip { position: absolute; inset: 0; background: #070707; opacity: 0; }
+    #s02-tt { position: absolute; left: 96px; top: 58px; height: 90px; display: flex; align-items: center; gap: 22px; }
+    #s02-num { font-family: "League Gothic", sans-serif; font-size: 64px; line-height: 1; color: #070707; background: #f2c14e; padding: 8px 14px 4px; border-radius: 6px; }
+    #s02-ttl { font-family: "League Gothic", sans-serif; font-size: 80px; line-height: 1; letter-spacing: 1px; color: #f2c14e; white-space: nowrap; }
+    #s02-cap { position: absolute; left: 96px; top: 916px; font-family: "Inter", sans-serif; font-weight: 700; font-size: 46px; line-height: 1.2; color: #f4f1ea; white-space: nowrap; }
+    #s02-cap .w { display: inline-block; margin-right: 0.26em; }
+  </style>
+  <div id="root" data-composition-id="s02" data-width="1920" data-height="1080" data-layout-allow-overflow>
+    <div id="s02-v">
+      <div id="s02-sh"><div id="s02-p"><div id="s02-k">
+        <img id="s02-img" src="assets/panels/p02.png" alt="" />
+        <div id="s02-scan"></div>
+        <div id="s02-blink"></div>
+      </div></div></div>
+      <div id="s02-fl"></div>
+      <div id="s02-emb"></div>
+    </div>
+    <div id="s02-tt"><div id="s02-num">02</div><div id="s02-ttl">SHE’S THE ONLY SURVIVOR</div></div>
+    <div id="s02-cap"><span class="w">Newt</span><span class="w">and</span><span class="w">Hicks</span><span class="w">are</span><span class="w">dead.</span><span class="w">Only</span><span class="w">Ripley</span><span class="w">made</span><span class="w">it.</span></div>
+    <div id="s02-flash"></div>
+    <div id="s02-dip"></div>
+  </div>
+  <script>
+    (function () {
+      var C = {"id": "s02", "D": 4.6, "kb": [1.18, 1.1, -120, 90, 0, 0], "enter": "whipR", "fx": [], "embers": [], "flick": [0.17, 0.147, 0.101, 0.08, 0.161, 0.194, 0.193, 0.213, 0.15, 0.061, 0.102, 0.231, 0.147, 0.18, 0.206, 0.224, 0.087, 0.157, 0.2, 0.265, 0.115, 0.257, 0.245, 0.171, 0.183, 0.265, 0.151, 0.117, 0.233, 0.073, 0.215, 0.198, 0.14, 0.266, 0.19, 0.086, 0.146, 0.269, 0.07, 0.236], "shakes": [], "punches": [], "jitter": [[0.1, 0.59], [0.84, -0.83], [-0.15, -0.03], [-0.01, 0.68], [-0.88, -0.64], [0.5, 0.64], [0.9, -0.82], [0.66, -0.98], [0.58, -0.54], [0.84, 0.27]]};
+      var P = "#" + C.id + "-";
+      var D = C.D, kb = C.kb;
+      var tl = gsap.timeline({ paused: true });
+      gsap.set([P + "num", P + "ttl", P + "cap .w"], { opacity: 0 });
+
+      // camera: one continuous move across the panel
+      tl.fromTo(P + "k", { scale: kb[0], x: kb[2], y: kb[4] }, { scale: kb[1], x: kb[3], y: kb[5], duration: D, ease: "sine.inOut" }, 0);
+
+      // entrance, caused by the cut
+      if (C.enter === "dip") tl.fromTo(P + "dip", { opacity: 1 }, { opacity: 0, duration: 0.5, ease: "power2.out" }, 0);
+      if (C.enter === "flash") tl.fromTo(P + "flash", { opacity: 1 }, { opacity: 0, duration: 0.42, ease: "power2.out" }, 0);
+      if (C.enter === "whipR") tl.fromTo(P + "p", { x: 1500 }, { x: 0, duration: 0.34, ease: "power3.out" }, 0);
+      if (C.enter === "whipL") tl.fromTo(P + "p", { x: -1500 }, { x: 0, duration: 0.34, ease: "power3.out" }, 0);
+      if (C.enter === "glitch") {
+        [[-60, 0], [42, 0.05], [-24, 0.1], [70, 0.14], [-12, 0.19], [0, 0.24]].forEach(function (g) { tl.set(P + "p", { x: g[0] }, g[1]); });
+        tl.fromTo(P + "dip", { opacity: 0.7 }, { opacity: 0, duration: 0.24, ease: "steps(4)" }, 0);
+      }
+
+      // story effects
+      C.punches.forEach(function (t) { tl.set(P + "p", { scale: 1.22 }, t); });
+      C.shakes.forEach(function (t) {
+        C.jitter.forEach(function (j, k) {
+          var a = 22 * (1 - k / C.jitter.length);
+          tl.set(P + "sh", { x: j[0] * a, y: j[1] * a }, t + k * 0.04);
+        });
+        tl.set(P + "sh", { x: 0, y: 0 }, t + C.jitter.length * 0.04);
+      });
+      if (C.fx.indexOf("scan") >= 0) {
+        tl.set(P + "scan", { opacity: 0.6 }, 0.6);
+        tl.fromTo(P + "scan", { x: 0 }, { x: 700, duration: 1.5, ease: "none" }, 0.6);
+        tl.fromTo(P + "scan", { x: 0 }, { x: 700, duration: 1.5, ease: "none", immediateRender: false }, 2.4);
+        tl.set(P + "scan", { opacity: 0 }, 3.9);
+      }
+      if (C.fx.indexOf("blink") >= 0) {
+        tl.fromTo(P + "blink", { opacity: 0 }, { opacity: 0.32, duration: 0.16, ease: "steps(1)", yoyo: true, repeat: 7 }, 1.0);
+      }
+      if (C.fx.indexOf("flicker") >= 0) {
+        C.flick.forEach(function (v, k) { tl.set(P + "fl", { opacity: v }, k * (D / C.flick.length)); });
+      }
+      if (C.embers.length) {
+        var els = document.querySelectorAll(P + "emb .ember");
+        C.embers.forEach(function (e, k) {
+          var d = e[0], L = e[1], dx = e[2], dy = e[3];
+          var start = Math.max(0, d), f = d < 0 ? -d / L : 0, dur = L - (start - d);
+          tl.fromTo(els[k], { x: dx * f, y: dy * f }, { x: dx, y: dy, duration: dur, ease: "none" }, start);
+          tl.fromTo(els[k], { opacity: d < 0 ? 0.9 : 0 }, { opacity: 0.9, duration: 0.25 }, start);
+          tl.to(els[k], { opacity: 0, duration: 0.5 }, start + dur - 0.5);
+        });
+      }
+      if (C.fx.indexOf("fadeout") >= 0) tl.fromTo(P + "dip", { opacity: 0 }, { opacity: 1, duration: 0.8, ease: "power2.in", immediateRender: false }, D - 0.85);
+
+      // type: number chip, title wipes on, caption word by word
+      tl.fromTo(P + "num", { opacity: 0, scale: 0.6 }, { opacity: 1, scale: 1, duration: 0.3, ease: "back.out(2.2)" }, 0.18);
+      tl.fromTo(P + "ttl", { opacity: 1, clipPath: "inset(0% 100% 0% 0%)" }, { clipPath: "inset(0% 0% 0% 0%)", duration: 0.45, ease: "power3.out" }, 0.26);
+      tl.fromTo(P + "cap .w", { opacity: 0, filter: "blur(6px)" }, { opacity: 1, filter: "blur(0px)", duration: 0.14, stagger: 0.06, ease: "power2.out" }, 0.55);
+      tl.to([P + "tt", P + "cap"], { opacity: 0, duration: 0.18, ease: "power2.in" }, D - 0.24);
+
+      window.__timelines[C.id] = tl;
+    })();
+  </script>
+</template>
