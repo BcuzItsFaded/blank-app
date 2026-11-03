@@ -243,7 +243,7 @@ function build() {
     screenBox(130, 130, 520, 230, '#16283a'); typeIn(130, 130, 520, 90, 'SENTRY A — ROUNDS', wd('sentry') - 0.2, { color: '#7cf0a2', size: 36 });
     counter(130, 210, 520, 150, 500, 12, wd('chew'), wd('wave', 51.3) + 0.3, '', { color: '#7cf0a2', size: 96 });
     sentry(500, 980, T > wd('guns'), 1.2); sentry(780, 1010, T > wd('guns') + 0.1, 1.2);
-    for (let i = 0; i < 5; i++) { const ph = (T * 0.5 + i * 0.37) % 1; xeno({ x: 1900 - ph * 700, y: 860 + i * 20, s: 0.7, face: -1, crouch: 0.4, mouth: 0.5, seed: i, rot: ph > 0.8 ? -(ph - 0.8) * 4 : 0 }); if (ph > 0.75) puff(1900 - ph * 700 + 40, 760, 60, T - (ph - 0.75) * 2, P.white, 3); }
+    for (let i = 0; i < 5; i++) { const ph = (T * 0.5 + i * 0.37) % 1; xeno({ x: 1900 - ph * 700, y: 860 + i * 20, s: 0.7, face: -1, crouch: 0.4, mouth: 0.5, seed: i, walk: T * 9 + i * 1.7, rot: ph > 0.8 ? -(ph - 0.8) * 4 : 0 }); if (ph > 0.75) puff(1900 - ph * 700 + 40, 760, 60, T - (ph - 0.75) * 2, P.white, 3); }
   });
   shot(wd('but'), (lt, d) => {
     camera(lt, d, { z0: 1.06, z1: 1.12, x0: 960, x1: 960, y0: 560, y1: 520 });
@@ -323,8 +323,8 @@ function build() {
     camera(lt, d, { z0: 1.02, z1: 1.08, x0: 1100, x1: 960, y0: 560, y1: 500 });
     resinWall('#54496e', '#655985');
     const q = wd('queen', 72.66), r = eOut((T - q + 0.4) / 0.8);
-    tube([1150, 580 - r * 200, 1500, 560, 1900, 620], 160, '#c9bfa5'); for (let i = 0; i < 8; i++) ell(1250 + i * 85, 580 - r * 80 + Math.sin(i + T * 3) * 6, 30, 70, 0, '#b3a88c');
-    xeno({ x: 1000, y: 1000 + (1 - r) * 200, s: 1.9, face: -1, queen: true, extraArms: true, mouth: clamp((T - q) / 0.3), seed: 9 });
+    const sy = 1000 + (1 - r) * 200 - 300; tube([1060, sy, 1300, sy + 20, 1600, sy + 50, 1950, sy + 90], 170, '#c9bfa5'); for (let i = 0; i < 8; i++) ell(1180 + i * 95, sy + 20 + i * 9 + Math.sin(i + T * 3) * 6, 30, 72, 0, '#b3a88c');
+    xeno({ x: 1000, y: 1000 + (1 - r) * 200, s: 1.55, face: -1, queen: true, extraArms: true, mouth: clamp((T - q) / 0.3), seed: 9 });
     for (let i = 0; i < 6; i++) egg({ x: 160 + i * 150, y: 1010, s: 1.2, open: i === 2 ? 0.5 + 0.5 * Math.sin(T * 3) : 0 });
     if (T > q) ev('hit', q);
   });
@@ -361,7 +361,7 @@ function build() {
     camera(lt, d, { z0: 1.05, z1: 1.12, x0: 1100, x1: 1000 });
     room('#7a8093', '#5b6070');
     const h = wd('half'), k = T > h ? eOut((T - h) / 0.5) : 0;
-    xeno({ x: 1500, y: 1000, s: 1.8, face: -1, queen: true, mouth: 0.7, reach: 0.6 + 0.3 * k, seed: 3 });
+    xeno({ x: 1520, y: 1000, s: 1.5, face: -1, queen: true, mouth: 0.7, reach: 0.6 + 0.3 * k, seed: 3 });
     // Bishop: legs stay, top half lifted (android, white fluid puffs)
     ctx.save(); ctx.beginPath(); ctx.rect(0, 860, W, 300); ctx.clip(); person({ ...CAST.bishop, x: 1000, y: 1000, view: 'front', mouth: 'o', nod: 0 }); ctx.restore();
     ctx.save(); ctx.translate(k * 200, -k * 260); ctx.rotate(k * 0.3); ctx.beginPath(); ctx.rect(-500, 0, W + 500, 860); ctx.clip(); person({ ...CAST.bishop, x: 1000, y: 1000, view: 'front', mouth: 'o', nod: 0, lookX: 1.5, armA: { x: 900, y: 680 + k * 100, hand: 'open' }, armB: { x: 1100, y: 640 } }); ctx.restore();

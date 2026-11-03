@@ -294,39 +294,58 @@ const CAST = {
 const who = (name, extra) => ({ ...CAST[name], ...extra });
 
 // ===== creatures =====
-const XC = { b: '#2a2e47', d: '#1d2034', l: '#3d4363', t: '#ece6d6' };
-function xeno(o) { // side view, feet at x,y facing f
-  const s = o.s || 1, f = o.face || 1, t = T + (o.seed || 0), m = o.mouth || 0;
+const XC = { b: '#3a4066', d: '#2a2e4b', l: '#4f578a', sh: '#8790c8', t: '#ece8dc', in: '#7a3550' };
+function xeno(o) { // chunky cartoon xenomorph, side view, feet at x,y facing f
+  const s = o.s || 1, f = o.face || 1, t = T + (o.seed || 0), m = clamp(o.mouth || 0), cr = o.crouch || 0, ph = o.walk, rc = o.reach || 0, Q = !!o.queen;
   push(o.x, o.y, o.rot || 0, s * f, s);
+  const br = Math.sin(t * 2.2) * 4, hx = -20, hy = -205 + cr * 55;
+  const chx = 55, chy = -305 + cr * 70 + br * 0.5;
   // tail
-  const tp = []; for (let i = 0; i <= 12; i++) tp.push(-40 - i * 26, -150 + i * 8 + Math.sin(i * 0.45 - t * 2.2) * (6 + i * 2.2));
-  for (let i = 0; i < 12; i++) tube([tp[i * 2], tp[i * 2 + 1], tp[i * 2 + 2], tp[i * 2 + 3]], 26 - i * 1.8, XC.d);
-  poly([tp[24], tp[25] - 10, tp[24] - 40, tp[25] + 4, tp[24], tp[25] + 12], XC.d);
-  const cr = o.crouch || 0, hipY = -170 + cr * 50;
-  // far legs/arms
-  tube([0, hipY, -30, hipY + 80, 10, -8], 20, XC.d); tube([60, hipY - 90, 95, hipY - 20 + Math.sin(t * 3) * 6, 120, hipY + 30], 13, XC.d);
-  // body
-  ctx.fillStyle = XC.b; ctx.beginPath(); ctx.moveTo(-30, hipY + 10); ctx.quadraticCurveTo(10, hipY - 120, 90, hipY - 110); ctx.lineTo(105, hipY - 80); ctx.quadraticCurveTo(40, hipY - 50, 20, hipY + 20); ctx.closePath(); ctx.fill();
-  for (let i = 0; i < 4; i++) rrect(10 + i * 18, hipY - 95 + i * 4, 10, 40, 5, XC.l);
-  for (let i = 0; i < 3; i++) { push(-10 + i * 22, hipY - 92 - i * 10, -0.9); rrect(-6, -50, 12, 50, 6, XC.d); pop(); }
-  // near leg
-  tube([5, hipY + 5, -25, hipY + 85, 22, -10], 22, XC.b); ell(32, -8, 22, 9, 0, XC.b);
+  const tp = []; for (let i = 0; i <= 14; i++) tp.push(hx - 30 - i * 25, hy + 25 + i * 9 + Math.sin(i * 0.42 - t * 2.4) * (3 + i * 2.4));
+  for (let i = 0; i < 14; i++) tube([tp[i * 2], tp[i * 2 + 1], tp[i * 2 + 2], tp[i * 2 + 3]], 36 - i * 2.1, i % 2 ? XC.d : shade(XC.d, 0.06));
+  push(tp[28], tp[29], Math.atan2(tp[29] - tp[27], tp[28] - tp[26])); poly([0, -4, 26, -22, 58, 0, 26, 22, 0, 4], XC.d); pop();
+  // legs (digitigrade): thigh forward, shin back, foot forward
+  const leg = (k, col) => {
+    const p = ph === undefined ? 0 : ph + k * Math.PI;
+    const sw = ph === undefined ? (k ? 0.14 : -0.06) : 0.42 * Math.sin(p), lift = ph === undefined ? 0 : Math.max(0, Math.cos(p)) * 26;
+    const a = 0.55 + sw, kx = hx + Math.sin(a) * 95, ky = hy + Math.cos(a) * 95 * (1 - cr * 0.35);
+    const ax = kx - 62 + sw * 30, ay = -34 - lift;
+    tube([hx, hy, kx, ky], 44, col); tube([kx, ky, ax, ay], 30, col); tube([ax, ay, ax + 52, -6 - lift * 0.4], 20, col);
+    for (let i = 0; i < 2; i++) line(ax + 52, -6 - lift * 0.4, ax + 66, -2 - lift * 0.4 + i * 6, 7, col);
+  };
+  leg(1, XC.d);
+  // far arm
+  tube([chx + 5, chy + 22, chx + 30, chy + 95, chx + 75 + rc * 70, chy + 70 - rc * 40], 22, XC.d);
+  // dorsal tubes
+  const nt = Q ? 6 : 4; for (let i = 0; i < nt; i++) { push(chx - 18 - i * 17, chy - 10 + i * 13, -1.05 - i * 0.1); rrect(-11, -(Q ? 90 : 72), 22, Q ? 90 : 72, 11, i % 2 ? XC.l : XC.b); pop(); }
+  // torso
+  tube([hx, hy, chx, chy], 104, XC.b); ell(chx, chy + 8, 64, 58, 0.3, XC.b);
+  ctx.strokeStyle = XC.l; ctx.lineWidth = 9; ctx.lineCap = 'round';
+  ctx.lineWidth = 8; for (let i = 0; i < 4; i++) { ctx.beginPath(); ctx.arc(chx - 6, chy - 4 + i * 19, 48, -0.15, 0.55); ctx.stroke(); }
+  if (Q && o.extraArms) tube([chx + 20, chy + 50, chx + 60, chy + 92, chx + 92, chy + 70 + Math.sin(t * 3) * 10], 16, XC.l);
+  leg(0, XC.b);
   // head
-  push(100, hipY - 100, (o.headR || 0) + Math.sin(t * 1.7) * 0.04);
-  ell(-15, -30, 105, 38, -0.32, XC.b); ell(-5, -38, 80, 18, -0.32, XC.l);
-  ell(62, 4, 32, 20 + m * 6, 0.25, XC.b);
-  const jaw = m * 30;
-  ctx.fillStyle = XC.b; ctx.beginPath(); ctx.moveTo(35, 14); ctx.lineTo(95, 16 + jaw * 0.5); ctx.lineTo(80, 30 + jaw); ctx.lineTo(30, 28 + jaw * 0.4); ctx.closePath(); ctx.fill();
-  if (m > 0.05) { rect(45, 14, 46, jaw * 0.8, '#6d3045'); }
-  for (let i = 0; i < 6; i++) poly([50 + i * 7, 12, 54 + i * 7, 12, 52 + i * 7, 20], XC.t);
-  for (let i = 0; i < 5; i++) poly([50 + i * 7, 14 + jaw * 0.8, 54 + i * 7, 14 + jaw * 0.8, 52 + i * 7, 7 + jaw * 0.8], XC.t);
-  if (o.queen) { ctx.fillStyle = XC.d; ctx.beginPath(); ctx.moveTo(-10, -30); ctx.quadraticCurveTo(-120, -170, -260, -110); ctx.quadraticCurveTo(-200, -40, -60, 10); ctx.closePath(); ctx.fill(); for (let i = 0; i < 5; i++) { push(-60 - i * 40, -60 - i * 12, -0.4); rrect(-6, -40, 12, 40, 6, XC.l); pop(); } }
+  push(chx + 30, chy - 15, (o.headR || 0) + Math.sin(t * 1.6) * 0.04);
+  if (Q) { // crown: a wide solid fan behind the head
+    const qp = (k, A, B, C) => (1 - k) * (1 - k) * A + 2 * (1 - k) * k * B + k * k * C;
+    ctx.fillStyle = XC.d; ctx.beginPath(); ctx.moveTo(40, -40); ctx.quadraticCurveTo(-10, -330, -380, -270); ctx.quadraticCurveTo(-350, -170, -300, -120); ctx.quadraticCurveTo(-170, -40, -40, -14); ctx.closePath(); ctx.fill();
+    for (let i = 1; i < 7; i++) { const k = i / 7, ex = qp(k, 40, -10, -380), ey = qp(k, -40, -330, -270); tube([-10, -40, lerp(-10, ex, 0.55), lerp(-40, ey, 0.55) + 10, ex * 0.94, ey * 0.94], 11, XC.l); }
+    for (let i = 1; i < 9; i++) { const k = i / 9, x = qp(k, 40, -10, -380), y = qp(k, -40, -330, -270); poly([x - 13, y + 10, x - 4, y - 26, x + 13, y + 6], XC.d); }
+  }
+  ctx.fillStyle = XC.b; ctx.beginPath(); ctx.moveTo(80, 18); ctx.quadraticCurveTo(108, -34, 45, -66);
+  ctx.bezierCurveTo(-20, -104, -135, -112, -210, -78); ctx.bezierCurveTo(-140, -38, -50, -4, 10, 16); ctx.closePath(); ctx.fill();
+  tube([50, -62, -20, -92, -100, -102, -170, -88], 16, XC.l); tube([30, -76, -30, -96, -100, -100], 6, XC.sh);
+  ell(62, 6, 44, 26, 0.15, XC.b);
+  // mouth: dark interior, silver teeth, hinged jaw, inner jaw
+  if (m > 0.04) poly([28, 12, 98, 10, 92, 14 + m * 30, 30, 20 + m * 6], XC.in);
+  for (let i = 0; i < 8; i++) poly([30 + i * 8.5, 10, 37 + i * 8.5, 10, 33.5 + i * 8.5, 22], XC.t);
+  push(30, 16, m * 0.42); rrect(-6, -2, 78, 22, 10, XC.b); for (let i = 0; i < 7; i++) poly([2 + i * 9, 0, 9 + i * 9, 0, 5.5 + i * 9, -11], XC.t); pop();
+  if (m > 0.6) { const k = (m - 0.6) / 0.4, ix = 30 + k * 95; tube([30, 18, ix, 20 + m * 8], 13, XC.d); rrect(ix - 6, 12 + m * 8, 22, 16, 6, XC.d); for (let i = 0; i < 3; i++) poly([ix + i * 6 - 4, 14 + m * 8, ix + i * 6 + 1, 14 + m * 8, ix + i * 6 - 1.5, 22 + m * 8], XC.t); }
   pop();
-  // near arm with claws
-  const ax = 60 + (o.reach || 0) * 70, ay = hipY - 85;
-  tube([ax, ay, ax + 40, ay + 55 + Math.sin(t * 2.6) * 8, ax + 75 + (o.reach || 0) * 60, ay + 95 - (o.reach || 0) * 60], 14, XC.b);
-  for (let i = 0; i < 3; i++) line(ax + 75 + (o.reach || 0) * 60, ay + 95 - (o.reach || 0) * 60, ax + 92 + (o.reach || 0) * 60 + i * 4, ay + 110 - (o.reach || 0) * 60 + i * 6, 5, XC.d);
-  if (o.queen && o.extraArms) tube([70, hipY - 60, 110, hipY - 20, 140, hipY - 30 + Math.sin(t * 3) * 10], 10, XC.l);
+  // near arm
+  const sx = chx + 18, sy = chy + 18, ex = sx + 36, ey = sy + 72 + Math.sin(t * 2.6) * 6, wx = ex + 50 + rc * 85, wy = ey - 10 - rc * 70;
+  tube([sx, sy, ex, ey], 28, XC.b); tube([ex, ey, wx, wy], 24, XC.b);
+  for (let i = 0; i < 3; i++) { const a = -0.5 + i * 0.5 + rc * -0.4; tube([wx, wy, wx + Math.cos(a) * 34, wy + Math.sin(a) * 34 + 10, wx + Math.cos(a) * 48 + 4, wy + Math.sin(a) * 48 + 24], 8, XC.d); }
   pop();
 }
 function facehugger(o) {
