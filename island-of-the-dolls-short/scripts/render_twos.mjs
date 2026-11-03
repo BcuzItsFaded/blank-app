@@ -15,14 +15,15 @@ import path from "path";
 const ONES = process.argv.includes("--ones");
 const STEP = ONES ? 1 : 2;
 const CHUNK = 60;
-const OUT = "out/island-of-the-dolls-short.mp4";
-const DIR = path.resolve("out/frames");
+const OUT = process.env.OUT || "out/island-of-the-dolls-short.mp4";
+const FRAMES_DIR = process.env.FRAMES || "out/frames";
+const DIR = path.resolve(FRAMES_DIR);
 fs.mkdirSync(DIR, { recursive: true });
 
 const shell = "/opt/pw-browsers/chromium_headless_shell-1243/chrome-headless-shell-linux64/chrome-headless-shell";
 const browserExecutable = fs.existsSync(shell) ? shell : undefined;
 const serveUrl = await bundle({ entryPoint: path.resolve("src/index.ts") });
-const composition = await selectComposition({ serveUrl, id: "IslandOfTheDolls", browserExecutable, timeoutInMilliseconds: 120000 });
+const composition = await selectComposition({ serveUrl, id: process.env.COMP || "IslandOfTheDolls", browserExecutable, timeoutInMilliseconds: 120000 });
 const total = composition.durationInFrames;
 const name = (fr) => path.join(DIR, `f${String(fr).padStart(4, "0")}.jpeg`);
 const t0 = Date.now();

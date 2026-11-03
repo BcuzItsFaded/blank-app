@@ -3,6 +3,7 @@ import { AbsoluteFill, Audio, Img, Sequence, staticFile, useCurrentFrame, interp
 import { SCENES, META, PAD, FPS, clamp, startF, durF } from "./lib";
 import { Grain, Vignette } from "./fx";
 import { PlateScene } from "./scenes";
+import { CEL_SCENES } from "./cel/celScenes";
 import timings from "./timings.json";
 
 /* ------------------------------------------------------------------ fonts */
@@ -20,7 +21,7 @@ const useFonts = () => {
 
 /* ------------------------------------------------------------------ scene shell + transitions */
 const DIS = 7; // half-length of a cross dissolve, frames
-const SceneShell: React.FC<{ i: number }> = ({ i }) => {
+const SceneShell: React.FC<{ i: number; cel?: boolean }> = ({ i, cel }) => {
   const f = useCurrentFrame() - PAD; // scene-local frame (0 = start)
   const s = SCENES[i];
   const prev = i > 0 ? SCENES[i - 1].transitionOut : undefined;
@@ -34,7 +35,8 @@ const SceneShell: React.FC<{ i: number }> = ({ i }) => {
   if (f > durF(s) + DIS && s.transitionOut !== "none") return null;
   return (
     <AbsoluteFill style={{ opacity }}>
-      <PlateScene s={s} f={f} extraZoom={extraZoom} shake={shake} />
+      {cel ? (() => { const C = CEL_SCENES[i]; return <AbsoluteFill style={{ transform: `scale(${extraZoom}) translate(${Math.sin(f * 1.9) * shake}px, ${Math.cos(f * 2.3) * shake}px)` }}><C f={f} /></AbsoluteFill>; })()
+        : <PlateScene s={s} f={f} extraZoom={extraZoom} shake={shake} />}
     </AbsoluteFill>
   );
 };
@@ -122,16 +124,16 @@ const Captions: React.FC<{ i: number }> = ({ i }) => {
 };
 
 /* ------------------------------------------------------------------ main */
-export const Main: React.FC = () => {
+export const Main: React.FC<{ cel?: boolean }> = ({ cel = false }) => {
   useFonts();
   const fr = useCurrentFrame();
-  const inScene1 = fr < startF(SCENES[1]); // scene 1's painting already carries the hosts' logo
+  const inScene1 = fr < startF(SCENES[1]); // scene 1 already carries the hosts' logo (painting / cel intro)
   const logoIn = interpolate(fr, [startF(SCENES[1]) - 6, startF(SCENES[1]) + 8], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
   return (
     <AbsoluteFill style={{ background: "#0a0610" }}>
       {SCENES.map((s, i) => (
         <Sequence key={s.id} from={startF(s) - PAD} durationInFrames={durF(s) + PAD * 2} name={`${s.id} ${s.name}`}>
-          <SceneShell i={i} />
+          <SceneShell i={i} cel={cel} />
         </Sequence>
       ))}
       <TwistFlash />

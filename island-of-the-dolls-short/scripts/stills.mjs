@@ -11,7 +11,7 @@ const shell = "/opt/pw-browsers/chromium_headless_shell-1243/chrome-headless-she
 const browserExecutable = fs.existsSync(shell) ? shell : undefined;
 fs.mkdirSync(outDir, { recursive: true });
 const serveUrl = await bundle({ entryPoint: path.resolve("src/index.ts") });
-const composition = await selectComposition({ serveUrl, id: "IslandOfTheDolls", browserExecutable });
+const composition = await selectComposition({ serveUrl, id: process.env.COMP || "IslandOfTheDolls", browserExecutable });
 for (const frame of list) {
   const output = path.join(outDir, `frame-${String(frame).padStart(4, "0")}.png`);
   await renderStill({ composition, serveUrl, frame, output, scale: Number(scale), browserExecutable, chromiumOptions: { gl: "swangle" } });
