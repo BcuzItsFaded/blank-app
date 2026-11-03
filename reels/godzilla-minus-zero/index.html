@@ -1,0 +1,837 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Minus Zero Reel</title>
+<style>
+  :root { --cap-bg: rgba(8,10,14,.62); --cap-fg: #f4efe6; --accent: #7fd3ff; }
+  html, body { margin: 0; height: 100%; background: #000; overflow: hidden; }
+  #stage { position: relative; width: 720px; height: 1280px; margin: 0 auto; overflow: hidden; background: #000;
+           font-family: "DejaVu Sans", "Liberation Sans", Arial, sans-serif; }
+  canvas { display: block; }
+  #vignette { position: absolute; inset: 0; pointer-events: none;
+    background: radial-gradient(ellipse at 50% 45%, rgba(0,0,0,0) 55%, rgba(0,0,0,.55) 100%); }
+  #grain { position: absolute; inset: 0; pointer-events: none; opacity: .07; mix-blend-mode: overlay; }
+  #fade { z-index: 5; position: absolute; inset: 0; background: #000; opacity: 0; pointer-events: none; }
+  #flash { z-index: 4; position: absolute; inset: 0; background: #dff4ff; opacity: 0; pointer-events: none; mix-blend-mode: screen; }
+  #caption { z-index: 7; position: absolute; left: 48px; right: 48px; top: 66%; text-align: center; pointer-events: none; }
+  #caption span { display: inline; padding: 6px 12px; line-height: 1.55; font-size: 31px; font-weight: 700;
+    color: var(--cap-fg); background: var(--cap-bg); box-decoration-break: clone; -webkit-box-decoration-break: clone;
+    border-radius: 6px; text-shadow: 0 2px 6px rgba(0,0,0,.6); }
+  #caption b { color: var(--accent); }
+  #brand { position: absolute; right: 26px; bottom: 30px; font-size: 17px; font-weight: 700; letter-spacing: .5px;
+    color: rgba(255,255,255,.78); padding: 6px 10px; border: 1.5px solid rgba(255,255,255,.45); border-radius: 6px;
+    background: rgba(0,0,0,.35); }
+  #brand i { font-style: normal; color: #ffb347; }
+  #title { z-index: 6; position: absolute; left: 0; right: 0; top: 36%; text-align: center; opacity: 0; pointer-events: none; }
+  #title .t1 { font-family: "DejaVu Serif", serif; font-weight: 700; font-size: 76px; letter-spacing: 6px; color: #eef7ff;
+    text-shadow: 0 0 24px rgba(90,170,255,.85), 0 0 60px rgba(40,110,255,.6); line-height: 1.05; }
+  #title .t2 { margin-top: 18px; font-size: 26px; letter-spacing: 9px; color: #9fd0ff; }
+  #title .t3 { margin-top: 26px; font-size: 21px; letter-spacing: 2px; color: rgba(255,255,255,.75); }
+  #endlogo { z-index: 6; position: absolute; left: 0; right: 0; top: 63%; text-align: center; opacity: 0; }
+  #endlogo span { display: inline-block; font-size: 24px; font-weight: 700; color: #fff; padding: 9px 16px;
+    border: 2px solid #ffb347; border-radius: 8px; }
+  #endlogo i { font-style: normal; color: #ffb347; }
+  #ui { position: fixed; left: 8px; top: 8px; z-index: 9; font: 13px sans-serif; color: #ccc; }
+  #ui button { font: inherit; padding: 4px 10px; }
+  body.render #ui { display: none; }
+</style>
+</head>
+<body>
+<div id="ui"><button id="play">Play</button> <input id="scrub" type="range" min="0" max="60" step="0.01" value="0" style="width:260px"> <span id="tc">0.00</span></div>
+<div id="stage">
+  <div id="vignette"></div>
+  <canvas id="grain" width="360" height="640"></canvas>
+  <div id="title"><div class="t1">GODZILLA<br>MINUS ZERO</div><div class="t2">NOVEMBER 2026</div><div class="t3">A trailer breakdown</div></div>
+  <div id="endlogo"><span>Plot Twist <i>with A&amp;R</i></span></div>
+  <div id="caption"></div>
+  <div id="brand">Plot Twist <i>w/ A&amp;R</i></div>
+  <div id="flash"></div>
+  <div id="fade"></div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/three@0.149.0/build/three.min.js"></script>
+<script>
+"use strict";
+THREE.ColorManagement.legacyMode = false;
+const W = 720, H = 1280, FPS = 30, DURATION = 60;
+const stage = document.getElementById('stage');
+const renderer = new THREE.WebGLRenderer({ antialias: true, preserveDrawingBuffer: true });
+renderer.setPixelRatio(1);
+renderer.setSize(W, H);
+renderer.shadowMap.enabled = true;
+renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+renderer.outputEncoding = THREE.sRGBEncoding;
+renderer.toneMapping = THREE.ACESFilmicToneMapping;
+stage.prepend(renderer.domElement);
+
+// ---------- utilities ----------
+function rng(seed) { let s = seed >>> 0; return () => { s = (s * 1664525 + 1013904223) >>> 0; return s / 4294967296; }; }
+const clamp = (x, a, b) => Math.min(b, Math.max(a, x));
+const lerp = (a, b, t) => a + (b - a) * t;
+const ease = t => t < 0 ? 0 : t > 1 ? 1 : t * t * (3 - 2 * t);
+const easeOut = t => 1 - Math.pow(1 - clamp(t, 0, 1), 3);
+const easeIn = t => Math.pow(clamp(t, 0, 1), 3);
+const V = (x, y, z) => new THREE.Vector3(x, y, z);
+const matCache = {};
+function plastic(color, opts = {}) {
+  const key = color + JSON.stringify(opts);
+  if (!matCache[key]) matCache[key] = new THREE.MeshStandardMaterial(Object.assign({ color, roughness: 0.42, metalness: 0.0 }, opts));
+  return matCache[key];
+}
+let CUR = null;
+const boxGeo = new THREE.BoxGeometry(1, 1, 1);
+const studGeo = new THREE.CylinderGeometry(0.3, 0.3, 0.18, 12);
+function box(w, h, d, mat, x = 0, y = 0, z = 0, parent) {
+  const m = new THREE.Mesh(boxGeo, typeof mat === 'number' ? plastic(mat) : mat);
+  m.scale.set(w, h, d); m.position.set(x, y, z); m.castShadow = true; m.receiveShadow = true;
+  (parent || CUR).add(m);
+  return m;
+}
+// Stud collector: every brick-top gets studs, merged into one InstancedMesh per material.
+class Studs {
+  constructor() { this.byMat = new Map(); }
+  add(mat, x, y, z, w, d, pitch = 1, scale = 1) {
+    if (!this.byMat.has(mat)) this.byMat.set(mat, []);
+    const arr = this.byMat.get(mat);
+    const nx = Math.max(1, Math.floor(w / pitch)), nz = Math.max(1, Math.floor(d / pitch));
+    for (let i = 0; i < nx; i++) for (let k = 0; k < nz; k++)
+      arr.push([x - w / 2 + pitch * (i + 0.5) * (w / (nx * pitch)), y + 0.09 * scale, z - d / 2 + pitch * (k + 0.5) * (d / (nz * pitch)), scale]);
+  }
+  build(parent) {
+    const m4 = new THREE.Matrix4(), q = new THREE.Quaternion();
+    for (const [mat, arr] of this.byMat) {
+      const im = new THREE.InstancedMesh(studGeo, mat, arr.length);
+      arr.forEach((p, i) => { m4.compose(V(p[0], p[1], p[2]), q, V(p[3], p[3], p[3])); im.setMatrixAt(i, m4); });
+      im.castShadow = true; im.receiveShadow = true; parent.add(im);
+    }
+  }
+}
+// Brick building: stacked courses with slight jitter, broken tops for ruins.
+function building(scene, studs, R, x, z, w, d, h, color, ruined) {
+  const g = new THREE.Group(); g.position.set(x, 0, z); scene.add(g);
+  const mat = plastic(color);
+  const dark = plastic(new THREE.Color(color).multiplyScalar(0.55).getHex());
+  const course = 0.6;
+  const n = Math.max(1, Math.round(h / course));
+  let topY = 0;
+  for (let i = 0; i < n; i++) {
+    const shrink = ruined ? (i / n) * R() * 0.5 : 0;
+    const ww = w * (1 - shrink * R()), dd = d * (1 - shrink * R());
+    if (ruined && i > n * 0.5 && R() < 0.25) break;
+    box(ww, course * 0.98, dd, i % 4 === 3 ? dark : mat, (R() - 0.5) * shrink, course * (i + 0.5), (R() - 0.5) * shrink, g);
+    topY = course * (i + 1);
+  }
+  // windows
+  const win = plastic(ruined ? 0x16130f : 0x2b3440, { roughness: 0.2 });
+  for (let y = 1.2; y < topY - 0.6; y += 1.8) {
+    for (let k = -w / 2 + 0.8; k < w / 2 - 0.5; k += 1.4) {
+      if (ruined && R() < 0.3) continue;
+      box(0.6, 0.8, 0.05, win, k, y, d / 2 + 0.02, g);
+    }
+  }
+  studs.add(mat, x, topY, z, w * 0.8, d * 0.8, 1.0, 1.0);
+  return { g, topY };
+}
+function japaneseHouse(scene, studs, x, z, rot, wallColor, roofColor, scale = 1) {
+  const g = new THREE.Group(); g.position.set(x, 0, z); g.rotation.y = rot; g.scale.setScalar(scale); scene.add(g);
+  box(6, 0.4, 5, 0x5a4a3a, 0, 0.2, 0, g);
+  box(5.6, 2.6, 4.6, wallColor, 0, 1.7, 0, g);
+  // timber frame
+  for (const px of [-2.75, -0.9, 0.9, 2.75]) box(0.25, 2.7, 0.25, 0x3b2a1c, px, 1.75, 2.35, g);
+  box(5.8, 0.25, 0.25, 0x3b2a1c, 0, 3.0, 2.35, g);
+  // shoji panels
+  for (const px of [-1.8, 0, 1.8]) box(1.5, 1.8, 0.05, 0xeee3c8, px, 1.6, 2.33, g);
+  // stepped roof
+  for (let i = 0; i < 5; i++) box(7.2 - i * 1.3, 0.35, 6.2 - i * 1.15, roofColor, 0, 3.2 + i * 0.35, 0, g);
+  box(1.0, 0.35, 6.4, roofColor, 0, 3.2 + 5 * 0.35, 0, g);
+  return g;
+}
+
+// Minifig-style figure (generic block person)
+function figure(opts) {
+  const o = Object.assign({ shirt: 0x334455, pants: 0x222222, skin: 0xe8b98a, hair: 0x1a1410, hairStyle: 'short', scale: 1 }, opts);
+  const root = new THREE.Group(); root.scale.setScalar(o.scale);
+  const hipsY = 1.2;
+  const legL = new THREE.Group(), legR = new THREE.Group();
+  legL.position.set(-0.32, hipsY, 0); legR.position.set(0.32, hipsY, 0);
+  box(0.58, 1.15, 0.7, o.pants, 0, -0.6, 0, legL); box(0.58, 1.15, 0.7, o.pants, 0, -0.6, 0, legR);
+  box(0.6, 0.15, 0.8, 0x1b1b1b, 0, -1.12, 0.04, legL); box(0.6, 0.15, 0.8, 0x1b1b1b, 0, -1.12, 0.04, legR);
+  root.add(legL, legR);
+  box(1.3, 0.25, 0.72, o.pants, 0, hipsY + 0.08, 0, root);
+  const torso = box(1.3, 1.25, 0.7, o.shirt, 0, hipsY + 0.83, 0, root);
+  if (o.dress) box(1.5, 0.9, 0.85, o.shirt, 0, hipsY - 0.15, 0, root);
+  const armL = new THREE.Group(), armR = new THREE.Group();
+  armL.position.set(-0.8, hipsY + 1.35, 0); armR.position.set(0.8, hipsY + 1.35, 0);
+  box(0.36, 1.05, 0.42, o.shirt, 0, -0.45, 0, armL); box(0.36, 1.05, 0.42, o.shirt, 0, -0.45, 0, armR);
+  const hand = new THREE.CylinderGeometry(0.15, 0.15, 0.25, 10);
+  const hL = new THREE.Mesh(hand, plastic(o.skin)); hL.position.y = -1.05; armL.add(hL);
+  const hR = new THREE.Mesh(hand, plastic(o.skin)); hR.position.y = -1.05; armR.add(hR);
+  root.add(armL, armR);
+  const neck = new THREE.Mesh(new THREE.CylinderGeometry(0.24, 0.24, 0.18, 14), plastic(o.skin));
+  neck.position.y = hipsY + 1.53; root.add(neck);
+  const head = new THREE.Group(); head.position.y = hipsY + 1.62; root.add(head);
+  const hm = new THREE.Mesh(new THREE.CylinderGeometry(0.42, 0.42, 0.85, 20), plastic(o.skin));
+  hm.position.y = 0.43; hm.castShadow = true; head.add(hm);
+  const stud = new THREE.Mesh(studGeo, plastic(o.skin)); stud.position.y = 0.95; stud.scale.setScalar(0.85); head.add(stud);
+  const eye = plastic(0x111111);
+  box(0.08, 0.13, 0.04, eye, -0.15, 0.5, 0.41, head); box(0.08, 0.13, 0.04, eye, 0.15, 0.5, 0.41, head);
+  box(0.24, 0.035, 0.04, eye, 0, 0.27, 0.41, head);
+  const hairMat = plastic(o.hair);
+  if (o.hairStyle === 'short') { box(0.92, 0.3, 0.92, hairMat, 0, 0.88, -0.02, head); box(0.92, 0.45, 0.25, hairMat, 0, 0.66, -0.36, head); }
+  if (o.hairStyle === 'bob') { box(1.0, 0.32, 0.98, hairMat, 0, 0.9, -0.02, head); box(1.0, 0.8, 0.4, hairMat, 0, 0.5, -0.32, head);
+    box(0.18, 0.75, 0.75, hairMat, -0.46, 0.52, -0.08, head); box(0.18, 0.75, 0.75, hairMat, 0.46, 0.52, -0.08, head); }
+  if (o.hairStyle === 'pigtails') { box(0.94, 0.3, 0.94, hairMat, 0, 0.88, -0.02, head);
+    box(0.25, 0.5, 0.25, hairMat, -0.55, 0.5, -0.2, head); box(0.25, 0.5, 0.25, hairMat, 0.55, 0.5, -0.2, head); }
+  if (o.hairStyle === 'cap') { box(0.95, 0.3, 0.95, hairMat, 0, 0.92, 0, head); box(0.95, 0.06, 0.4, hairMat, 0, 0.8, 0.6, head); }
+  if (o.hairStyle === 'bald') { box(0.9, 0.15, 0.6, 0x9a9a9a, 0, 0.75, -0.2, head); }
+  if (o.glasses) { box(0.62, 0.05, 0.03, 0x111111, 0, 0.55, 0.44, head); }
+  if (o.coat) box(1.4, 1.3, 0.76, o.coat, 0, hipsY + 0.8, -0.01, root);
+  root.userData = { legL, legR, armL, armR, head, neck, torso };
+  return root;
+}
+function walkCycle(f, t, speed = 6, amp = 0.55) {
+  const s = Math.sin(t * speed);
+  f.userData.legL.rotation.x = s * amp; f.userData.legR.rotation.x = -s * amp;
+  f.userData.armL.rotation.x = -s * amp * 0.8; f.userData.armR.rotation.x = s * amp * 0.8;
+}
+
+// Kaiju (brick-built, consistent across all scenes)
+const KAIJU_SKIN = plastic(0x2c2d2f, { roughness: 0.75 });
+const KAIJU_SKIN2 = plastic(0x1f2022, { roughness: 0.85 });
+function makeKaiju() {
+  const root = new THREE.Group();
+  const plateMat = new THREE.MeshStandardMaterial({ color: 0xbfc6cc, roughness: 0.5, emissive: 0x58b4ff, emissiveIntensity: 0 });
+  const R = rng(77);
+  const add = (w, h, d, x, y, z, p = root, m = KAIJU_SKIN) => box(w, h, d, m, x, y, z, p);
+  // legs
+  const legs = [];
+  for (const side of [-1, 1]) {
+    const leg = new THREE.Group(); leg.position.set(side * 3.2, 11, 0); root.add(leg);
+    add(4.2, 6, 5, 0, -2.5, 0, leg); add(3.4, 5, 3.8, 0, -7.5, 0.6, leg, KAIJU_SKIN2); add(4.4, 1.6, 6, 0, -10.2, 1.4, leg);
+    for (const c of [-1.4, 0, 1.4]) add(0.7, 0.8, 1.4, c, -10.5, 4.6, leg, plastic(0x8d8a80));
+    legs.push(leg);
+  }
+  // torso stack, leaning forward
+  const torso = new THREE.Group(); torso.position.set(0, 12, 0); root.add(torso);
+  const courses = [[9, 3, 7.5], [8.6, 3, 7.2], [8, 3, 6.6], [7.2, 3, 6], [6.4, 2.8, 5.4], [5.4, 2.6, 4.6]];
+  let y = 0;
+  courses.forEach(([w, h, d], i) => { add(w, h, d, 0, y + h / 2, i * 0.45, torso, i % 2 ? KAIJU_SKIN2 : KAIJU_SKIN); y += h; });
+  add(5.6, 9, 0.6, 0, 8, 3.8, torso, plastic(0x3a3632, { roughness: 0.8 })); // belly
+  // arms
+  const arms = [];
+  for (const side of [-1, 1]) {
+    const arm = new THREE.Group(); arm.position.set(side * 4.4, 13, 2.2); torso.add(arm);
+    add(1.8, 4, 1.8, 0, -1.8, 0.4, arm); add(1.4, 3, 1.4, 0, -4.5, 1.6, arm, KAIJU_SKIN2);
+    arm.rotation.x = -0.6; arm.rotation.z = side * 0.18; arms.push(arm);
+  }
+  // neck & head
+  const neck = new THREE.Group(); neck.position.set(0, y, 2.6); torso.add(neck);
+  add(4.4, 3, 4.2, 0, 1.2, 0.4, neck); add(3.8, 2.4, 3.8, 0, 3.4, 1.0, neck, KAIJU_SKIN2);
+  const head = new THREE.Group(); head.position.set(0, 4.6, 1.8); neck.add(head);
+  add(4.2, 2.4, 4.4, 0, 0.6, 0.8, head); add(3.6, 1.0, 3.2, 0, 1.6, 0.4, head, KAIJU_SKIN2); // skull & brow
+  add(3.4, 1.0, 2.6, 0, 0.9, 3.8, head); // upper snout
+  const jaw = new THREE.Group(); jaw.position.set(0, -0.4, 1.2); head.add(jaw);
+  add(3.2, 0.9, 4.2, 0, -0.2, 1.6, jaw, KAIJU_SKIN2);
+  const teeth = plastic(0xd8d2c0);
+  for (let i = -1.2; i <= 1.21; i += 0.6) { add(0.25, 0.4, 0.25, i, 0.3, 5.0, head, teeth); }
+  const eyeMat = new THREE.MeshStandardMaterial({ color: 0x222222, emissive: 0xffe3b0, emissiveIntensity: 0.25 });
+  add(0.5, 0.3, 0.3, -1.6, 1.25, 2.6, head, eyeMat); add(0.5, 0.3, 0.3, 1.6, 1.25, 2.6, head, eyeMat);
+  // tail
+  const tail = []; let parent = root; let tw = 6, th = 5;
+  const tail0 = new THREE.Group(); tail0.position.set(0, 12.5, -3.5); root.add(tail0); parent = tail0;
+  for (let i = 0; i < 12; i++) {
+    const seg = new THREE.Group(); seg.position.set(0, i === 0 ? 0 : -0.35, i === 0 ? 0 : -3.4);
+    parent.add(seg); add(tw, th, 3.8, 0, 0, -1.7, seg, i % 2 ? KAIJU_SKIN2 : KAIJU_SKIN);
+    seg.userData.w = tw; seg.userData.h = th; tail.push(seg); parent = seg; tw *= 0.86; th *= 0.86;
+  }
+  // dorsal plates: jagged stacked bricks along spine, neck and tail
+  const plates = [];
+  function plateCluster(p, scale, x, yy, z) {
+    const c = new THREE.Group(); c.position.set(x, yy, z); p.add(c);
+    const n = 3 + Math.floor(R() * 2);
+    for (let i = 0; i < n; i++) {
+      const w = (1.3 - i * 0.25) * scale;
+      const m = new THREE.Mesh(boxGeo, plateMat); m.scale.set(0.5 * scale, 0.9 * scale, w * 1.4);
+      m.position.set(0, (i + 0.5) * 0.85 * scale, (R() - 0.5) * 0.5 * scale); m.rotation.x = (R() - 0.5) * 0.4; m.castShadow = true; c.add(m);
+    }
+    plates.push(c); return c;
+  }
+  [[0, 18, -2.6, 1.8], [0, 15.5, -3.4, 2.1], [0, 13, -3.6, 2.2], [0, 10.5, -3.6, 2.0], [0, 8, -3.4, 1.7], [0, 5.5, -3.0, 1.4]].forEach(([x, yy, z, s]) => {
+    plateCluster(torso, s, x, yy, z); plateCluster(torso, s * 0.75, -1.8, yy - 0.6, z + 0.3); plateCluster(torso, s * 0.75, 1.8, yy - 0.6, z + 0.3);
+  });
+  plateCluster(neck, 1.4, 0, 2.6, -1.4);
+  tail.forEach((seg, i) => { if (i < 10) plateCluster(seg, 1.6 * Math.pow(0.86, i), 0, seg.userData.h / 2, -1.7); });
+  torso.rotation.x = 0.28;
+  root.userData = { legs, torso, neck, head, jaw, tail, arms, plateMat, eyeMat, plates };
+  return root;
+}
+function animateKaiju(k, t, o = {}) {
+  const u = k.userData;
+  const breathe = Math.sin(t * 1.3) * 0.02;
+  u.torso.scale.set(1 + breathe, 1, 1 + breathe);
+  u.tail.forEach((s, i) => { s.rotation.y = Math.sin(t * 0.8 - i * 0.45) * 0.06; s.rotation.x = 0.03; });
+  u.neck.rotation.x = (o.headLift || 0) * -0.5;
+  u.head.rotation.x = (o.headLift || 0) * -0.35;
+  u.jaw.rotation.x = (o.jaw || 0) * 0.55;
+  if (o.walk) {
+    const s = Math.sin(t * o.walk);
+    u.legs[0].rotation.x = s * 0.25; u.legs[1].rotation.x = -s * 0.25;
+    u.torso.rotation.z = s * 0.03;
+  }
+  u.plateMat.emissiveIntensity = o.glow || 0;
+  u.plateMat.color.setHex(o.glow > 0.3 ? 0xd8f0ff : 0xbfc6cc);
+}
+
+// Smoke / ash sprites
+function radialTex(inner, outer) {
+  const c = document.createElement('canvas'); c.width = c.height = 128; const x = c.getContext('2d');
+  const g = x.createRadialGradient(64, 64, 4, 64, 64, 64); g.addColorStop(0, inner); g.addColorStop(1, outer);
+  x.fillStyle = g; x.fillRect(0, 0, 128, 128); const t = new THREE.CanvasTexture(c); return t;
+}
+const smokeTex = radialTex('rgba(255,255,255,0.55)', 'rgba(255,255,255,0)');
+function smokeField(scene, seed, n, area, color, opts = {}) {
+  const R = rng(seed), list = [];
+  for (let i = 0; i < n; i++) {
+    const mat = new THREE.SpriteMaterial({ map: smokeTex, color, transparent: true, depthWrite: false, opacity: opts.opacity || 0.5, fog: true });
+    const s = new THREE.Sprite(mat);
+    s.userData = { x: area.x0 + R() * (area.x1 - area.x0), z: area.z0 + R() * (area.z1 - area.z0), y0: area.y0 + R() * (area.y1 - area.y0),
+      rise: (opts.rise || 1.5) * (0.5 + R()), size: (opts.size || 10) * (0.6 + R() * 0.8), phase: R() * 10, life: opts.life || 12 };
+    scene.add(s); list.push(s);
+  }
+  return t => list.forEach(s => {
+    const d = s.userData, age = ((t + d.phase * d.life / 10) % d.life);
+    s.position.set(d.x + Math.sin(age * 0.3 + d.phase) * 2, d.y0 + age * d.rise, d.z);
+    const sz = d.size * (0.6 + age / d.life); s.scale.set(sz, sz, 1);
+    s.material.opacity = (opts.opacity || 0.5) * Math.sin(Math.PI * age / d.life);
+  });
+}
+function particleField(scene, seed, n, box3, color, size, opts = {}) {
+  const R = rng(seed), pos = new Float32Array(n * 3), base = [];
+  for (let i = 0; i < n; i++) base.push([box3.x0 + R() * (box3.x1 - box3.x0), box3.y0 + R() * (box3.y1 - box3.y0), box3.z0 + R() * (box3.z1 - box3.z0), R()]);
+  const geo = new THREE.BufferGeometry(); geo.setAttribute('position', new THREE.BufferAttribute(pos, 3));
+  const mat = new THREE.PointsMaterial({ color, size, transparent: true, opacity: opts.opacity || 0.8, depthWrite: false, map: opts.map || null,
+    blending: opts.additive ? THREE.AdditiveBlending : THREE.NormalBlending });
+  const pts = new THREE.Points(geo, mat); scene.add(pts);
+  const hgt = box3.y1 - box3.y0;
+  return t => { base.forEach((b, i) => {
+    let yy = b[1] + (opts.vy || 0) * t; yy = box3.y0 + ((((yy - box3.y0) % hgt) + hgt) % hgt);
+    pos[i * 3] = b[0] + Math.sin(t * 0.7 + b[3] * 20) * (opts.drift || 0) + (opts.vx || 0) * t;
+    pos[i * 3 + 1] = yy; pos[i * 3 + 2] = b[2];
+  }); geo.attributes.position.needsUpdate = true; };
+}
+function rain(scene, seed, n, b, color) {
+  const R = rng(seed), pos = new Float32Array(n * 6), base = [];
+  for (let i = 0; i < n; i++) base.push([b.x0 + R() * (b.x1 - b.x0), b.y0 + R() * (b.y1 - b.y0), b.z0 + R() * (b.z1 - b.z0)]);
+  const geo = new THREE.BufferGeometry(); geo.setAttribute('position', new THREE.BufferAttribute(pos, 3));
+  const lines = new THREE.LineSegments(geo, new THREE.LineBasicMaterial({ color, transparent: true, opacity: 0.45 })); scene.add(lines);
+  const hgt = b.y1 - b.y0;
+  return t => { base.forEach((p, i) => { const y = b.y0 + ((((p[1] - t * 38) - b.y0) % hgt) + hgt) % hgt;
+    pos.set([p[0] - 0.3, y, p[2], p[0], y - 1.6, p[2]], i * 6); }); geo.attributes.position.needsUpdate = true; };
+}
+function gradientSky(stops) {
+  const c = document.createElement('canvas'); c.width = 4; c.height = 512; const x = c.getContext('2d');
+  const g = x.createLinearGradient(0, 0, 0, 512); stops.forEach(([p, col]) => g.addColorStop(p, col));
+  x.fillStyle = g; x.fillRect(0, 0, 4, 512); const t = new THREE.CanvasTexture(c); t.encoding = THREE.sRGBEncoding; return t;
+}
+function ground(scene, color, size = 600) {
+  const m = new THREE.Mesh(new THREE.PlaneGeometry(size, size), plastic(color, { roughness: 0.95 }));
+  m.rotation.x = -Math.PI / 2; m.receiveShadow = true; scene.add(m); return m;
+}
+function sun(scene, color, intensity, pos, target = V(0, 0, 0), span = 80) {
+  const l = new THREE.DirectionalLight(color, intensity); l.position.copy(pos); l.target.position.copy(target);
+  l.castShadow = true; l.shadow.mapSize.set(2048, 2048);
+  Object.assign(l.shadow.camera, { left: -span, right: span, top: span, bottom: -span, near: 1, far: 600 }); l.shadow.bias = -0.0008;
+  scene.add(l, l.target); return l;
+}
+function camera(fov = 50) { const c = new THREE.PerspectiveCamera(fov, W / H, 0.1, 2000); return c; }
+function lookFrom(cam, p, target) { cam.position.copy(p); cam.lookAt(target); }
+
+// Family (identical models reused in every scene)
+const FAMILY = {
+  koichi: { shirt: 0x3d4a3a, pants: 0x2b2b2e, coat: 0x4a4636, hair: 0x15110d, hairStyle: 'short' },
+  noriko: { shirt: 0x9a3b3b, pants: 0x3a2f2a, hair: 0x120d0a, hairStyle: 'bob', dress: true },
+  akiko: { shirt: 0xd2a23a, pants: 0x7a2e2e, hair: 0x120d0a, hairStyle: 'pigtails', dress: true, scale: 0.68 },
+};
+function neckMark(fig) {
+  const m = new THREE.Mesh(boxGeo, new THREE.MeshStandardMaterial({ color: 0x1a1220, roughness: 0.9, emissive: 0x2a6cff, emissiveIntensity: 0 }));
+  m.scale.set(0.16, 0.14, 0.05); m.position.set(0.15, 1.2 + 1.53, 0.22); m.rotation.y = 0.5; fig.add(m);
+  const m2 = m.clone(); m2.material = m.material; m2.scale.set(0.09, 0.09, 0.05); m2.position.set(0.24, 2.79, 0.19); fig.add(m2);
+  return m;
+}
+
+// ================= SCENES =================
+const scenes = [];
+function defScene(start, end, build) { const s = { start, end }; Object.assign(s, build()); scenes.push(s); return s; }
+
+// Scene 1: Japan was already broken (0-7)
+defScene(0, 7, () => {
+  const scene = new THREE.Scene(); CUR = scene;
+  scene.background = gradientSky([[0, '#1a1a20'], [0.45, '#3a2a24'], [0.75, '#b35a24'], [1, '#e08a3a']]);
+  scene.fog = new THREE.Fog(0x6a3f2a, 60, 260);
+  scene.add(new THREE.HemisphereLight(0xffb070, 0x221810, 0.55));
+  sun(scene, 0xff9a4a, 2.2, V(-120, 45, -60), V(0, 0, 0), 120);
+  ground(scene, 0x4a3d33);
+  const studs = new Studs(), R = rng(11);
+  const palette = [0x6b5a4a, 0x5a5048, 0x7a6a58, 0x4b4440, 0x8a6f52];
+  for (let i = -6; i <= 6; i++) for (let k = -8; k <= 4; k++) {
+    if (Math.abs(i) <= 0 && k > -3) continue; // street
+    if (R() < 0.25) continue;
+    building(scene, studs, R, i * 11 + (R() - 0.5) * 3, k * 11 + (R() - 0.5) * 3, 5 + R() * 4, 5 + R() * 4, 2 + R() * 9, palette[Math.floor(R() * 5)], true);
+  }
+  // rubble
+  for (let i = 0; i < 260; i++) { const b = box(0.4 + R() * 1.2, 0.3 + R() * 0.6, 0.4 + R() * 1.2, palette[i % 5], (R() - 0.5) * 140, 0.2, (R() - 0.7) * 140, scene); b.rotation.y = R() * 3; b.rotation.z = (R() - 0.5) * 0.6; }
+  studs.build(scene);
+  const smoke = smokeField(scene, 3, 70, { x0: -70, x1: 70, z0: -90, z1: 20, y0: 0, y1: 8 }, 0x4a4040, { size: 18, rise: 1.8, opacity: 0.55 });
+  const ash = particleField(scene, 5, 900, { x0: -40, x1: 40, y0: 0, y1: 50, z0: -40, z1: 40 }, 0xcfc4b8, 0.25, { vy: -1.2, drift: 1.2, opacity: 0.7 });
+  // family walking down the street
+  const fam = [figure(FAMILY.koichi), figure(FAMILY.noriko), figure(FAMILY.akiko)];
+  fam.forEach((f, i) => { f.scale.multiplyScalar(0.55); scene.add(f); });
+  // Godzilla shadow: dark silhouette crossing the city
+  const shadowC = document.createElement('canvas'); shadowC.width = shadowC.height = 256; const sx = shadowC.getContext('2d');
+  sx.filter = 'blur(10px)'; sx.fillStyle = 'rgba(0,0,0,0.85)';
+  sx.beginPath(); sx.ellipse(128, 140, 40, 70, 0, 0, 7); sx.fill(); sx.beginPath(); sx.ellipse(128, 60, 18, 26, 0, 0, 7); sx.fill();
+  sx.beginPath(); sx.moveTo(110, 200); sx.quadraticCurveTo(128, 260, 160, 256); sx.lineTo(146, 200); sx.fill();
+  const shTex = new THREE.CanvasTexture(shadowC);
+  const shadow = new THREE.Mesh(new THREE.PlaneGeometry(140, 140), new THREE.MeshBasicMaterial({ map: shTex, transparent: true, depthWrite: false, opacity: 0.8 }));
+  shadow.rotation.x = -Math.PI / 2; shadow.position.y = 12; scene.add(shadow);
+  const cam = camera(55);
+  return { scene, cam, update(t, u) {
+    smoke(t); ash(t);
+    fam.forEach((f, i) => { const z = 6 - t * 1.0 - i * 0.2; f.position.set(-1.1 + i * 1.1, 0, z); f.rotation.y = Math.PI; walkCycle(f, t + i * 0.7, 5, 0.45); });
+    shadow.position.set(-90 + u * 150, 12, -30 + u * 25); shadow.rotation.z = -0.6; shadow.scale.setScalar(1.3);
+    // crane down then tilt to shadow
+    const d = ease(u / 0.72);
+    const p = V(lerp(30, 6, d), lerp(95, 6, d), lerp(80, 18, d));
+    const look = V(0, lerp(0, 1, d), lerp(-10, 0, d));
+    if (u > 0.72) { const k = ease((u - 0.72) / 0.28); look.lerp(V(-18, 30, -60), k); }
+    lookFrom(cam, p, look);
+  } };
+});
+
+// Scene 2: Two years later (7-14)
+defScene(7, 14, () => {
+  const scene = new THREE.Scene(); CUR = scene;
+  scene.background = gradientSky([[0, '#6fa3c8'], [0.6, '#f2c58a'], [1, '#ffd9a0']]);
+  scene.fog = new THREE.Fog(0xf0c890, 40, 160);
+  scene.add(new THREE.HemisphereLight(0xffe0b0, 0x5a4030, 0.7));
+  sun(scene, 0xffc070, 2.6, V(40, 50, 40), V(0, 0, 0), 40);
+  ground(scene, 0x7a6a50);
+  const studs = new Studs();
+  japaneseHouse(scene, studs, 0, -6, 0, 0xd8c8a8, 0x3c4048);
+  japaneseHouse(scene, studs, -14, -10, 0.15, 0xcbb894, 0x4a3c34);
+  japaneseHouse(scene, studs, 14, -9, -0.2, 0xd2bf9c, 0x37404a);
+  // under-construction frame with workers
+  const frame = new THREE.Group(); frame.position.set(-12, 0, 4); scene.add(frame);
+  for (const [x, z] of [[-3, -2], [3, -2], [-3, 2], [3, 2]]) box(0.35, 4, 0.35, 0x8a6a44, x, 2, z, frame);
+  box(6.6, 0.3, 0.35, 0x8a6a44, 0, 4, -2, frame); box(6.6, 0.3, 0.35, 0x8a6a44, 0, 4, 2, frame);
+  for (let i = 0; i < 6; i++) box(0.9, 0.5, 0.9, 0x9a8a70, -2 + (i % 3) * 1.1, 0.25 + Math.floor(i / 3) * 0.5, 3.5, frame);
+  const workers = [figure({ shirt: 0x6a6a5a, pants: 0x3a3a34, hairStyle: 'cap', hair: 0x4a4a3a }), figure({ shirt: 0x5a6a7a, pants: 0x34342e, hairStyle: 'cap', hair: 0x6a5a3a })];
+  workers[0].position.set(-14, 0, 6.5); workers[1].position.set(-9.5, 0, 6); workers[1].rotation.y = -0.8; workers.forEach(w => { w.scale.setScalar(0.8); scene.add(w); });
+  const hammer = new THREE.Group(); box(0.15, 0.9, 0.15, 0x6a4a2a, 0, -0.4, 0, hammer); box(0.5, 0.25, 0.25, 0x555555, 0, -0.85, 0, hammer);
+  hammer.position.y = -1.05; workers[0].userData.armR.add(hammer);
+  const fam = { koichi: figure(FAMILY.koichi), noriko: figure(FAMILY.noriko), akiko: figure(FAMILY.akiko) };
+  fam.koichi.position.set(1.6, 0, 3); fam.noriko.position.set(-0.4, 0, 3.2); fam.akiko.position.set(-1.9, 0, 3.4);
+  Object.values(fam).forEach(f => { f.rotation.y = -0.9; scene.add(f); });
+  fam.noriko.userData.armR.rotation.x = -0.3; fam.akiko.userData.armL.rotation.x = -0.6;
+  neckMark(fam.noriko);
+  // street fence & laundry details
+  for (let i = -20; i <= 20; i += 1.2) box(0.25, 1.1, 0.25, 0x6a4a30, i, 0.55, 10);
+  box(42, 0.2, 0.15, 0x6a4a30, 0, 1.0, 10);
+  studs.build(scene);
+  const dust = particleField(scene, 8, 300, { x0: -20, x1: 10, y0: 0, y1: 12, z0: -6, z1: 12 }, 0xffe7c0, 0.12, { vy: 0.3, drift: 0.8, opacity: 0.6 });
+  const cam = camera(42);
+  return { scene, cam, update(t, u) {
+    dust(t);
+    const swing = Math.max(0, Math.sin(t * 7));
+    workers[0].userData.armR.rotation.x = -1.6 + swing * 1.4;
+    workers[1].userData.armL.rotation.x = -1.0 + Math.sin(t * 3) * 0.3;
+    fam.koichi.userData.head.rotation.y = Math.sin(t * 0.6) * 0.15 - 0.2;
+    fam.akiko.userData.head.rotation.y = Math.sin(t * 1.4) * 0.3;
+    // lateral track then push-in on Koichi
+    const a = ease(u / 0.6), b = ease((u - 0.55) / 0.45);
+    const p = V(lerp(-11, 6, a), lerp(4.2, 3.6, a), lerp(14, 11, a));
+    const look = V(lerp(-4, 1, a), 2.4, 2);
+    const koichiFace = fam.koichi.position.clone().add(V(0, 3.3, 0));
+    p.lerp(koichiFace.clone().add(V(-2.4, 0.1, 2.2)), b * 0.85);
+    look.lerp(koichiFace, b);
+    lookFrom(cam, p, look);
+  } };
+});
+
+// Scene 3: the monster never died (14-21)
+defScene(14, 21, () => {
+  const scene = new THREE.Scene(); CUR = scene;
+  scene.background = new THREE.Color(0x020812);
+  scene.fog = new THREE.FogExp2(0x03101e, 0.09);
+  scene.add(new THREE.HemisphereLight(0x2a5a8a, 0x000000, 0.35));
+  const top = sun(scene, 0x3a7ab0, 0.8, V(0, 40, 10), V(0, 0, 0), 15);
+  const floor = ground(scene, 0x1a2228, 200);
+  const R = rng(21);
+  for (let i = 0; i < 120; i++) { const b = box(0.3 + R() * 1.4, 0.2 + R() * 0.8, 0.3 + R() * 1.4, [0x2a3036, 0x323a3a, 0x1e2629][i % 3], (R() - 0.5) * 30, 0.1, (R() - 0.5) * 30, scene); b.rotation.y = R() * 3; }
+  // fragment: cluster of dark bricks with exposed glowing tissue
+  const frag = new THREE.Group(); scene.add(frag); frag.position.set(0, 0.6, 0);
+  const flesh = new THREE.MeshStandardMaterial({ color: 0x3a1c1c, roughness: 0.4, emissive: 0x4fa8ff, emissiveIntensity: 0.1 });
+  const scaleMat = plastic(0x232426, { roughness: 0.8 });
+  const cells = [];
+  for (let i = 0; i < 26; i++) {
+    const m = box(0.35 + R() * 0.6, 0.25 + R() * 0.5, 0.35 + R() * 0.6, i % 3 ? scaleMat : flesh, (R() - 0.5) * 2.4, R() * 0.8, (R() - 0.5) * 1.8, frag);
+    m.rotation.set(R(), R(), R()); m.userData.base = m.scale.clone(); m.userData.ph = R() * 6; cells.push(m);
+  }
+  // new growth bricks that appear over time
+  const growth = [];
+  for (let i = 0; i < 22; i++) { const m = box(0.3, 0.3, 0.3, flesh, (R() - 0.5) * 3, R() * 1.2, (R() - 0.5) * 2.4, frag); m.userData.at = R(); m.visible = false; growth.push(m); }
+  const glow = new THREE.PointLight(0x4fb0ff, 2, 12); glow.position.set(0, 1.5, 0.5); scene.add(glow);
+  const bubbles = particleField(scene, 9, 220, { x0: -6, x1: 6, y0: 0, y1: 10, z0: -4, z1: 6 }, 0x9fd8ff, 0.08, { vy: 1.6, drift: 0.3, opacity: 0.7 });
+  const motes = particleField(scene, 10, 500, { x0: -10, x1: 10, y0: 0, y1: 8, z0: -6, z1: 8 }, 0x6aa0c0, 0.04, { vy: -0.1, drift: 0.6, opacity: 0.5 });
+  const cam = camera(40);
+  return { scene, cam, update(t, u) {
+    bubbles(t); motes(t);
+    const pulse = 0.5 + 0.5 * Math.sin(t * 5.2) ** 8 + 0.4 * Math.max(0, Math.sin(t * 2.6 + 1)) ** 12;
+    cells.forEach(c => { const s = 1 + 0.08 * pulse * Math.sin(c.userData.ph + t * 3); c.scale.copy(c.userData.base).multiplyScalar(s); });
+    flesh.emissiveIntensity = 0.15 + pulse * 0.9 * (0.3 + u);
+    growth.forEach(g => { const k = clamp((u - g.userData.at * 0.8) * 5, 0, 1); g.visible = k > 0; g.scale.setScalar(0.3 * easeOut(k) * (1 + 0.1 * pulse)); });
+    glow.intensity = (0.6 + pulse * 2.6) * (0.5 + u) * (0.8 + 0.2 * Math.sin(t * 31));
+    top.intensity = 0.6 + 0.2 * Math.sin(t * 0.8);
+    // macro dolly-in
+    const d = easeIn(u * 0.9) * 0.6 + u * 0.4;
+    lookFrom(cam, V(lerp(1.2, 0.35, d), lerp(2.4, 1.3, d), lerp(9, 2.6, d)), V(0, lerp(0.9, 0.85, d), 0));
+  } };
+});
+
+// Scene 4: Noriko's terrifying secret (21-29)
+defScene(21, 29, () => {
+  const scene = new THREE.Scene(); CUR = scene;
+  scene.background = new THREE.Color(0x0e0d0c);
+  scene.fog = new THREE.Fog(0x0e0d0c, 10, 40);
+  scene.add(new THREE.HemisphereLight(0x8a9aa0, 0x1a1410, 0.25));
+  const lamp = new THREE.SpotLight(0xffe2b8, 6, 30, 0.6, 0.6, 1.2); lamp.position.set(1.5, 9, 3); lamp.target.position.set(0, 2.5, 0); lamp.castShadow = true;
+  lamp.shadow.mapSize.set(1024, 1024); scene.add(lamp, lamp.target);
+  ground(scene, 0x3a352e, 60);
+  // room: walls, cabinet, x-ray board, mirror
+  box(30, 14, 0.5, 0x5a5e58, 0, 7, -5); box(0.5, 14, 30, 0x52564f, -8, 7, 0);
+  box(4, 5, 1.6, 0x6a6e66, -5.5, 2.5, -4); box(3.2, 2.4, 0.15, plastic(0xbfd6e8, { emissive: 0x8fb8d8, emissiveIntensity: 0.35 }), 3.5, 6, -4.7);
+  box(1.4, 1.4, 0.05, 0x1a2228, 3.0, 6.1, -4.6); // x-ray rib shape
+  const mirror = new THREE.Mesh(new THREE.PlaneGeometry(2.4, 3.6), new THREE.MeshStandardMaterial({ color: 0x9aa4a8, metalness: 1, roughness: 0.08 }));
+  mirror.position.set(-7.7, 4, 1.2); mirror.rotation.y = Math.PI / 2; scene.add(mirror);
+  box(0.2, 3.9, 2.7, 0x3a2a1c, -7.8, 4, 1.2);
+  box(4, 1.6, 2, 0x8a8278, 0, 0.8, -1); // exam bed
+  const noriko = figure(FAMILY.noriko); noriko.position.set(-0.6, 0, 1.6); noriko.rotation.y = 0.15; scene.add(noriko);
+  const mark = neckMark(noriko);
+  const doctor = figure({ shirt: 0xe6e6e0, coat: 0xf0f0ea, pants: 0x2a2a2a, hairStyle: 'bald', hair: 0x9a9a9a, glasses: true });
+  doctor.position.set(2.6, 0, 0.4); doctor.rotation.y = -0.7; scene.add(doctor);
+  const clip = new THREE.Group(); box(0.9, 1.2, 0.06, 0x8a6a40, 0, 0, 0, clip); box(0.75, 1.0, 0.03, 0xf2eee0, 0, -0.03, 0.04, clip);
+  clip.position.set(0, -0.9, 0.35); clip.rotation.x = -0.9; doctor.userData.armL.add(clip); doctor.userData.armL.rotation.x = -1.0;
+  const cam = camera(30);
+  return { scene, cam, update(t, u) {
+    mark.material.emissiveIntensity = 0.15 + 0.5 * Math.max(0, Math.sin(t * 1.7)) ** 6 * u;
+    // Noriko turns toward the mirror in the second half
+    const turn = ease((u - 0.45) / 0.3);
+    noriko.rotation.y = lerp(0.15, -1.2, turn);
+    noriko.userData.head.rotation.y = lerp(0, -0.4, turn);
+    noriko.userData.armR.rotation.x = lerp(0, -2.4, ease((u - 0.6) / 0.2)); noriko.userData.armR.rotation.z = lerp(0, 0.5, ease((u - 0.6) / 0.2));
+    doctor.userData.head.rotation.x = lerp(0.35, 0, ease((u - 0.3) / 0.2));
+    doctor.userData.head.rotation.y = lerp(0, 0.3, ease((u - 0.3) / 0.2));
+    // push-in on mark, then rack to doctor
+    const neckW = V(0, 2.8, 0); noriko.localToWorld(neckW);
+    const a = ease(u / 0.55);
+    let p = V(lerp(2.2, 0.9, a), lerp(4.0, 3.0, a), lerp(9.5, 4.2, a)); let look = V(lerp(0, neckW.x, a), lerp(3, neckW.y, a), neckW.z);
+    if (u > 0.55) {
+      const b = ease((u - 0.55) / 0.4);
+      const docFace = V(0, 3.3, 0); doctor.localToWorld(docFace);
+      p.lerp(V(0.5, 3.5, 3.2), b); look.lerp(docFace, b);
+    }
+    lookFrom(cam, p, look);
+  } };
+});
+
+// Scene 5: a new plan to kill Godzilla (29-36)
+defScene(29, 36, () => {
+  const scene = new THREE.Scene(); CUR = scene;
+  scene.background = new THREE.Color(0x0b0c0e);
+  scene.fog = new THREE.Fog(0x0b0c0e, 20, 60);
+  scene.add(new THREE.HemisphereLight(0x9ab0c0, 0x201810, 0.35));
+  const lamp = new THREE.PointLight(0xffd9a0, 2.2, 30); lamp.position.set(0, 9, 0); lamp.castShadow = true; scene.add(lamp);
+  const alarm = new THREE.PointLight(0xff2a1a, 0, 40); alarm.position.set(5, 7.5, -6.6); box(1.6, 1.2, 0.5, 0x2a2a2a, 5, 7.5, -6.95); scene.add(alarm);
+  const alarmBulb = new THREE.Mesh(new THREE.SphereGeometry(0.5, 16, 12), new THREE.MeshStandardMaterial({ color: 0x551111, emissive: 0xff2010, emissiveIntensity: 0 }));
+  alarmBulb.position.copy(alarm.position); scene.add(alarmBulb);
+  ground(scene, 0x2a2622, 80);
+  // map texture
+  const mc = document.createElement('canvas'); mc.width = 1024; mc.height = 640; const x = mc.getContext('2d');
+  x.fillStyle = '#2f4f63'; x.fillRect(0, 0, 1024, 640);
+  x.strokeStyle = 'rgba(255,255,255,.12)'; for (let i = 0; i < 1024; i += 64) { x.beginPath(); x.moveTo(i, 0); x.lineTo(i, 640); x.stroke(); } for (let j = 0; j < 640; j += 64) { x.beginPath(); x.moveTo(0, j); x.lineTo(1024, j); x.stroke(); }
+  x.fillStyle = '#c9b98e'; x.beginPath(); x.moveTo(520, 40); x.bezierCurveTo(600, 120, 640, 200, 600, 300); x.bezierCurveTo(560, 400, 420, 470, 300, 520);
+  x.bezierCurveTo(240, 560, 200, 600, 180, 610); x.lineTo(220, 560); x.bezierCurveTo(340, 470, 480, 390, 520, 290); x.bezierCurveTo(550, 210, 500, 120, 520, 40); x.fill();
+  x.strokeStyle = '#d33'; x.lineWidth = 6; x.setLineDash([18, 12]); x.beginPath(); x.moveTo(900, 560); x.bezierCurveTo(800, 480, 700, 430, 610, 330); x.stroke();
+  x.setLineDash([]); x.fillStyle = '#d33'; x.beginPath(); x.arc(610, 330, 14, 0, 7); x.fill();
+  x.strokeStyle = 'rgba(255,255,255,.55)'; x.lineWidth = 3; for (let r = 40; r < 200; r += 40) { x.beginPath(); x.arc(840, 180, r, 0, 7); x.stroke(); }
+  x.fillStyle = '#fff'; x.font = 'bold 28px sans-serif'; x.fillText('STORM FRONT', 760, 60); x.fillText('SAGAMI BAY', 640, 600);
+  const mapTex = new THREE.CanvasTexture(mc); mapTex.encoding = THREE.sRGBEncoding;
+  box(12, 2, 7.5, 0x4a3a2a, 0, 1, 0);
+  const map = new THREE.Mesh(new THREE.PlaneGeometry(11.6, 7.2), new THREE.MeshStandardMaterial({ map: mapTex, roughness: 0.8 }));
+  map.rotation.x = -Math.PI / 2; map.position.y = 2.02; map.receiveShadow = true; scene.add(map);
+  // miniature ships
+  const ships = [];
+  for (let i = 0; i < 4; i++) { const s = new THREE.Group(); box(0.9, 0.2, 0.28, 0x6a7078, 0, 0, 0, s); box(0.3, 0.2, 0.18, 0x5a6068, 0, 0.18, 0, s); s.position.set(1.2 + i * 0.6, 2.13, 1.2 - i * 0.35); s.rotation.y = 0.6; scene.add(s); ships.push(s); }
+  // weather charts on wall
+  box(6, 4, 0.2, 0x8a8478, -4, 6, -7); box(3, 2.4, 0.2, 0x8a8478, 1.2, 6, -7);
+  for (let i = 0; i < 5; i++) box(0.12, 0.12 + i * 0.5, 0.1, 0x3355aa, -6 + i * 0.9, 4.6 + i * 0.25, -6.85);
+  // people around table: Noda (glasses), Aoyama (weather), scientists, Koichi
+  const people = [];
+  const noda = figure({ shirt: 0x5a5a4a, coat: 0x6a6450, pants: 0x2a2a2a, glasses: true, hairStyle: 'short', hair: 0x2a2620 });
+  const aoyama = figure({ shirt: 0x2f3f5a, pants: 0x22262e, hairStyle: 'short', hair: 0x18140f, glasses: true });
+  const koichi = figure(FAMILY.koichi);
+  const sci1 = figure({ shirt: 0xe6e6e0, coat: 0xeeeeea, pants: 0x333333, hairStyle: 'short', hair: 0x3a3a3a });
+  const sci2 = figure({ shirt: 0xe6e6e0, coat: 0xeeeeea, pants: 0x333333, hairStyle: 'bald', glasses: true });
+  [[noda, 3.5, 4.8, Math.PI * 0.9], [aoyama, -3.2, 4.8, Math.PI * 1.05], [koichi, 7.3, 0.5, -Math.PI / 2], [sci1, -7.3, -1, Math.PI / 2], [sci2, 1, -4.8, 0]].forEach(([f, px, pz, ry]) => {
+    f.position.set(px, 0, pz); f.rotation.y = ry; scene.add(f); people.push(f); });
+  noda.userData.armR.rotation.x = -1.4;
+  const cam = camera(48);
+  return { scene, cam, noda, update(t, u) {
+    noda.userData.armR.rotation.x = -1.3 - 0.15 * Math.sin(t * 2.5);
+    aoyama.userData.head.rotation.x = 0.35; aoyama.userData.armL.rotation.x = -0.8;
+    ships.forEach((s, i) => s.position.x = 1.2 + i * 0.6 - ease(u) * 0.8);
+    const al = u > 0.62 ? (Math.sin((t - 33.3) * 9) > -0.2 ? 1 : 0.1) : 0;
+    alarm.intensity = al * 25; alarmBulb.material.emissiveIntensity = al * 3;
+    // overhead circling, then whip pan to alarm
+    const ang = -0.6 + u * 1.5;
+    const p = V(Math.sin(ang) * 6, 17, Math.cos(ang) * 6);
+    let look = V(0, 2, 0);
+    if (u > 0.78) { const k = ease((u - 0.78) / 0.12); p.lerp(V(3.2, 6.4, -2.4), k); look.lerp(alarm.position, k); }
+    cam.position.copy(p); cam.up.set(0, u > 0.78 ? 1 : 0, u > 0.78 ? 0 : -1); cam.lookAt(look);
+  } };
+});
+
+// Shared city builder for kaiju scenes
+function kaijuCity(scene, seed, opts) {
+  const studs = new Studs(), R = rng(seed);
+  const pal = [0x5a5650, 0x6a6258, 0x4a4844, 0x726a5e, 0x3e3c3a];
+  for (let i = -5; i <= 5; i++) for (let k = -10; k <= 2; k++) {
+    if (Math.abs(i) < 1 && k > -6) continue;
+    if (R() < 0.15) continue;
+    building(scene, studs, R, i * 9 + (R() - 0.5) * 2, k * 9, 5 + R() * 3, 5 + R() * 3, 3 + R() * (opts.tall || 12), pal[Math.floor(R() * 5)], opts.ruined && R() < 0.6);
+  }
+  studs.build(scene);
+}
+// Scene 6: the king returns (36-44)
+defScene(36, 44, () => {
+  const scene = new THREE.Scene(); CUR = scene;
+  scene.background = gradientSky([[0, '#0d1116'], [0.6, '#2a333c'], [1, '#46505a']]);
+  scene.fog = new THREE.Fog(0x2f3a44, 30, 190);
+  scene.add(new THREE.HemisphereLight(0x8aa0b8, 0x101418, 0.55));
+  sun(scene, 0x9ab4d0, 1.4, V(-60, 80, 60), V(0, 0, -40), 120);
+  const water = new THREE.Mesh(new THREE.PlaneGeometry(600, 600), new THREE.MeshStandardMaterial({ color: 0x1c2630, metalness: 0.6, roughness: 0.18 }));
+  water.rotation.x = -Math.PI / 2; water.position.y = 0.25; water.receiveShadow = true; scene.add(water);
+  ground(scene, 0x2a2622);
+  kaijuCity(scene, 33, { tall: 14 });
+  const back6 = new THREE.DirectionalLight(0x9cc8ff, 1.6); back6.position.set(20, 60, -200); scene.add(back6);
+  const kaiju = makeKaiju(); kaiju.scale.setScalar(2.0); kaiju.rotation.y = Math.PI * 0.05; scene.add(kaiju);
+  const fleeing = [];
+  const R = rng(66);
+  for (let i = 0; i < 14; i++) {
+    const f = figure({ shirt: [0x5a4a3a, 0x3a4a5a, 0x6a3a3a, 0x4a5a4a][i % 4], pants: 0x2a2a2a, hairStyle: ['short', 'cap', 'bob'][i % 3] });
+    f.scale.setScalar(0.5); f.userData.ox = (i % 2 ? 1 : -1) * (3 + R() * 5) + 1.5; f.userData.oz = 8 + R() * 30; f.userData.sp = 4 + R() * 2.5; scene.add(f); fleeing.push(f);
+  }
+  const debris = []; for (let i = 0; i < 40; i++) { const b = box(1 + R() * 2, 0.8 + R(), 1 + R() * 2, 0x5a5650, (R() - 0.5) * 30, 30 + R() * 30, -40 - R() * 30, scene); b.userData.v = [(R() - 0.5) * 6, R() * 4, R() * 4, R() * 3]; b.userData.p0 = b.position.clone(); debris.push(b); }
+  const rn = rain(scene, 4, 2500, { x0: -30, x1: 30, y0: 0, y1: 60, z0: -40, z1: 30 }, 0xaabbd0);
+  const smoke = smokeField(scene, 13, 50, { x0: -50, x1: 50, z0: -90, z1: -30, y0: 0, y1: 10 }, 0x3a4048, { size: 26, rise: 2.5, opacity: 0.6 });
+  const cam = camera(52);
+  return { scene, cam, update(t, u) {
+    rn(t); smoke(t);
+    const rise = easeOut(u / 0.7);
+    kaiju.position.set(0, lerp(-55, 0, rise), lerp(-70, -58, u));
+    animateKaiju(kaiju, t, { headLift: 0.3 * ease((u - 0.6) / 0.3), jaw: ease((u - 0.72) / 0.12) * (1 - ease((u - 0.92) / 0.08)), glow: 0.05 });
+    debris.forEach(b => { const age = Math.max(0, t - 36 - 1.5); const v = b.userData.v; b.position.set(b.userData.p0.x + v[0] * age, Math.max(0.5, b.userData.p0.y * (rise) - 9.8 * age * age * 0.5 + v[1] * age), b.userData.p0.z + v[2] * age); b.rotation.x = v[3] * age; });
+    fleeing.forEach((f, i) => { f.position.set(f.userData.ox, 0.25, 6 - f.userData.oz + (t - 36) * f.userData.sp * 0.6); f.rotation.y = 0; walkCycle(f, t * 1.8 + i, 7, 0.8); });
+    // track backward at ground level, then tilt up the body
+    const back = ease(u / 0.55);
+    const p = V(1.5, 1.4, lerp(4, 20, back));
+    let look = V(0, 2.5, -20);
+    const tilt = ease((u - 0.45) / 0.45);
+    look.lerp(V(0, 70, -58), tilt); p.y = lerp(1.4, 3, tilt);
+    lookFrom(cam, p, look);
+  } };
+});
+
+// Scene 7: the blue destruction (44-52)
+defScene(44, 52, () => {
+  const scene = new THREE.Scene(); CUR = scene;
+  scene.background = gradientSky([[0, '#05070c'], [0.5, '#1b2633'], [1, '#2c3a48']]);
+  scene.fog = new THREE.Fog(0x1c2630, 40, 260);
+  scene.add(new THREE.HemisphereLight(0x6a88a8, 0x0a0c10, 0.4));
+  sun(scene, 0x8aa8c8, 1.0, V(80, 90, 60), V(0, 0, 0), 120);
+  ground(scene, 0x22201e);
+  kaijuCity(scene, 44, { tall: 16, ruined: true });
+  const kaiju = makeKaiju(); kaiju.scale.setScalar(2.0); kaiju.position.set(0, 0, -40); kaiju.rotation.y = Math.PI / 2; scene.add(kaiju);
+  const plateLight = new THREE.PointLight(0x5ab8ff, 0, 140); scene.add(plateLight);
+  const beamMat = new THREE.MeshBasicMaterial({ color: 0xbfe6ff, transparent: true, opacity: 0, blending: THREE.AdditiveBlending, depthWrite: false });
+  const beamCore = new THREE.Mesh(new THREE.CylinderGeometry(1.2, 2.2, 1, 20, 1, true), beamMat);
+  const beamGlowMat = beamMat.clone(); beamGlowMat.color.setHex(0x3a8cff);
+  const beamGlow = new THREE.Mesh(new THREE.CylinderGeometry(3.2, 5.5, 1, 20, 1, true), beamGlowMat);
+  scene.add(beamCore, beamGlow);
+  const blastLight = new THREE.PointLight(0x9fd4ff, 0, 300); blastLight.position.set(170, 20, -40); scene.add(blastLight);
+  const blastMat = new THREE.MeshBasicMaterial({ color: 0xcfeaff, transparent: true, opacity: 0, blending: THREE.AdditiveBlending, depthWrite: false });
+  const blast = new THREE.Mesh(new THREE.SphereGeometry(1, 24, 16), blastMat); blast.position.copy(blastLight.position); scene.add(blast);
+  const smoke = smokeField(scene, 17, 50, { x0: -60, x1: 200, z0: -110, z1: -10, y0: 0, y1: 12 }, 0x2e3640, { size: 30, rise: 2.2, opacity: 0.55 });
+  const ash = particleField(scene, 19, 1200, { x0: -60, x1: 100, y0: 0, y1: 90, z0: -80, z1: 30 }, 0x88b8e0, 0.5, { vy: -2, drift: 2, opacity: 0.6, additive: true });
+  // Akiko praying, shielded by adults (separate set piece far away)
+  const shelter = new THREE.Group(); shelter.position.set(0, 0, 400); scene.add(shelter);
+  const akiko = figure(FAMILY.akiko); akiko.position.set(0, 0, 0.6); shelter.add(akiko);
+  akiko.userData.armL.rotation.set(-1.25, 0, -0.45); akiko.userData.armR.rotation.set(-1.25, 0, 0.45);
+  const adultA = figure(FAMILY.noriko); adultA.position.set(-1.1, 0, -0.4); adultA.rotation.y = 0.5; shelter.add(adultA);
+  adultA.userData.armR.rotation.set(-1.3, 0, -0.6);
+  const adultB = figure({ shirt: 0x4a4a52, pants: 0x2a2a2a, hairStyle: 'short', hair: 0x2a2a2a }); adultB.position.set(1.3, 0, -0.5); adultB.rotation.y = -0.5; shelter.add(adultB);
+  adultB.userData.armL.rotation.set(-1.4, 0, 0.6);
+  box(12, 6, 0.6, 0x3a3632, 0, 3, -2.5, shelter); box(3, 1.4, 1.5, 0x4a443c, 3.5, 0.7, 1.4, shelter);
+  const shelterLight = new THREE.PointLight(0x7ab8ff, 0, 20); shelterLight.position.set(4, 5, 4); shelter.add(shelterLight);
+  const cam = camera(44);
+  const mouth = new THREE.Vector3();
+  return { scene, cam, update(t, u) {
+    smoke(t); ash(t);
+    // timeline: charge 0-0.35, fire 0.35-0.6, akiko 0.62-1
+    const charge = ease(u / 0.35), firing = u > 0.35 && u < 0.62;
+    animateKaiju(kaiju, t, { headLift: lerp(0, 0.25, charge), jaw: firing ? 1 : charge * 0.3, glow: charge * 3 + (firing ? 2 + Math.sin(t * 40) * 0.5 : 0) });
+    // plates light up root to tail: modulate per plate visibility by flicker
+    kaiju.userData.plates.forEach((p, i) => { const on = u * 40 > (kaiju.userData.plates.length - i) * 0.6; p.visible = true; p.scale.setScalar(on && u < 0.62 ? 1.05 : 1); });
+    plateLight.position.set(0, 50, -40); plateLight.intensity = (charge * 3 + (firing ? 5 : 0)) * (u < 0.62 ? 1 : 0);
+    kaiju.updateMatrixWorld(true);
+    mouth.set(0, 0.2, 5.5); kaiju.userData.head.localToWorld(mouth);
+    const target = V(170, 14, -40);
+    const fk = clamp((u - 0.35) / 0.06, 0, 1);
+    const end = mouth.clone().lerp(target, fk);
+    const len = mouth.distanceTo(end);
+    [beamCore, beamGlow].forEach(b => { b.position.copy(mouth).lerp(end, 0.5); b.scale.set(1, Math.max(0.01, len), 1); b.lookAt(end); b.rotateX(Math.PI / 2); });
+    beamMat.opacity = firing ? 0.95 : 0; beamGlowMat.opacity = firing ? 0.4 + 0.1 * Math.sin(t * 50) : 0;
+    const bk = clamp((u - 0.4) / 0.2, 0, 1);
+    blastMat.opacity = firing && bk > 0 ? (1 - bk) * 0.55 : 0; blast.scale.setScalar(5 + bk * 35);
+    blastLight.intensity = firing ? (1 - bk) * 12 : 0;
+    if (u < 0.62) {
+      // side profile, fast dolly toward plates, then whip pan following the beam
+      const d = ease(u / 0.35);
+      const p = V(lerp(-25, -5, d), lerp(30, 40, d), lerp(80, 22, d));
+      let look = V(0, lerp(35, 42, d), -42);
+      if (u > 0.36) { const w = ease((u - 0.36) / 0.08); look.lerp(V(150, 18, -40), w); p.lerp(V(10, 36, 30), w); }
+      lookFrom(cam, p, look); cam.fov = 44;
+    } else {
+      // static close-up on Akiko, trembling
+      const tr = Math.sin(t * 37) * 0.012 + Math.sin(t * 23) * 0.01;
+      akiko.userData.head.rotation.x = 0.25 + tr; akiko.userData.torso.rotation.z = tr;
+      shelterLight.intensity = 1.2 + 1.5 * Math.max(0, Math.sin(t * 3)) ** 4;
+      lookFrom(cam, V(0.4 + tr, 2.4, 404.2), V(0, 2.0, 400.6)); cam.fov = 34;
+    }
+    cam.updateProjectionMatrix();
+  } };
+});
+
+// Scene 8: no third chance (52-60)
+defScene(52, 60, () => {
+  const scene = new THREE.Scene(); CUR = scene;
+  scene.background = gradientSky([[0, '#02040a'], [0.55, '#0c1a2e'], [1, '#18304e']]);
+  scene.fog = new THREE.Fog(0x0f2036, 50, 280);
+  scene.add(new THREE.HemisphereLight(0x3a68a8, 0x05070a, 0.45));
+  const back = new THREE.DirectionalLight(0x6ab0ff, 2.2); back.position.set(0, 60, -200); scene.add(back);
+  ground(scene, 0x101418);
+  kaijuCity(scene, 52, { tall: 10, ruined: true });
+  const kaiju = makeKaiju(); kaiju.scale.setScalar(2.1); kaiju.position.set(0, 0, -50); kaiju.rotation.y = Math.PI * 0.08; scene.add(kaiju);
+  const rim = new THREE.PointLight(0x5ab8ff, 3, 160); const rim6 = 0; rim.position.set(0, 40, -100); scene.add(rim);
+  const ash = particleField(scene, 23, 1600, { x0: -60, x1: 60, y0: 0, y1: 90, z0: -90, z1: 30 }, 0xa8c8e8, 0.35, { vy: -1.2, drift: 2.5, opacity: 0.7 });
+  const smoke = smokeField(scene, 29, 40, { x0: -80, x1: 80, z0: -120, z1: -20, y0: 0, y1: 6 }, 0x1e2e44, { size: 34, rise: 1.4, opacity: 0.6 });
+  const cam = camera(50);
+  return { scene, cam, update(t, u) {
+    ash(t); smoke(t);
+    animateKaiju(kaiju, t, { headLift: ease((u - 0.1) / 0.45) * 0.9, jaw: ease((u - 0.35) / 0.15) * 0.6, glow: 0.8 + 0.6 * Math.sin(t * 2) });
+    const d = ease(u);
+    lookFrom(cam, V(lerp(6, 10, d), lerp(14, 20, d), lerp(40, 110, d)), V(0, lerp(36, 32, d), -50));
+  } };
+});
+
+// ---------- overlay timeline ----------
+const CAPTIONS = [
+  [0.3, 3.6, 'Japan survived <b>World War Two</b>.'],
+  [3.6, 6.9, 'But in <b>Godzilla Minus One</b>, it nearly lost everything again.'],
+  [7.2, 10.6, '<b>Two years later</b>, Koichi and Noriko are trying to rebuild something they thought was impossible:'],
+  [10.6, 13.8, 'a peaceful family life.'],
+  [14.3, 17.0, 'But the last battle left one terrifying clue.'],
+  [17.0, 20.8, 'A piece of Godzilla’s body was <b>still regenerating</b>.'],
+  [21.2, 25.0, 'And remember that strange mark on <b>Noriko’s neck</b>?'],
+  [25.0, 28.8, 'A doctor’s warning makes her miraculous survival even more disturbing.'],
+  [29.2, 32.4, 'Scientists investigate.'],
+  [32.4, 35.8, 'Japan prepares <b>another extermination operation</b>, because Godzilla might never have truly died.'],
+  [36.4, 39.6, 'Then the nightmare returns.'],
+  [39.6, 43.8, 'Godzilla towers over a nation that has barely finished rebuilding.'],
+  [44.4, 48.2, 'His <b>pale blue atomic breath</b> cuts through the chaos,'],
+  [48.6, 51.8, 'while little Akiko prays for a miracle.'],
+  [52.2, 54.4, 'They defeated Godzilla once.'],
+  [54.4, 56.0, 'But can they do it again?'],
+  [56.0, 59.6, 'Because this time, there may be <b>no third chance</b>.'],
+];
+const capEl = document.getElementById('caption'), fadeEl = document.getElementById('fade'), flashEl = document.getElementById('flash');
+const titleEl = document.getElementById('title'), endEl = document.getElementById('endlogo'), brandEl = document.getElementById('brand');
+const grain = document.getElementById('grain'), gctx = grain.getContext('2d'), gimg = gctx.createImageData(360, 640);
+let lastCap = null;
+function overlay(t) {
+  const c = CAPTIONS.find(c => t >= c[0] && t < c[1]);
+  const html = c ? '<span>' + c[2] + '</span>' : '';
+  if (html !== lastCap) { capEl.innerHTML = html; lastCap = html; }
+  // Captions sit higher in scene 8 so they never cover the title
+  capEl.style.top = t > 56 ? '78%' : '66%';
+  // fades: dissolve 13.6-14.4 (dip), smash cut flash at 21, fade to black 56.0-56.4 (12 frames)
+  let f = 0;
+  f = Math.max(f, t < 0.6 ? 1 - t / 0.6 : 0);
+  f = Math.max(f, t > 13.5 && t < 14.5 ? 1 - Math.abs(t - 14) / 0.5 : 0);
+  f = Math.max(f, t > 55.6 ? clamp((t - 55.6) / 0.4, 0, 1) : 0);
+  fadeEl.style.opacity = f;
+  let fl = 0;
+  if (t > 20.85 && t < 21.15) fl = 1 - Math.abs(t - 21) / 0.15;          // smash cut
+  if (t > 46.8 && t < 47.6) fl = Math.max(fl, (1 - (t - 46.8) / 0.8) * 0.45); // blast
+  if (t > 49.0 && t < 49.25) fl = Math.max(fl, 0.5 * (1 - (t - 49) / 0.25)); // muffled cut
+  flashEl.style.opacity = fl;
+  const ti = clamp((t - 56.4) / 0.8, 0, 1);
+  titleEl.style.opacity = ti; titleEl.style.transform = 'scale(' + (0.94 + 0.08 * ease((t - 56.4) / 3.6)) + ')';
+  endEl.style.opacity = clamp((t - 57.6) / 0.6, 0, 1) * (t < 59.85 ? 1 : 0);
+  if (t >= 59.85) titleEl.style.opacity = 0;
+  brandEl.style.opacity = t > 55.6 ? 0 : 1;
+  // deterministic film grain
+  const R = rng(Math.floor(t * FPS) + 1);
+  for (let i = 0; i < gimg.data.length; i += 4) { const v = R() * 255; gimg.data[i] = gimg.data[i + 1] = gimg.data[i + 2] = v; gimg.data[i + 3] = 255; }
+  gctx.putImageData(gimg, 0, 0);
+}
+function shake(cam, t) {
+  // camera shake on footsteps / impacts
+  let a = 0;
+  if (t > 36 && t < 44) a = 0.12 * Math.max(0, Math.sin((t - 36) * Math.PI * 0.75)) ** 10 + 0.02;
+  if (t > 44.5 && t < 49) a += (t > 46.8 && t < 48 ? 0.35 * (1 - (t - 46.8) / 1.2) : 0.03);
+  if (t > 0 && t < 7) a += 0.04 * Math.max(0, Math.sin(t * 2.2)) ** 16;
+  if (a) { const R = rng(Math.floor(t * 60)); cam.position.x += (R() - 0.5) * a; cam.position.y += (R() - 0.5) * a; }
+}
+function renderAt(t) {
+  t = clamp(t, 0, DURATION - 0.0001);
+  const s = scenes.find(s => t >= s.start && t < s.end) || scenes[scenes.length - 1];
+  const u = (t - s.start) / (s.end - s.start);
+  s.scene.updateMatrixWorld(true);
+  s.update(t, u);
+  shake(s.cam, t);
+  // after 56.4 everything is black except the title
+  if (t > 56.0) { renderer.setClearColor(0x000000); }
+  renderer.render(s.scene, s.cam);
+  overlay(t);
+}
+window.renderAt = renderAt; window.DURATION = DURATION; window.FPS = FPS;
+// warm up: compile all scenes
+scenes.forEach(s => { s.update(s.start, 0); renderer.compile(s.scene, s.cam); });
+window.READY = true;
+
+// interactive preview
+if (!document.body.classList.contains('render') && !location.search.includes('render')) {
+  const btn = document.getElementById('play'), scrub = document.getElementById('scrub'), tc = document.getElementById('tc');
+  let playing = false, t0 = 0, base = 0;
+  function fit() { const s = Math.min(innerWidth / W, innerHeight / H); stage.style.transform = 'scale(' + s + ')'; stage.style.transformOrigin = 'top center'; }
+  addEventListener('resize', fit); fit();
+  function frame(now) { if (playing) { const t = base + (now - t0) / 1000; if (t >= DURATION) { playing = false; btn.textContent = 'Play'; } scrub.value = t; tc.textContent = t.toFixed(2); renderAt(t); } requestAnimationFrame(frame); }
+  btn.onclick = () => { playing = !playing; btn.textContent = playing ? 'Pause' : 'Play'; base = +scrub.value; if (base >= DURATION - 0.1) base = 0; t0 = performance.now(); };
+  scrub.oninput = () => { playing = false; btn.textContent = 'Play'; tc.textContent = (+scrub.value).toFixed(2); renderAt(+scrub.value); };
+  renderAt(0.8); requestAnimationFrame(frame);
+} else { document.body.classList.add('render'); }
+</script>
+</body>
+</html>
