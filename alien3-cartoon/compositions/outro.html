@@ -1,0 +1,25 @@
+<template>
+  <style>
+    #root { position: absolute; inset: 0; overflow: hidden; background: #f4ede0; }
+    #ou-t { position: absolute; left: 150px; top: 330px; font-family: "Archivo Black", sans-serif; font-size: 170px; line-height: 0.95; color: #1b1a18; white-space: nowrap; }
+    #ou-t .w { display: inline-block; margin-right: 0.2em; }
+    #ou-t .o { color: #c9653f; }
+    #ou-b { position: absolute; left: 156px; top: 540px; font-family: "Inter", sans-serif; font-size: 46px; color: #3d3929; white-space: nowrap; }
+    #ou-c { position: absolute; left: 156px; top: 650px; font-family: "Inter", sans-serif; font-weight: 800; font-size: 32px; letter-spacing: 4px; color: #c9653f; white-space: nowrap; }
+  </style>
+  <div id="root" data-composition-id="outro" data-width="1920" data-height="1080">
+    <div id="ou-t"><span class="w">SHE</span><span class="w">ENDED</span><span class="w o">IT.</span></div>
+    <div id="ou-b">Ripley’s sacrifice kept the Queen out of the Company’s hands.</div>
+    <div id="ou-c">ALIEN 3 · THE WHOLE STORY IN 12 SCENES</div>
+  </div>
+  <script>
+    (function () {
+      var tl = gsap.timeline({ paused: true });
+      gsap.set(["#ou-t .w", "#ou-b", "#ou-c"], { opacity: 0 });
+      tl.fromTo("#ou-t .w", { opacity: 0, filter: "blur(10px)" }, { opacity: 1, filter: "blur(0px)", duration: 0.2, stagger: 0.14 }, 0.3);
+      tl.fromTo("#ou-b", { opacity: 0, filter: "blur(8px)" }, { opacity: 1, filter: "blur(0px)", duration: 0.2 }, 0.85);
+      tl.fromTo("#ou-c", { opacity: 0 }, { opacity: 1, duration: 0.3 }, 1.2);
+      window.__timelines["outro"] = tl;
+    })();
+  </script>
+</template>
