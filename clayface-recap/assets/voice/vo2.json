@@ -1,0 +1,146 @@
+[
+  {
+    "text": "you'd",
+    "start": 0.08,
+    "end": 0.38,
+    "id": "w0"
+  },
+  {
+    "text": "think",
+    "start": 0.38,
+    "end": 0.77,
+    "id": "w1"
+  },
+  {
+    "text": "it's",
+    "start": 0.77,
+    "end": 1.07,
+    "id": "w2"
+  },
+  {
+    "text": "a",
+    "start": 1.07,
+    "end": 1.14,
+    "id": "w3"
+  },
+  {
+    "text": "Batman",
+    "start": 1.14,
+    "end": 1.6,
+    "id": "w4"
+  },
+  {
+    "text": "villain",
+    "start": 1.68,
+    "end": 2.15,
+    "id": "w5"
+  },
+  {
+    "text": "origin.",
+    "start": 2.15,
+    "end": 2.68,
+    "id": "w6"
+  },
+  {
+    "text": "It",
+    "start": 2.76,
+    "end": 2.86,
+    "id": "w7"
+  },
+  {
+    "text": "isn't.",
+    "start": 2.86,
+    "end": 3.61,
+    "id": "w8"
+  },
+  {
+    "text": "There's",
+    "start": 3.7,
+    "end": 4.12,
+    "id": "w9"
+  },
+  {
+    "text": "no",
+    "start": 4.17,
+    "end": 4.31,
+    "id": "w10"
+  },
+  {
+    "text": "Batman.",
+    "start": 4.31,
+    "end": 5.04,
+    "id": "w11"
+  },
+  {
+    "text": "It's",
+    "start": 5.12,
+    "end": 5.33,
+    "id": "w12"
+  },
+  {
+    "text": "a",
+    "start": 5.34,
+    "end": 5.41,
+    "id": "w13"
+  },
+  {
+    "text": "body",
+    "start": 5.41,
+    "end": 5.7,
+    "id": "w14"
+  },
+  {
+    "text": "horror",
+    "start": 5.71,
+    "end": 6.16,
+    "id": "w15"
+  },
+  {
+    "text": "tragedy",
+    "start": 6.16,
+    "end": 6.64,
+    "id": "w16"
+  },
+  {
+    "text": "about",
+    "start": 6.72,
+    "end": 7,
+    "id": "w17"
+  },
+  {
+    "text": "an",
+    "start": 7,
+    "end": 7.16,
+    "id": "w18"
+  },
+  {
+    "text": "actor",
+    "start": 7.16,
+    "end": 7.33,
+    "id": "w19"
+  },
+  {
+    "text": "who",
+    "start": 7.66,
+    "end": 7.78,
+    "id": "w20"
+  },
+  {
+    "text": "loses",
+    "start": 7.87,
+    "end": 8.23,
+    "id": "w21"
+  },
+  {
+    "text": "his",
+    "start": 8.23,
+    "end": 8.47,
+    "id": "w22"
+  },
+  {
+    "text": "face.",
+    "start": 8.47,
+    "end": 9.06,
+    "id": "w23"
+  }
+]

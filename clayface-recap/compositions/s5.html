@@ -1,0 +1,234 @@
+<template>
+<style>
+#root { position:absolute; inset:0; overflow:hidden; font-family: Montserrat, sans-serif; }
+.bg { position:absolute; inset:0; background: radial-gradient(ellipse 120% 70% at 50% 28%, #ffffff 0%, #f1f5f8 55%, #e4ebf1 100%); }
+.floor { position:absolute; left:0; }
+.floor line { stroke:#d4dce4; stroke-width:2; }
+.stage { position:absolute; inset:0; }
+.fig { position:absolute; transform-origin: 50% 97%; }
+.fig[data-glow] svg { filter: drop-shadow(0 0 14px rgba(255,140,90,.45)); }
+.panel { position:absolute; border-radius:30px; border:3px solid rgba(25,195,240,.85);
+  background: linear-gradient(160deg, rgba(225,248,255,.78) 0%, rgba(170,228,255,.38) 60%, rgba(140,210,255,.30) 100%);
+  box-shadow: 0 0 46px rgba(25,180,255,.35), inset 0 0 34px rgba(255,255,255,.8); overflow:hidden; }
+.panel::after { content:""; position:absolute; left:-20%; top:-30%; width:60%; height:160%; transform: rotate(18deg);
+  background: linear-gradient(90deg, rgba(255,255,255,0), rgba(255,255,255,.45), rgba(255,255,255,0)); pointer-events:none; }
+.abs { position:absolute; }
+.dark { position:absolute; inset:0; background:#0d1117; opacity:0; border-radius:27px; }
+.icon { position:absolute; }
+</style>
+<div id="root" data-composition-id="s5" data-width="1080" data-height="1920" data-start="0" data-duration="10">
+
+<div id="s5-bg" class="bg"></div>
+<svg id="s5-floor" class="floor" viewBox="0 0 1080 900" width="1080" height="900" style="top:1040px">
+  <line x1="-960" y1="900" x2="320" y2="0" /><line x1="-810" y1="900" x2="342" y2="0" /><line x1="-660" y1="900" x2="364" y2="0" /><line x1="-510" y1="900" x2="386" y2="0" /><line x1="-360" y1="900" x2="408" y2="0" /><line x1="-210" y1="900" x2="430" y2="0" /><line x1="-60" y1="900" x2="452" y2="0" /><line x1="90" y1="900" x2="474" y2="0" /><line x1="240" y1="900" x2="496" y2="0" /><line x1="390" y1="900" x2="518" y2="0" /><line x1="540" y1="900" x2="540" y2="0" /><line x1="690" y1="900" x2="562" y2="0" /><line x1="840" y1="900" x2="584" y2="0" /><line x1="990" y1="900" x2="606" y2="0" /><line x1="1140" y1="900" x2="628" y2="0" /><line x1="1290" y1="900" x2="650" y2="0" /><line x1="1440" y1="900" x2="672" y2="0" /><line x1="1590" y1="900" x2="694" y2="0" /><line x1="1740" y1="900" x2="716" y2="0" /><line x1="1890" y1="900" x2="738" y2="0" /><line x1="2040" y1="900" x2="760" y2="0" /><line x1="0" y1="17.2" x2="1080" y2="17.2" /><line x1="0" y1="60.0" x2="1080" y2="60.0" /><line x1="0" y1="124.6" x2="1080" y2="124.6" /><line x1="0" y1="209.1" x2="1080" y2="209.1" /><line x1="0" y1="312.4" x2="1080" y2="312.4" /><line x1="0" y1="433.8" x2="1080" y2="433.8" /><line x1="0" y1="572.5" x2="1080" y2="572.5" /><line x1="0" y1="728.1" x2="1080" y2="728.1" /><line x1="0" y1="900.0" x2="1080" y2="900.0" />
+</svg>
+<div id="s5-stage" class="stage">
+  <div id="s5-panel" class="panel " style="left:90px;top:250px;width:900px;height:700px" data-layout-allow-overflow>
+    <div id="s5-det" class="fig" style="left:170px;top:174px;width:320px;height:480px;--s:0.92" data-rig="fig">
+  <svg viewBox="-160 -310 320 480" width="320" height="480" overflow="visible"><g id="s5-det-body" transform="translate(0 0)">
+    <g id="s5-det-legL" transform="rotate(0 -15 0)"><line x1="-16" y1="0" x2="-16" y2="80" class="s5-det-limb" style="stroke:#8A94A3" stroke-linecap="round" stroke-width="26"/><g id="s5-det-shinL" transform="rotate(0 -15 80)"><line x1="-16" y1="80" x2="-18" y2="152" class="s5-det-limb" style="stroke:#8A94A3" stroke-linecap="round" stroke-width="24"/></g></g>
+    <g id="s5-det-legR" transform="rotate(0 15 0)"><line x1="16" y1="0" x2="16" y2="80" class="s5-det-limb" style="stroke:#8A94A3" stroke-linecap="round" stroke-width="26"/><g id="s5-det-shinR" transform="rotate(0 15 80)"><line x1="16" y1="80" x2="18" y2="152" class="s5-det-limb" style="stroke:#8A94A3" stroke-linecap="round" stroke-width="24"/></g></g>
+    <g id="s5-det-armL" transform="rotate(0 -38 -138)"><line x1="-40" y1="-140" x2="-44" y2="-82" class="s5-det-limb" style="stroke:#8A94A3" stroke-linecap="round" stroke-width="22"/><g id="s5-det-foreL" transform="rotate(0 -40 -82)"><line x1="-44" y1="-82" x2="-46" y2="-24" class="s5-det-limb" style="stroke:#8A94A3" stroke-linecap="round" stroke-width="20"/></g></g>
+    <g id="s5-det-armR" transform="rotate(0 38 -138)"><line x1="40" y1="-140" x2="44" y2="-82" class="s5-det-limb" style="stroke:#8A94A3" stroke-linecap="round" stroke-width="22"/><g id="s5-det-foreR" transform="rotate(0 40 -82)"><line x1="44" y1="-82" x2="46" y2="-24" class="s5-det-limb" style="stroke:#8A94A3" stroke-linecap="round" stroke-width="20"/></g></g>
+    <path d="M-40,-152 Q0,-168 40,-152 L50,74 Q0,84 -50,74 Z" class="s5-det-fill" style="fill:#8A94A3;stroke:#5D6672" stroke-width="4" stroke-linejoin="round"/>
+    <g id="s5-det-badge"><path d="M14,-118 l6,12 13,2 -9,9 2,13 -12,-6 -12,6 2,-13 -9,-9 13,-2 Z" fill="#F5B82E" stroke="#9a6b00" stroke-width="2"/></g>
+    <rect x="-12" y="-178" width="24" height="30" rx="8" class="s5-det-fill" style="fill:#8A94A3"/>
+    <g id="s5-det-head" transform="rotate(0 0 -170)">
+      <ellipse cx="0" cy="-212" rx="38" ry="46" class="s5-det-fill" style="fill:#8A94A3;stroke:#5D6672" stroke-width="4" stroke-linejoin="round"/>
+      <g id="s5-det-hat"><ellipse cx="0" cy="-248" rx="64" ry="11" style="fill:#5D6672"/><path d="M-36,-250 L-32,-292 Q0,-300 32,-292 L36,-250 Z" style="fill:#5D6672"/><rect x="-35" y="-262" width="70" height="9" style="fill:#14161b"/></g>
+    </g>
+    
+  </g></svg></div>
+    <div id="s5-cc" class="fig" style="left:540px;top:174px;width:320px;height:480px;--s:0.92" data-rig="fig">
+  <svg viewBox="-160 -310 320 480" width="320" height="480" overflow="visible"><g id="s5-cc-body" transform="translate(0 0)">
+    <g id="s5-cc-legL" transform="rotate(0 -15 0)"><line x1="-16" y1="0" x2="-16" y2="80" class="s5-cc-limb" style="stroke:#9FB3C8" stroke-linecap="round" stroke-width="26"/><g id="s5-cc-shinL" transform="rotate(0 -15 80)"><line x1="-16" y1="80" x2="-18" y2="152" class="s5-cc-limb" style="stroke:#9FB3C8" stroke-linecap="round" stroke-width="24"/></g></g>
+    <g id="s5-cc-legR" transform="rotate(0 15 0)"><line x1="16" y1="0" x2="16" y2="80" class="s5-cc-limb" style="stroke:#9FB3C8" stroke-linecap="round" stroke-width="26"/><g id="s5-cc-shinR" transform="rotate(0 15 80)"><line x1="16" y1="80" x2="18" y2="152" class="s5-cc-limb" style="stroke:#9FB3C8" stroke-linecap="round" stroke-width="24"/></g></g>
+    <g id="s5-cc-armL" transform="rotate(0 -38 -138)"><line x1="-40" y1="-140" x2="-44" y2="-82" class="s5-cc-limb" style="stroke:#9FB3C8" stroke-linecap="round" stroke-width="22"/><g id="s5-cc-foreL" transform="rotate(0 -40 -82)"><line x1="-44" y1="-82" x2="-46" y2="-24" class="s5-cc-limb" style="stroke:#9FB3C8" stroke-linecap="round" stroke-width="20"/></g></g>
+    <g id="s5-cc-armR" transform="rotate(0 38 -138)"><line x1="40" y1="-140" x2="44" y2="-82" class="s5-cc-limb" style="stroke:#9FB3C8" stroke-linecap="round" stroke-width="22"/><g id="s5-cc-foreR" transform="rotate(0 40 -82)"><line x1="44" y1="-82" x2="46" y2="-24" class="s5-cc-limb" style="stroke:#9FB3C8" stroke-linecap="round" stroke-width="20"/></g></g>
+    <path d="M-40,-152 Q0,-168 40,-152 L50,74 Q0,84 -50,74 Z" class="s5-cc-fill" style="fill:#9FB3C8;stroke:#6F8399" stroke-width="4" stroke-linejoin="round"/>
+    
+    <rect x="-12" y="-178" width="24" height="30" rx="8" class="s5-cc-fill" style="fill:#9FB3C8"/>
+    <g id="s5-cc-head" transform="rotate(0 0 -170)">
+      <ellipse cx="0" cy="-212" rx="38" ry="46" class="s5-cc-fill" style="fill:#9FB3C8;stroke:#6F8399" stroke-width="4" stroke-linejoin="round"/>
+      <path d="M-46,-196 C-54,-276 54,-276 46,-196 L46,-170 L30,-170 L32,-214 C30,-246 -30,-246 -32,-214 L-30,-170 L-46,-170 Z" class="s5-cc-hair" style="fill:#4d5866"/>
+    </g>
+    
+  </g></svg></div>
+    <div id="s5-clay" class="fig" style="left:170px;top:174px;width:320px;height:480px;--s:0.92" data-rig="fig" data-glow="1">
+  <svg viewBox="-160 -310 320 480" width="320" height="480" overflow="visible"><g id="s5-clay-body" transform="translate(0 0)">
+    <g id="s5-clay-legL" transform="rotate(0 -15 0)"><line x1="-16" y1="0" x2="-16" y2="80" class="s5-clay-limb" style="stroke:#C46A45" stroke-linecap="round" stroke-width="26"/><g id="s5-clay-shinL" transform="rotate(0 -15 80)"><line x1="-16" y1="80" x2="-18" y2="152" class="s5-clay-limb" style="stroke:#C46A45" stroke-linecap="round" stroke-width="24"/></g></g>
+    <g id="s5-clay-legR" transform="rotate(0 15 0)"><line x1="16" y1="0" x2="16" y2="80" class="s5-clay-limb" style="stroke:#C46A45" stroke-linecap="round" stroke-width="26"/><g id="s5-clay-shinR" transform="rotate(0 15 80)"><line x1="16" y1="80" x2="18" y2="152" class="s5-clay-limb" style="stroke:#C46A45" stroke-linecap="round" stroke-width="24"/></g></g>
+    <g id="s5-clay-armL" transform="rotate(0 -38 -138)"><line x1="-40" y1="-140" x2="-44" y2="-82" class="s5-clay-limb" style="stroke:#C46A45" stroke-linecap="round" stroke-width="22"/><g id="s5-clay-foreL" transform="rotate(0 -40 -82)"><line x1="-44" y1="-82" x2="-46" y2="-24" class="s5-clay-limb" style="stroke:#C46A45" stroke-linecap="round" stroke-width="20"/></g></g>
+    <g id="s5-clay-armR" transform="rotate(0 38 -138)"><line x1="40" y1="-140" x2="44" y2="-82" class="s5-clay-limb" style="stroke:#C46A45" stroke-linecap="round" stroke-width="22"/><g id="s5-clay-foreR" transform="rotate(0 40 -82)"><line x1="44" y1="-82" x2="46" y2="-24" class="s5-clay-limb" style="stroke:#C46A45" stroke-linecap="round" stroke-width="20"/></g></g>
+    <path d="M-40,-152 Q0,-168 40,-152 L50,74 Q0,84 -50,74 Z" class="s5-clay-fill" style="fill:#C46A45;stroke:#8E4428" stroke-width="4" stroke-linejoin="round"/>
+    <g id="s5-clay-badge"><path d="M14,-118 l6,12 13,2 -9,9 2,13 -12,-6 -12,6 2,-13 -9,-9 13,-2 Z" fill="#F5B82E" stroke="#9a6b00" stroke-width="2"/></g>
+    <rect x="-12" y="-178" width="24" height="30" rx="8" class="s5-clay-fill" style="fill:#C46A45"/>
+    <g id="s5-clay-head" transform="rotate(0 0 -170)">
+      <ellipse cx="0" cy="-212" rx="38" ry="46" class="s5-clay-fill" style="fill:#C46A45;stroke:#8E4428" stroke-width="4" stroke-linejoin="round"/>
+      <g id="s5-clay-hat"><ellipse cx="0" cy="-248" rx="64" ry="11" style="fill:#5D6672"/><path d="M-36,-250 L-32,-292 Q0,-300 32,-292 L36,-250 Z" style="fill:#5D6672"/><rect x="-35" y="-262" width="70" height="9" style="fill:#14161b"/></g>
+    </g>
+    <g id="s5-clay-lumps" style="opacity:0"><circle id="s5-clay-lump0" cx="-48" cy="-120" r="30" class="s5-clay-fill" style="fill:#C46A45;stroke:#8E4428" stroke-width="4"/><circle id="s5-clay-lump1" cx="46" cy="-96" r="34" class="s5-clay-fill" style="fill:#C46A45;stroke:#8E4428" stroke-width="4"/><circle id="s5-clay-lump2" cx="-30" cy="-40" r="26" class="s5-clay-fill" style="fill:#C46A45;stroke:#8E4428" stroke-width="4"/><circle id="s5-clay-lump3" cx="40" cy="-10" r="24" class="s5-clay-fill" style="fill:#C46A45;stroke:#8E4428" stroke-width="4"/><circle id="s5-clay-lump4" cx="-56" cy="-230" r="26" class="s5-clay-fill" style="fill:#C46A45;stroke:#8E4428" stroke-width="4"/><circle id="s5-clay-lump5" cx="52" cy="-250" r="30" class="s5-clay-fill" style="fill:#C46A45;stroke:#8E4428" stroke-width="4"/><circle id="s5-clay-lump6" cx="10" cy="-280" r="24" class="s5-clay-fill" style="fill:#C46A45;stroke:#8E4428" stroke-width="4"/><circle id="s5-clay-lump7" cx="-14" cy="40" r="30" class="s5-clay-fill" style="fill:#C46A45;stroke:#8E4428" stroke-width="4"/></g>
+  </g></svg></div>
+    <svg class="abs" style="left:0;top:0" width="900" height="700" viewBox="0 0 900 700" overflow="visible">
+      <g id="s5-heart" transform="translate(640 270)"><path d="M0,30 C-40,0 -60,-30 -40,-50 C-25,-65 -5,-58 0,-42 C5,-58 25,-65 40,-50 C60,-30 40,0 0,30 Z" fill="#19C3F0" stroke="#fff" stroke-width="5"/></g>
+      <g transform="translate(410 120)"><g id="s5-bolt"><path d="M20,-90 L-40,10 L-4,10 L-24,100 L44,-14 L8,-14 L30,-90 Z" fill="#2F7BFF" stroke="#fff" stroke-width="6" stroke-linejoin="round"/></g></g>
+      <rect id="s5-flash" x="0" y="0" width="900" height="700" fill="#e6f6ff" style="opacity:0"/>
+    </svg>
+  </div>
+  <div id="s5-z" class="fig" style="left:10px;top:654px;width:320px;height:480px;--s:0.95" data-rig="zeke">
+  <svg viewBox="-160 -310 320 480" width="320" height="480" overflow="visible"><g id="s5-z-body" transform="translate(0 0)">
+    <g id="s5-z-legL" transform="rotate(0 -15 0)"><line x1="-15" y1="0" x2="-15" y2="80" stroke="#14161b" stroke-linecap="round" stroke-linejoin="round" stroke-width="10"/><g id="s5-z-shinL" transform="rotate(0 -15 80)"><line x1="-15" y1="80" x2="-17" y2="156" stroke="#14161b" stroke-linecap="round" stroke-linejoin="round" stroke-width="10"/><line x1="-17" y1="156" x2="-34" y2="158" stroke="#14161b" stroke-linecap="round" stroke-linejoin="round" stroke-width="10"/></g></g>
+    <g id="s5-z-legR" transform="rotate(0 15 0)"><line x1="15" y1="0" x2="15" y2="80" stroke="#14161b" stroke-linecap="round" stroke-linejoin="round" stroke-width="10"/><g id="s5-z-shinR" transform="rotate(0 15 80)"><line x1="15" y1="80" x2="17" y2="156" stroke="#14161b" stroke-linecap="round" stroke-linejoin="round" stroke-width="10"/><line x1="17" y1="156" x2="34" y2="158" stroke="#14161b" stroke-linecap="round" stroke-linejoin="round" stroke-width="10"/></g></g>
+    <path d="M-32,-16 L32,-16 L36,32 L5,32 L0,12 L-5,32 L-36,32 Z" fill="#23252b" stroke="#14161b" stroke-linecap="round" stroke-linejoin="round" stroke-width="5"/>
+    <g id="s5-z-armL" transform="rotate(0 -38 -138)"><line x1="-38" y1="-138" x2="-40" y2="-82" stroke="#14161b" stroke-linecap="round" stroke-linejoin="round" stroke-width="10"/><g id="s5-z-foreL" transform="rotate(0 -40 -82)"><line x1="-40" y1="-82" x2="-42" y2="-28" stroke="#14161b" stroke-linecap="round" stroke-linejoin="round" stroke-width="10"/></g></g>
+    <g id="s5-z-armR" transform="rotate(0 38 -138)"><line x1="38" y1="-138" x2="40" y2="-82" stroke="#14161b" stroke-linecap="round" stroke-linejoin="round" stroke-width="10"/><g id="s5-z-foreR" transform="rotate(0 40 -82)"><line x1="40" y1="-82" x2="42" y2="-28" stroke="#14161b" stroke-linecap="round" stroke-linejoin="round" stroke-width="10"/></g></g>
+    <path d="M-34,-150 Q0,-160 34,-150 L58,-120 L42,-104 L33,-116 L32,-12 L-32,-12 L-33,-116 L-42,-104 L-58,-120 Z" fill="#FFD21F" stroke="#14161b" stroke-linecap="round" stroke-linejoin="round" stroke-width="5"/>
+    <line x1="0" y1="-158" x2="0" y2="-172" stroke="#14161b" stroke-linecap="round" stroke-linejoin="round" stroke-width="10"/>
+    <g id="s5-z-head" transform="rotate(0 0 -170)">
+      <circle cx="0" cy="-214" r="46" fill="#fff" stroke="#14161b" stroke-linecap="round" stroke-linejoin="round" stroke-width="6"/>
+      <g id="s5-z-eyes" transform="translate(0 -210) scale(1 1) translate(0 210)">
+        <ellipse cx="-15" cy="-210" rx="5.5" ry="6.5" fill="#14161b"/><ellipse cx="15" cy="-210" rx="5.5" ry="6.5" fill="#14161b"/>
+      </g>
+      <path id="s5-z-m-smile" d="M-13,-192 Q0,-181 13,-192" fill="none" stroke="#14161b" stroke-linecap="round" stroke-linejoin="round" stroke-width="5"/>
+      <ellipse id="s5-z-m-o" cx="0" cy="-189" rx="7" ry="9" fill="#14161b" style="opacity:0"/>
+      <line id="s5-z-m-flat" x1="-11" y1="-189" x2="11" y2="-189" stroke="#14161b" stroke-linecap="round" stroke-linejoin="round" stroke-width="5" style="opacity:0"/>
+      <path id="s5-z-m-worry" d="M-13,-185 Q0,-195 13,-185" fill="none" stroke="#14161b" stroke-linecap="round" stroke-linejoin="round" stroke-width="5" style="opacity:0"/>
+      <path d="M-50,-226 C-52,-284 52,-284 50,-226 Z" fill="#E8322B" stroke="#14161b" stroke-linecap="round" stroke-linejoin="round" stroke-width="5"/>
+      <rect x="-54" y="-238" width="108" height="20" rx="9" fill="#B81F19" stroke="#14161b" stroke-linecap="round" stroke-linejoin="round" stroke-width="4"/>
+    </g>
+  </g></svg></div>
+  <div id="s5-dark" style="position:absolute;inset:0;background:#0d1117"></div>
+</div>
+
+</div>
+<script>
+(function(){
+
+const RIG = {"armL":[-38,-138],"foreL":[-40,-82],"armR":[38,-138],"foreR":[40,-82],"legL":[-15,0],"shinL":[-15,80],"legR":[15,0],"shinR":[15,80],"head":[0,-170]};
+const tl = gsap.timeline({ paused: true });
+function rot(sel, k, a, d, t, ease) {
+  tl.to(sel, { attr: { transform: "rotate(" + a + " " + RIG[k][0] + " " + RIG[k][1] + ")" }, duration: d, ease: ease || "power2.inOut" }, t);
+}
+function pose(id, t, p, d, ease) {
+  d = d == null ? 0.3 : d;
+  for (const k in p) rot("#" + id + "-" + k, k, p[k], d, t, ease);
+}
+const REST = { armL: 8, foreL: -6, armR: -8, foreR: 6, legL: 0, shinL: 0, legR: 0, shinR: 0, head: 0 };
+function rest(id, t, d) { pose(id, t, REST, d == null ? 0.35 : d); }
+function mouth(id, t, name) {
+  for (const n of ["smile", "o", "flat", "worry"]) tl.to("#" + id + "-m-" + n, { opacity: n === name ? 1 : 0, duration: 0.1 }, t);
+}
+function blink(id, t) {
+  const el = "#" + id + "-eyes";
+  tl.to(el, { attr: { transform: "translate(0 -210) scale(1 0.12) translate(0 210)" }, duration: 0.07, ease: "power1.in" }, t)
+    .to(el, { attr: { transform: "translate(0 -210) scale(1 1) translate(0 210)" }, duration: 0.09, ease: "power1.out" }, t + 0.07);
+}
+function walk(id, t0, dur, x0, x1, y) {
+  const v = { x: x1, duration: dur, ease: "power1.inOut" };
+  if (y != null) v.y = y;
+  tl.fromTo("#" + id, { x: x0 }, v, t0);
+  const steps = Math.max(2, Math.round(dur / 0.26));
+  const sd = dur / steps;
+  for (let i = 0; i < steps; i++) {
+    const s = i % 2 ? 1 : -1, t = t0 + i * sd;
+    pose(id, t, { legL: 24 * s, shinL: s > 0 ? 0 : 18, legR: -24 * s, shinR: s > 0 ? 18 : 0, armL: -16 * s + 8, armR: -16 * s - 8 }, sd, "sine.inOut");
+    tl.to("#" + id + "-body", { attr: { transform: "translate(0 -6)" }, duration: sd / 2, ease: "sine.out" }, t)
+      .to("#" + id + "-body", { attr: { transform: "translate(0 0)" }, duration: sd / 2, ease: "sine.in" }, t + sd / 2);
+  }
+  pose(id, t0 + dur, { legL: 0, shinL: 0, legR: 0, shinR: 0 }, 0.18);
+}
+function hop(id, t, dx, dy, d, peak) {
+  peak = peak || 90;
+  const el = "#" + id;
+  tl.to(el, { scaleY: 0.86 * S(id), scaleX: 1.08 * S(id), duration: 0.1, ease: "power2.out" }, t);
+  tl.to(el, { x: "+=" + dx, duration: d, ease: "none" }, t + 0.1);
+  tl.to(el, { y: "+=" + (dy - peak), duration: d * 0.5, ease: "power2.out" }, t + 0.1)
+    .to(el, { y: "+=" + peak, duration: d * 0.5, ease: "power2.in" }, t + 0.1 + d * 0.5);
+  tl.to(el, { scaleY: 1.06 * S(id), scaleX: 0.96 * S(id), duration: 0.12 }, t + 0.1)
+    .to(el, { scaleY: 0.9 * S(id), scaleX: 1.06 * S(id), duration: 0.08 }, t + 0.1 + d)
+    .to(el, { scaleY: S(id), scaleX: S(id), duration: 0.16, ease: "back.out(2)" }, t + 0.18 + d);
+  pose(id, t + 0.1, { legL: 18, shinL: 30, legR: -14, shinR: 26, armL: 50, armR: -50 }, d * 0.5);
+  pose(id, t + 0.1 + d * 0.5, { legL: 0, shinL: 0, legR: 0, shinR: 0, armL: 8, armR: -8 }, d * 0.5);
+}
+function breathe(id, t, d) {
+  const n = Math.max(1, Math.floor(d / 1.6));
+  tl.to("#" + id + "-body", { attr: { transform: "translate(0 -3)" }, duration: 0.8, ease: "sine.inOut", repeat: n * 2 - 1, yoyo: true }, t);
+}
+function S(id) { const e = document.getElementById(id); return parseFloat(getComputedStyle(e).getPropertyValue("--s")) || 1; }
+function initFigs() {
+  document.querySelectorAll("#root .fig").forEach((e) => {
+    const s = parseFloat(getComputedStyle(e).getPropertyValue("--s")) || 1;
+    gsap.set(e, { scale: s });
+  });
+  document.querySelectorAll("#root [data-rig='zeke']").forEach((e) => {
+    for (const k in REST) gsap.set("#" + e.id + "-" + k, { attr: { transform: "rotate(" + REST[k] + " " + RIG[k][0] + " " + RIG[k][1] + ")" } });
+  });
+}
+function pop(sel, t, s) {
+  tl.fromTo(sel, { scale: 0, opacity: 0 }, { scale: s || 1, opacity: 1, duration: 0.42, ease: "back.out(2.2)" }, t);
+}
+function out(sel, t, d) { tl.to(sel, { opacity: 0, duration: d || 0.3, ease: "power2.in" }, t); }
+
+initFigs();
+
+gsap.set(["#s5-cc", "#s5-heart", "#s5-bolt"], { opacity: 0 });
+gsap.set(["#s5-clay-hat", "#s5-clay-badge"], { opacity: 0 });
+tl.fromTo("#s5-dark", { opacity: 1 }, { opacity: 0, duration: 0.55, ease: "power2.out" }, 0);
+tl.fromTo("#s5-panel", { scale: 1.25 }, { scale: 1, duration: 0.6, ease: "power3.out" }, 0);
+gsap.set("#s5-z", { x: -320 });
+// the clay walks in and absorbs the detective
+walk("s5-clay", 0.2, 0.9, -330, -40);
+tl.to("#s5-clay", { x: 0, duration: 0.3, ease: "power3.in" }, 1);
+tl.to("#s5-det", { scale: 0.8, opacity: 0, duration: 0.45, ease: "power2.in" }, 1.15);
+tl.to("#s5-clay svg", { filter: "drop-shadow(0 0 26px rgba(232,50,43,.85))", duration: 0.2, yoyo: true, repeat: 1 }, 1.15);
+// Caitlyn and her heart
+tl.fromTo("#s5-cc", { opacity: 0, x: 40 }, { opacity: 1, x: 0, duration: 0.4 }, 2.3);
+pose("s5-cc", 2.6999999999999997, { armL: 60, foreL: 70 }, 0.4);
+pop("#s5-heart", 3.1999999999999997, 1);
+tl.to("#s5-heart", { scale: 1.1, duration: 0.3, yoyo: true, repeat: 5, ease: "sine.inOut" }, 3.6999999999999997);
+// wears his face
+tl.to(".s5-clay-fill", { fill: "#8A94A3", stroke: "#5D6672", duration: 0.5 }, 3.9);
+tl.to(".s5-clay-limb", { stroke: "#8A94A3", duration: 0.5 }, 3.9);
+tl.fromTo(["#s5-clay-hat", "#s5-clay-badge"], { opacity: 0, y: -30 }, { opacity: 1, y: 0, duration: 0.4, ease: "back.out(2)" }, 4);
+// hoping she'll love him back
+walk("s5-clay", 4.8999999999999995, 0.75, 0, 150);
+pose("s5-clay", 5.7, { armR: -75, foreR: -15 }, 0.45);
+// Zeke: no, no
+walk("s5-z", 4.8999999999999995, 0.6, -320, 0);
+mouth("s5-z", 5, "worry");
+pose("s5-z", 5.6, { armL: -60, foreL: -80, armR: 60, foreR: 80 }, 0.3);
+pose("s5-z", 5.80, { head: 14 }, 0.2, "sine.inOut");
+pose("s5-z", 6.02, { head: -14 }, 0.2, "sine.inOut");
+pose("s5-z", 6.24, { head: 14 }, 0.2, "sine.inOut");
+pose("s5-z", 6.46, { head: -14 }, 0.2, "sine.inOut");
+pose("s5-z", 6.7, { head: 0 }, 0.2);
+// silence, then the kill switch
+pose("s5-cc", 7.3, { armL: -80, foreL: -10 }, 0.25, "power3.out");
+tl.to("#s5-heart", { opacity: 0, scale: 0.6, duration: 0.25 }, 7.3);
+tl.fromTo("#s5-bolt", { opacity: 0, y: -120, scale: 0.6 }, { opacity: 1, y: 0, scale: 1, duration: 0.18, ease: "power4.in" }, 7.8999999999999995);
+tl.to("#s5-flash", { keyframes: [{ opacity: 0.95, duration: 0.05 }, { opacity: 0.1, duration: 0.08 }, { opacity: 0.8, duration: 0.05 }, { opacity: 0, duration: 0.25 }] }, 8.08);
+tl.to("#s5-bolt", { opacity: 0, duration: 0.25 }, 8.5);
+tl.fromTo("#s5-panel", { x: 0 }, { x: 12, duration: 0.04, yoyo: true, repeat: 7 }, 8.1);
+mouth("s5-z", 8.1, "o");
+pose("s5-z", 8.1, { armL: 150, foreL: -100, armR: -150, foreR: 100 }, 0.15);
+// swells into a monster, then sinks
+tl.to(["#s5-clay-hat", "#s5-clay-badge"], { opacity: 0, duration: 0.15 }, 8.15);
+tl.to(".s5-clay-fill", { fill: "#C46A45", stroke: "#8E4428", duration: 0.2 }, 8.15);
+tl.to(".s5-clay-limb", { stroke: "#C46A45", duration: 0.2 }, 8.15);
+tl.to("#s5-clay-lumps", { opacity: 1, duration: 0.05 }, 8.25);
+tl.fromTo("#s5-clay-lump0", { scale: 0, transformOrigin: "50% 50%" }, { scale: 1, duration: 0.35, ease: "back.out(3)" }, 8.25);
+tl.fromTo("#s5-clay-lump1", { scale: 0, transformOrigin: "50% 50%" }, { scale: 1, duration: 0.35, ease: "back.out(3)" }, 8.30);
+tl.fromTo("#s5-clay-lump2", { scale: 0, transformOrigin: "50% 50%" }, { scale: 1, duration: 0.35, ease: "back.out(3)" }, 8.35);
+tl.fromTo("#s5-clay-lump3", { scale: 0, transformOrigin: "50% 50%" }, { scale: 1, duration: 0.35, ease: "back.out(3)" }, 8.40);
+tl.fromTo("#s5-clay-lump4", { scale: 0, transformOrigin: "50% 50%" }, { scale: 1, duration: 0.35, ease: "back.out(3)" }, 8.45);
+tl.fromTo("#s5-clay-lump5", { scale: 0, transformOrigin: "50% 50%" }, { scale: 1, duration: 0.35, ease: "back.out(3)" }, 8.50);
+tl.fromTo("#s5-clay-lump6", { scale: 0, transformOrigin: "50% 50%" }, { scale: 1, duration: 0.35, ease: "back.out(3)" }, 8.55);
+tl.fromTo("#s5-clay-lump7", { scale: 0, transformOrigin: "50% 50%" }, { scale: 1, duration: 0.35, ease: "back.out(3)" }, 8.60);
+tl.to("#s5-clay", { scale: 1.3, duration: 0.6, ease: "back.out(2)" }, 8.25);
+pose("s5-clay", 8.3, { armL: 150, foreL: 30, armR: -150, foreR: -30, head: 10 }, 0.35);
+tl.to("#s5-clay", { y: 560, duration: 0.85, ease: "power2.in" }, 9.1);
+
+window.__timelines["s5"] = tl;
+})();
+</script>
+</template>

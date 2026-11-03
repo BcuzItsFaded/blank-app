@@ -1,0 +1,270 @@
+<template>
+<style>
+#root { position:absolute; inset:0; overflow:hidden; font-family: Montserrat, sans-serif; }
+.bg { position:absolute; inset:0; background: radial-gradient(ellipse 120% 70% at 50% 28%, #ffffff 0%, #f1f5f8 55%, #e4ebf1 100%); }
+.floor { position:absolute; left:0; }
+.floor line { stroke:#d4dce4; stroke-width:2; }
+.stage { position:absolute; inset:0; }
+.fig { position:absolute; transform-origin: 50% 97%; }
+.fig[data-glow] svg { filter: drop-shadow(0 0 14px rgba(255,140,90,.45)); }
+.panel { position:absolute; border-radius:30px; border:3px solid rgba(25,195,240,.85);
+  background: linear-gradient(160deg, rgba(225,248,255,.78) 0%, rgba(170,228,255,.38) 60%, rgba(140,210,255,.30) 100%);
+  box-shadow: 0 0 46px rgba(25,180,255,.35), inset 0 0 34px rgba(255,255,255,.8); overflow:hidden; }
+.panel::after { content:""; position:absolute; left:-20%; top:-30%; width:60%; height:160%; transform: rotate(18deg);
+  background: linear-gradient(90deg, rgba(255,255,255,0), rgba(255,255,255,.45), rgba(255,255,255,0)); pointer-events:none; }
+.abs { position:absolute; }
+.dark { position:absolute; inset:0; background:#0d1117; opacity:0; border-radius:27px; }
+.icon { position:absolute; }
+.panel.danger{border-color:rgba(232,50,43,.85);box-shadow:0 0 46px rgba(232,50,43,.35), inset 0 0 34px rgba(255,255,255,.8);}
+#s3-vial{filter:drop-shadow(0 0 16px rgba(25,195,240,.7));}</style>
+<div id="root" data-composition-id="s3" data-width="1080" data-height="1920" data-start="0" data-duration="11.8">
+
+<div id="s3-bg" class="bg"></div>
+<svg id="s3-floor" class="floor" viewBox="0 0 1080 900" width="1080" height="900" style="top:1040px">
+  <line x1="-960" y1="900" x2="320" y2="0" /><line x1="-810" y1="900" x2="342" y2="0" /><line x1="-660" y1="900" x2="364" y2="0" /><line x1="-510" y1="900" x2="386" y2="0" /><line x1="-360" y1="900" x2="408" y2="0" /><line x1="-210" y1="900" x2="430" y2="0" /><line x1="-60" y1="900" x2="452" y2="0" /><line x1="90" y1="900" x2="474" y2="0" /><line x1="240" y1="900" x2="496" y2="0" /><line x1="390" y1="900" x2="518" y2="0" /><line x1="540" y1="900" x2="540" y2="0" /><line x1="690" y1="900" x2="562" y2="0" /><line x1="840" y1="900" x2="584" y2="0" /><line x1="990" y1="900" x2="606" y2="0" /><line x1="1140" y1="900" x2="628" y2="0" /><line x1="1290" y1="900" x2="650" y2="0" /><line x1="1440" y1="900" x2="672" y2="0" /><line x1="1590" y1="900" x2="694" y2="0" /><line x1="1740" y1="900" x2="716" y2="0" /><line x1="1890" y1="900" x2="738" y2="0" /><line x1="2040" y1="900" x2="760" y2="0" /><line x1="0" y1="17.2" x2="1080" y2="17.2" /><line x1="0" y1="60.0" x2="1080" y2="60.0" /><line x1="0" y1="124.6" x2="1080" y2="124.6" /><line x1="0" y1="209.1" x2="1080" y2="209.1" /><line x1="0" y1="312.4" x2="1080" y2="312.4" /><line x1="0" y1="433.8" x2="1080" y2="433.8" /><line x1="0" y1="572.5" x2="1080" y2="572.5" /><line x1="0" y1="728.1" x2="1080" y2="728.1" /><line x1="0" y1="900.0" x2="1080" y2="900.0" />
+</svg>
+<div id="s3-stage" class="stage">
+  <div id="s3-p-sz" class="panel danger" style="left:720px;top:190px;width:280px;height:290px" data-layout-allow-overflow><div id="s3-sz" class="fig" style="left:-20px;top:-196px;width:320px;height:480px;--s:0.5" data-rig="fig">
+  <svg viewBox="-160 -310 320 480" width="320" height="480" overflow="visible"><g id="s3-sz-body" transform="translate(0 0)">
+    <g id="s3-sz-legL" transform="rotate(0 -15 0)"><line x1="-16" y1="0" x2="-16" y2="80" class="s3-sz-limb" style="stroke:#3A3F47" stroke-linecap="round" stroke-width="26"/><g id="s3-sz-shinL" transform="rotate(0 -15 80)"><line x1="-16" y1="80" x2="-18" y2="152" class="s3-sz-limb" style="stroke:#3A3F47" stroke-linecap="round" stroke-width="24"/></g></g>
+    <g id="s3-sz-legR" transform="rotate(0 15 0)"><line x1="16" y1="0" x2="16" y2="80" class="s3-sz-limb" style="stroke:#3A3F47" stroke-linecap="round" stroke-width="26"/><g id="s3-sz-shinR" transform="rotate(0 15 80)"><line x1="16" y1="80" x2="18" y2="152" class="s3-sz-limb" style="stroke:#3A3F47" stroke-linecap="round" stroke-width="24"/></g></g>
+    <g id="s3-sz-armL" transform="rotate(0 -38 -138)"><line x1="-40" y1="-140" x2="-44" y2="-82" class="s3-sz-limb" style="stroke:#3A3F47" stroke-linecap="round" stroke-width="22"/><g id="s3-sz-foreL" transform="rotate(0 -40 -82)"><line x1="-44" y1="-82" x2="-46" y2="-24" class="s3-sz-limb" style="stroke:#3A3F47" stroke-linecap="round" stroke-width="20"/></g></g>
+    <g id="s3-sz-armR" transform="rotate(0 38 -138)"><line x1="40" y1="-140" x2="44" y2="-82" class="s3-sz-limb" style="stroke:#3A3F47" stroke-linecap="round" stroke-width="22"/><g id="s3-sz-foreR" transform="rotate(0 40 -82)"><line x1="44" y1="-82" x2="46" y2="-24" class="s3-sz-limb" style="stroke:#3A3F47" stroke-linecap="round" stroke-width="20"/></g></g>
+    <path d="M-40,-152 Q0,-168 40,-152 L50,74 Q0,84 -50,74 Z" class="s3-sz-fill" style="fill:#3A3F47;stroke:#1d2026" stroke-width="4" stroke-linejoin="round"/>
+    
+    <rect x="-12" y="-178" width="24" height="30" rx="8" class="s3-sz-fill" style="fill:#3A3F47"/>
+    <g id="s3-sz-head" transform="rotate(0 0 -170)">
+      <ellipse cx="0" cy="-212" rx="38" ry="46" class="s3-sz-fill" style="fill:#3A3F47;stroke:#1d2026" stroke-width="4" stroke-linejoin="round"/>
+      <g id="s3-sz-hat"><ellipse cx="0" cy="-248" rx="64" ry="11" style="fill:#1d2026"/><path d="M-36,-250 L-32,-292 Q0,-300 32,-292 L36,-250 Z" style="fill:#1d2026"/><rect x="-35" y="-262" width="70" height="9" style="fill:#14161b"/></g>
+    </g>
+    
+  </g></svg></div></div>
+  <div id="s3-p-cc" class="panel " style="left:80px;top:190px;width:280px;height:290px" data-layout-allow-overflow><div id="s3-cc" class="fig" style="left:-20px;top:-196px;width:320px;height:480px;--s:0.5" data-rig="fig">
+  <svg viewBox="-160 -310 320 480" width="320" height="480" overflow="visible"><g id="s3-cc-body" transform="translate(0 0)">
+    <g id="s3-cc-legL" transform="rotate(0 -15 0)"><line x1="-16" y1="0" x2="-16" y2="80" class="s3-cc-limb" style="stroke:#9FB3C8" stroke-linecap="round" stroke-width="26"/><g id="s3-cc-shinL" transform="rotate(0 -15 80)"><line x1="-16" y1="80" x2="-18" y2="152" class="s3-cc-limb" style="stroke:#9FB3C8" stroke-linecap="round" stroke-width="24"/></g></g>
+    <g id="s3-cc-legR" transform="rotate(0 15 0)"><line x1="16" y1="0" x2="16" y2="80" class="s3-cc-limb" style="stroke:#9FB3C8" stroke-linecap="round" stroke-width="26"/><g id="s3-cc-shinR" transform="rotate(0 15 80)"><line x1="16" y1="80" x2="18" y2="152" class="s3-cc-limb" style="stroke:#9FB3C8" stroke-linecap="round" stroke-width="24"/></g></g>
+    <g id="s3-cc-armL" transform="rotate(0 -38 -138)"><line x1="-40" y1="-140" x2="-44" y2="-82" class="s3-cc-limb" style="stroke:#9FB3C8" stroke-linecap="round" stroke-width="22"/><g id="s3-cc-foreL" transform="rotate(0 -40 -82)"><line x1="-44" y1="-82" x2="-46" y2="-24" class="s3-cc-limb" style="stroke:#9FB3C8" stroke-linecap="round" stroke-width="20"/></g></g>
+    <g id="s3-cc-armR" transform="rotate(0 38 -138)"><line x1="40" y1="-140" x2="44" y2="-82" class="s3-cc-limb" style="stroke:#9FB3C8" stroke-linecap="round" stroke-width="22"/><g id="s3-cc-foreR" transform="rotate(0 40 -82)"><line x1="44" y1="-82" x2="46" y2="-24" class="s3-cc-limb" style="stroke:#9FB3C8" stroke-linecap="round" stroke-width="20"/></g></g>
+    <path d="M-40,-152 Q0,-168 40,-152 L50,74 Q0,84 -50,74 Z" class="s3-cc-fill" style="fill:#9FB3C8;stroke:#6F8399" stroke-width="4" stroke-linejoin="round"/>
+    
+    <rect x="-12" y="-178" width="24" height="30" rx="8" class="s3-cc-fill" style="fill:#9FB3C8"/>
+    <g id="s3-cc-head" transform="rotate(0 0 -170)">
+      <ellipse cx="0" cy="-212" rx="38" ry="46" class="s3-cc-fill" style="fill:#9FB3C8;stroke:#6F8399" stroke-width="4" stroke-linejoin="round"/>
+      <path d="M-46,-196 C-54,-276 54,-276 46,-196 L46,-170 L30,-170 L32,-214 C30,-246 -30,-246 -32,-214 L-30,-170 L-46,-170 Z" class="s3-cc-hair" style="fill:#4d5866"/>
+    </g>
+    
+  </g></svg></div>
+    <svg class="abs" style="left:170px;top:140px" width="80" height="100" viewBox="-40 -50 80 100"><path d="M-12,-40 L12,-40 L12,-8 L32,34 Q36,44 24,44 L-24,44 Q-36,44 -32,34 L-12,-8 Z" fill="#e9fbff" stroke="#19C3F0" stroke-width="5"/><path d="M-26,24 L26,24 L30,34 Q32,40 24,40 L-24,40 Q-32,40 -30,34 Z" fill="#19C3F0"/></svg></div>
+  <svg class="abs" style="left:0;top:0" width="1080" height="1920" viewBox="0 0 1080 1920" overflow="visible">
+    <g transform="translate(540 560)"><g id="s3-maskwrap">
+      <g id="s3-maskg">
+        <g id="s3-mask" >
+    <path d="M0,-230 C120,-230 175,-140 170,-30 C166,80 110,210 0,232 C-110,210 -166,80 -170,-30 C-175,-140 -120,-230 0,-230 Z" fill="rgba(205,244,255,.85)" stroke="#36b6e0" stroke-width="7"/>
+    <path d="M-110,-70 Q-70,-95 -30,-72 M30,-72 Q70,-95 110,-70" fill="none" stroke="#36b6e0" stroke-width="7" stroke-linecap="round"/>
+    <path d="M-100,-30 Q-70,-12 -40,-30 M40,-30 Q70,-12 100,-30" fill="none" stroke="#36b6e0" stroke-width="6" stroke-linecap="round"/>
+    <path d="M0,-20 L-14,60 Q0,70 14,60" fill="none" stroke="#36b6e0" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M-60,120 Q0,160 60,120" fill="none" stroke="#36b6e0" stroke-width="7" stroke-linecap="round"/>
+  </g>
+        <g id="s3-maskclay" style="opacity:0">
+    <path d="M0,-230 C120,-230 175,-140 170,-30 C166,80 110,210 0,232 C-110,210 -166,80 -170,-30 C-175,-140 -120,-230 0,-230 Z" fill="#C46A45" stroke="#8E4428" stroke-width="7"/>
+    <path d="M-110,-70 Q-70,-95 -30,-72 M30,-72 Q70,-95 110,-70" fill="none" stroke="#8E4428" stroke-width="7" stroke-linecap="round"/>
+    <path d="M-100,-30 Q-70,-12 -40,-30 M40,-30 Q70,-12 100,-30" fill="none" stroke="#8E4428" stroke-width="6" stroke-linecap="round"/>
+    <path d="M0,-20 L-14,60 Q0,70 14,60" fill="none" stroke="#8E4428" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M-60,120 Q0,160 60,120" fill="none" stroke="#8E4428" stroke-width="7" stroke-linecap="round"/>
+  </g>
+        <g id="s3-cracks" stroke="#2b6f8a" stroke-width="5" fill="none" stroke-linecap="round" stroke-linejoin="round">
+          <path id="s3-cr0" d="M-150,-150 L-90,-110 L-60,-40 L-10,0 L30,40 L80,110 L140,150" stroke-dasharray="600" stroke-dashoffset="600"/><path id="s3-cr1" d="M-60,-40 L-110,10 L-150,40" stroke-dasharray="600" stroke-dashoffset="600"/><path id="s3-cr2" d="M30,40 L70,10 L120,0" stroke-dasharray="600" stroke-dashoffset="600"/><path id="s3-cr3" d="M-10,0 L-30,80 L-60,140" stroke-dasharray="600" stroke-dashoffset="600"/><path id="s3-cr4" d="M80,110 L60,190" stroke-dasharray="600" stroke-dashoffset="600"/>
+        </g>
+        <path id="s3-slash" d="M-190,-190 L190,190" stroke="#E8322B" stroke-width="16" stroke-linecap="round" stroke-dasharray="540" stroke-dashoffset="540"/>
+        <path id="s3-dr0" d="M-128,195 q18,-8 36,0 l-4,60 q-14,22 -28,0 Z" fill="#C46A45" stroke="#8E4428" stroke-width="4" style="opacity:0"/><path id="s3-dr1" d="M-58,218 q18,-8 36,0 l-4,74 q-14,22 -28,0 Z" fill="#C46A45" stroke="#8E4428" stroke-width="4" style="opacity:0"/><path id="s3-dr2" d="M22,218 q18,-8 36,0 l-4,88 q-14,22 -28,0 Z" fill="#C46A45" stroke="#8E4428" stroke-width="4" style="opacity:0"/><path id="s3-dr3" d="M94,190 q18,-8 36,0 l-4,102 q-14,22 -28,0 Z" fill="#C46A45" stroke="#8E4428" stroke-width="4" style="opacity:0"/>
+      </g>
+      <g id="s3-blob" style="opacity:0"><ellipse cx="0" cy="280" rx="44" ry="54" fill="#C46A45" stroke="#8E4428" stroke-width="4"/></g>
+    </g></g>
+    <circle id="s3-pt0" cx="540" cy="830" r="7" fill="#19C3F0" style="opacity:0"/><circle id="s3-pt1" cx="540" cy="830" r="9" fill="#19C3F0" style="opacity:0"/><circle id="s3-pt2" cx="540" cy="830" r="11" fill="#19C3F0" style="opacity:0"/><circle id="s3-pt3" cx="540" cy="830" r="7" fill="#19C3F0" style="opacity:0"/><circle id="s3-pt4" cx="540" cy="830" r="9" fill="#19C3F0" style="opacity:0"/><circle id="s3-pt5" cx="540" cy="830" r="11" fill="#19C3F0" style="opacity:0"/><circle id="s3-pt6" cx="540" cy="830" r="7" fill="#19C3F0" style="opacity:0"/><circle id="s3-pt7" cx="540" cy="830" r="9" fill="#19C3F0" style="opacity:0"/><circle id="s3-pt8" cx="540" cy="830" r="11" fill="#19C3F0" style="opacity:0"/><circle id="s3-pt9" cx="540" cy="830" r="7" fill="#19C3F0" style="opacity:0"/><circle id="s3-pt10" cx="540" cy="830" r="9" fill="#19C3F0" style="opacity:0"/><circle id="s3-pt11" cx="540" cy="830" r="11" fill="#19C3F0" style="opacity:0"/><circle id="s3-pt12" cx="540" cy="830" r="7" fill="#19C3F0" style="opacity:0"/><circle id="s3-pt13" cx="540" cy="830" r="9" fill="#19C3F0" style="opacity:0"/><circle id="s3-pt14" cx="540" cy="830" r="11" fill="#19C3F0" style="opacity:0"/><circle id="s3-pt15" cx="540" cy="830" r="7" fill="#19C3F0" style="opacity:0"/><circle id="s3-pt16" cx="540" cy="830" r="9" fill="#19C3F0" style="opacity:0"/><circle id="s3-pt17" cx="540" cy="830" r="11" fill="#19C3F0" style="opacity:0"/><circle id="s3-pt18" cx="540" cy="830" r="7" fill="#19C3F0" style="opacity:0"/><circle id="s3-pt19" cx="540" cy="830" r="9" fill="#19C3F0" style="opacity:0"/>
+    <circle id="s3-flash" cx="540" cy="760" r="600" fill="#F5B82E"/>
+  </svg>
+  <svg id="s3-vial" class="abs" style="left:430px;top:770px" width="90" height="150" viewBox="-45 -75 90 150" overflow="visible">
+    <rect x="-24" y="-66" width="48" height="16" rx="5" fill="#9aa4b0"/>
+    <rect x="-20" y="-52" width="40" height="120" rx="20" fill="rgba(225,250,255,.9)" stroke="#19C3F0" stroke-width="5"/>
+    <rect x="-15" y="-10" width="30" height="72" rx="15" fill="#19C3F0"/>
+    <circle cx="-4" cy="10" r="5" fill="#fff"/><circle cx="6" cy="34" r="4" fill="#fff"/>
+  </svg>
+  <div id="s3-z" class="fig" style="left:140px;top:644px;width:320px;height:480px;--s:0.85" data-rig="zeke">
+  <svg viewBox="-160 -310 320 480" width="320" height="480" overflow="visible"><g id="s3-z-body" transform="translate(0 0)">
+    <g id="s3-z-legL" transform="rotate(0 -15 0)"><line x1="-15" y1="0" x2="-15" y2="80" stroke="#14161b" stroke-linecap="round" stroke-linejoin="round" stroke-width="10"/><g id="s3-z-shinL" transform="rotate(0 -15 80)"><line x1="-15" y1="80" x2="-17" y2="156" stroke="#14161b" stroke-linecap="round" stroke-linejoin="round" stroke-width="10"/><line x1="-17" y1="156" x2="-34" y2="158" stroke="#14161b" stroke-linecap="round" stroke-linejoin="round" stroke-width="10"/></g></g>
+    <g id="s3-z-legR" transform="rotate(0 15 0)"><line x1="15" y1="0" x2="15" y2="80" stroke="#14161b" stroke-linecap="round" stroke-linejoin="round" stroke-width="10"/><g id="s3-z-shinR" transform="rotate(0 15 80)"><line x1="15" y1="80" x2="17" y2="156" stroke="#14161b" stroke-linecap="round" stroke-linejoin="round" stroke-width="10"/><line x1="17" y1="156" x2="34" y2="158" stroke="#14161b" stroke-linecap="round" stroke-linejoin="round" stroke-width="10"/></g></g>
+    <path d="M-32,-16 L32,-16 L36,32 L5,32 L0,12 L-5,32 L-36,32 Z" fill="#23252b" stroke="#14161b" stroke-linecap="round" stroke-linejoin="round" stroke-width="5"/>
+    <g id="s3-z-armL" transform="rotate(0 -38 -138)"><line x1="-38" y1="-138" x2="-40" y2="-82" stroke="#14161b" stroke-linecap="round" stroke-linejoin="round" stroke-width="10"/><g id="s3-z-foreL" transform="rotate(0 -40 -82)"><line x1="-40" y1="-82" x2="-42" y2="-28" stroke="#14161b" stroke-linecap="round" stroke-linejoin="round" stroke-width="10"/></g></g>
+    <g id="s3-z-armR" transform="rotate(0 38 -138)"><line x1="38" y1="-138" x2="40" y2="-82" stroke="#14161b" stroke-linecap="round" stroke-linejoin="round" stroke-width="10"/><g id="s3-z-foreR" transform="rotate(0 40 -82)"><line x1="40" y1="-82" x2="42" y2="-28" stroke="#14161b" stroke-linecap="round" stroke-linejoin="round" stroke-width="10"/></g></g>
+    <path d="M-34,-150 Q0,-160 34,-150 L58,-120 L42,-104 L33,-116 L32,-12 L-32,-12 L-33,-116 L-42,-104 L-58,-120 Z" fill="#FFD21F" stroke="#14161b" stroke-linecap="round" stroke-linejoin="round" stroke-width="5"/>
+    <line x1="0" y1="-158" x2="0" y2="-172" stroke="#14161b" stroke-linecap="round" stroke-linejoin="round" stroke-width="10"/>
+    <g id="s3-z-head" transform="rotate(0 0 -170)">
+      <circle cx="0" cy="-214" r="46" fill="#fff" stroke="#14161b" stroke-linecap="round" stroke-linejoin="round" stroke-width="6"/>
+      <g id="s3-z-eyes" transform="translate(0 -210) scale(1 1) translate(0 210)">
+        <ellipse cx="-15" cy="-210" rx="5.5" ry="6.5" fill="#14161b"/><ellipse cx="15" cy="-210" rx="5.5" ry="6.5" fill="#14161b"/>
+      </g>
+      <path id="s3-z-m-smile" d="M-13,-192 Q0,-181 13,-192" fill="none" stroke="#14161b" stroke-linecap="round" stroke-linejoin="round" stroke-width="5"/>
+      <ellipse id="s3-z-m-o" cx="0" cy="-189" rx="7" ry="9" fill="#14161b" style="opacity:0"/>
+      <line id="s3-z-m-flat" x1="-11" y1="-189" x2="11" y2="-189" stroke="#14161b" stroke-linecap="round" stroke-linejoin="round" stroke-width="5" style="opacity:0"/>
+      <path id="s3-z-m-worry" d="M-13,-185 Q0,-195 13,-185" fill="none" stroke="#14161b" stroke-linecap="round" stroke-linejoin="round" stroke-width="5" style="opacity:0"/>
+      <path d="M-50,-226 C-52,-284 52,-284 50,-226 Z" fill="#E8322B" stroke="#14161b" stroke-linecap="round" stroke-linejoin="round" stroke-width="5"/>
+      <rect x="-54" y="-238" width="108" height="20" rx="9" fill="#B81F19" stroke="#14161b" stroke-linecap="round" stroke-linejoin="round" stroke-width="4"/>
+    </g>
+  </g></svg></div>
+</div>
+
+</div>
+<script>
+(function(){
+
+const RIG = {"armL":[-38,-138],"foreL":[-40,-82],"armR":[38,-138],"foreR":[40,-82],"legL":[-15,0],"shinL":[-15,80],"legR":[15,0],"shinR":[15,80],"head":[0,-170]};
+const tl = gsap.timeline({ paused: true });
+function rot(sel, k, a, d, t, ease) {
+  tl.to(sel, { attr: { transform: "rotate(" + a + " " + RIG[k][0] + " " + RIG[k][1] + ")" }, duration: d, ease: ease || "power2.inOut" }, t);
+}
+function pose(id, t, p, d, ease) {
+  d = d == null ? 0.3 : d;
+  for (const k in p) rot("#" + id + "-" + k, k, p[k], d, t, ease);
+}
+const REST = { armL: 8, foreL: -6, armR: -8, foreR: 6, legL: 0, shinL: 0, legR: 0, shinR: 0, head: 0 };
+function rest(id, t, d) { pose(id, t, REST, d == null ? 0.35 : d); }
+function mouth(id, t, name) {
+  for (const n of ["smile", "o", "flat", "worry"]) tl.to("#" + id + "-m-" + n, { opacity: n === name ? 1 : 0, duration: 0.1 }, t);
+}
+function blink(id, t) {
+  const el = "#" + id + "-eyes";
+  tl.to(el, { attr: { transform: "translate(0 -210) scale(1 0.12) translate(0 210)" }, duration: 0.07, ease: "power1.in" }, t)
+    .to(el, { attr: { transform: "translate(0 -210) scale(1 1) translate(0 210)" }, duration: 0.09, ease: "power1.out" }, t + 0.07);
+}
+function walk(id, t0, dur, x0, x1, y) {
+  const v = { x: x1, duration: dur, ease: "power1.inOut" };
+  if (y != null) v.y = y;
+  tl.fromTo("#" + id, { x: x0 }, v, t0);
+  const steps = Math.max(2, Math.round(dur / 0.26));
+  const sd = dur / steps;
+  for (let i = 0; i < steps; i++) {
+    const s = i % 2 ? 1 : -1, t = t0 + i * sd;
+    pose(id, t, { legL: 24 * s, shinL: s > 0 ? 0 : 18, legR: -24 * s, shinR: s > 0 ? 18 : 0, armL: -16 * s + 8, armR: -16 * s - 8 }, sd, "sine.inOut");
+    tl.to("#" + id + "-body", { attr: { transform: "translate(0 -6)" }, duration: sd / 2, ease: "sine.out" }, t)
+      .to("#" + id + "-body", { attr: { transform: "translate(0 0)" }, duration: sd / 2, ease: "sine.in" }, t + sd / 2);
+  }
+  pose(id, t0 + dur, { legL: 0, shinL: 0, legR: 0, shinR: 0 }, 0.18);
+}
+function hop(id, t, dx, dy, d, peak) {
+  peak = peak || 90;
+  const el = "#" + id;
+  tl.to(el, { scaleY: 0.86 * S(id), scaleX: 1.08 * S(id), duration: 0.1, ease: "power2.out" }, t);
+  tl.to(el, { x: "+=" + dx, duration: d, ease: "none" }, t + 0.1);
+  tl.to(el, { y: "+=" + (dy - peak), duration: d * 0.5, ease: "power2.out" }, t + 0.1)
+    .to(el, { y: "+=" + peak, duration: d * 0.5, ease: "power2.in" }, t + 0.1 + d * 0.5);
+  tl.to(el, { scaleY: 1.06 * S(id), scaleX: 0.96 * S(id), duration: 0.12 }, t + 0.1)
+    .to(el, { scaleY: 0.9 * S(id), scaleX: 1.06 * S(id), duration: 0.08 }, t + 0.1 + d)
+    .to(el, { scaleY: S(id), scaleX: S(id), duration: 0.16, ease: "back.out(2)" }, t + 0.18 + d);
+  pose(id, t + 0.1, { legL: 18, shinL: 30, legR: -14, shinR: 26, armL: 50, armR: -50 }, d * 0.5);
+  pose(id, t + 0.1 + d * 0.5, { legL: 0, shinL: 0, legR: 0, shinR: 0, armL: 8, armR: -8 }, d * 0.5);
+}
+function breathe(id, t, d) {
+  const n = Math.max(1, Math.floor(d / 1.6));
+  tl.to("#" + id + "-body", { attr: { transform: "translate(0 -3)" }, duration: 0.8, ease: "sine.inOut", repeat: n * 2 - 1, yoyo: true }, t);
+}
+function S(id) { const e = document.getElementById(id); return parseFloat(getComputedStyle(e).getPropertyValue("--s")) || 1; }
+function initFigs() {
+  document.querySelectorAll("#root .fig").forEach((e) => {
+    const s = parseFloat(getComputedStyle(e).getPropertyValue("--s")) || 1;
+    gsap.set(e, { scale: s });
+  });
+  document.querySelectorAll("#root [data-rig='zeke']").forEach((e) => {
+    for (const k in REST) gsap.set("#" + e.id + "-" + k, { attr: { transform: "rotate(" + REST[k] + " " + RIG[k][0] + " " + RIG[k][1] + ")" } });
+  });
+}
+function pop(sel, t, s) {
+  tl.fromTo(sel, { scale: 0, opacity: 0 }, { scale: s || 1, opacity: 1, duration: 0.42, ease: "back.out(2.2)" }, t);
+}
+function out(sel, t, d) { tl.to(sel, { opacity: 0, duration: d || 0.3, ease: "power2.in" }, t); }
+
+initFigs();
+
+tl.fromTo("#s3-flash", { attr: { r: 1300 }, opacity: 1 }, { attr: { r: 0 }, opacity: 0.0, duration: 0.55, ease: "power3.out" }, 0);
+tl.fromTo("#s3-maskwrap", { opacity: 0, scale: 0.9, transformOrigin: "50% 50%" }, { opacity: 1, scale: 1, duration: 0.5, ease: "power2.out" }, 0.1);
+tl.to("#s3-maskg", { y: -10, duration: 1.2, yoyo: true, repeat: 1, ease: "sine.inOut" }, 0.4);
+gsap.set("#s3-vial", { opacity: 0 });
+mouth("s3-z", 0, "smile");
+pose("s3-z", 0.3, { head: -14, armL: 30, armR: -30 }, 0.5);
+blink("s3-z", 0.9);
+// Szabo
+tl.fromTo("#s3-p-sz", { opacity: 0, x: 60 }, { opacity: 1, x: 0, duration: 0.4, ease: "power3.out" }, 1);
+pose("s3-sz", 1.5, { armR: -100, foreR: -30 }, 0.3, "power3.out");
+// slash
+tl.to("#s3-slash", { attr: { "stroke-dashoffset": 0 }, duration: 0.16, ease: "power4.in" }, 2);
+tl.to("#s3-cr0", { attr: { "stroke-dashoffset": 0 }, duration: 0.35, ease: "power2.out" }, 2.15);
+tl.to("#s3-cr1", { attr: { "stroke-dashoffset": 0 }, duration: 0.35, ease: "power2.out" }, 2.21);
+tl.to("#s3-cr2", { attr: { "stroke-dashoffset": 0 }, duration: 0.35, ease: "power2.out" }, 2.27);
+tl.to("#s3-cr3", { attr: { "stroke-dashoffset": 0 }, duration: 0.35, ease: "power2.out" }, 2.33);
+tl.to("#s3-cr4", { attr: { "stroke-dashoffset": 0 }, duration: 0.35, ease: "power2.out" }, 2.39);
+tl.fromTo("#s3-maskwrap", { x: 0 }, { x: 14, duration: 0.05, yoyo: true, repeat: 5 }, 2.16);
+mouth("s3-z", 2.16, "o");
+pose("s3-z", 2.16, { armL: 140, foreL: -90, armR: -140, foreR: 90, head: 4 }, 0.15, "power3.out");
+tl.to("#s3-z", { x: -40, duration: 0.25, ease: "power2.out" }, 2.16);
+tl.to("#s3-p-sz", { opacity: 0, x: 60, duration: 0.35, ease: "power2.in" }, 3.5999999999999996);
+// desperate
+rest("s3-z", 3.5, 0.4); mouth("s3-z", 3.8, "worry");
+tl.to("#s3-maskg", { opacity: 0.7, duration: 0.4 }, 3.9);
+// scientist Caitlyn Corr
+tl.fromTo("#s3-p-cc", { opacity: 0, x: -60 }, { opacity: 1, x: 0, duration: 0.4, ease: "power3.out" }, 5.05);
+pose("s3-cc", 5.6, { armR: -70, foreR: -50 }, 0.35);
+// Zeke grabs the vial and carries it up
+tl.fromTo("#s3-vial", { opacity: 0, scale: 0.4, x: -170, y: 40 }, { opacity: 1, scale: 1, x: -170, y: 40, duration: 0.35, ease: "back.out(2)" }, 5.6);
+pose("s3-z", 5.6, { armL: -40, foreL: -50, armR: 40, foreR: 50 }, 0.3);
+mouth("s3-z", 5.7, "flat");
+walk("s3-z", 6.05, 0.8, -40, 170);
+pose("s3-z", 6.859999999999999, { armL: -40, foreL: -50, armR: 40, foreR: 50 }, 0.01);
+tl.to("#s3-vial", { x: 0, duration: 0.8, ease: "power1.inOut" }, 6.05);
+pose("s3-z", 6.8999999999999995, { armL: 160, foreL: 10, armR: -160, foreR: -10, head: -14 }, 0.35, "power2.out");
+tl.to("#s3-vial", { x: 20, y: -110, rotation: -20, duration: 0.35, ease: "power2.out" }, 6.8999999999999995);
+// nanotech particles heal the cracks
+tl.fromTo("#s3-pt0", { x: 0, y: 0, opacity: 0 }, { keyframes: [{ opacity: 1, duration: 0.05 }, { x: 3, y: -215, duration: 0.74, ease: "power2.inOut" }, { opacity: 0, duration: 0.15 }] }, 7.50);
+tl.fromTo("#s3-pt1", { x: 0, y: 0, opacity: 0 }, { keyframes: [{ opacity: 1, duration: 0.05 }, { x: 23, y: -273, duration: 0.72, ease: "power2.inOut" }, { opacity: 0, duration: 0.15 }] }, 7.54);
+tl.fromTo("#s3-pt2", { x: 0, y: 0, opacity: 0 }, { keyframes: [{ opacity: 1, duration: 0.05 }, { x: -109, y: -215, duration: 0.74, ease: "power2.inOut" }, { opacity: 0, duration: 0.15 }] }, 7.59);
+tl.fromTo("#s3-pt3", { x: 0, y: 0, opacity: 0 }, { keyframes: [{ opacity: 1, duration: 0.05 }, { x: -13, y: -206, duration: 0.84, ease: "power2.inOut" }, { opacity: 0, duration: 0.15 }] }, 7.63);
+tl.fromTo("#s3-pt4", { x: 0, y: 0, opacity: 0 }, { keyframes: [{ opacity: 1, duration: 0.05 }, { x: -21, y: -241, duration: 0.77, ease: "power2.inOut" }, { opacity: 0, duration: 0.15 }] }, 7.68);
+tl.fromTo("#s3-pt5", { x: 0, y: 0, opacity: 0 }, { keyframes: [{ opacity: 1, duration: 0.05 }, { x: -88, y: -152, duration: 0.61, ease: "power2.inOut" }, { opacity: 0, duration: 0.15 }] }, 7.72);
+tl.fromTo("#s3-pt6", { x: 0, y: 0, opacity: 0 }, { keyframes: [{ opacity: 1, duration: 0.05 }, { x: -27, y: -188, duration: 0.73, ease: "power2.inOut" }, { opacity: 0, duration: 0.15 }] }, 7.77);
+tl.fromTo("#s3-pt7", { x: 0, y: 0, opacity: 0 }, { keyframes: [{ opacity: 1, duration: 0.05 }, { x: -97, y: -227, duration: 0.73, ease: "power2.inOut" }, { opacity: 0, duration: 0.15 }] }, 7.82);
+tl.fromTo("#s3-pt8", { x: 0, y: 0, opacity: 0 }, { keyframes: [{ opacity: 1, duration: 0.05 }, { x: -21, y: -272, duration: 0.82, ease: "power2.inOut" }, { opacity: 0, duration: 0.15 }] }, 7.86);
+tl.fromTo("#s3-pt9", { x: 0, y: 0, opacity: 0 }, { keyframes: [{ opacity: 1, duration: 0.05 }, { x: 70, y: -177, duration: 0.75, ease: "power2.inOut" }, { opacity: 0, duration: 0.15 }] }, 7.91);
+tl.fromTo("#s3-pt10", { x: 0, y: 0, opacity: 0 }, { keyframes: [{ opacity: 1, duration: 0.05 }, { x: -65, y: -130, duration: 0.80, ease: "power2.inOut" }, { opacity: 0, duration: 0.15 }] }, 7.95);
+tl.fromTo("#s3-pt11", { x: 0, y: 0, opacity: 0 }, { keyframes: [{ opacity: 1, duration: 0.05 }, { x: 124, y: -173, duration: 0.56, ease: "power2.inOut" }, { opacity: 0, duration: 0.15 }] }, 8.00);
+tl.fromTo("#s3-pt12", { x: 0, y: 0, opacity: 0 }, { keyframes: [{ opacity: 1, duration: 0.05 }, { x: 63, y: -182, duration: 0.72, ease: "power2.inOut" }, { opacity: 0, duration: 0.15 }] }, 8.04);
+tl.fromTo("#s3-pt13", { x: 0, y: 0, opacity: 0 }, { keyframes: [{ opacity: 1, duration: 0.05 }, { x: 20, y: -272, duration: 0.56, ease: "power2.inOut" }, { opacity: 0, duration: 0.15 }] }, 8.09);
+tl.fromTo("#s3-pt14", { x: 0, y: 0, opacity: 0 }, { keyframes: [{ opacity: 1, duration: 0.05 }, { x: 91, y: -268, duration: 0.65, ease: "power2.inOut" }, { opacity: 0, duration: 0.15 }] }, 8.13);
+tl.fromTo("#s3-pt15", { x: 0, y: 0, opacity: 0 }, { keyframes: [{ opacity: 1, duration: 0.05 }, { x: -123, y: -134, duration: 0.84, ease: "power2.inOut" }, { opacity: 0, duration: 0.15 }] }, 8.18);
+tl.fromTo("#s3-pt16", { x: 0, y: 0, opacity: 0 }, { keyframes: [{ opacity: 1, duration: 0.05 }, { x: -1, y: -215, duration: 0.61, ease: "power2.inOut" }, { opacity: 0, duration: 0.15 }] }, 8.22);
+tl.fromTo("#s3-pt17", { x: 0, y: 0, opacity: 0 }, { keyframes: [{ opacity: 1, duration: 0.05 }, { x: 1, y: -252, duration: 0.54, ease: "power2.inOut" }, { opacity: 0, duration: 0.15 }] }, 8.27);
+tl.fromTo("#s3-pt18", { x: 0, y: 0, opacity: 0 }, { keyframes: [{ opacity: 1, duration: 0.05 }, { x: 37, y: -128, duration: 0.68, ease: "power2.inOut" }, { opacity: 0, duration: 0.15 }] }, 8.31);
+tl.fromTo("#s3-pt19", { x: 0, y: 0, opacity: 0 }, { keyframes: [{ opacity: 1, duration: 0.05 }, { x: 35, y: -297, duration: 0.67, ease: "power2.inOut" }, { opacity: 0, duration: 0.15 }] }, 8.36);
+tl.to("#s3-maskg", { opacity: 1, duration: 0.4 }, 7.7);
+tl.to(["#s3-cracks", "#s3-slash"], { opacity: 0, duration: 0.5 }, 8.200000000000001);
+tl.fromTo("#s3-maskwrap", { filter: "drop-shadow(0 0 0px rgba(25,195,240,0))" }, { filter: "drop-shadow(0 0 30px rgba(25,195,240,.9))", duration: 0.4, yoyo: true, repeat: 1 }, 8.700000000000001);
+mouth("s3-z", 8.8, "smile");
+tl.to("#s3-vial", { opacity: 0, duration: 0.3 }, 9);
+rest("s3-z", 9.100000000000001, 0.4);
+tl.to("#s3-p-cc", { opacity: 0, x: -60, duration: 0.35 }, 9.200000000000001);
+// until he starts melting
+mouth("s3-z", 9.700000000000001, "flat");
+pose("s3-z", 9.700000000000001, { head: -16 }, 0.3);
+tl.to("#s3-maskclay", { opacity: 1, duration: 0.8, ease: "power1.inOut" }, 9.8);
+tl.to("#s3-maskg", { scaleY: 1.07, transformOrigin: "50% 0%", duration: 1.4, ease: "power1.in" }, 9.9);
+tl.fromTo("#s3-dr0", { opacity: 1, scaleY: 0, transformOrigin: "50% 0%" }, { opacity: 1, scaleY: 1, duration: 0.8, ease: "power1.in" }, 10.10);
+tl.fromTo("#s3-dr1", { opacity: 1, scaleY: 0, transformOrigin: "50% 0%" }, { opacity: 1, scaleY: 1, duration: 0.92, ease: "power1.in" }, 10.22);
+tl.fromTo("#s3-dr2", { opacity: 1, scaleY: 0, transformOrigin: "50% 0%" }, { opacity: 1, scaleY: 1, duration: 1.04, ease: "power1.in" }, 10.34);
+tl.fromTo("#s3-dr3", { opacity: 1, scaleY: 0, transformOrigin: "50% 0%" }, { opacity: 1, scaleY: 1, duration: 1.1600000000000001, ease: "power1.in" }, 10.46);
+mouth("s3-z", 10.200000000000001, "worry");
+walk("s3-z", 10.3, 0.55, 170, 90);
+// a drip falls out of frame
+tl.to("#s3-blob", { opacity: 1, duration: 0.05 }, 11.2);
+tl.fromTo("#s3-blob", { y: 0 }, { y: 1500, duration: 0.55, ease: "power3.in" }, 11.22);
+
+window.__timelines["s3"] = tl;
+})();
+</script>
+</template>

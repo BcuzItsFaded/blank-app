@@ -1,0 +1,244 @@
+<template>
+<style>
+#root { position:absolute; inset:0; overflow:hidden; font-family: Montserrat, sans-serif; }
+.bg { position:absolute; inset:0; background: radial-gradient(ellipse 120% 70% at 50% 28%, #ffffff 0%, #f1f5f8 55%, #e4ebf1 100%); }
+.floor { position:absolute; left:0; }
+.floor line { stroke:#d4dce4; stroke-width:2; }
+.stage { position:absolute; inset:0; }
+.fig { position:absolute; transform-origin: 50% 97%; }
+.fig[data-glow] svg { filter: drop-shadow(0 0 14px rgba(255,140,90,.45)); }
+.panel { position:absolute; border-radius:30px; border:3px solid rgba(25,195,240,.85);
+  background: linear-gradient(160deg, rgba(225,248,255,.78) 0%, rgba(170,228,255,.38) 60%, rgba(140,210,255,.30) 100%);
+  box-shadow: 0 0 46px rgba(25,180,255,.35), inset 0 0 34px rgba(255,255,255,.8); overflow:hidden; }
+.panel::after { content:""; position:absolute; left:-20%; top:-30%; width:60%; height:160%; transform: rotate(18deg);
+  background: linear-gradient(90deg, rgba(255,255,255,0), rgba(255,255,255,.45), rgba(255,255,255,0)); pointer-events:none; }
+.abs { position:absolute; }
+.dark { position:absolute; inset:0; background:#0d1117; opacity:0; border-radius:27px; }
+.icon { position:absolute; }
+</style>
+<div id="root" data-composition-id="s2" data-width="1080" data-height="1920" data-start="0" data-duration="10">
+
+<div id="s2-bg" class="bg"></div>
+<svg id="s2-floor" class="floor" viewBox="0 0 1080 900" width="1080" height="900" style="top:1040px">
+  <line x1="-960" y1="900" x2="320" y2="0" /><line x1="-810" y1="900" x2="342" y2="0" /><line x1="-660" y1="900" x2="364" y2="0" /><line x1="-510" y1="900" x2="386" y2="0" /><line x1="-360" y1="900" x2="408" y2="0" /><line x1="-210" y1="900" x2="430" y2="0" /><line x1="-60" y1="900" x2="452" y2="0" /><line x1="90" y1="900" x2="474" y2="0" /><line x1="240" y1="900" x2="496" y2="0" /><line x1="390" y1="900" x2="518" y2="0" /><line x1="540" y1="900" x2="540" y2="0" /><line x1="690" y1="900" x2="562" y2="0" /><line x1="840" y1="900" x2="584" y2="0" /><line x1="990" y1="900" x2="606" y2="0" /><line x1="1140" y1="900" x2="628" y2="0" /><line x1="1290" y1="900" x2="650" y2="0" /><line x1="1440" y1="900" x2="672" y2="0" /><line x1="1590" y1="900" x2="694" y2="0" /><line x1="1740" y1="900" x2="716" y2="0" /><line x1="1890" y1="900" x2="738" y2="0" /><line x1="2040" y1="900" x2="760" y2="0" /><line x1="0" y1="17.2" x2="1080" y2="17.2" /><line x1="0" y1="60.0" x2="1080" y2="60.0" /><line x1="0" y1="124.6" x2="1080" y2="124.6" /><line x1="0" y1="209.1" x2="1080" y2="209.1" /><line x1="0" y1="312.4" x2="1080" y2="312.4" /><line x1="0" y1="433.8" x2="1080" y2="433.8" /><line x1="0" y1="572.5" x2="1080" y2="572.5" /><line x1="0" y1="728.1" x2="1080" y2="728.1" /><line x1="0" y1="900.0" x2="1080" y2="900.0" />
+</svg>
+<div id="s2-stage" class="stage">
+  <svg class="abs" style="left:0;top:0" width="1080" height="1920" viewBox="0 0 1080 1920" overflow="visible">
+    <defs>
+      <linearGradient id="s2-glass" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#bff1ff"/><stop offset="1" stop-color="#2fb7ec"/></linearGradient>
+      <radialGradient id="s2-spot" cx="0.5" cy="0" r="1"><stop offset="0" stop-color="#fff6d6" stop-opacity=".95"/><stop offset="1" stop-color="#fff6d6" stop-opacity="0"/></radialGradient>
+    </defs>
+    <path id="s2-cone" d="M700,170 L640,170 L520,820 L960,820 Z" fill="url(#s2-spot)" style="opacity:0"/>
+    <g transform="translate(540 540)"><g id="s2-bat" transform="scale(2.1)"><path d="M0,-38 L10,-60 L16,-30 C40,-44 80,-44 110,-20 C92,-14 84,0 86,18 C64,4 40,8 26,28 C18,14 8,10 0,30 C-8,10 -18,14 -26,28 C-40,8 -64,4 -86,18 C-84,0 -92,-14 -110,-20 C-80,-44 -40,-44 -16,-30 L-10,-60 Z" fill="url(#s2-glass)" stroke="#fff" stroke-width="3"/></g></g>
+    <g id="s2-ghost" transform="translate(540 520) scale(1.9)" style="opacity:0"><path d="M0,-38 L10,-60 L16,-30 C40,-44 80,-44 110,-20 C92,-14 84,0 86,18 C64,4 40,8 26,28 C18,14 8,10 0,30 C-8,10 -18,14 -26,28 C-40,8 -64,4 -86,18 C-84,0 -92,-14 -110,-20 C-80,-44 -40,-44 -16,-30 L-10,-60 Z" fill="none" stroke="#b9c2cc" stroke-width="3" stroke-dasharray="8 8"/></g>
+    <g id="s2-no" transform="translate(540 520)" style="opacity:0">
+      <circle id="s2-noc" r="230" fill="none" stroke="#E8322B" stroke-width="22" stroke-dasharray="1446" stroke-dashoffset="1446"/>
+      <line id="s2-nol" x1="-163" y1="-163" x2="163" y2="163" stroke="#E8322B" stroke-width="22" stroke-linecap="round" stroke-dasharray="462" stroke-dashoffset="462"/>
+    </g>
+    <g transform="translate(540 540)"><g id="s2-sh0" style="opacity:0"><polygon points="0,-51.3072289833799 41.04578318670392,30.78433739002794 -35.91506028836593,25.65361449168995" fill="#9fe6ff" stroke="#fff" stroke-width="2"/></g></g><g transform="translate(540 540)"><g id="s2-sh1" style="opacity:0"><polygon points="0,-35.98697897559032 28.789583180472256,21.59218738535419 -25.19088528291322,17.99348948779516" fill="#19C3F0" stroke="#fff" stroke-width="2"/></g></g><g transform="translate(540 540)"><g id="s2-sh2" style="opacity:0"><polygon points="0,-29.734466830734164 23.787573464587332,17.840680098440497 -20.814126781513913,14.867233415367082" fill="#19C3F0" stroke="#fff" stroke-width="2"/></g></g><g transform="translate(540 540)"><g id="s2-sh3" style="opacity:0"><polygon points="0,-27.914117803331465 22.331294242665173,16.748470681998878 -19.539882462332024,13.957058901665732" fill="#9fe6ff" stroke="#fff" stroke-width="2"/></g></g><g transform="translate(540 540)"><g id="s2-sh4" style="opacity:0"><polygon points="0,-30.889907447155565 24.711925957724453,18.53394446829334 -21.622935213008894,15.444953723577783" fill="#19C3F0" stroke="#fff" stroke-width="2"/></g></g><g transform="translate(540 540)"><g id="s2-sh5" style="opacity:0"><polygon points="0,-27.72375128045678 22.179001024365427,16.634250768274068 -19.406625896319746,13.86187564022839" fill="#19C3F0" stroke="#fff" stroke-width="2"/></g></g><g transform="translate(540 540)"><g id="s2-sh6" style="opacity:0"><polygon points="0,-38.43704294692725 30.7496343575418,23.06222576815635 -26.905930062849073,19.218521473463625" fill="#9fe6ff" stroke="#fff" stroke-width="2"/></g></g><g transform="translate(540 540)"><g id="s2-sh7" style="opacity:0"><polygon points="0,-38.61132243927568 30.889057951420547,23.16679346356541 -27.027925707492976,19.30566121963784" fill="#19C3F0" stroke="#fff" stroke-width="2"/></g></g><g transform="translate(540 540)"><g id="s2-sh8" style="opacity:0"><polygon points="0,-40.73141932534054 32.58513546027243,24.438851595204323 -28.511993527738376,20.36570966267027" fill="#19C3F0" stroke="#fff" stroke-width="2"/></g></g><g transform="translate(540 540)"><g id="s2-sh9" style="opacity:0"><polygon points="0,-27.248246409464628 21.798597127571703,16.348947845678776 -19.073772486625238,13.624123204732314" fill="#9fe6ff" stroke="#fff" stroke-width="2"/></g></g><g transform="translate(540 540)"><g id="s2-sh10" style="opacity:0"><polygon points="0,-24.643187057692558 19.714549646154047,14.785912234615534 -17.25023094038479,12.321593528846279" fill="#19C3F0" stroke="#fff" stroke-width="2"/></g></g><g transform="translate(540 540)"><g id="s2-sh11" style="opacity:0"><polygon points="0,-36.05987884616479 28.847903076931836,21.635927307698875 -25.241915192315354,18.029939423082396" fill="#19C3F0" stroke="#fff" stroke-width="2"/></g></g><g transform="translate(540 540)"><g id="s2-sh12" style="opacity:0"><polygon points="0,-31.919437726493925 25.53555018119514,19.151662635896354 -22.343606408545746,15.959718863246962" fill="#9fe6ff" stroke="#fff" stroke-width="2"/></g></g><g transform="translate(540 540)"><g id="s2-sh13" style="opacity:0"><polygon points="0,-49.39104604581371 39.51283683665097,29.634627627488225 -34.573732232069595,24.695523022906855" fill="#19C3F0" stroke="#fff" stroke-width="2"/></g></g><g transform="translate(540 540)"><g id="s2-sh14" style="opacity:0"><polygon points="0,-32.103127867914736 25.68250229433179,19.26187672074884 -22.472189507540314,16.051563933957368" fill="#19C3F0" stroke="#fff" stroke-width="2"/></g></g><g transform="translate(540 540)"><g id="s2-sh15" style="opacity:0"><polygon points="0,-38.43617928959429 30.748943431675436,23.061707573756575 -26.905325502716003,19.218089644797146" fill="#9fe6ff" stroke="#fff" stroke-width="2"/></g></g><g transform="translate(540 540)"><g id="s2-sh16" style="opacity:0"><polygon points="0,-25.51124183041975 20.4089934643358,15.306745098251849 -17.857869281293823,12.755620915209875" fill="#19C3F0" stroke="#fff" stroke-width="2"/></g></g><g transform="translate(540 540)"><g id="s2-sh17" style="opacity:0"><polygon points="0,-50.81495177745819 40.651961421966554,30.488971066474914 -35.57046624422073,25.407475888729095" fill="#19C3F0" stroke="#fff" stroke-width="2"/></g></g>
+    <g transform="translate(320 560)"><g id="s2-clap" style="opacity:0">
+      <rect x="-110" y="-40" width="220" height="150" rx="14" fill="#14161b"/>
+      <g id="s2-clapTop" transform="rotate(0 -110 -46)"><rect x="-110" y="-92" width="220" height="44" rx="8" fill="#14161b"/>
+      <path d="M-90,-92 l30,0 l-22,44 l-30,0 Z" fill="#fff"/><path d="M-38,-92 l30,0 l-22,44 l-30,0 Z" fill="#fff"/><path d="M14,-92 l30,0 l-22,44 l-30,0 Z" fill="#fff"/><path d="M66,-92 l30,0 l-22,44 l-30,0 Z" fill="#fff"/></g>
+      <rect x="-86" y="-10" width="172" height="10" rx="5" fill="#fff" opacity=".85"/><rect x="-86" y="22" width="120" height="10" rx="5" fill="#fff" opacity=".6"/>
+    </g></g>
+    <g transform="translate(770 520)"><g id="s2-star" style="opacity:0"><path d="M0.0,-120.0L30.6,-42.1L114.1,-37.1L49.5,16.1L70.5,97.1L0.0,52.0L-70.5,97.1L-49.5,16.1L-114.1,-37.1L-30.6,-42.1Z" fill="#F5B82E" stroke="#fff" stroke-width="8" stroke-linejoin="round"/></g></g>
+  </svg>
+  <div id="s2-z" class="fig" style="left:380px;top:644px;width:320px;height:480px;--s:0.85" data-rig="zeke">
+  <svg viewBox="-160 -310 320 480" width="320" height="480" overflow="visible"><g id="s2-z-body" transform="translate(0 0)">
+    <g id="s2-z-legL" transform="rotate(0 -15 0)"><line x1="-15" y1="0" x2="-15" y2="80" stroke="#14161b" stroke-linecap="round" stroke-linejoin="round" stroke-width="10"/><g id="s2-z-shinL" transform="rotate(0 -15 80)"><line x1="-15" y1="80" x2="-17" y2="156" stroke="#14161b" stroke-linecap="round" stroke-linejoin="round" stroke-width="10"/><line x1="-17" y1="156" x2="-34" y2="158" stroke="#14161b" stroke-linecap="round" stroke-linejoin="round" stroke-width="10"/></g></g>
+    <g id="s2-z-legR" transform="rotate(0 15 0)"><line x1="15" y1="0" x2="15" y2="80" stroke="#14161b" stroke-linecap="round" stroke-linejoin="round" stroke-width="10"/><g id="s2-z-shinR" transform="rotate(0 15 80)"><line x1="15" y1="80" x2="17" y2="156" stroke="#14161b" stroke-linecap="round" stroke-linejoin="round" stroke-width="10"/><line x1="17" y1="156" x2="34" y2="158" stroke="#14161b" stroke-linecap="round" stroke-linejoin="round" stroke-width="10"/></g></g>
+    <path d="M-32,-16 L32,-16 L36,32 L5,32 L0,12 L-5,32 L-36,32 Z" fill="#23252b" stroke="#14161b" stroke-linecap="round" stroke-linejoin="round" stroke-width="5"/>
+    <g id="s2-z-armL" transform="rotate(0 -38 -138)"><line x1="-38" y1="-138" x2="-40" y2="-82" stroke="#14161b" stroke-linecap="round" stroke-linejoin="round" stroke-width="10"/><g id="s2-z-foreL" transform="rotate(0 -40 -82)"><line x1="-40" y1="-82" x2="-42" y2="-28" stroke="#14161b" stroke-linecap="round" stroke-linejoin="round" stroke-width="10"/></g></g>
+    <g id="s2-z-armR" transform="rotate(0 38 -138)"><line x1="38" y1="-138" x2="40" y2="-82" stroke="#14161b" stroke-linecap="round" stroke-linejoin="round" stroke-width="10"/><g id="s2-z-foreR" transform="rotate(0 40 -82)"><line x1="40" y1="-82" x2="42" y2="-28" stroke="#14161b" stroke-linecap="round" stroke-linejoin="round" stroke-width="10"/></g></g>
+    <path d="M-34,-150 Q0,-160 34,-150 L58,-120 L42,-104 L33,-116 L32,-12 L-32,-12 L-33,-116 L-42,-104 L-58,-120 Z" fill="#FFD21F" stroke="#14161b" stroke-linecap="round" stroke-linejoin="round" stroke-width="5"/>
+    <line x1="0" y1="-158" x2="0" y2="-172" stroke="#14161b" stroke-linecap="round" stroke-linejoin="round" stroke-width="10"/>
+    <g id="s2-z-head" transform="rotate(0 0 -170)">
+      <circle cx="0" cy="-214" r="46" fill="#fff" stroke="#14161b" stroke-linecap="round" stroke-linejoin="round" stroke-width="6"/>
+      <g id="s2-z-eyes" transform="translate(0 -210) scale(1 1) translate(0 210)">
+        <ellipse cx="-15" cy="-210" rx="5.5" ry="6.5" fill="#14161b"/><ellipse cx="15" cy="-210" rx="5.5" ry="6.5" fill="#14161b"/>
+      </g>
+      <path id="s2-z-m-smile" d="M-13,-192 Q0,-181 13,-192" fill="none" stroke="#14161b" stroke-linecap="round" stroke-linejoin="round" stroke-width="5"/>
+      <ellipse id="s2-z-m-o" cx="0" cy="-189" rx="7" ry="9" fill="#14161b" style="opacity:0"/>
+      <line id="s2-z-m-flat" x1="-11" y1="-189" x2="11" y2="-189" stroke="#14161b" stroke-linecap="round" stroke-linejoin="round" stroke-width="5" style="opacity:0"/>
+      <path id="s2-z-m-worry" d="M-13,-185 Q0,-195 13,-185" fill="none" stroke="#14161b" stroke-linecap="round" stroke-linejoin="round" stroke-width="5" style="opacity:0"/>
+      <path d="M-50,-226 C-52,-284 52,-284 50,-226 Z" fill="#E8322B" stroke="#14161b" stroke-linecap="round" stroke-linejoin="round" stroke-width="5"/>
+      <rect x="-54" y="-238" width="108" height="20" rx="9" fill="#B81F19" stroke="#14161b" stroke-linecap="round" stroke-linejoin="round" stroke-width="4"/>
+    </g>
+  </g></svg></div>
+</div>
+
+</div>
+<script>
+(function(){
+
+const RIG = {"armL":[-38,-138],"foreL":[-40,-82],"armR":[38,-138],"foreR":[40,-82],"legL":[-15,0],"shinL":[-15,80],"legR":[15,0],"shinR":[15,80],"head":[0,-170]};
+const tl = gsap.timeline({ paused: true });
+function rot(sel, k, a, d, t, ease) {
+  tl.to(sel, { attr: { transform: "rotate(" + a + " " + RIG[k][0] + " " + RIG[k][1] + ")" }, duration: d, ease: ease || "power2.inOut" }, t);
+}
+function pose(id, t, p, d, ease) {
+  d = d == null ? 0.3 : d;
+  for (const k in p) rot("#" + id + "-" + k, k, p[k], d, t, ease);
+}
+const REST = { armL: 8, foreL: -6, armR: -8, foreR: 6, legL: 0, shinL: 0, legR: 0, shinR: 0, head: 0 };
+function rest(id, t, d) { pose(id, t, REST, d == null ? 0.35 : d); }
+function mouth(id, t, name) {
+  for (const n of ["smile", "o", "flat", "worry"]) tl.to("#" + id + "-m-" + n, { opacity: n === name ? 1 : 0, duration: 0.1 }, t);
+}
+function blink(id, t) {
+  const el = "#" + id + "-eyes";
+  tl.to(el, { attr: { transform: "translate(0 -210) scale(1 0.12) translate(0 210)" }, duration: 0.07, ease: "power1.in" }, t)
+    .to(el, { attr: { transform: "translate(0 -210) scale(1 1) translate(0 210)" }, duration: 0.09, ease: "power1.out" }, t + 0.07);
+}
+function walk(id, t0, dur, x0, x1, y) {
+  const v = { x: x1, duration: dur, ease: "power1.inOut" };
+  if (y != null) v.y = y;
+  tl.fromTo("#" + id, { x: x0 }, v, t0);
+  const steps = Math.max(2, Math.round(dur / 0.26));
+  const sd = dur / steps;
+  for (let i = 0; i < steps; i++) {
+    const s = i % 2 ? 1 : -1, t = t0 + i * sd;
+    pose(id, t, { legL: 24 * s, shinL: s > 0 ? 0 : 18, legR: -24 * s, shinR: s > 0 ? 18 : 0, armL: -16 * s + 8, armR: -16 * s - 8 }, sd, "sine.inOut");
+    tl.to("#" + id + "-body", { attr: { transform: "translate(0 -6)" }, duration: sd / 2, ease: "sine.out" }, t)
+      .to("#" + id + "-body", { attr: { transform: "translate(0 0)" }, duration: sd / 2, ease: "sine.in" }, t + sd / 2);
+  }
+  pose(id, t0 + dur, { legL: 0, shinL: 0, legR: 0, shinR: 0 }, 0.18);
+}
+function hop(id, t, dx, dy, d, peak) {
+  peak = peak || 90;
+  const el = "#" + id;
+  tl.to(el, { scaleY: 0.86 * S(id), scaleX: 1.08 * S(id), duration: 0.1, ease: "power2.out" }, t);
+  tl.to(el, { x: "+=" + dx, duration: d, ease: "none" }, t + 0.1);
+  tl.to(el, { y: "+=" + (dy - peak), duration: d * 0.5, ease: "power2.out" }, t + 0.1)
+    .to(el, { y: "+=" + peak, duration: d * 0.5, ease: "power2.in" }, t + 0.1 + d * 0.5);
+  tl.to(el, { scaleY: 1.06 * S(id), scaleX: 0.96 * S(id), duration: 0.12 }, t + 0.1)
+    .to(el, { scaleY: 0.9 * S(id), scaleX: 1.06 * S(id), duration: 0.08 }, t + 0.1 + d)
+    .to(el, { scaleY: S(id), scaleX: S(id), duration: 0.16, ease: "back.out(2)" }, t + 0.18 + d);
+  pose(id, t + 0.1, { legL: 18, shinL: 30, legR: -14, shinR: 26, armL: 50, armR: -50 }, d * 0.5);
+  pose(id, t + 0.1 + d * 0.5, { legL: 0, shinL: 0, legR: 0, shinR: 0, armL: 8, armR: -8 }, d * 0.5);
+}
+function breathe(id, t, d) {
+  const n = Math.max(1, Math.floor(d / 1.6));
+  tl.to("#" + id + "-body", { attr: { transform: "translate(0 -3)" }, duration: 0.8, ease: "sine.inOut", repeat: n * 2 - 1, yoyo: true }, t);
+}
+function S(id) { const e = document.getElementById(id); return parseFloat(getComputedStyle(e).getPropertyValue("--s")) || 1; }
+function initFigs() {
+  document.querySelectorAll("#root .fig").forEach((e) => {
+    const s = parseFloat(getComputedStyle(e).getPropertyValue("--s")) || 1;
+    gsap.set(e, { scale: s });
+  });
+  document.querySelectorAll("#root [data-rig='zeke']").forEach((e) => {
+    for (const k in REST) gsap.set("#" + e.id + "-" + k, { attr: { transform: "rotate(" + REST[k] + " " + RIG[k][0] + " " + RIG[k][1] + ")" } });
+  });
+}
+function pop(sel, t, s) {
+  tl.fromTo(sel, { scale: 0, opacity: 0 }, { scale: s || 1, opacity: 1, duration: 0.42, ease: "back.out(2.2)" }, t);
+}
+function out(sel, t, d) { tl.to(sel, { opacity: 0, duration: d || 0.3, ease: "power2.in" }, t); }
+
+initFigs();
+
+tl.fromTo("#s2-stage", { y: -620 }, { y: 0, duration: 0.7, ease: "power3.out" }, 0);
+tl.fromTo("#s2-floor", { y: -620 }, { y: 0, duration: 0.7, ease: "power3.out" }, 0);
+pose("s2-z", 0, { armL: 160, foreL: 10, armR: -160, foreR: -10 }, 0.01);
+mouth("s2-z", 0, "o");
+rest("s2-z", 0.6, 0.4); mouth("s2-z", 0.7, "smile");
+tl.fromTo("#s2-bat", { y: -300, rotation: -6, transformOrigin: "50% 50%" }, { y: 0, rotation: 0, duration: 1.5, ease: "sine.out" }, 0.3);
+tl.to("#s2-bat", { y: -14, duration: 0.6, yoyo: true, repeat: 1, ease: "sine.inOut" }, 1.8);
+// reach on tiptoe
+pose("s2-z", 1.6, { armR: -168, foreR: -8, head: -12 }, 0.4, "power2.out");
+tl.to("#s2-z", { y: -16, duration: 0.3, ease: "power2.out" }, 1.7);
+// shatter on "It isn't"
+tl.to("#s2-bat", { opacity: 0, scale: 1.2, duration: 0.08 }, 3.0599999999999996);
+tl.fromTo("#s2-sh0", { x: 0, y: 0, rotation: 0, opacity: 1 }, { opacity: 1, x: 175.6, y: 10.4, rotation: 107, duration: 0.7, ease: "power3.out", immediateRender: false }, 3.0599999999999996);
+tl.to("#s2-sh0", { x: -220, y: 20, rotation: 0, scale: 0.4, duration: 0.75, ease: "power3.in" }, 5.55);
+tl.to("#s2-sh0", { opacity: 0, duration: 0.12 }, 6.25);
+tl.fromTo("#s2-sh1", { x: 0, y: 0, rotation: 0, opacity: 1 }, { opacity: 1, x: -263.0, y: -28.5, rotation: -140, duration: 0.7, ease: "power3.out", immediateRender: false }, 3.0599999999999996);
+tl.to("#s2-sh1", { x: 230, y: -20, rotation: 0, scale: 0.4, duration: 0.75, ease: "power3.in" }, 5.58);
+tl.to("#s2-sh1", { opacity: 0, duration: 0.12 }, 6.28);
+tl.fromTo("#s2-sh2", { x: 0, y: 0, rotation: 0, opacity: 1 }, { opacity: 1, x: -330.3, y: -92.0, rotation: -186, duration: 0.7, ease: "power3.out", immediateRender: false }, 3.0599999999999996);
+tl.to("#s2-sh2", { x: -220, y: 20, rotation: 0, scale: 0.4, duration: 0.75, ease: "power3.in" }, 5.61);
+tl.to("#s2-sh2", { opacity: 0, duration: 0.12 }, 6.31);
+tl.fromTo("#s2-sh3", { x: 0, y: 0, rotation: 0, opacity: 1 }, { opacity: 1, x: 26.1, y: -234.9, rotation: -71, duration: 0.7, ease: "power3.out", immediateRender: false }, 3.0599999999999996);
+tl.to("#s2-sh3", { x: 230, y: -20, rotation: 0, scale: 0.4, duration: 0.75, ease: "power3.in" }, 5.64);
+tl.to("#s2-sh3", { opacity: 0, duration: 0.12 }, 6.34);
+tl.fromTo("#s2-sh4", { x: 0, y: 0, rotation: 0, opacity: 1 }, { opacity: 1, x: -80.3, y: 230.4, rotation: 258, duration: 0.7, ease: "power3.out", immediateRender: false }, 3.0599999999999996);
+tl.to("#s2-sh4", { x: -220, y: 20, rotation: 0, scale: 0.4, duration: 0.75, ease: "power3.in" }, 5.67);
+tl.to("#s2-sh4", { opacity: 0, duration: 0.12 }, 6.37);
+tl.fromTo("#s2-sh5", { x: 0, y: 0, rotation: 0, opacity: 1 }, { opacity: 1, x: 6.0, y: 310.5, rotation: -192, duration: 0.7, ease: "power3.out", immediateRender: false }, 3.0599999999999996);
+tl.to("#s2-sh5", { x: 230, y: -20, rotation: 0, scale: 0.4, duration: 0.75, ease: "power3.in" }, 5.70);
+tl.to("#s2-sh5", { opacity: 0, duration: 0.12 }, 6.40);
+tl.fromTo("#s2-sh6", { x: 0, y: 0, rotation: 0, opacity: 1 }, { opacity: 1, x: 132.9, y: 155.7, rotation: 141, duration: 0.7, ease: "power3.out", immediateRender: false }, 3.0599999999999996);
+tl.to("#s2-sh6", { x: -220, y: 20, rotation: 0, scale: 0.4, duration: 0.75, ease: "power3.in" }, 5.55);
+tl.to("#s2-sh6", { opacity: 0, duration: 0.12 }, 6.25);
+tl.fromTo("#s2-sh7", { x: 0, y: 0, rotation: 0, opacity: 1 }, { opacity: 1, x: 354.6, y: 143.5, rotation: 66, duration: 0.7, ease: "power3.out", immediateRender: false }, 3.0599999999999996);
+tl.to("#s2-sh7", { x: 230, y: -20, rotation: 0, scale: 0.4, duration: 0.75, ease: "power3.in" }, 5.58);
+tl.to("#s2-sh7", { opacity: 0, duration: 0.12 }, 6.28);
+tl.fromTo("#s2-sh8", { x: 0, y: 0, rotation: 0, opacity: 1 }, { opacity: 1, x: -174.8, y: -297.7, rotation: 227, duration: 0.7, ease: "power3.out", immediateRender: false }, 3.0599999999999996);
+tl.to("#s2-sh8", { x: -220, y: 20, rotation: 0, scale: 0.4, duration: 0.75, ease: "power3.in" }, 5.61);
+tl.to("#s2-sh8", { opacity: 0, duration: 0.12 }, 6.31);
+tl.fromTo("#s2-sh9", { x: 0, y: 0, rotation: 0, opacity: 1 }, { opacity: 1, x: 79.9, y: -120.4, rotation: -77, duration: 0.7, ease: "power3.out", immediateRender: false }, 3.0599999999999996);
+tl.to("#s2-sh9", { x: 230, y: -20, rotation: 0, scale: 0.4, duration: 0.75, ease: "power3.in" }, 5.64);
+tl.to("#s2-sh9", { opacity: 0, duration: 0.12 }, 6.34);
+tl.fromTo("#s2-sh10", { x: 0, y: 0, rotation: 0, opacity: 1 }, { opacity: 1, x: -147.4, y: 59.8, rotation: 145, duration: 0.7, ease: "power3.out", immediateRender: false }, 3.0599999999999996);
+tl.to("#s2-sh10", { x: -220, y: 20, rotation: 0, scale: 0.4, duration: 0.75, ease: "power3.in" }, 5.67);
+tl.to("#s2-sh10", { opacity: 0, duration: 0.12 }, 6.37);
+tl.fromTo("#s2-sh11", { x: 0, y: 0, rotation: 0, opacity: 1 }, { opacity: 1, x: -184.2, y: 159.0, rotation: 241, duration: 0.7, ease: "power3.out", immediateRender: false }, 3.0599999999999996);
+tl.to("#s2-sh11", { x: 230, y: -20, rotation: 0, scale: 0.4, duration: 0.75, ease: "power3.in" }, 5.70);
+tl.to("#s2-sh11", { opacity: 0, duration: 0.12 }, 6.40);
+tl.fromTo("#s2-sh12", { x: 0, y: 0, rotation: 0, opacity: 1 }, { opacity: 1, x: -98.1, y: -259.6, rotation: -78, duration: 0.7, ease: "power3.out", immediateRender: false }, 3.0599999999999996);
+tl.to("#s2-sh12", { x: -220, y: 20, rotation: 0, scale: 0.4, duration: 0.75, ease: "power3.in" }, 5.55);
+tl.to("#s2-sh12", { opacity: 0, duration: 0.12 }, 6.25);
+tl.fromTo("#s2-sh13", { x: 0, y: 0, rotation: 0, opacity: 1 }, { opacity: 1, x: 125.2, y: 119.2, rotation: -96, duration: 0.7, ease: "power3.out", immediateRender: false }, 3.0599999999999996);
+tl.to("#s2-sh13", { x: 230, y: -20, rotation: 0, scale: 0.4, duration: 0.75, ease: "power3.in" }, 5.58);
+tl.to("#s2-sh13", { opacity: 0, duration: 0.12 }, 6.28);
+tl.fromTo("#s2-sh14", { x: 0, y: 0, rotation: 0, opacity: 1 }, { opacity: 1, x: 118.7, y: 241.5, rotation: -246, duration: 0.7, ease: "power3.out", immediateRender: false }, 3.0599999999999996);
+tl.to("#s2-sh14", { x: -220, y: 20, rotation: 0, scale: 0.4, duration: 0.75, ease: "power3.in" }, 5.61);
+tl.to("#s2-sh14", { opacity: 0, duration: 0.12 }, 6.31);
+tl.fromTo("#s2-sh15", { x: 0, y: 0, rotation: 0, opacity: 1 }, { opacity: 1, x: -160.4, y: -292.8, rotation: 176, duration: 0.7, ease: "power3.out", immediateRender: false }, 3.0599999999999996);
+tl.to("#s2-sh15", { x: 230, y: -20, rotation: 0, scale: 0.4, duration: 0.75, ease: "power3.in" }, 5.64);
+tl.to("#s2-sh15", { opacity: 0, duration: 0.12 }, 6.34);
+tl.fromTo("#s2-sh16", { x: 0, y: 0, rotation: 0, opacity: 1 }, { opacity: 1, x: -223.9, y: -264.4, rotation: 16, duration: 0.7, ease: "power3.out", immediateRender: false }, 3.0599999999999996);
+tl.to("#s2-sh16", { x: -220, y: 20, rotation: 0, scale: 0.4, duration: 0.75, ease: "power3.in" }, 5.67);
+tl.to("#s2-sh16", { opacity: 0, duration: 0.12 }, 6.37);
+tl.fromTo("#s2-sh17", { x: 0, y: 0, rotation: 0, opacity: 1 }, { opacity: 1, x: -231.9, y: -252.5, rotation: 182, duration: 0.7, ease: "power3.out", immediateRender: false }, 3.0599999999999996);
+tl.to("#s2-sh17", { x: 230, y: -20, rotation: 0, scale: 0.4, duration: 0.75, ease: "power3.in" }, 5.70);
+tl.to("#s2-sh17", { opacity: 0, duration: 0.12 }, 6.40);
+tl.to("#s2-z", { y: 0, duration: 0.2 }, 3.0999999999999996);
+pose("s2-z", 3.0999999999999996, { armL: 150, foreL: -95, armR: -150, foreR: 95, head: 6 }, 0.18, "power3.out");
+mouth("s2-z", 3.0999999999999996, "worry");
+tl.to("#s2-z", { x: -18, duration: 0.05, yoyo: true, repeat: 5 }, 3.15);
+// "There's no Batman"
+tl.to("#s2-ghost", { opacity: 1, duration: 0.25 }, 3.9);
+tl.to("#s2-no", { opacity: 1, duration: 0.01 }, 4.2);
+tl.to("#s2-noc", { attr: { "stroke-dashoffset": 0 }, duration: 0.4, ease: "power2.inOut" }, 4.2);
+tl.to("#s2-nol", { attr: { "stroke-dashoffset": 0 }, duration: 0.22, ease: "power2.out" }, 4.55);
+rest("s2-z", 4, 0.4); mouth("s2-z", 4.1, "flat");
+pose("s2-z", 4.3999999999999995, { head: 12 }, 0.2); pose("s2-z", 4.6, { head: -12 }, 0.2); pose("s2-z", 4.8, { head: 0 }, 0.2);
+tl.to(["#s2-no", "#s2-ghost"], { opacity: 0, duration: 0.3 }, 5.25);
+// shards rebuild into clapperboard + star: "body-horror tragedy about an actor"
+pop("#s2-clap", 6.1499999999999995, 1);
+pop("#s2-star", 6.3, 1);
+tl.fromTo("#s2-clapTop", { attr: { transform: "rotate(-26 -110 -46)" } }, { attr: { transform: "rotate(0 -110 -46)" }, duration: 0.18, ease: "power4.in" }, 6.8);
+tl.fromTo("#s2-z", { scaleX: 0.85 }, { scaleX: -0.85, duration: 0.25, ease: "power2.inOut" }, 5.6);
+tl.to("#s2-z", { scaleX: 0.85, duration: 0.25, ease: "power2.inOut" }, 6.3999999999999995);
+mouth("s2-z", 5.8999999999999995, "o");
+pose("s2-z", 6.5, { armR: -120, foreR: -20, head: -10 }, 0.35);
+mouth("s2-z", 6.8999999999999995, "smile");
+// "actor" — spotlight on the star
+tl.to("#s2-cone", { opacity: 1, duration: 0.4 }, 7.2);
+tl.to("#s2-star", { scale: 1.1, duration: 0.35, yoyo: true, repeat: 1, ease: "sine.inOut" }, 7.3);
+// "loses his face" — star droops
+tl.to("#s2-star", { rotation: 18, y: 30, duration: 0.5, ease: "power2.in" }, 8.1);
+mouth("s2-z", 8.200000000000001, "worry");
+blink("s2-z", 7.5);
+tl.to("#s2-clap", { opacity: 0, duration: 0.3 }, 8.600000000000001);
+tl.to("#s2-cone", { opacity: 0, duration: 0.3 }, 8.600000000000001);
+// star flies at the lens
+tl.to("#s2-star", { x: -230, y: 280, scale: 16, rotation: 40, duration: 0.95, ease: "power3.in" }, 9.0);
+
+window.__timelines["s2"] = tl;
+})();
+</script>
+</template>

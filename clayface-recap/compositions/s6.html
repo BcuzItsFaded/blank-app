@@ -1,0 +1,256 @@
+<template>
+<style>
+#root { position:absolute; inset:0; overflow:hidden; font-family: Montserrat, sans-serif; }
+.bg { position:absolute; inset:0; background: radial-gradient(ellipse 120% 70% at 50% 28%, #ffffff 0%, #f1f5f8 55%, #e4ebf1 100%); }
+.floor { position:absolute; left:0; }
+.floor line { stroke:#d4dce4; stroke-width:2; }
+.stage { position:absolute; inset:0; }
+.fig { position:absolute; transform-origin: 50% 97%; }
+.fig[data-glow] svg { filter: drop-shadow(0 0 14px rgba(255,140,90,.45)); }
+.panel { position:absolute; border-radius:30px; border:3px solid rgba(25,195,240,.85);
+  background: linear-gradient(160deg, rgba(225,248,255,.78) 0%, rgba(170,228,255,.38) 60%, rgba(140,210,255,.30) 100%);
+  box-shadow: 0 0 46px rgba(25,180,255,.35), inset 0 0 34px rgba(255,255,255,.8); overflow:hidden; }
+.panel::after { content:""; position:absolute; left:-20%; top:-30%; width:60%; height:160%; transform: rotate(18deg);
+  background: linear-gradient(90deg, rgba(255,255,255,0), rgba(255,255,255,.45), rgba(255,255,255,0)); pointer-events:none; }
+.abs { position:absolute; }
+.dark { position:absolute; inset:0; background:#0d1117; opacity:0; border-radius:27px; }
+.icon { position:absolute; }
+.under{position:absolute;left:0;width:1080px;background:linear-gradient(180deg,#e9eff4 0%,#d6dee7 25%,#cdd6e0 100%);}
+.endtitle{position:absolute;left:0;right:0;top:186px;text-align:center;font:900 76px/1.1 Montserrat,sans-serif;color:#14161b;letter-spacing:-.01em;opacity:0}
+.endtitle .m{color:#E8322B} .endtitle .v{color:#2F7BFF} .endtitle .o{font-weight:700;font-size:56px}</style>
+<div id="root" data-composition-id="s6" data-width="1080" data-height="1920" data-start="0" data-duration="11.7">
+
+<div id="s6-world" class="stage" style="height:3220px">
+  <div class="bg" style="height:1920px"></div>
+  <svg class="floor" viewBox="0 0 1080 900" width="1080" height="900" style="top:1040px">
+    <line x1="-960" y1="900" x2="320" y2="0" /><line x1="-810" y1="900" x2="342" y2="0" /><line x1="-660" y1="900" x2="364" y2="0" /><line x1="-510" y1="900" x2="386" y2="0" /><line x1="-360" y1="900" x2="408" y2="0" /><line x1="-210" y1="900" x2="430" y2="0" /><line x1="-60" y1="900" x2="452" y2="0" /><line x1="90" y1="900" x2="474" y2="0" /><line x1="240" y1="900" x2="496" y2="0" /><line x1="390" y1="900" x2="518" y2="0" /><line x1="540" y1="900" x2="540" y2="0" /><line x1="690" y1="900" x2="562" y2="0" /><line x1="840" y1="900" x2="584" y2="0" /><line x1="990" y1="900" x2="606" y2="0" /><line x1="1140" y1="900" x2="628" y2="0" /><line x1="1290" y1="900" x2="650" y2="0" /><line x1="1440" y1="900" x2="672" y2="0" /><line x1="1590" y1="900" x2="694" y2="0" /><line x1="1740" y1="900" x2="716" y2="0" /><line x1="1890" y1="900" x2="738" y2="0" /><line x1="2040" y1="900" x2="760" y2="0" /><line x1="0" y1="17.2" x2="1080" y2="17.2" /><line x1="0" y1="60.0" x2="1080" y2="60.0" /><line x1="0" y1="124.6" x2="1080" y2="124.6" /><line x1="0" y1="209.1" x2="1080" y2="209.1" /><line x1="0" y1="312.4" x2="1080" y2="312.4" /><line x1="0" y1="433.8" x2="1080" y2="433.8" /><line x1="0" y1="572.5" x2="1080" y2="572.5" /><line x1="0" y1="728.1" x2="1080" y2="728.1" /><line x1="0" y1="900.0" x2="1080" y2="900.0" />
+  </svg>
+  <div class="under" style="top:1880px;height:1340px"></div>
+  <svg class="abs" style="left:0;top:0" width="1080" height="3220" viewBox="0 0 1080 3220" overflow="visible">
+    <ellipse cx="540" cy="1070" rx="170" ry="40" fill="#bdf0ff" stroke="#19C3F0" stroke-width="6" style="filter:drop-shadow(0 0 18px rgba(25,195,240,.9))"/>
+    <line x1="420" y1="1044.5001526566753" x2="420" y2="1095.4998473433247" stroke="#2a8db0" stroke-width="7" stroke-linecap="round"/><line x1="468" y1="1037.3882352941177" x2="468" y2="1102.6117647058823" stroke="#2a8db0" stroke-width="7" stroke-linecap="round"/><line x1="516" y1="1034.360559928903" x2="516" y2="1105.639440071097" stroke="#2a8db0" stroke-width="7" stroke-linecap="round"/><line x1="564" y1="1034.360559928903" x2="564" y2="1105.639440071097" stroke="#2a8db0" stroke-width="7" stroke-linecap="round"/><line x1="612" y1="1037.3882352941177" x2="612" y2="1102.6117647058823" stroke="#2a8db0" stroke-width="7" stroke-linecap="round"/><line x1="660" y1="1044.5001526566753" x2="660" y2="1095.4998473433247" stroke="#2a8db0" stroke-width="7" stroke-linecap="round"/>
+    <g id="s6-lump" transform="translate(540 1050)">
+      <g id="s6-lumpin"><path d="M-120,10 C-130,-60 -80,-120 -30,-110 C-10,-170 60,-160 70,-100 C130,-100 140,-20 120,10 Z" fill="#C46A45" stroke="#8E4428" stroke-width="5"/>
+      <circle cx="-60" cy="-70" r="26" fill="#C46A45" stroke="#8E4428" stroke-width="4"/><circle cx="50" cy="-120" r="24" fill="#C46A45" stroke="#8E4428" stroke-width="4"/></g>
+    </g>
+    <path id="s6-stream" d="M520,1080 Q540,1070 560,1080 L556,2190 Q540,2210 524,2190 Z" fill="#C46A45" style="opacity:0"/>
+  </svg>
+  <div style="position:absolute;left:0;top:1300px;width:1080px;height:1920px">
+    <div id="s6-panel" class="panel " style="left:120px;top:330px;width:840px;height:640px" data-layout-allow-overflow>
+      <svg class="abs" style="left:0;top:0" width="840" height="640" viewBox="0 0 840 640">
+        <rect x="40" y="520" width="300" height="70" rx="26" fill="#c9d6e3" stroke="#8fa3b8" stroke-width="5"/>
+        <rect x="56" y="500" width="110" height="36" rx="18" fill="#eef4fa" stroke="#8fa3b8" stroke-width="4"/>
+        <rect x="640" y="150" width="150" height="400" rx="70" fill="#dff6ff" stroke="#8fa3b8" stroke-width="7"/>
+        <path d="M670,210 L700,180 M670,260 L740,190" stroke="#fff" stroke-width="10" stroke-linecap="round"/>
+        <line x1="715" y1="550" x2="715" y2="600" stroke="#8fa3b8" stroke-width="8"/><line x1="670" y1="600" x2="760" y2="600" stroke="#8fa3b8" stroke-width="8" stroke-linecap="round"/>
+        <ellipse id="s6-puddle" cx="430" cy="592" rx="70" ry="16" fill="#C46A45" style="opacity:0"/>
+        <ellipse id="s6-piece" cx="470" cy="420" rx="22" ry="26" fill="#C46A45" stroke="#8E4428" stroke-width="4" style="opacity:0"/>
+      </svg>
+      <div id="s6-refl" style="position:absolute;left:640px;top:150px;width:150px;height:400px;overflow:hidden;border-radius:70px;opacity:0">
+        <div style="position:absolute;left:-200px;top:-50px"><div id="s6-rf" class="fig" style="left:100px;top:-46px;width:320px;height:480px;--s:0.62" data-rig="fig">
+  <svg viewBox="-160 -310 320 480" width="320" height="480" overflow="visible"><g id="s6-rf-body" transform="translate(0 0)">
+    <g id="s6-rf-legL" transform="rotate(0 -15 0)"><line x1="-16" y1="0" x2="-16" y2="80" class="s6-rf-limb" style="stroke:#C46A45" stroke-linecap="round" stroke-width="26"/><g id="s6-rf-shinL" transform="rotate(0 -15 80)"><line x1="-16" y1="80" x2="-18" y2="152" class="s6-rf-limb" style="stroke:#C46A45" stroke-linecap="round" stroke-width="24"/></g></g>
+    <g id="s6-rf-legR" transform="rotate(0 15 0)"><line x1="16" y1="0" x2="16" y2="80" class="s6-rf-limb" style="stroke:#C46A45" stroke-linecap="round" stroke-width="26"/><g id="s6-rf-shinR" transform="rotate(0 15 80)"><line x1="16" y1="80" x2="18" y2="152" class="s6-rf-limb" style="stroke:#C46A45" stroke-linecap="round" stroke-width="24"/></g></g>
+    <g id="s6-rf-armL" transform="rotate(0 -38 -138)"><line x1="-40" y1="-140" x2="-44" y2="-82" class="s6-rf-limb" style="stroke:#C46A45" stroke-linecap="round" stroke-width="22"/><g id="s6-rf-foreL" transform="rotate(0 -40 -82)"><line x1="-44" y1="-82" x2="-46" y2="-24" class="s6-rf-limb" style="stroke:#C46A45" stroke-linecap="round" stroke-width="20"/></g></g>
+    <g id="s6-rf-armR" transform="rotate(0 38 -138)"><line x1="40" y1="-140" x2="44" y2="-82" class="s6-rf-limb" style="stroke:#C46A45" stroke-linecap="round" stroke-width="22"/><g id="s6-rf-foreR" transform="rotate(0 40 -82)"><line x1="44" y1="-82" x2="46" y2="-24" class="s6-rf-limb" style="stroke:#C46A45" stroke-linecap="round" stroke-width="20"/></g></g>
+    <path d="M-36,-152 Q0,-168 36,-152 L30,-4 Q0,8 -30,-4 Z" class="s6-rf-fill" style="fill:#C46A45;stroke:#8E4428" stroke-width="4" stroke-linejoin="round"/>
+    
+    <rect x="-12" y="-178" width="24" height="30" rx="8" class="s6-rf-fill" style="fill:#C46A45"/>
+    <g id="s6-rf-head" transform="rotate(0 0 -170)">
+      <ellipse cx="0" cy="-212" rx="38" ry="46" class="s6-rf-fill" style="fill:#C46A45;stroke:#8E4428" stroke-width="4" stroke-linejoin="round"/>
+      
+    </g>
+    
+  </g></svg></div></div>
+      </div>
+      <div id="s6-man" class="fig" style="left:240px;top:134px;width:320px;height:480px;--s:0.95" data-rig="fig" data-glow="1">
+  <svg viewBox="-160 -310 320 480" width="320" height="480" overflow="visible"><g id="s6-man-body" transform="translate(0 0)">
+    <g id="s6-man-legL" transform="rotate(0 -15 0)"><line x1="-16" y1="0" x2="-16" y2="80" class="s6-man-limb" style="stroke:#C46A45" stroke-linecap="round" stroke-width="26"/><g id="s6-man-shinL" transform="rotate(0 -15 80)"><line x1="-16" y1="80" x2="-18" y2="152" class="s6-man-limb" style="stroke:#C46A45" stroke-linecap="round" stroke-width="24"/></g></g>
+    <g id="s6-man-legR" transform="rotate(0 15 0)"><line x1="16" y1="0" x2="16" y2="80" class="s6-man-limb" style="stroke:#C46A45" stroke-linecap="round" stroke-width="26"/><g id="s6-man-shinR" transform="rotate(0 15 80)"><line x1="16" y1="80" x2="18" y2="152" class="s6-man-limb" style="stroke:#C46A45" stroke-linecap="round" stroke-width="24"/></g></g>
+    <g id="s6-man-armL" transform="rotate(0 -38 -138)"><line x1="-40" y1="-140" x2="-44" y2="-82" class="s6-man-limb" style="stroke:#C46A45" stroke-linecap="round" stroke-width="22"/><g id="s6-man-foreL" transform="rotate(0 -40 -82)"><line x1="-44" y1="-82" x2="-46" y2="-24" class="s6-man-limb" style="stroke:#C46A45" stroke-linecap="round" stroke-width="20"/></g></g>
+    <g id="s6-man-armR" transform="rotate(0 38 -138)"><line x1="40" y1="-140" x2="44" y2="-82" class="s6-man-limb" style="stroke:#C46A45" stroke-linecap="round" stroke-width="22"/><g id="s6-man-foreR" transform="rotate(0 40 -82)"><line x1="44" y1="-82" x2="46" y2="-24" class="s6-man-limb" style="stroke:#C46A45" stroke-linecap="round" stroke-width="20"/></g></g>
+    <path d="M-36,-152 Q0,-168 36,-152 L30,-4 Q0,8 -30,-4 Z" class="s6-man-fill" style="fill:#C46A45;stroke:#8E4428" stroke-width="4" stroke-linejoin="round"/>
+    
+    <rect x="-12" y="-178" width="24" height="30" rx="8" class="s6-man-fill" style="fill:#C46A45"/>
+    <g id="s6-man-head" transform="rotate(0 0 -170)">
+      <ellipse cx="0" cy="-212" rx="38" ry="46" class="s6-man-fill" style="fill:#C46A45;stroke:#8E4428" stroke-width="4" stroke-linejoin="round"/>
+      
+    </g>
+    
+  </g></svg></div>
+      <div id="s6-wom" class="fig" style="left:400px;top:134px;width:320px;height:480px;--s:0.95" data-rig="fig" data-glow="1">
+  <svg viewBox="-160 -310 320 480" width="320" height="480" overflow="visible"><g id="s6-wom-body" transform="translate(0 0)">
+    <g id="s6-wom-legL" transform="rotate(0 -15 0)"><line x1="-16" y1="0" x2="-16" y2="80" class="s6-wom-limb" style="stroke:#C46A45" stroke-linecap="round" stroke-width="26"/><g id="s6-wom-shinL" transform="rotate(0 -15 80)"><line x1="-16" y1="80" x2="-18" y2="152" class="s6-wom-limb" style="stroke:#C46A45" stroke-linecap="round" stroke-width="24"/></g></g>
+    <g id="s6-wom-legR" transform="rotate(0 15 0)"><line x1="16" y1="0" x2="16" y2="80" class="s6-wom-limb" style="stroke:#C46A45" stroke-linecap="round" stroke-width="26"/><g id="s6-wom-shinR" transform="rotate(0 15 80)"><line x1="16" y1="80" x2="18" y2="152" class="s6-wom-limb" style="stroke:#C46A45" stroke-linecap="round" stroke-width="24"/></g></g>
+    <g id="s6-wom-armL" transform="rotate(0 -38 -138)"><line x1="-40" y1="-140" x2="-44" y2="-82" class="s6-wom-limb" style="stroke:#C46A45" stroke-linecap="round" stroke-width="22"/><g id="s6-wom-foreL" transform="rotate(0 -40 -82)"><line x1="-44" y1="-82" x2="-46" y2="-24" class="s6-wom-limb" style="stroke:#C46A45" stroke-linecap="round" stroke-width="20"/></g></g>
+    <g id="s6-wom-armR" transform="rotate(0 38 -138)"><line x1="40" y1="-140" x2="44" y2="-82" class="s6-wom-limb" style="stroke:#C46A45" stroke-linecap="round" stroke-width="22"/><g id="s6-wom-foreR" transform="rotate(0 40 -82)"><line x1="44" y1="-82" x2="46" y2="-24" class="s6-wom-limb" style="stroke:#C46A45" stroke-linecap="round" stroke-width="20"/></g></g>
+    <path d="M-30,-152 Q0,-166 30,-152 L26,-46 L52,44 Q0,56 -52,44 L-26,-46 Z" class="s6-wom-fill" style="fill:#C46A45;stroke:#8E4428" stroke-width="4" stroke-linejoin="round"/>
+    
+    <rect x="-12" y="-178" width="24" height="30" rx="8" class="s6-wom-fill" style="fill:#C46A45"/>
+    <g id="s6-wom-head" transform="rotate(0 0 -170)">
+      <ellipse cx="0" cy="-212" rx="38" ry="46" class="s6-wom-fill" style="fill:#C46A45;stroke:#8E4428" stroke-width="4" stroke-linejoin="round"/>
+      <path d="M-46,-196 C-54,-276 54,-276 46,-196 L46,-170 L30,-170 L32,-214 C30,-246 -30,-246 -32,-214 L-30,-170 L-46,-170 Z" class="s6-wom-hair" style="fill:#8E4428"/>
+    </g>
+    
+  </g></svg></div>
+    </div>
+  </div>
+</div>
+<svg class="abs" style="left:0;top:0" width="1080" height="1920" viewBox="0 0 1080 1920" overflow="visible">
+  <g id="s6-mon" transform="translate(220 1020)" style="opacity:0">
+    <path d="M-70,-60 C-90,-120 -20,-140 0,-110 C30,-150 100,-110 76,-50 C110,-10 90,60 40,72 C10,96 -40,90 -60,60 C-100,40 -100,-20 -70,-60 Z" fill="#E8322B" stroke="#fff" stroke-width="6"/>
+    <path d="M-44,-30 L-14,-14 M44,-30 L14,-14" stroke="#fff" stroke-width="9" stroke-linecap="round"/>
+    <path d="M-36,34 L-22,20 L-8,34 L6,20 L20,34 L34,20" fill="none" stroke="#fff" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/>
+  </g>
+  <g id="s6-vic" transform="translate(860 1020)" style="opacity:0">
+    <g id="s6-vicL"><path d="M0,30 C-40,0 -60,-30 -40,-50 C-25,-65 -5,-58 0,-42 L-10,-20 L6,-4 L-6,14 Z" transform="scale(1.6)" fill="#19C3F0" stroke="#fff" stroke-width="4"/></g>
+    <g id="s6-vicR"><path d="M0,30 C40,0 60,-30 40,-50 C25,-65 5,-58 0,-42 L-10,-20 L6,-4 L-6,14 Z" transform="scale(1.6)" fill="#19C3F0" stroke="#fff" stroke-width="4"/></g>
+  </g>
+</svg>
+<div id="s6-z" class="fig" style="left:380px;top:654px;width:320px;height:480px;--s:0.85" data-rig="zeke">
+  <svg viewBox="-160 -310 320 480" width="320" height="480" overflow="visible"><g id="s6-z-body" transform="translate(0 0)">
+    <g id="s6-z-legL" transform="rotate(0 -15 0)"><line x1="-15" y1="0" x2="-15" y2="80" stroke="#14161b" stroke-linecap="round" stroke-linejoin="round" stroke-width="10"/><g id="s6-z-shinL" transform="rotate(0 -15 80)"><line x1="-15" y1="80" x2="-17" y2="156" stroke="#14161b" stroke-linecap="round" stroke-linejoin="round" stroke-width="10"/><line x1="-17" y1="156" x2="-34" y2="158" stroke="#14161b" stroke-linecap="round" stroke-linejoin="round" stroke-width="10"/></g></g>
+    <g id="s6-z-legR" transform="rotate(0 15 0)"><line x1="15" y1="0" x2="15" y2="80" stroke="#14161b" stroke-linecap="round" stroke-linejoin="round" stroke-width="10"/><g id="s6-z-shinR" transform="rotate(0 15 80)"><line x1="15" y1="80" x2="17" y2="156" stroke="#14161b" stroke-linecap="round" stroke-linejoin="round" stroke-width="10"/><line x1="17" y1="156" x2="34" y2="158" stroke="#14161b" stroke-linecap="round" stroke-linejoin="round" stroke-width="10"/></g></g>
+    <path d="M-32,-16 L32,-16 L36,32 L5,32 L0,12 L-5,32 L-36,32 Z" fill="#23252b" stroke="#14161b" stroke-linecap="round" stroke-linejoin="round" stroke-width="5"/>
+    <g id="s6-z-armL" transform="rotate(0 -38 -138)"><line x1="-38" y1="-138" x2="-40" y2="-82" stroke="#14161b" stroke-linecap="round" stroke-linejoin="round" stroke-width="10"/><g id="s6-z-foreL" transform="rotate(0 -40 -82)"><line x1="-40" y1="-82" x2="-42" y2="-28" stroke="#14161b" stroke-linecap="round" stroke-linejoin="round" stroke-width="10"/></g></g>
+    <g id="s6-z-armR" transform="rotate(0 38 -138)"><line x1="38" y1="-138" x2="40" y2="-82" stroke="#14161b" stroke-linecap="round" stroke-linejoin="round" stroke-width="10"/><g id="s6-z-foreR" transform="rotate(0 40 -82)"><line x1="40" y1="-82" x2="42" y2="-28" stroke="#14161b" stroke-linecap="round" stroke-linejoin="round" stroke-width="10"/></g></g>
+    <path d="M-34,-150 Q0,-160 34,-150 L58,-120 L42,-104 L33,-116 L32,-12 L-32,-12 L-33,-116 L-42,-104 L-58,-120 Z" fill="#FFD21F" stroke="#14161b" stroke-linecap="round" stroke-linejoin="round" stroke-width="5"/>
+    <line x1="0" y1="-158" x2="0" y2="-172" stroke="#14161b" stroke-linecap="round" stroke-linejoin="round" stroke-width="10"/>
+    <g id="s6-z-head" transform="rotate(0 0 -170)">
+      <circle cx="0" cy="-214" r="46" fill="#fff" stroke="#14161b" stroke-linecap="round" stroke-linejoin="round" stroke-width="6"/>
+      <g id="s6-z-eyes" transform="translate(0 -210) scale(1 1) translate(0 210)">
+        <ellipse cx="-15" cy="-210" rx="5.5" ry="6.5" fill="#14161b"/><ellipse cx="15" cy="-210" rx="5.5" ry="6.5" fill="#14161b"/>
+      </g>
+      <path id="s6-z-m-smile" d="M-13,-192 Q0,-181 13,-192" fill="none" stroke="#14161b" stroke-linecap="round" stroke-linejoin="round" stroke-width="5"/>
+      <ellipse id="s6-z-m-o" cx="0" cy="-189" rx="7" ry="9" fill="#14161b" style="opacity:0"/>
+      <line id="s6-z-m-flat" x1="-11" y1="-189" x2="11" y2="-189" stroke="#14161b" stroke-linecap="round" stroke-linejoin="round" stroke-width="5" style="opacity:0"/>
+      <path id="s6-z-m-worry" d="M-13,-185 Q0,-195 13,-185" fill="none" stroke="#14161b" stroke-linecap="round" stroke-linejoin="round" stroke-width="5" style="opacity:0"/>
+      <path d="M-50,-226 C-52,-284 52,-284 50,-226 Z" fill="#E8322B" stroke="#14161b" stroke-linecap="round" stroke-linejoin="round" stroke-width="5"/>
+      <rect x="-54" y="-238" width="108" height="20" rx="9" fill="#B81F19" stroke="#14161b" stroke-linecap="round" stroke-linejoin="round" stroke-width="4"/>
+    </g>
+  </g></svg></div>
+<div id="s6-title" class="endtitle"><span class="m">MONSTER</span> <span class="o">or</span> <span class="v">VICTIM?</span></div>
+
+</div>
+<script>
+(function(){
+
+const RIG = {"armL":[-38,-138],"foreL":[-40,-82],"armR":[38,-138],"foreR":[40,-82],"legL":[-15,0],"shinL":[-15,80],"legR":[15,0],"shinR":[15,80],"head":[0,-170]};
+const tl = gsap.timeline({ paused: true });
+function rot(sel, k, a, d, t, ease) {
+  tl.to(sel, { attr: { transform: "rotate(" + a + " " + RIG[k][0] + " " + RIG[k][1] + ")" }, duration: d, ease: ease || "power2.inOut" }, t);
+}
+function pose(id, t, p, d, ease) {
+  d = d == null ? 0.3 : d;
+  for (const k in p) rot("#" + id + "-" + k, k, p[k], d, t, ease);
+}
+const REST = { armL: 8, foreL: -6, armR: -8, foreR: 6, legL: 0, shinL: 0, legR: 0, shinR: 0, head: 0 };
+function rest(id, t, d) { pose(id, t, REST, d == null ? 0.35 : d); }
+function mouth(id, t, name) {
+  for (const n of ["smile", "o", "flat", "worry"]) tl.to("#" + id + "-m-" + n, { opacity: n === name ? 1 : 0, duration: 0.1 }, t);
+}
+function blink(id, t) {
+  const el = "#" + id + "-eyes";
+  tl.to(el, { attr: { transform: "translate(0 -210) scale(1 0.12) translate(0 210)" }, duration: 0.07, ease: "power1.in" }, t)
+    .to(el, { attr: { transform: "translate(0 -210) scale(1 1) translate(0 210)" }, duration: 0.09, ease: "power1.out" }, t + 0.07);
+}
+function walk(id, t0, dur, x0, x1, y) {
+  const v = { x: x1, duration: dur, ease: "power1.inOut" };
+  if (y != null) v.y = y;
+  tl.fromTo("#" + id, { x: x0 }, v, t0);
+  const steps = Math.max(2, Math.round(dur / 0.26));
+  const sd = dur / steps;
+  for (let i = 0; i < steps; i++) {
+    const s = i % 2 ? 1 : -1, t = t0 + i * sd;
+    pose(id, t, { legL: 24 * s, shinL: s > 0 ? 0 : 18, legR: -24 * s, shinR: s > 0 ? 18 : 0, armL: -16 * s + 8, armR: -16 * s - 8 }, sd, "sine.inOut");
+    tl.to("#" + id + "-body", { attr: { transform: "translate(0 -6)" }, duration: sd / 2, ease: "sine.out" }, t)
+      .to("#" + id + "-body", { attr: { transform: "translate(0 0)" }, duration: sd / 2, ease: "sine.in" }, t + sd / 2);
+  }
+  pose(id, t0 + dur, { legL: 0, shinL: 0, legR: 0, shinR: 0 }, 0.18);
+}
+function hop(id, t, dx, dy, d, peak) {
+  peak = peak || 90;
+  const el = "#" + id;
+  tl.to(el, { scaleY: 0.86 * S(id), scaleX: 1.08 * S(id), duration: 0.1, ease: "power2.out" }, t);
+  tl.to(el, { x: "+=" + dx, duration: d, ease: "none" }, t + 0.1);
+  tl.to(el, { y: "+=" + (dy - peak), duration: d * 0.5, ease: "power2.out" }, t + 0.1)
+    .to(el, { y: "+=" + peak, duration: d * 0.5, ease: "power2.in" }, t + 0.1 + d * 0.5);
+  tl.to(el, { scaleY: 1.06 * S(id), scaleX: 0.96 * S(id), duration: 0.12 }, t + 0.1)
+    .to(el, { scaleY: 0.9 * S(id), scaleX: 1.06 * S(id), duration: 0.08 }, t + 0.1 + d)
+    .to(el, { scaleY: S(id), scaleX: S(id), duration: 0.16, ease: "back.out(2)" }, t + 0.18 + d);
+  pose(id, t + 0.1, { legL: 18, shinL: 30, legR: -14, shinR: 26, armL: 50, armR: -50 }, d * 0.5);
+  pose(id, t + 0.1 + d * 0.5, { legL: 0, shinL: 0, legR: 0, shinR: 0, armL: 8, armR: -8 }, d * 0.5);
+}
+function breathe(id, t, d) {
+  const n = Math.max(1, Math.floor(d / 1.6));
+  tl.to("#" + id + "-body", { attr: { transform: "translate(0 -3)" }, duration: 0.8, ease: "sine.inOut", repeat: n * 2 - 1, yoyo: true }, t);
+}
+function S(id) { const e = document.getElementById(id); return parseFloat(getComputedStyle(e).getPropertyValue("--s")) || 1; }
+function initFigs() {
+  document.querySelectorAll("#root .fig").forEach((e) => {
+    const s = parseFloat(getComputedStyle(e).getPropertyValue("--s")) || 1;
+    gsap.set(e, { scale: s });
+  });
+  document.querySelectorAll("#root [data-rig='zeke']").forEach((e) => {
+    for (const k in REST) gsap.set("#" + e.id + "-" + k, { attr: { transform: "rotate(" + REST[k] + " " + RIG[k][0] + " " + RIG[k][1] + ")" } });
+  });
+}
+function pop(sel, t, s) {
+  tl.fromTo(sel, { scale: 0, opacity: 0 }, { scale: s || 1, opacity: 1, duration: 0.42, ease: "back.out(2.2)" }, t);
+}
+function out(sel, t, d) { tl.to(sel, { opacity: 0, duration: d || 0.3, ease: "power2.in" }, t); }
+
+initFigs();
+
+gsap.set(["#s6-man", "#s6-wom", "#s6-z"], { opacity: 0 });
+// the lump drips through the grate
+tl.fromTo("#s6-lumpin", { scaleY: 1, scaleX: 1, transformOrigin: "50% 100%" }, { scaleY: 0.05, scaleX: 0.5, duration: 1.3, ease: "power2.in" }, 0.1);
+tl.to("#s6-stream", { opacity: 1, duration: 0.1 }, 0.25);
+tl.fromTo("#s6-stream", { scaleY: 0, transformOrigin: "50% 0%" }, { scaleY: 1, duration: 1.8, ease: "power1.in" }, 0.3);
+// camera follows it down
+tl.to("#s6-world", { y: -1300, duration: 1.25, ease: "power2.inOut" }, 1.0);
+tl.to("#s6-stream", { opacity: 0, duration: 0.2 }, 2.15);
+tl.fromTo("#s6-puddle", { opacity: 0, scaleX: 0.2, transformOrigin: "50% 50%" }, { opacity: 1, scaleX: 1, duration: 0.3 }, 2.0);
+// he survives: rises from the puddle
+tl.set("#s6-man", { opacity: 1 }, 2.4);
+tl.fromTo("#s6-man", { scaleY: 0.1, scaleX: 1.3 }, { scaleY: 0.95, scaleX: 0.95, duration: 0.9, ease: "back.out(1.6)" }, 2.4);
+tl.to("#s6-puddle", { opacity: 0, duration: 0.3 }, 2.7);
+tl.to("#s6-refl", { opacity: 0.5, duration: 0.6 }, 3.1);
+pose("s6-man", 3.3, { head: 12, armL: 10, armR: -10 }, 0.6);
+pose("s6-rf", 3.3, { head: 12 }, 0.6);
+// builds his own Caitlyn
+pose("s6-man", 4.2, { armR: -100, foreR: -20 }, 0.3);
+tl.fromTo("#s6-piece", { opacity: 0, scale: 0.3, transformOrigin: "50% 50%" }, { opacity: 1, scale: 1, duration: 0.25 }, 4.3);
+tl.to("#s6-piece", { attr: { cx: 560, cy: 580 }, duration: 0.5, ease: "power2.inOut" }, 4.6);
+tl.to("#s6-piece", { opacity: 0, duration: 0.1 }, 5.1);
+tl.set("#s6-wom", { opacity: 1 }, 5.1);
+tl.fromTo("#s6-wom", { scaleY: 0.1, scaleX: 1.2 }, { scaleY: 0.95, scaleX: 0.95, duration: 1.0, ease: "back.out(1.4)" }, 5.1);
+// the embrace, like the opening
+tl.to("#s6-man", { x: 30, rotation: 7, duration: 0.8, ease: "power1.inOut" }, 6.2);
+tl.to("#s6-wom", { x: -30, rotation: -7, duration: 0.8, ease: "power1.inOut" }, 6.2);
+pose("s6-man", 6.2, { armR: -60, foreR: -40 }, 0.6);
+pose("s6-wom", 6.2, { armL: 60, foreL: 40 }, 0.6);
+tl.to("#s6-refl", { opacity: 0.2, duration: 0.5 }, 6.3);
+// Zeke steps in: monster or victim?
+tl.set("#s6-z", { opacity: 1 }, 6.3);
+walk("s6-z", 6.3, 0.6, 520, 0);
+mouth("s6-z", 6.3, "flat");
+pop("#s6-mon", 6.9399999999999995, 1);
+pose("s6-z", 6.9399999999999995, { armL: 110, foreL: 20 }, 0.3);
+pop("#s6-vic", 7.859999999999999, 1);
+pose("s6-z", 7.859999999999999, { armL: 8, foreL: -6, armR: -110, foreR: -20 }, 0.3);
+tl.fromTo("#s6-vicL", { x: 0, rotation: 0 }, { x: -8, rotation: -8, transformOrigin: "50% 100%", duration: 0.3 }, 8.200000000000001);
+tl.fromTo("#s6-vicR", { x: 0, rotation: 0 }, { x: 8, rotation: 8, transformOrigin: "50% 100%", duration: 0.3 }, 8.200000000000001);
+// tell me below — open palms to the viewer
+pose("s6-z", 8.700000000000001, { armL: 50, foreL: 40, armR: -50, foreR: -40, head: 0 }, 0.35);
+mouth("s6-z", 8.8, "smile");
+blink("s6-z", 9.700000000000001);
+tl.fromTo("#s6-title", { opacity: 0, y: 24 }, { opacity: 1, y: 0, duration: 0.4, ease: "power3.out" }, 10.0);
+tl.to(["#s6-mon", "#s6-vic"], { scale: 1.08, duration: 0.5, yoyo: true, repeat: 1, ease: "sine.inOut" }, 10.2);
+breathe("s6-z", 10.0, 1.6);
+blink("s6-z", 11.0);
+
+window.__timelines["s6"] = tl;
+})();
+</script>
+</template>

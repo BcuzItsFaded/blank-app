@@ -1,0 +1,128 @@
+[
+  {
+    "text": "The",
+    "start": 0.04,
+    "end": 0.23,
+    "id": "w0"
+  },
+  {
+    "text": "new",
+    "start": 0.23,
+    "end": 0.46,
+    "id": "w1"
+  },
+  {
+    "text": "Clay",
+    "start": 0.46,
+    "end": 0.77,
+    "id": "w2"
+  },
+  {
+    "text": "Face",
+    "start": 0.77,
+    "end": 1.07,
+    "id": "w3"
+  },
+  {
+    "text": "movie",
+    "start": 1.08,
+    "end": 1.47,
+    "id": "w4"
+  },
+  {
+    "text": "ends",
+    "start": 1.47,
+    "end": 1.78,
+    "id": "w5"
+  },
+  {
+    "text": "with",
+    "start": 1.78,
+    "end": 2.09,
+    "id": "w6"
+  },
+  {
+    "text": "a",
+    "start": 2.09,
+    "end": 2.16,
+    "id": "w7"
+  },
+  {
+    "text": "kiss.",
+    "start": 2.16,
+    "end": 2.76,
+    "id": "w8"
+  },
+  {
+    "text": "The",
+    "start": 2.8,
+    "end": 3.03,
+    "id": "w9"
+  },
+  {
+    "text": "catch,",
+    "start": 3.09,
+    "end": 3.76,
+    "id": "w10"
+  },
+  {
+    "text": "the",
+    "start": 3.76,
+    "end": 3.94,
+    "id": "w11"
+  },
+  {
+    "text": "woman",
+    "start": 3.94,
+    "end": 4.24,
+    "id": "w12"
+  },
+  {
+    "text": "he's",
+    "start": 4.24,
+    "end": 4.48,
+    "id": "w13"
+  },
+  {
+    "text": "kissing",
+    "start": 4.48,
+    "end": 4.85,
+    "id": "w14"
+  },
+  {
+    "text": "is",
+    "start": 4.92,
+    "end": 5.05,
+    "id": "w15"
+  },
+  {
+    "text": "made",
+    "start": 5.05,
+    "end": 5.08,
+    "id": "w16"
+  },
+  {
+    "text": "of",
+    "start": 5.08,
+    "end": 5.55,
+    "id": "w17"
+  },
+  {
+    "text": "his",
+    "start": 5.55,
+    "end": 5.72,
+    "id": "w18"
+  },
+  {
+    "text": "own",
+    "start": 5.72,
+    "end": 5.9,
+    "id": "w19"
+  },
+  {
+    "text": "clay.",
+    "start": 6.03,
+    "end": 6.52,
+    "id": "w20"
+  }
+]

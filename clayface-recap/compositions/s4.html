@@ -1,0 +1,287 @@
+<template>
+<style>
+#root { position:absolute; inset:0; overflow:hidden; font-family: Montserrat, sans-serif; }
+.bg { position:absolute; inset:0; background: radial-gradient(ellipse 120% 70% at 50% 28%, #ffffff 0%, #f1f5f8 55%, #e4ebf1 100%); }
+.floor { position:absolute; left:0; }
+.floor line { stroke:#d4dce4; stroke-width:2; }
+.stage { position:absolute; inset:0; }
+.fig { position:absolute; transform-origin: 50% 97%; }
+.fig[data-glow] svg { filter: drop-shadow(0 0 14px rgba(255,140,90,.45)); }
+.panel { position:absolute; border-radius:30px; border:3px solid rgba(25,195,240,.85);
+  background: linear-gradient(160deg, rgba(225,248,255,.78) 0%, rgba(170,228,255,.38) 60%, rgba(140,210,255,.30) 100%);
+  box-shadow: 0 0 46px rgba(25,180,255,.35), inset 0 0 34px rgba(255,255,255,.8); overflow:hidden; }
+.panel::after { content:""; position:absolute; left:-20%; top:-30%; width:60%; height:160%; transform: rotate(18deg);
+  background: linear-gradient(90deg, rgba(255,255,255,0), rgba(255,255,255,.45), rgba(255,255,255,0)); pointer-events:none; }
+.abs { position:absolute; }
+.dark { position:absolute; inset:0; background:#0d1117; opacity:0; border-radius:27px; }
+.icon { position:absolute; }
+</style>
+<div id="root" data-composition-id="s4" data-width="1080" data-height="1920" data-start="0" data-duration="8.5">
+
+<div id="s4-bg" class="bg"></div>
+<svg id="s4-floor" class="floor" viewBox="0 0 1080 900" width="1080" height="900" style="top:1040px">
+  <line x1="-960" y1="900" x2="320" y2="0" /><line x1="-810" y1="900" x2="342" y2="0" /><line x1="-660" y1="900" x2="364" y2="0" /><line x1="-510" y1="900" x2="386" y2="0" /><line x1="-360" y1="900" x2="408" y2="0" /><line x1="-210" y1="900" x2="430" y2="0" /><line x1="-60" y1="900" x2="452" y2="0" /><line x1="90" y1="900" x2="474" y2="0" /><line x1="240" y1="900" x2="496" y2="0" /><line x1="390" y1="900" x2="518" y2="0" /><line x1="540" y1="900" x2="540" y2="0" /><line x1="690" y1="900" x2="562" y2="0" /><line x1="840" y1="900" x2="584" y2="0" /><line x1="990" y1="900" x2="606" y2="0" /><line x1="1140" y1="900" x2="628" y2="0" /><line x1="1290" y1="900" x2="650" y2="0" /><line x1="1440" y1="900" x2="672" y2="0" /><line x1="1590" y1="900" x2="694" y2="0" /><line x1="1740" y1="900" x2="716" y2="0" /><line x1="1890" y1="900" x2="738" y2="0" /><line x1="2040" y1="900" x2="760" y2="0" /><line x1="0" y1="17.2" x2="1080" y2="17.2" /><line x1="0" y1="60.0" x2="1080" y2="60.0" /><line x1="0" y1="124.6" x2="1080" y2="124.6" /><line x1="0" y1="209.1" x2="1080" y2="209.1" /><line x1="0" y1="312.4" x2="1080" y2="312.4" /><line x1="0" y1="433.8" x2="1080" y2="433.8" /><line x1="0" y1="572.5" x2="1080" y2="572.5" /><line x1="0" y1="728.1" x2="1080" y2="728.1" /><line x1="0" y1="900.0" x2="1080" y2="900.0" />
+</svg>
+<div id="s4-stage" class="stage">
+  <div id="s4-p0" class="panel " style="left:330px;top:830px;width:380px;height:250px" data-layout-allow-overflow>
+     <div id="s4-f0" class="fig" style="left:-10px;top:-234px;width:320px;height:480px;--s:0.5" data-rig="fig" data-glow="1">
+  <svg viewBox="-160 -310 320 480" width="320" height="480" overflow="visible"><g id="s4-f0-body" transform="translate(0 0)">
+    <g id="s4-f0-legL" transform="rotate(0 -15 0)"><line x1="-16" y1="0" x2="-16" y2="80" class="s4-f0-limb" style="stroke:#C46A45" stroke-linecap="round" stroke-width="26"/><g id="s4-f0-shinL" transform="rotate(0 -15 80)"><line x1="-16" y1="80" x2="-18" y2="152" class="s4-f0-limb" style="stroke:#C46A45" stroke-linecap="round" stroke-width="24"/></g></g>
+    <g id="s4-f0-legR" transform="rotate(0 15 0)"><line x1="16" y1="0" x2="16" y2="80" class="s4-f0-limb" style="stroke:#C46A45" stroke-linecap="round" stroke-width="26"/><g id="s4-f0-shinR" transform="rotate(0 15 80)"><line x1="16" y1="80" x2="18" y2="152" class="s4-f0-limb" style="stroke:#C46A45" stroke-linecap="round" stroke-width="24"/></g></g>
+    <g id="s4-f0-armL" transform="rotate(0 -38 -138)"><line x1="-40" y1="-140" x2="-44" y2="-82" class="s4-f0-limb" style="stroke:#C46A45" stroke-linecap="round" stroke-width="22"/><g id="s4-f0-foreL" transform="rotate(0 -40 -82)"><line x1="-44" y1="-82" x2="-46" y2="-24" class="s4-f0-limb" style="stroke:#C46A45" stroke-linecap="round" stroke-width="20"/></g></g>
+    <g id="s4-f0-armR" transform="rotate(0 38 -138)"><line x1="40" y1="-140" x2="44" y2="-82" class="s4-f0-limb" style="stroke:#C46A45" stroke-linecap="round" stroke-width="22"/><g id="s4-f0-foreR" transform="rotate(0 40 -82)"><line x1="44" y1="-82" x2="46" y2="-24" class="s4-f0-limb" style="stroke:#C46A45" stroke-linecap="round" stroke-width="20"/></g></g>
+    <path d="M-36,-152 Q0,-168 36,-152 L30,-4 Q0,8 -30,-4 Z" class="s4-f0-fill" style="fill:#C46A45;stroke:#8E4428" stroke-width="4" stroke-linejoin="round"/>
+    
+    <rect x="-12" y="-178" width="24" height="30" rx="8" class="s4-f0-fill" style="fill:#C46A45"/>
+    <g id="s4-f0-head" transform="rotate(0 0 -170)">
+      <ellipse cx="0" cy="-212" rx="38" ry="46" class="s4-f0-fill" style="fill:#C46A45;stroke:#8E4428" stroke-width="4" stroke-linejoin="round"/>
+      
+    </g>
+    
+  </g></svg></div>
+     <div id="s4-v0" class="fig" style="left:120px;top:-234px;width:320px;height:480px;--s:0.5" data-rig="fig">
+  <svg viewBox="-160 -310 320 480" width="320" height="480" overflow="visible"><g id="s4-v0-body" transform="translate(0 0)">
+    <g id="s4-v0-legL" transform="rotate(0 -15 0)"><line x1="-16" y1="0" x2="-16" y2="80" class="s4-v0-limb" style="stroke:#8A94A3" stroke-linecap="round" stroke-width="26"/><g id="s4-v0-shinL" transform="rotate(0 -15 80)"><line x1="-16" y1="80" x2="-18" y2="152" class="s4-v0-limb" style="stroke:#8A94A3" stroke-linecap="round" stroke-width="24"/></g></g>
+    <g id="s4-v0-legR" transform="rotate(0 15 0)"><line x1="16" y1="0" x2="16" y2="80" class="s4-v0-limb" style="stroke:#8A94A3" stroke-linecap="round" stroke-width="26"/><g id="s4-v0-shinR" transform="rotate(0 15 80)"><line x1="16" y1="80" x2="18" y2="152" class="s4-v0-limb" style="stroke:#8A94A3" stroke-linecap="round" stroke-width="24"/></g></g>
+    <g id="s4-v0-armL" transform="rotate(0 -38 -138)"><line x1="-40" y1="-140" x2="-44" y2="-82" class="s4-v0-limb" style="stroke:#8A94A3" stroke-linecap="round" stroke-width="22"/><g id="s4-v0-foreL" transform="rotate(0 -40 -82)"><line x1="-44" y1="-82" x2="-46" y2="-24" class="s4-v0-limb" style="stroke:#8A94A3" stroke-linecap="round" stroke-width="20"/></g></g>
+    <g id="s4-v0-armR" transform="rotate(0 38 -138)"><line x1="40" y1="-140" x2="44" y2="-82" class="s4-v0-limb" style="stroke:#8A94A3" stroke-linecap="round" stroke-width="22"/><g id="s4-v0-foreR" transform="rotate(0 40 -82)"><line x1="44" y1="-82" x2="46" y2="-24" class="s4-v0-limb" style="stroke:#8A94A3" stroke-linecap="round" stroke-width="20"/></g></g>
+    <path d="M-36,-152 Q0,-168 36,-152 L30,-4 Q0,8 -30,-4 Z" class="s4-v0-fill" style="fill:#8A94A3;stroke:#5D6672" stroke-width="4" stroke-linejoin="round"/>
+    
+    <rect x="-12" y="-178" width="24" height="30" rx="8" class="s4-v0-fill" style="fill:#8A94A3"/>
+    <g id="s4-v0-head" transform="rotate(0 0 -170)">
+      <ellipse cx="0" cy="-212" rx="38" ry="46" class="s4-v0-fill" style="fill:#8A94A3;stroke:#5D6672" stroke-width="4" stroke-linejoin="round"/>
+      
+    </g>
+    
+  </g></svg></div>
+     <div class="dark" id="s4-d0"></div></div>
+  <div id="s4-p1" class="panel " style="left:330px;top:565px;width:380px;height:250px" data-layout-allow-overflow>
+     <div id="s4-f1" class="fig" style="left:-10px;top:-234px;width:320px;height:480px;--s:0.56" data-rig="fig" data-glow="1">
+  <svg viewBox="-160 -310 320 480" width="320" height="480" overflow="visible"><g id="s4-f1-body" transform="translate(0 0)">
+    <g id="s4-f1-legL" transform="rotate(0 -15 0)"><line x1="-16" y1="0" x2="-16" y2="80" class="s4-f1-limb" style="stroke:#C46A45" stroke-linecap="round" stroke-width="26"/><g id="s4-f1-shinL" transform="rotate(0 -15 80)"><line x1="-16" y1="80" x2="-18" y2="152" class="s4-f1-limb" style="stroke:#C46A45" stroke-linecap="round" stroke-width="24"/></g></g>
+    <g id="s4-f1-legR" transform="rotate(0 15 0)"><line x1="16" y1="0" x2="16" y2="80" class="s4-f1-limb" style="stroke:#C46A45" stroke-linecap="round" stroke-width="26"/><g id="s4-f1-shinR" transform="rotate(0 15 80)"><line x1="16" y1="80" x2="18" y2="152" class="s4-f1-limb" style="stroke:#C46A45" stroke-linecap="round" stroke-width="24"/></g></g>
+    <g id="s4-f1-armL" transform="rotate(0 -38 -138)"><line x1="-40" y1="-140" x2="-44" y2="-82" class="s4-f1-limb" style="stroke:#C46A45" stroke-linecap="round" stroke-width="22"/><g id="s4-f1-foreL" transform="rotate(0 -40 -82)"><line x1="-44" y1="-82" x2="-46" y2="-24" class="s4-f1-limb" style="stroke:#C46A45" stroke-linecap="round" stroke-width="20"/></g></g>
+    <g id="s4-f1-armR" transform="rotate(0 38 -138)"><line x1="40" y1="-140" x2="44" y2="-82" class="s4-f1-limb" style="stroke:#C46A45" stroke-linecap="round" stroke-width="22"/><g id="s4-f1-foreR" transform="rotate(0 40 -82)"><line x1="44" y1="-82" x2="46" y2="-24" class="s4-f1-limb" style="stroke:#C46A45" stroke-linecap="round" stroke-width="20"/></g></g>
+    <path d="M-30,-152 Q0,-166 30,-152 L26,-46 L52,44 Q0,56 -52,44 L-26,-46 Z" class="s4-f1-fill" style="fill:#C46A45;stroke:#8E4428" stroke-width="4" stroke-linejoin="round"/>
+    
+    <rect x="-12" y="-178" width="24" height="30" rx="8" class="s4-f1-fill" style="fill:#C46A45"/>
+    <g id="s4-f1-head" transform="rotate(0 0 -170)">
+      <ellipse cx="0" cy="-212" rx="38" ry="46" class="s4-f1-fill" style="fill:#C46A45;stroke:#8E4428" stroke-width="4" stroke-linejoin="round"/>
+      <path d="M-46,-196 C-54,-276 54,-276 46,-196 L46,-170 L30,-170 L32,-214 C30,-246 -30,-246 -32,-214 L-30,-170 L-46,-170 Z" class="s4-f1-hair" style="fill:#8E4428"/>
+    </g>
+    
+  </g></svg></div>
+     <div id="s4-v1" class="fig" style="left:120px;top:-234px;width:320px;height:480px;--s:0.5" data-rig="fig">
+  <svg viewBox="-160 -310 320 480" width="320" height="480" overflow="visible"><g id="s4-v1-body" transform="translate(0 0)">
+    <g id="s4-v1-legL" transform="rotate(0 -15 0)"><line x1="-16" y1="0" x2="-16" y2="80" class="s4-v1-limb" style="stroke:#8A94A3" stroke-linecap="round" stroke-width="26"/><g id="s4-v1-shinL" transform="rotate(0 -15 80)"><line x1="-16" y1="80" x2="-18" y2="152" class="s4-v1-limb" style="stroke:#8A94A3" stroke-linecap="round" stroke-width="24"/></g></g>
+    <g id="s4-v1-legR" transform="rotate(0 15 0)"><line x1="16" y1="0" x2="16" y2="80" class="s4-v1-limb" style="stroke:#8A94A3" stroke-linecap="round" stroke-width="26"/><g id="s4-v1-shinR" transform="rotate(0 15 80)"><line x1="16" y1="80" x2="18" y2="152" class="s4-v1-limb" style="stroke:#8A94A3" stroke-linecap="round" stroke-width="24"/></g></g>
+    <g id="s4-v1-armL" transform="rotate(0 -38 -138)"><line x1="-40" y1="-140" x2="-44" y2="-82" class="s4-v1-limb" style="stroke:#8A94A3" stroke-linecap="round" stroke-width="22"/><g id="s4-v1-foreL" transform="rotate(0 -40 -82)"><line x1="-44" y1="-82" x2="-46" y2="-24" class="s4-v1-limb" style="stroke:#8A94A3" stroke-linecap="round" stroke-width="20"/></g></g>
+    <g id="s4-v1-armR" transform="rotate(0 38 -138)"><line x1="40" y1="-140" x2="44" y2="-82" class="s4-v1-limb" style="stroke:#8A94A3" stroke-linecap="round" stroke-width="22"/><g id="s4-v1-foreR" transform="rotate(0 40 -82)"><line x1="44" y1="-82" x2="46" y2="-24" class="s4-v1-limb" style="stroke:#8A94A3" stroke-linecap="round" stroke-width="20"/></g></g>
+    <path d="M-36,-152 Q0,-168 36,-152 L30,-4 Q0,8 -30,-4 Z" class="s4-v1-fill" style="fill:#8A94A3;stroke:#5D6672" stroke-width="4" stroke-linejoin="round"/>
+    
+    <rect x="-12" y="-178" width="24" height="30" rx="8" class="s4-v1-fill" style="fill:#8A94A3"/>
+    <g id="s4-v1-head" transform="rotate(0 0 -170)">
+      <ellipse cx="0" cy="-212" rx="38" ry="46" class="s4-v1-fill" style="fill:#8A94A3;stroke:#5D6672" stroke-width="4" stroke-linejoin="round"/>
+      
+    </g>
+    
+  </g></svg></div>
+     <div class="dark" id="s4-d1"></div></div>
+  <div id="s4-p2" class="panel " style="left:330px;top:300px;width:380px;height:250px" data-layout-allow-overflow>
+     <div id="s4-f2" class="fig" style="left:-10px;top:-234px;width:320px;height:480px;--s:0.5" data-rig="fig" data-glow="1">
+  <svg viewBox="-160 -310 320 480" width="320" height="480" overflow="visible"><g id="s4-f2-body" transform="translate(0 0)">
+    <g id="s4-f2-legL" transform="rotate(0 -15 0)"><line x1="-16" y1="0" x2="-16" y2="80" class="s4-f2-limb" style="stroke:#C46A45" stroke-linecap="round" stroke-width="26"/><g id="s4-f2-shinL" transform="rotate(0 -15 80)"><line x1="-16" y1="80" x2="-18" y2="152" class="s4-f2-limb" style="stroke:#C46A45" stroke-linecap="round" stroke-width="24"/></g></g>
+    <g id="s4-f2-legR" transform="rotate(0 15 0)"><line x1="16" y1="0" x2="16" y2="80" class="s4-f2-limb" style="stroke:#C46A45" stroke-linecap="round" stroke-width="26"/><g id="s4-f2-shinR" transform="rotate(0 15 80)"><line x1="16" y1="80" x2="18" y2="152" class="s4-f2-limb" style="stroke:#C46A45" stroke-linecap="round" stroke-width="24"/></g></g>
+    <g id="s4-f2-armL" transform="rotate(0 -38 -138)"><line x1="-40" y1="-140" x2="-44" y2="-82" class="s4-f2-limb" style="stroke:#C46A45" stroke-linecap="round" stroke-width="22"/><g id="s4-f2-foreL" transform="rotate(0 -40 -82)"><line x1="-44" y1="-82" x2="-46" y2="-24" class="s4-f2-limb" style="stroke:#C46A45" stroke-linecap="round" stroke-width="20"/></g></g>
+    <g id="s4-f2-armR" transform="rotate(0 38 -138)"><line x1="40" y1="-140" x2="44" y2="-82" class="s4-f2-limb" style="stroke:#C46A45" stroke-linecap="round" stroke-width="22"/><g id="s4-f2-foreR" transform="rotate(0 40 -82)"><line x1="44" y1="-82" x2="46" y2="-24" class="s4-f2-limb" style="stroke:#C46A45" stroke-linecap="round" stroke-width="20"/></g></g>
+    <path d="M-40,-152 Q0,-168 40,-152 L50,74 Q0,84 -50,74 Z" class="s4-f2-fill" style="fill:#C46A45;stroke:#8E4428" stroke-width="4" stroke-linejoin="round"/>
+    
+    <rect x="-12" y="-178" width="24" height="30" rx="8" class="s4-f2-fill" style="fill:#C46A45"/>
+    <g id="s4-f2-head" transform="rotate(0 0 -170)">
+      <ellipse cx="0" cy="-212" rx="38" ry="46" class="s4-f2-fill" style="fill:#C46A45;stroke:#8E4428" stroke-width="4" stroke-linejoin="round"/>
+      <g id="s4-f2-hat"><ellipse cx="0" cy="-248" rx="64" ry="11" style="fill:#8E4428"/><path d="M-36,-250 L-32,-292 Q0,-300 32,-292 L36,-250 Z" style="fill:#8E4428"/><rect x="-35" y="-262" width="70" height="9" style="fill:#14161b"/></g>
+    </g>
+    
+  </g></svg></div>
+     <div id="s4-v2" class="fig" style="left:120px;top:-234px;width:320px;height:480px;--s:0.5" data-rig="fig">
+  <svg viewBox="-160 -310 320 480" width="320" height="480" overflow="visible"><g id="s4-v2-body" transform="translate(0 0)">
+    <g id="s4-v2-legL" transform="rotate(0 -15 0)"><line x1="-16" y1="0" x2="-16" y2="80" class="s4-v2-limb" style="stroke:#8A94A3" stroke-linecap="round" stroke-width="26"/><g id="s4-v2-shinL" transform="rotate(0 -15 80)"><line x1="-16" y1="80" x2="-18" y2="152" class="s4-v2-limb" style="stroke:#8A94A3" stroke-linecap="round" stroke-width="24"/></g></g>
+    <g id="s4-v2-legR" transform="rotate(0 15 0)"><line x1="16" y1="0" x2="16" y2="80" class="s4-v2-limb" style="stroke:#8A94A3" stroke-linecap="round" stroke-width="26"/><g id="s4-v2-shinR" transform="rotate(0 15 80)"><line x1="16" y1="80" x2="18" y2="152" class="s4-v2-limb" style="stroke:#8A94A3" stroke-linecap="round" stroke-width="24"/></g></g>
+    <g id="s4-v2-armL" transform="rotate(0 -38 -138)"><line x1="-40" y1="-140" x2="-44" y2="-82" class="s4-v2-limb" style="stroke:#8A94A3" stroke-linecap="round" stroke-width="22"/><g id="s4-v2-foreL" transform="rotate(0 -40 -82)"><line x1="-44" y1="-82" x2="-46" y2="-24" class="s4-v2-limb" style="stroke:#8A94A3" stroke-linecap="round" stroke-width="20"/></g></g>
+    <g id="s4-v2-armR" transform="rotate(0 38 -138)"><line x1="40" y1="-140" x2="44" y2="-82" class="s4-v2-limb" style="stroke:#8A94A3" stroke-linecap="round" stroke-width="22"/><g id="s4-v2-foreR" transform="rotate(0 40 -82)"><line x1="44" y1="-82" x2="46" y2="-24" class="s4-v2-limb" style="stroke:#8A94A3" stroke-linecap="round" stroke-width="20"/></g></g>
+    <path d="M-36,-152 Q0,-168 36,-152 L30,-4 Q0,8 -30,-4 Z" class="s4-v2-fill" style="fill:#8A94A3;stroke:#5D6672" stroke-width="4" stroke-linejoin="round"/>
+    
+    <rect x="-12" y="-178" width="24" height="30" rx="8" class="s4-v2-fill" style="fill:#8A94A3"/>
+    <g id="s4-v2-head" transform="rotate(0 0 -170)">
+      <ellipse cx="0" cy="-212" rx="38" ry="46" class="s4-v2-fill" style="fill:#8A94A3;stroke:#5D6672" stroke-width="4" stroke-linejoin="round"/>
+      
+    </g>
+    
+  </g></svg></div>
+     <div class="dark" id="s4-d2"></div></div>
+  <svg class="abs" style="left:0;top:0" width="1080" height="1920" viewBox="0 0 1080 1920" overflow="visible">
+    <g transform="translate(520 228)"><g id="s4-rays" style="opacity:0">
+      <path d="M0,0 L520,0 L516,62 Z" fill="#E8322B" opacity=".35"/><path d="M0,0 L450,260 L416,312 Z" fill="#E8322B" opacity=".35"/><path d="M0,0 L260,450 L204,478 Z" fill="#E8322B" opacity=".35"/><path d="M0,0 L0,520 L-62,516 Z" fill="#E8322B" opacity=".35"/><path d="M0,0 L-260,450 L-312,416 Z" fill="#E8322B" opacity=".35"/><path d="M0,0 L-450,260 L-478,204 Z" fill="#E8322B" opacity=".35"/><path d="M0,0 L-520,0 L-516,-62 Z" fill="#E8322B" opacity=".35"/><path d="M0,0 L-450,-260 L-416,-312 Z" fill="#E8322B" opacity=".35"/><path d="M0,0 L-260,-450 L-204,-478 Z" fill="#E8322B" opacity=".35"/><path d="M0,0 L-0,-520 L62,-516 Z" fill="#E8322B" opacity=".35"/><path d="M0,0 L260,-450 L312,-416 Z" fill="#E8322B" opacity=".35"/><path d="M0,0 L450,-260 L478,-204 Z" fill="#E8322B" opacity=".35"/>
+    </g></g>
+    <g transform="translate(520 228)"><g id="s4-disco" style="opacity:0">
+      <line x1="0" y1="-60" x2="0" y2="-46" stroke="#14161b" stroke-width="5"/>
+      <circle r="46" fill="#dfe6ee" stroke="#14161b" stroke-width="5"/>
+      <line x1="-44" y1="-30" x2="44" y2="-30" stroke="#9aa6b3" stroke-width="3"/><line x1="-44" y1="-10" x2="44" y2="-10" stroke="#9aa6b3" stroke-width="3"/><line x1="-44" y1="10" x2="44" y2="10" stroke="#9aa6b3" stroke-width="3"/><line x1="-44" y1="30" x2="44" y2="30" stroke="#9aa6b3" stroke-width="3"/>
+      <line x1="-30" y1="-44" x2="-30" y2="44" stroke="#9aa6b3" stroke-width="3"/><line x1="-10" y1="-44" x2="-10" y2="44" stroke="#9aa6b3" stroke-width="3"/><line x1="10" y1="-44" x2="10" y2="44" stroke="#9aa6b3" stroke-width="3"/><line x1="30" y1="-44" x2="30" y2="44" stroke="#9aa6b3" stroke-width="3"/>
+      <circle id="s4-discoglow" r="46" fill="#E8322B" style="opacity:0"/>
+    </g></g>
+    <ellipse id="s4-blob" cx="480" cy="1030" rx="46" ry="40" fill="#C46A45" stroke="#8E4428" stroke-width="4"/>
+    <rect id="s4-ledge0" x="760" y="818" width="170" height="22" rx="11" fill="rgba(170,228,255,.85)" stroke="#19C3F0" stroke-width="3"/><rect id="s4-ledge1" x="760" y="553" width="170" height="22" rx="11" fill="rgba(170,228,255,.85)" stroke="#19C3F0" stroke-width="3"/>
+  </svg>
+  <div id="s4-z" class="fig" style="left:685px;top:644px;width:320px;height:480px;--s:0.7" data-rig="zeke">
+  <svg viewBox="-160 -310 320 480" width="320" height="480" overflow="visible"><g id="s4-z-body" transform="translate(0 0)">
+    <g id="s4-z-legL" transform="rotate(0 -15 0)"><line x1="-15" y1="0" x2="-15" y2="80" stroke="#14161b" stroke-linecap="round" stroke-linejoin="round" stroke-width="10"/><g id="s4-z-shinL" transform="rotate(0 -15 80)"><line x1="-15" y1="80" x2="-17" y2="156" stroke="#14161b" stroke-linecap="round" stroke-linejoin="round" stroke-width="10"/><line x1="-17" y1="156" x2="-34" y2="158" stroke="#14161b" stroke-linecap="round" stroke-linejoin="round" stroke-width="10"/></g></g>
+    <g id="s4-z-legR" transform="rotate(0 15 0)"><line x1="15" y1="0" x2="15" y2="80" stroke="#14161b" stroke-linecap="round" stroke-linejoin="round" stroke-width="10"/><g id="s4-z-shinR" transform="rotate(0 15 80)"><line x1="15" y1="80" x2="17" y2="156" stroke="#14161b" stroke-linecap="round" stroke-linejoin="round" stroke-width="10"/><line x1="17" y1="156" x2="34" y2="158" stroke="#14161b" stroke-linecap="round" stroke-linejoin="round" stroke-width="10"/></g></g>
+    <path d="M-32,-16 L32,-16 L36,32 L5,32 L0,12 L-5,32 L-36,32 Z" fill="#23252b" stroke="#14161b" stroke-linecap="round" stroke-linejoin="round" stroke-width="5"/>
+    <g id="s4-z-armL" transform="rotate(0 -38 -138)"><line x1="-38" y1="-138" x2="-40" y2="-82" stroke="#14161b" stroke-linecap="round" stroke-linejoin="round" stroke-width="10"/><g id="s4-z-foreL" transform="rotate(0 -40 -82)"><line x1="-40" y1="-82" x2="-42" y2="-28" stroke="#14161b" stroke-linecap="round" stroke-linejoin="round" stroke-width="10"/></g></g>
+    <g id="s4-z-armR" transform="rotate(0 38 -138)"><line x1="38" y1="-138" x2="40" y2="-82" stroke="#14161b" stroke-linecap="round" stroke-linejoin="round" stroke-width="10"/><g id="s4-z-foreR" transform="rotate(0 40 -82)"><line x1="40" y1="-82" x2="42" y2="-28" stroke="#14161b" stroke-linecap="round" stroke-linejoin="round" stroke-width="10"/></g></g>
+    <path d="M-34,-150 Q0,-160 34,-150 L58,-120 L42,-104 L33,-116 L32,-12 L-32,-12 L-33,-116 L-42,-104 L-58,-120 Z" fill="#FFD21F" stroke="#14161b" stroke-linecap="round" stroke-linejoin="round" stroke-width="5"/>
+    <line x1="0" y1="-158" x2="0" y2="-172" stroke="#14161b" stroke-linecap="round" stroke-linejoin="round" stroke-width="10"/>
+    <g id="s4-z-head" transform="rotate(0 0 -170)">
+      <circle cx="0" cy="-214" r="46" fill="#fff" stroke="#14161b" stroke-linecap="round" stroke-linejoin="round" stroke-width="6"/>
+      <g id="s4-z-eyes" transform="translate(0 -210) scale(1 1) translate(0 210)">
+        <ellipse cx="-15" cy="-210" rx="5.5" ry="6.5" fill="#14161b"/><ellipse cx="15" cy="-210" rx="5.5" ry="6.5" fill="#14161b"/>
+      </g>
+      <path id="s4-z-m-smile" d="M-13,-192 Q0,-181 13,-192" fill="none" stroke="#14161b" stroke-linecap="round" stroke-linejoin="round" stroke-width="5"/>
+      <ellipse id="s4-z-m-o" cx="0" cy="-189" rx="7" ry="9" fill="#14161b" style="opacity:0"/>
+      <line id="s4-z-m-flat" x1="-11" y1="-189" x2="11" y2="-189" stroke="#14161b" stroke-linecap="round" stroke-linejoin="round" stroke-width="5" style="opacity:0"/>
+      <path id="s4-z-m-worry" d="M-13,-185 Q0,-195 13,-185" fill="none" stroke="#14161b" stroke-linecap="round" stroke-linejoin="round" stroke-width="5" style="opacity:0"/>
+      <path d="M-50,-226 C-52,-284 52,-284 50,-226 Z" fill="#E8322B" stroke="#14161b" stroke-linecap="round" stroke-linejoin="round" stroke-width="5"/>
+      <rect x="-54" y="-238" width="108" height="20" rx="9" fill="#B81F19" stroke="#14161b" stroke-linecap="round" stroke-linejoin="round" stroke-width="4"/>
+    </g>
+  </g></svg></div>
+</div>
+
+</div>
+<script>
+(function(){
+
+const RIG = {"armL":[-38,-138],"foreL":[-40,-82],"armR":[38,-138],"foreR":[40,-82],"legL":[-15,0],"shinL":[-15,80],"legR":[15,0],"shinR":[15,80],"head":[0,-170]};
+const tl = gsap.timeline({ paused: true });
+function rot(sel, k, a, d, t, ease) {
+  tl.to(sel, { attr: { transform: "rotate(" + a + " " + RIG[k][0] + " " + RIG[k][1] + ")" }, duration: d, ease: ease || "power2.inOut" }, t);
+}
+function pose(id, t, p, d, ease) {
+  d = d == null ? 0.3 : d;
+  for (const k in p) rot("#" + id + "-" + k, k, p[k], d, t, ease);
+}
+const REST = { armL: 8, foreL: -6, armR: -8, foreR: 6, legL: 0, shinL: 0, legR: 0, shinR: 0, head: 0 };
+function rest(id, t, d) { pose(id, t, REST, d == null ? 0.35 : d); }
+function mouth(id, t, name) {
+  for (const n of ["smile", "o", "flat", "worry"]) tl.to("#" + id + "-m-" + n, { opacity: n === name ? 1 : 0, duration: 0.1 }, t);
+}
+function blink(id, t) {
+  const el = "#" + id + "-eyes";
+  tl.to(el, { attr: { transform: "translate(0 -210) scale(1 0.12) translate(0 210)" }, duration: 0.07, ease: "power1.in" }, t)
+    .to(el, { attr: { transform: "translate(0 -210) scale(1 1) translate(0 210)" }, duration: 0.09, ease: "power1.out" }, t + 0.07);
+}
+function walk(id, t0, dur, x0, x1, y) {
+  const v = { x: x1, duration: dur, ease: "power1.inOut" };
+  if (y != null) v.y = y;
+  tl.fromTo("#" + id, { x: x0 }, v, t0);
+  const steps = Math.max(2, Math.round(dur / 0.26));
+  const sd = dur / steps;
+  for (let i = 0; i < steps; i++) {
+    const s = i % 2 ? 1 : -1, t = t0 + i * sd;
+    pose(id, t, { legL: 24 * s, shinL: s > 0 ? 0 : 18, legR: -24 * s, shinR: s > 0 ? 18 : 0, armL: -16 * s + 8, armR: -16 * s - 8 }, sd, "sine.inOut");
+    tl.to("#" + id + "-body", { attr: { transform: "translate(0 -6)" }, duration: sd / 2, ease: "sine.out" }, t)
+      .to("#" + id + "-body", { attr: { transform: "translate(0 0)" }, duration: sd / 2, ease: "sine.in" }, t + sd / 2);
+  }
+  pose(id, t0 + dur, { legL: 0, shinL: 0, legR: 0, shinR: 0 }, 0.18);
+}
+function hop(id, t, dx, dy, d, peak) {
+  peak = peak || 90;
+  const el = "#" + id;
+  tl.to(el, { scaleY: 0.86 * S(id), scaleX: 1.08 * S(id), duration: 0.1, ease: "power2.out" }, t);
+  tl.to(el, { x: "+=" + dx, duration: d, ease: "none" }, t + 0.1);
+  tl.to(el, { y: "+=" + (dy - peak), duration: d * 0.5, ease: "power2.out" }, t + 0.1)
+    .to(el, { y: "+=" + peak, duration: d * 0.5, ease: "power2.in" }, t + 0.1 + d * 0.5);
+  tl.to(el, { scaleY: 1.06 * S(id), scaleX: 0.96 * S(id), duration: 0.12 }, t + 0.1)
+    .to(el, { scaleY: 0.9 * S(id), scaleX: 1.06 * S(id), duration: 0.08 }, t + 0.1 + d)
+    .to(el, { scaleY: S(id), scaleX: S(id), duration: 0.16, ease: "back.out(2)" }, t + 0.18 + d);
+  pose(id, t + 0.1, { legL: 18, shinL: 30, legR: -14, shinR: 26, armL: 50, armR: -50 }, d * 0.5);
+  pose(id, t + 0.1 + d * 0.5, { legL: 0, shinL: 0, legR: 0, shinR: 0, armL: 8, armR: -8 }, d * 0.5);
+}
+function breathe(id, t, d) {
+  const n = Math.max(1, Math.floor(d / 1.6));
+  tl.to("#" + id + "-body", { attr: { transform: "translate(0 -3)" }, duration: 0.8, ease: "sine.inOut", repeat: n * 2 - 1, yoyo: true }, t);
+}
+function S(id) { const e = document.getElementById(id); return parseFloat(getComputedStyle(e).getPropertyValue("--s")) || 1; }
+function initFigs() {
+  document.querySelectorAll("#root .fig").forEach((e) => {
+    const s = parseFloat(getComputedStyle(e).getPropertyValue("--s")) || 1;
+    gsap.set(e, { scale: s });
+  });
+  document.querySelectorAll("#root [data-rig='zeke']").forEach((e) => {
+    for (const k in REST) gsap.set("#" + e.id + "-" + k, { attr: { transform: "rotate(" + REST[k] + " " + RIG[k][0] + " " + RIG[k][1] + ")" } });
+  });
+}
+function pop(sel, t, s) {
+  tl.fromTo(sel, { scale: 0, opacity: 0 }, { scale: s || 1, opacity: 1, duration: 0.42, ease: "back.out(2.2)" }, t);
+}
+function out(sel, t, d) { tl.to(sel, { opacity: 0, duration: d || 0.3, ease: "power2.in" }, t); }
+
+initFigs();
+
+gsap.set(["#s4-p1", "#s4-p2", "#s4-ledge0", "#s4-ledge1"], { opacity: 0 });
+gsap.set(["#s4-f0", "#s4-v0", "#s4-v1", "#s4-v2"], { opacity: 0 });
+tl.fromTo("#s4-blob", { y: -1200 }, { y: 0, duration: 0.38, ease: "power3.in" }, 0);
+tl.fromTo("#s4-blob", { scaleY: 1, scaleX: 1, transformOrigin: "50% 100%" }, { scaleY: 0.55, scaleX: 1.4, duration: 0.1, yoyo: true, repeat: 1 }, 0.38);
+tl.to("#s4-blob", { opacity: 0, duration: 0.15 }, 0.75);
+tl.fromTo("#s4-f0", { opacity: 1, scaleY: 0.12, scaleX: 0.9 }, { opacity: 1, scaleY: 0.5, scaleX: 0.5, duration: 0.7, ease: "back.out(1.8)", immediateRender: false }, 0.7);
+mouth("s4-z", 0, "flat");
+pose("s4-z", 0.4, { head: -12 }, 0.3);
+tl.to("#s4-z", { rotation: -6, duration: 0.4 }, 0.5);
+// "become anyone" — panels stack up, each a different body
+tl.fromTo("#s4-p1", { opacity: 0, y: 40, scale: 0.9 }, { opacity: 1, y: 0, scale: 1, duration: 0.35, ease: "back.out(2)" }, 1);
+tl.fromTo("#s4-p2", { opacity: 0, y: 40, scale: 0.9 }, { opacity: 1, y: 0, scale: 1, duration: 0.35, ease: "back.out(2)" }, 1.35);
+mouth("s4-z", 1.2, "o");
+// climb
+tl.to("#s4-z", { rotation: 0, duration: 0.2 }, 1.8);
+tl.to(["#s4-ledge0", "#s4-ledge1"], { opacity: 1, duration: 0.25 }, 1.7);
+hop("s4-z", 2, 0, -270, 0.42, 70);
+hop("s4-z", 2.6999999999999997, 0, -265, 0.42, 70);
+// "hunts everyone who helped ruin him": victims appear, the clay closes in
+tl.fromTo("#s4-v0", { opacity: 0, x: 30 }, { opacity: 1, x: 0, duration: 0.3 }, 2.70);
+tl.to("#s4-f0", { x: 60, duration: 0.5, ease: "power2.in" }, 4.00);
+pose("s4-f0", 4.00, { armR: -90, foreR: -10 }, 0.35);
+pose("s4-v0", 4.10, { armL: 140, armR: -140 }, 0.25);
+tl.fromTo("#s4-v1", { opacity: 0, x: 30 }, { opacity: 1, x: 0, duration: 0.3 }, 3.05);
+tl.to("#s4-f1", { x: 60, duration: 0.5, ease: "power2.in" }, 4.12);
+pose("s4-f1", 4.12, { armR: -90, foreR: -10 }, 0.35);
+pose("s4-v1", 4.22, { armL: 140, armR: -140 }, 0.25);
+tl.fromTo("#s4-v2", { opacity: 0, x: 30 }, { opacity: 1, x: 0, duration: 0.3 }, 3.40);
+tl.to("#s4-f2", { x: 60, duration: 0.5, ease: "power2.in" }, 4.24);
+pose("s4-f2", 4.24, { armR: -90, foreR: -10 }, 0.35);
+pose("s4-v2", 4.34, { armL: 140, armR: -140 }, 0.25);
+mouth("s4-z", 3.3, "worry");
+pose("s4-z", 3.4, { head: 10, armL: 40, armR: -40 }, 0.3);
+// nightclub
+pop("#s4-disco", 5, 1);
+tl.to("#s4-disco", { rotation: 360, svgOrigin: "0 0", duration: 3, ease: "none" }, 5);
+tl.to("#s4-rays", { opacity: 1, duration: 0.1 }, 5.6);
+tl.to("#s4-rays", { rotation: 40, svgOrigin: "0 0", duration: 2.6, ease: "none" }, 5.6);
+tl.to("#s4-discoglow", { keyframes: [{ opacity: 0.9, duration: 0.1 }, { opacity: 0.2, duration: 0.15 }, { opacity: 0.9, duration: 0.1 }, { opacity: 0.3, duration: 0.2 }, { opacity: 0.9, duration: 0.1 }] }, 5.6);
+// panels go dark, bottom to top
+tl.to("#s4-d0", { opacity: 0.94, duration: 0.12, ease: "power4.in" }, 6.10);
+tl.fromTo("#s4-p0", { x: 0 }, { x: 8, duration: 0.04, yoyo: true, repeat: 3 }, 6.12);
+tl.to("#s4-d1", { opacity: 0.94, duration: 0.12, ease: "power4.in" }, 6.50);
+tl.fromTo("#s4-p1", { x: 0 }, { x: 8, duration: 0.04, yoyo: true, repeat: 3 }, 6.52);
+tl.to("#s4-d2", { opacity: 0.94, duration: 0.12, ease: "power4.in" }, 6.90);
+tl.fromTo("#s4-p2", { x: 0 }, { x: 8, duration: 0.04, yoyo: true, repeat: 3 }, 6.92);
+mouth("s4-z", 6.2, "o");
+pose("s4-z", 6.2, { armL: 140, foreL: -90, armR: -140, foreR: 90 }, 0.2);
+// top dark panel swallows the frame
+tl.to("#s4-rays", { opacity: 0, duration: 0.2 }, 7.3);
+tl.to("#s4-p2", { y: 360, scale: 7, duration: 0.85, ease: "power3.in" }, 7.6);
+tl.to("#s4-d2", { opacity: 1, borderRadius: 0, duration: 0.3 }, 7.6);
+
+window.__timelines["s4"] = tl;
+})();
+</script>
+</template>
