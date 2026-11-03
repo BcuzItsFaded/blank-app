@@ -7,3 +7,5 @@ out/*.mp4.part
 out/render.log
 out/stills/
 frames/
+out/*
+!out/.gitkeep
