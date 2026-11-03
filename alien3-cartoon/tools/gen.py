@@ -6,7 +6,7 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.dirname(HERE)
 RIG = open(os.path.join(HERE, "rig.js")).read()
 D = 4.4
-INTRO, OUTRO = 2.6, 4.0
+INTRO, OUTRO = 3.6, 4.2
 INK, CREAM, OR = "#1b1a18", "#f4ede0", "#d97757"
 
 # ---------------- placement helpers ----------------
@@ -324,6 +324,12 @@ ENTER = {
     "cut": "",
 }
 
+import subprocess
+def vo_dur(k):
+    return float(subprocess.check_output(['ffprobe','-v','error','-show_entries','format=duration','-of','csv=p=0',f'{ROOT}/assets/vo/l{k:02d}.wav']).decode())
+for i, s in enumerate(SC):
+    s['D'] = round(max(D, vo_dur(i + 1) + 0.75), 2)
+
 def write_scene(n, s):
     sid = f"s{n:02d}"
     pre = sid + "-"
@@ -347,7 +353,7 @@ def write_scene(n, s):
   <script>
     (function () {{
 {RIG}
-      var P = "#@", D = {D};
+      var P = "#@", D = {s["D"]};
       var tl = gsap.timeline({{ paused: true }});
       gsap.set([P + "card", P + "cap .w"], {{ opacity: 0 }});
       {ENTER[s['enter']]}
@@ -365,8 +371,8 @@ hosts, starts, t = [], {}, INTRO
 for i, s in enumerate(SC):
     sid = write_scene(i + 1, s)
     starts[i + 1] = round(t, 2)
-    hosts.append(f'      <div id="{sid}" data-composition-id="{sid}" data-composition-src="compositions/{sid}.html" data-start="{t:.2f}" data-duration="{D}" data-track-index="1" data-track-kind="graphics" data-width="1920" data-height="1080"></div>')
-    t += D
+    hosts.append(f'      <div id="{sid}" data-composition-id="{sid}" data-composition-src="compositions/{sid}.html" data-start="{t:.2f}" data-duration="{s['D']}" data-track-index="1" data-track-kind="graphics" data-width="1920" data-height="1080"></div>')
+    t += s['D']
 outro_start = round(t, 2)
 TOTAL = round(t + OUTRO, 2)
 st = lambda n, o=0.0: round(starts[n] + o, 3)
@@ -389,7 +395,9 @@ sfx = [
     ("a-12", "impact-bass-2", st(12, 0.83 - 1.986), 2.55, 0.4),
     ("a-out", "whoosh", round(outro_start + 0.2, 3), 0.55, 0.35),
 ]
-aud = "\n".join(f'      <audio id="{a}" class="clip" src="assets/sfx/{f}.mp3" data-start="{s_}" data-duration="{d}" data-volume="{v}" data-track-index="{20+k}"></audio>' for k, (a, f, s_, d, v) in enumerate(sfx))
+vo = [("vo-00", 0.3, 0)] + [(f"vo-{n:02d}", starts[n] + 0.3, n) for n in range(1, 13)] + [("vo-13", outro_start + 0.25, 13)]
+voa = "\n".join(f'      <audio id="{a}" class="clip" src="assets/vo/l{k:02d}.wav" data-start="{s_:.2f}" data-duration="{vo_dur(k):.2f}" data-volume="1" data-track-index="{40+(k%2)}"></audio>' for a, s_, k in vo)
+aud = voa + "\n" + "\n".join(f'      <audio id="{a}" class="clip" src="assets/sfx/{f}.mp3" data-start="{s_}" data-duration="{d}" data-volume="{round(v*0.7,2)}" data-track-index="{20+k}"></audio>' for k, (a, f, s_, d, v) in enumerate(sfx))
 index = f"""<!doctype html>
 <html lang="en">
   <head>
@@ -444,7 +452,7 @@ intro = f"""<template>
       tl.fromTo("#in-al", {{ x: 900 }}, {{ x: 0, duration: 0.7, ease: "power3.out" }}, 0.4);
       crawl(tl, "in-al", 0.4, 0.7);
       hiss(tl, "in-al", 1.15);
-      tl.to(["#in-t", "#in-s", "#in-al"], {{ opacity: 0, duration: 0.2 }}, 2.35);
+      tl.to(["#in-t", "#in-s", "#in-al"], {{ opacity: 0, duration: 0.2 }}, 3.35);
       window.__timelines["intro"] = tl;
     }})();
   </script>
