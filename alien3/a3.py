@@ -38,13 +38,13 @@ def con(skin, coat=COAT_B, **k):
     k.setdefault("hair_style", "bald")
     k.setdefault("hair", skin)
     k.setdefault("head_r", 66)
-    return Char(skin=skin, shirt=coat, top="coat", pants=hx("#2e2a26"), **k)
+    return Char(skin=skin, shirt=coat, top="robe", pants=hx("#2e2a26"), **k)  # ankle-length prison coats
 
 
 A3 = {
     "ripley": Char(skin=hx("#ecc8b0"), hair=hx("#3a2418"), hair_style="curly", shirt=hx("#5a5248"), top="coat",
                    pants=hx("#2e2a26"), head_r=64, lashes=True, iris=hx("#6a5a3a"), bulk=0.9),
-    "ripley_bald": Char(skin=hx("#ecc8b0"), hair=hx("#ecc8b0"), hair_style="bald", shirt=hx("#5a5248"), top="coat",
+    "ripley_bald": Char(skin=hx("#ecc8b0"), hair=hx("#ecc8b0"), hair_style="bald", shirt=hx("#5a5248"), top="robe",
                         pants=hx("#2e2a26"), head_r=64, lashes=True, iris=hx("#6a5a3a"), bulk=0.9),
     "newt": Char(skin=hx("#f2d6c0"), hair=hx("#d8b860"), hair_style="curly", shirt=hx("#8a9aa8"), top="shirt",
                  leg=150, torso=110, head_r=64, arm=115, bulk=0.58, lashes=True),
@@ -54,15 +54,15 @@ A3 = {
                    pants=hx("#5a5a5a"), head_r=64),
     "bishop2": Char(skin=hx("#ece0d6"), hair=hx("#6a6a6a"), hair_style="slick", shirt=hx("#2a2a30"), top="suit",
                     pants=hx("#2a2a30"), tie=hx("#5a5a64"), head_r=64),
-    "clemens": Char(skin=hx("#eccab0"), hair=hx("#6a5a4a"), hair_style="slick", shirt=hx("#d8d4c8"), top="coat",
+    "clemens": Char(skin=hx("#eccab0"), hair=hx("#eccab0"), hair_style="bald", shirt=hx("#d8d4c8"), top="coat",
                     pants=hx("#3a3a3a"), head_r=64),
     "andrews": Char(skin=hx("#e8c0a0"), hair=hx("#9a9a9a"), hair_style="short", shirt=hx("#2e3440"), top="uniform",
                     pants=hx("#2e3440"), head_r=68, bulk=1.1, mustache=hx("#9a9a9a"), old=True),
-    "dillon": con(hx("#5a3626"), coat=hx("#4a3a2c"), glasses=True, bulk=1.25, leg=300, torso=215, head_r=70),
+    "dillon": con(hx("#5a3626"), coat=hx("#4a3a2c"), bulk=1.25, leg=300, torso=215, head_r=70),
     "aaron": Char(skin=hx("#ecc8aa"), hair=hx("#5a4a3a"), hair_style="short", shirt=hx("#3a4048"), top="uniform",
                   pants=hx("#2e3440"), head_r=64, glasses=True, bulk=0.85),
     "morse": con(hx("#e0b898"), coat=COAT_G, mustache=hx("#3a2a1e")),
-    "golic": con(hx("#eac8b0"), coat=COAT_B, glasses=True, bulk=1.2),
+    "golic": con(hx("#eac8b0"), coat=COAT_B, bulk=0.88),
     "murphy": con(hx("#d8a88a"), coat=COAT_G),
     "trooper": Char(skin=hx("#e8c2a2"), hair=hx("#2a2a2a"), hair_style="short", shirt=hx("#8a8e94"), top="uniform",
                     pants=hx("#5a5e64"), head_r=64, hat="police", bulk=1.1),
@@ -74,7 +74,7 @@ def prisoner(i):
     rnd = random.Random(300 + i)
     return con(rnd.choice(PRISONER_SKINS), coat=rnd.choice([COAT_B, COAT_G, hx("#3a3a34")]),
                bulk=rnd.uniform(0.95, 1.2), mustache=rnd.choice([None, None, hx("#2a1e14")]),
-               glasses=rnd.random() < 0.15)
+               glasses=False)
 
 
 # ------------------------------------------------------------------ the creature
@@ -1114,7 +1114,9 @@ def S4(ctx, R, t, p):
     def dog(ctx, R, lt):
         with cam(ctx, R, 960, 640, 1.5, vfx=960):
             bg_foundry(ctx, t, heat=0.7)
-            wolf(ctx, 860, 1000, 0.6, t, hx("#5a3a24"))
+            wolf(ctx, 860, 1000, 0.6, t, hx("#24201c"))
+            ell(ctx, 860 + 0.6 * 440, 1000 - 0.6 * 455, 28, 20)  # tan muzzle
+            C.fs(ctx, hx("#a0602a"), 3)
             facehugger(ctx, 860 + 0.6 * 360, 1000 - 0.6 * 470, 0.6, t)
         grade(ctx, R, strength=0.75)
         badge(ctx, W / 2, H * 0.14, "A FACEHUGGER FOUND A HOST: A DOG", 40 * u, BONE, hx("#3a2a1a"))
@@ -1237,7 +1239,7 @@ def S6(ctx, R, t, p):
                     prisoner(i + 30).draw(ctx, 700 + i * 380, 1010, 0.8, t=t + i, expr="scared" if lt > 2 else "neutral",
                                           hold={"R": "flashlight"}, armR=75, elbowR=10, look=1)
             else:
-                A3["golic"].draw(ctx, 960, 1010, 0.9, t=t, expr="scared", look=0, blink=0)
+                A3["golic"].draw(ctx, 960, 1010, 0.9, t=t, expr="manic", look=0.3 * math.sin(t * 7), blink=0)
         grade(ctx, R, strength=0.8)
         black_frame(ctx, R, lt, 2.6, 0.4)
         if lt > 3.2:
@@ -1721,6 +1723,12 @@ def S12(ctx, R, t, p):
                 ctx.rectangle(x - 8, 546, 16, 400)
                 C.fs(ctx, hx("#2a2018"), 3)
             A3["ripley_bald"].draw(ctx, 960, 520, 0.6, t=t, expr="cold", look=0)
+            ctx.rectangle(1500, 700, 140, 160)  # platform controls
+            C.fs(ctx, hx("#3a3a3e"), 4)
+            ell(ctx, 1570, 740, 14, 14)
+            ctx.set_source_rgba(1, 0.2, 0.1, 0.6 + 0.4 * math.sin(t * 6))
+            ctx.fill()
+            A3["morse"].draw(ctx, 1720, 1000, 0.7, t=t, facing=-1, expr="sad", look=-1, kneel=0.4, armR=70, elbowR=30)
         grade(ctx, R, (0.2, 0.04, 0), 0.7)
 
     def fall(ctx, R, lt):
@@ -1737,7 +1745,24 @@ def S12(ctx, R, t, p):
             ctx.translate(960, lerp(760, 1180, k))
             ctx.rotate(-0.2 * k)
             ctx.push_group()
-            A3["ripley_bald"].draw(ctx, 0, 0, 0.95, t=t, armL=95, armR=95, elbowL=0, elbowR=0, expr="neutral", blink=1)
+            hold = ap(lt, 1.6, 0.8)
+            A3["ripley_bald"].draw(ctx, 0, 0, 0.95, t=t, armL=lerp(95, 40, hold), armR=lerp(95, 40, hold),
+                                   elbowL=lerp(0, 100, hold), elbowR=lerp(0, 100, hold), expr="neutral", blink=1)
+            q = ap(lt, 1.0, 0.8)
+            if q > 0:  # small Queen silhouette at her chest
+                ctx.save()
+                ctx.translate(10, -0.95 * 400)
+                ctx.scale(q, q)
+                ctx.new_path()
+                ctx.move_to(-20, 0)
+                ctx.curve_to(-10, -60, 40, -90, 70, -70)
+                for i in range(5):
+                    ctx.line_to(60 + i * 8, -100 - 10 * (i % 2))
+                ctx.curve_to(90, -60, 50, -10, 20, 10)
+                ctx.close_path()
+                src(ctx, INK)
+                ctx.fill()
+                ctx.restore()
             ctx.set_operator(cairo.OPERATOR_ATOP)
             ctx.set_source_rgba(0.05, 0.02, 0.02, 0.92)
             ctx.paint()
