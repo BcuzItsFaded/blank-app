@@ -108,7 +108,7 @@ def _teeth(ctx, x0, x1, y, h, n, up=False):
     ctx.fill()
 
 
-def xeno_skull(ctx, t, color, jaw, strike, hiss, scale=1.0):
+def xeno_skull(ctx, t, color, jaw, strike, hiss, scale=1.0, bloody=False):
     """The long head in profile, origin at the back of the neck. Drawn facing +x."""
     sheen = (0.78, 0.86, 1.0)
     jd = 34 * jaw
@@ -194,15 +194,20 @@ def xeno_skull(ctx, t, color, jaw, strike, hiss, scale=1.0):
         ph = (t * 0.5 + k * 0.33) % 1
         ctx.move_to(sx, 60 + jd * 0.6)
         ctx.line_to(sx + 2, 60 + jd * 0.6 + ln * (0.5 + ph))
-        ctx.set_source_rgba(0.75, 0.95, 0.65, 0.65)
+        dc = (0.6, 0.05, 0.06) if bloody else (0.75, 0.95, 0.65)
+        ctx.set_source_rgba(*dc, 0.75)
         ctx.stroke()
         ell(ctx, sx + 2, 60 + jd * 0.6 + ln * (0.5 + ph) + ph * ph * 120, 4, 6)
-        ctx.set_source_rgba(0.75, 0.95, 0.65, 0.7 * (1 - ph))
+        ctx.set_source_rgba(*dc, 0.8 * (1 - ph))
+        ctx.fill()
+    if bloody:  # smeared teeth
+        ctx.set_source_rgba(0.6, 0.04, 0.05, 0.6)
+        ell(ctx, 360, 56, 60, 8)
         ctx.fill()
 
 
 def xeno(ctx, x, y, s, t, walk=None, facing=1, crouch=0.0, jaw=0.0, glow=0.0, alpha=1.0, color=hx("#1c1c24"), rear=0.0,
-         strike=0.0, look=0.0):
+         strike=0.0, look=0.0, bloody=False):
     """Four-legged runner Xenomorph, side view (head to the right), feet at (x, y).
 
     walk: gait phase (None = idle). rear: rears up on hind legs. jaw: mouth open. strike: inner jaw out.
@@ -351,7 +356,7 @@ def xeno(ctx, x, y, s, t, walk=None, facing=1, crouch=0.0, jaw=0.0, glow=0.0, al
     ctx.save()
     ctx.translate(nx + 60, ny - 40)
     ctx.rotate(ang)
-    xeno_skull(ctx, t, color, jaw, strike, hiss)
+    xeno_skull(ctx, t, color, jaw, strike, hiss, bloody=bloody)
     ctx.restore()
     if glow > 0:  # molten / overheated
         ctx.set_operator(cairo.OPERATOR_ADD)
@@ -1121,6 +1126,75 @@ def eye_fire(ctx, head, R_, s, t):
         ctx.fill()
 
 
+BLOOD = (0.55, 0.02, 0.03)
+ACID = (0.75, 0.9, 0.15)
+
+
+def blood_burst(ctx, x, y, s, k, seed=0, dir_=0.0, col=BLOOD, n=46):
+    """Spray of droplets k seconds after an impact: they fly, fall and land as splats."""
+    if k < 0:
+        return
+    rnd = random.Random(seed)
+    if k < 0.35:  # mist at the moment of impact
+        g = cairo.RadialGradient(x, y, 5, x, y, 160 * s * (0.4 + k * 3))
+        g.add_color_stop_rgba(0, *col, 0.75 * (1 - k / 0.35))
+        g.add_color_stop_rgba(1, *col, 0)
+        ctx.set_source(g)
+        ell(ctx, x, y, 200 * s, 200 * s)
+        ctx.fill()
+    for i in range(n):
+        a = rnd.uniform(-PI, PI) * 0.6 + dir_ - PI / 2 * 0.3
+        v = rnd.uniform(250, 900) * s
+        tt = min(k, rnd.uniform(0.35, 0.8))
+        px = x + math.cos(a) * v * tt
+        py = y + math.sin(a) * v * tt + 1400 * s * tt * tt
+        r = rnd.uniform(3, 11) * s
+        if k > tt:  # landed: flattened splat
+            ell(ctx, px, py, r * 1.8, r * 0.8)
+        else:
+            ell(ctx, px, py, r, r)
+        ctx.set_source_rgba(*col, 0.92)
+        ctx.fill()
+
+
+def blood_splats(ctx, x, y, s, seed=0, a=1.0, col=BLOOD, drips=True, t=0.0):
+    """Splatter left on a wall or floor: blobs, specks and running drips."""
+    if a <= 0:
+        return
+    rnd = random.Random(seed)
+    for i in range(7):
+        cx, cy = x + rnd.gauss(0, 70) * s, y + rnd.gauss(0, 45) * s
+        ctx.new_path()
+        for j in range(12):
+            ang = j * 2 * PI / 12
+            r = rnd.uniform(14, 40) * s
+            ctx.line_to(cx + r * math.cos(ang), cy + r * math.sin(ang) * 0.8)
+        ctx.close_path()
+        ctx.set_source_rgba(*col, 0.9 * a)
+        ctx.fill()
+        if drips and rnd.random() < 0.6:
+            L = rnd.uniform(40, 160) * s * min(1, 0.4 + t * 0.15)
+            ctx.rectangle(cx - 3 * s, cy, 6 * s, L)
+            ctx.fill()
+            ell(ctx, cx, cy + L, 6 * s, 8 * s)
+            ctx.fill()
+    for i in range(40):
+        ell(ctx, x + rnd.gauss(0, 140) * s, y + rnd.gauss(0, 90) * s, rnd.uniform(2, 6) * s, rnd.uniform(2, 6) * s)
+        ctx.set_source_rgba(*col, 0.85 * a)
+        ctx.fill()
+
+
+def blood_pool(ctx, x, y, w, k, col=BLOOD):
+    if k <= 0:
+        return
+    ell(ctx, x, y, w * min(1, k), w * 0.22 * min(1, k))
+    ctx.set_source_rgba(*col, 0.9)
+    ctx.fill()
+    ell(ctx, x - w * 0.3 * min(1, k), y - w * 0.04, w * 0.25 * min(1, k), w * 0.04)
+    ctx.set_source_rgba(1, 0.6, 0.6, 0.25)
+    ctx.fill()
+
+
 def black_frame(ctx, R, t, t0, d=0.25):
     if t0 <= t < t0 + d:
         tint(ctx, R, (0, 0, 0), 1.0)
@@ -1508,8 +1582,19 @@ def S4(ctx, R, t, p):
             wolf(ctx, 860, 1000, 0.6, t, hx("#24201c"))
             ell(ctx, 860 + 0.6 * 440, 1000 - 0.6 * 455, 28, 20)  # tan muzzle
             C.fs(ctx, hx("#a0602a"), 3)
-            facehugger(ctx, 860 + 0.6 * 360, 1000 - 0.6 * 470, 0.6, t)
+            if lt < 2.5:
+                facehugger(ctx, 860 + 0.6 * 360, 1000 - 0.6 * 470, 0.6, t)
+            else:  # the new alien bursts out of the dog's chest
+                b = ap(lt, 2.5, 0.4)
+                ctx.save()
+                ctx.translate(860 + 40, 1000 - 0.6 * 330 - 60 * b)
+                ctx.scale(0.25 + 0.01 * b, 0.25 + 0.01 * b)
+                xeno_skull(ctx, t, hx("#3a2a2a"), 1, 0, 1, bloody=True)
+                ctx.restore()
+                blood_burst(ctx, 900, 1000 - 0.6 * 330, 0.7, lt - 2.5, seed=4)
+                blood_splats(ctx, 900, 1010, 0.6, seed=5, a=ap(lt, 2.8, 0.4), drips=False)
         grade(ctx, R, strength=0.75)
+        flash(ctx, R, lt, 2.5, 0.12, (0.6, 0, 0))
         badge(ctx, W / 2, H * 0.14, "A FACEHUGGER FOUND A HOST: A DOG", 40 * u, BONE, hx("#3a2a1a"))
 
     def closeup(ctx, R, lt):
@@ -1553,7 +1638,10 @@ def S4(ctx, R, t, p):
                 ctx.set_source_rgba(0, 0, 0, 0.7)  # creature's shadow on the wall
                 ell(ctx, 1500, 520, 260, 90)
                 ctx.fill()
-            poof(ctx, 760, 760, t, ap(lt, 2.6, 1.4) * 1.3, (0.3, 0.25, 0.22))
+            if lt > 2.85:
+                blood_burst(ctx, 1250, 520, 1.2, lt - 2.85, seed=6, dir_=-PI)
+                blood_splats(ctx, 1250, 520, 1.1, seed=7, a=ap(lt, 3.0, 0.3), t=lt - 3)
+                blood_splats(ctx, 800, 300, 0.8, seed=8, a=ap(lt, 3.1, 0.3), t=lt - 3)
         grade(ctx, R, strength=0.75)
         black_frame(ctx, R, lt, 2.6)
         lower_third(ctx, R, lt, 0.3, "MURPHY", "maintenance worker", 2.2)
@@ -1675,8 +1763,13 @@ def S6(ctx, R, t, p):
                     lk = ap(lt, 1.6, 0.9)
                     xeno(ctx, lerp(2300, 1350, lk), 1010 - 160 * math.sin(lk * PI) * (lk < 1), 0.8, t, facing=-1,
                          walk=t * 10 if lk < 1 else None, jaw=lk, strike=ap(lt, 2.4, 0.15))
+                    blood_burst(ctx, 900, 700, 1.0, lt - 2.45, seed=9)
             else:
-                A3["golic"].draw(ctx, 960, 1010, 0.9, t=t, expr="manic", look=0.3 * math.sin(t * 7), blink=0)
+                blood_splats(ctx, 500, 500, 1.2, seed=10, t=lt - 3)
+                blood_splats(ctx, 1450, 650, 1.0, seed=11, t=lt - 3)
+                blood_pool(ctx, 960, 1030, 360, ap(lt, 3.0, 2.0))
+                h = A3["golic"].draw(ctx, 960, 1010, 0.9, t=t, expr="manic", look=0.3 * math.sin(t * 7), blink=0)
+                blood_splats(ctx, 960, h["head"][1] + 160, 0.45, seed=12, drips=False)  # covered in blood
         grade(ctx, R, strength=0.8)
         black_frame(ctx, R, lt, 2.6, 0.4)
         if lt > 3.2:
@@ -1699,9 +1792,12 @@ def S6(ctx, R, t, p):
             C.fs(ctx, hx("#1a1a1a"), 4)
             if drop < 1:
                 A3["clemens"].draw(ctx, 1100, 1010, 0.9, t=t, expr="scared" if lt > 1.2 else "neutral", look=-0.3)
+            if lt > 2.0:
+                blood_splats(ctx, 1150, 520, 1.3, seed=13, a=ap(lt, 2.0, 0.2), t=lt - 2)
+                blood_pool(ctx, 1100, 1020, 380, ap(lt, 2.1, 2.5))
             if drop > 0:
-                xeno(ctx, 1150, lerp(200, 1010, drop), 0.7, t, facing=-1, jaw=1)
-            poof(ctx, 1100, 760, t, ap(lt, 1.95, 1.4) * 1.3, (0.3, 0.3, 0.3))
+                xeno(ctx, 1150, lerp(200, 1010, drop), 0.7, t, facing=-1, jaw=1, bloody=lt > 2.0)
+            blood_burst(ctx, 1100, 700, 1.2, lt - 1.95, seed=14)
         grade(ctx, R, strength=0.7)
         black_frame(ctx, R, lt, 1.95, 0.3)
 
@@ -1712,7 +1808,7 @@ def S6(ctx, R, t, p):
             A3["ripley_bald"].draw(ctx, 760, 1010, 0.95, t=t, expr="scared", look=1, tears=True, lean=-5)
             with rim_light(hx("#e09a40")):
                 xeno(ctx, lerp(1650, 1380, k), 1010, 0.75, t, facing=-1, jaw=0.6 + 0.2 * math.sin(t * 2), rear=0.7,
-                     strike=0.55 * ap(lt, 3.5, 2.0) * (1 - ap(lt, 6.5, 1.0)), look=0.3 * math.sin(t * 0.7))
+                     strike=0.55 * ap(lt, 3.5, 2.0) * (1 - ap(lt, 6.5, 1.0)), look=0.3 * math.sin(t * 0.7), bloody=True)
         ctx.set_source_rgba(0, 0, 0, 0.35)
         ctx.paint()
         grade(ctx, R, strength=0.85)
@@ -1737,6 +1833,15 @@ def S6(ctx, R, t, p):
                                armL=150 * pull, armR=150 * pull)
             for i in range(3):
                 prisoner(i + 40).draw(ctx, 1350 + i * 180, 1020, 0.78, t=t + i, facing=-1, expr="shock" if pull else "neutral", look=-1)
+            if lt > 3.05:
+                for i in range(5):  # blood running down from the vent
+                    x = 930 + i * 40
+                    L = min(900, (lt - 3.05) * (300 + 60 * i))
+                    ctx.rectangle(x, 70, 8, L)
+                    ctx.set_source_rgba(*BLOOD, 0.9)
+                    ctx.fill()
+                blood_pool(ctx, 1000, 1025, 300, ap(lt, 3.6, 2.0))
+                blood_burst(ctx, 1000, 80, 1.0, lt - 3.05, seed=15, dir_=PI / 2)
         grade(ctx, R, strength=0.7)
         black_frame(ctx, R, lt, 2.7, 0.35)
 
@@ -2122,9 +2227,11 @@ def S11(ctx, R, t, p):
             prisoner(80).draw(ctx, lerp(200, 2300, k), 1010, 0.8, t=t, walk=t * 10, expr="scared", look=1)
             hop = max(0, math.sin(lt * 1.6)) ** 3
             xeno(ctx, lerp(-200, 1700, k), 1000 - 220 * hop, 0.8, t, walk=t * 10 if hop < 0.3 else None, jaw=0.4 + 0.6 * hop,
-                 strike=hop if hop > 0.7 else 0, crouch=0.3 * (1 - hop))
+                 strike=hop if hop > 0.7 else 0, crouch=0.3 * (1 - hop), bloody=True)
             for i in range(2):
-                poof(ctx, 600 + i * 800, 760, t, ((lt + i) % 3) / 2, (0.3, 0.1, 0.08))
+                bk = (lt + i) % 3
+                blood_burst(ctx, 600 + i * 800, 760, 1.1, bk, seed=16 + i + int((lt + i) // 3))
+                blood_splats(ctx, 600 + i * 800, 560, 1.0, seed=20 + i, a=0.8, t=lt)
         grade(ctx, R, strength=0.65)
         speed_lines(ctx, R, t, 0.7)
         badge(ctx, W / 2, H * 0.14, "THE CHASE BECOMES A MASSACRE", 42 * u, BONE, hx("#5a0a0a"))
@@ -2216,6 +2323,10 @@ def S11(ctx, R, t, p):
                 C.fs(ctx, hx("#1a1a1e"), 3)
                 ctx.restore()
             smoke(ctx, 1100, 900, t, 1.0)
+            blood_burst(ctx, 1150, 760, 1.3, lt - 0.6, seed=27, col=ACID, n=60)
+            blood_splats(ctx, 1150, 1000, 1.2, seed=28, a=ap(lt, 1.0, 0.4), col=ACID, drips=False)
+            if lt > 1.0:  # acid eating the floor
+                smoke(ctx, 1150, 1000, t * 2, 0.8, seed=29)
         tint(ctx, R, (1, 1, 1), max(0, 0.9 - lt * 0.6))
         grade(ctx, R, strength=0.6)
         if lt > 1.2:
@@ -2288,6 +2399,10 @@ def S12(ctx, R, t, p):
             A3["morse"].draw(ctx, 400, 1010, 0.82, t=t, expr="scared" if lt > 1.8 else "angry", look=1, kneel=0.4 * ap(lt, 2.2, 0.3))
             if 1.6 < lt < 2.4 and int(lt * 10) % 2 == 0:
                 C.muzzle(ctx, 1290, 610, 1.0, t)
+            blood_burst(ctx, 820, 700, 1.0, lt - 1.75, seed=24, dir_=PI)
+            if lt > 1.8:
+                blood_pool(ctx, 820, 1025, 260, ap(lt, 1.9, 2.0))
+            blood_burst(ctx, 420, 900, 0.5, lt - 2.2, seed=25, dir_=PI, n=16)
         grade(ctx, R, strength=0.65)
         badge(ctx, W / 2, H * 0.14, "AARON FIGHTS BACK", 44 * u, BONE, hx("#5a0a0a"))
 
@@ -2348,6 +2463,8 @@ def S12(ctx, R, t, p):
             ctx.set_operator(cairo.OPERATOR_OVER)
             ctx.pop_group_to_source()
             ctx.paint()
+            if q > 0:
+                blood_burst(ctx, 10, -0.95 * 400, 0.8, lt - 1.0, seed=26, dir_=-PI / 2)
             ctx.restore()
             embers(ctx, t, 1.0, 80, seed=2)
         grade(ctx, R, (0.2, 0.04, 0), 0.7)
@@ -2438,6 +2555,13 @@ SFX = {
          ("As the confrontation", 1.9, "gunshot", 0.7, None), ("As the confrontation", 2.2, "gunshot", 0.6, None),
          ("she reaches", 0, "fire", 0.5, 8), ("she reaches", 0, "heartbeat", 0.4, 5), ("Ripley falls", 0, "fireball", 0.4, 3)],
 }
+GORE_SFX = {3: [("A facehugger", 2.5, "splat", 0.8, None), ("One maintenance worker", 2.85, "splat", 0.9, None)],
+            5: [(2.45, 0, "splat", 0.9, None), ("Then the creature", 1.95, "splat", 0.9, None), ("Moments later", 3.05, "splat", 0.8, None)],
+            10: [(1.0, 0, "splat", 0.7, None), (2.0, 0, "splat", 0.7, None), (4.0, 0, "splat", 0.7, None), (5.0, 0, "splat", 0.7, None),
+                 ("The resulting", 0.6, "hiss", 0.7, 2.5)],
+            11: [("As the confrontation", 1.75, "splat", 0.8, None), ("Ripley falls", 1.0, "splat", 0.6, None)]}
+for _k, _v in GORE_SFX.items():
+    SFX[_k] = SFX[_k] + _v
 # the storyboard's "three-second absence of music" right after the crash
 SILENCE = [(0, "a remote prison", 3.0, 3.0)]
 

@@ -210,6 +210,14 @@ def pour(d=3.0):
     return _filt(_noise(d), hi=700) * 1.4 * _env(int(d * SR), 0.2, 0.6) + sparks(d) * 0.3
 
 
+def splat(d=0.9):
+    """Wet impact: a low thud with a squelchy, filtered noise tail."""
+    t = _t(d)
+    thud = np.sin(2 * np.pi * (70 + 40 * np.exp(-t * 20)) * t) * np.exp(-t * 9)
+    wet = _filt(_noise(d), 200, 1800) * np.exp(-t * 7) * (1 + 0.5 * np.sin(2 * np.pi * 23 * t))
+    return (thud * 0.9 + wet * 0.9) * _env(len(t), 0.002)
+
+
 def drip(d=0.6):
     t = _t(d)
     return np.sin(2 * np.pi * (1800 - 900 * t / d) * t) * np.exp(-t * 18) * 0.4
