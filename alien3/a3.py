@@ -1035,6 +1035,63 @@ def speed_lines(ctx, R, t, k, direction=1):
         ctx.stroke()
 
 
+def defocus(ctx, R, fn, amount):
+    """Rack focus: draw fn at reduced resolution and scale it back up (amount 0 = sharp)."""
+    if amount <= 0.02:
+        fn(ctx)
+        return
+    f = 1 + amount * 9
+    w, h = max(2, int(R.W / f)), max(2, int(R.H / f))
+    small = cairo.ImageSurface(cairo.FORMAT_ARGB32, w, h)
+    c2 = cairo.Context(small)
+    c2.scale(w / R.W, h / R.H)
+    fn(c2)
+    ctx.save()
+    ctx.scale(R.W / w, R.H / h)
+    ctx.set_source_surface(small, 0, 0)
+    ctx.get_source().set_filter(cairo.FILTER_GOOD)
+    ctx.paint()
+    ctx.restore()
+
+
+class rim_light:
+    """Temporarily change the creature's edge light (e.g. a thin amber edge in the stare-down)."""
+    def __init__(self, col):
+        self.col = col
+
+    def __enter__(self):
+        global RIM
+        self.old, RIM = RIM, self.col
+
+    def __exit__(self, *a):
+        global RIM
+        RIM = self.old
+
+
+def top_head(ctx, x, y, r, skin, coat, ang=0.0):
+    """A person seen from directly above: shoulders + shaved head."""
+    ctx.save()
+    ctx.translate(x, y)
+    ctx.rotate(ang)
+    ell(ctx, 0, 0, r * 2.2, r * 1.1)
+    C.fs(ctx, coat, 4)
+    ell(ctx, 0, 0, r, r * 1.1)
+    C.fs(ctx, skin, 4)
+    ell(ctx, -r * 0.3, -r * 0.3, r * 0.3, r * 0.2)
+    ctx.set_source_rgba(1, 1, 1, 0.25)
+    ctx.fill()
+    ctx.restore()
+
+
+def eye_fire(ctx, head, R_, s, t):
+    """Orange furnace light reflected in a character's eyes."""
+    hx_, hy_ = head
+    for sx in (-1, 1):
+        ell(ctx, hx_ + sx * 0.36 * R_ * s + 3, hy_ - 0.1 * R_ * s, 5 * s, 4 * s)
+        ctx.set_source_rgba(1, 0.6 + 0.2 * math.sin(t * 9), 0.15, 0.95)
+        ctx.fill()
+
+
 def black_frame(ctx, R, t, t0, d=0.25):
     if t0 <= t < t0 + d:
         tint(ctx, R, (0, 0, 0), 1.0)
@@ -1133,7 +1190,87 @@ def S1(ctx, R, t, p):
         if lt > 1.5:
             text(ctx, "EVERYTHING... GONE", W / 2, H * V(R, 0.16, 0.14), V(R, 96, 70) * u, BONE, "Liberation Serif", outline=6 * u)
 
-    shots(ctx, R, t, [(0, space), (p.cue("While everyone"), pods), (t_launch, launch), (t_crash, crash), (t_surv, found), (t_gone, gone)])
+    def cable(ctx, R, lt):
+        with cam(ctx, R, 960, 540, 1.0 + 0.25 * min(1, lt / 3), vfx=960):  # macro push-in
+            C.sky(ctx, hx("#140808"), hx("#060202"))
+            ctx.new_path()
+            ctx.move_to(-300, 700)
+            ctx.curve_to(400, 420, 1200, 760, 2300, 380)
+            ctx.set_line_width(120)
+            src(ctx, hx("#1a1a1e"))
+            ctx.stroke_preserve()
+            ctx.set_line_width(90)
+            src(ctx, hx("#3a3a40"))
+            ctx.stroke()
+            for i in range(6):  # charred insulation, bare copper
+                ell(ctx, 900 + i * 40, 600 - i * 6, 70, 55)
+                src(ctx, hx("#140c08"))
+                ctx.fill()
+            ctx.set_line_width(8)
+            for i in range(5):
+                ctx.move_to(930 + i * 14, 560)
+                ctx.line_to(960 + i * 18, 640)
+                ctx.set_source_rgb(0.85, 0.5, 0.2)
+                ctx.stroke()
+            heal_glow(ctx, 960, 590, 140, 0.7 + 0.3 * math.sin(t * 25), t)
+            rnd = random.Random(int(t * 20))
+            for i in range(26):
+                a = rnd.uniform(0, 2 * PI)
+                d = rnd.uniform(40, 420)
+                ctx.move_to(960, 590)
+                ctx.line_to(960 + d * math.cos(a), 590 + d * math.sin(a) + d * 0.3)
+                ctx.set_line_width(rnd.uniform(2, 5))
+                ctx.set_source_rgba(1, rnd.uniform(0.7, 1), 0.3, 0.9)
+                ctx.stroke()
+            embers(ctx, t, 0.9, 50)
+        if int(t * 3) % 2 == 0:
+            tint(ctx, R, (0.9, 0, 0), 0.22)
+        grade(ctx, R, strength=0.7)
+
+    def tumble(ctx, R, lt):
+        shake = 14 * math.sin(lt * 40)
+        ctx.save()
+        ctx.translate(R.W / 2 + shake, R.H / 2)
+        ctx.rotate(lt * 1.6)  # the view outside spins as the EEV tumbles
+        ctx.translate(-R.W / 2, -R.H / 2)
+        with cam(ctx, R, 960, 540, 1.6, vfx=960):
+            bg_planet(ctx, t, prison=False, storm=False)
+        ctx.restore()
+        ctx.set_fill_rule(cairo.FILL_RULE_EVEN_ODD)  # cockpit frame with a window
+        ctx.rectangle(0, 0, R.W, R.H)
+        rrect(ctx, R.W * 0.18, R.H * 0.12, R.W * 0.64, R.H * 0.5, 40 * R.u)
+        src(ctx, hx("#22262a"))
+        ctx.fill()
+        ctx.set_fill_rule(cairo.FILL_RULE_WINDING)
+        for i in range(14):  # blinking console lights
+            ell(ctx, R.W * (0.2 + i * 0.045), R.H * 0.75, 9 * R.u, 9 * R.u)
+            ctx.set_source_rgba(1, 0.2 if i % 3 else 0.8, 0.1, 0.4 + 0.6 * ((int(t * 6) + i) % 2))
+            ctx.fill()
+        if int(t * 4) % 2 == 0:
+            tint(ctx, R, (0.9, 0, 0), 0.25)
+        grade(ctx, R, strength=0.7)
+
+    def bodies(ctx, R, lt):
+        with cam(ctx, R, 960, 560, 1.0, vfx=V(R, 960, 900)):  # hard cut to cold medical light
+            bg_medical(ctx, t, flick=0.04)
+            exam_table(ctx, 620, 880, w=440)
+            ctx.rectangle(1000, 850, 600, 30)
+            C.fs(ctx, hx("#8a9294"), 4)
+            ctx.new_path()
+            ctx.move_to(1030, 850)
+            ctx.curve_to(1080, 760, 1500, 770, 1570, 850)
+            ctx.close_path()
+            C.fs(ctx, hx("#e8ecec"), 4)
+            bishop_head(ctx, 1700, 640, 0.55, t)
+        ctx.set_source_rgba(0.5, 0.5, 0.5, 0.6)
+        ctx.set_operator(cairo.OPERATOR_HSL_SATURATION)
+        ctx.paint()
+        ctx.set_operator(cairo.OPERATOR_OVER)
+        grade(ctx, R, strength=0.75)
+
+    shots(ctx, R, t, [(0, space), (p.cue("While everyone"), pods), (t_fire, cable), (p.cue("triggers the emergency"), pods),
+                      (t_launch, launch), (t_crash, tumble), (p.cue("a remote prison"), crash), (t_surv, found),
+                      (p.cue("but Hicks and Newt"), bodies), (t_gone, gone)])
     if t > 5:
         scene_header(ctx, R, 1, t - 5)
 
@@ -1143,7 +1280,8 @@ def S2(ctx, R, t, p):
     t_notice, t_aut, t_none, t_crem = p.cue("But Ripley notices"), p.cue("That's why"), p.cue("No embryo"), p.cue("but Ripley still insists")
 
     def morgue(ctx, R, lt):
-        with cam(ctx, R, 960, 560, 1.0 + 0.03 * lt / 10, vfx=V(R, 960, 760)):
+        k = ease(min(1, lt / 9))
+        with cam(ctx, R, lerp(960, 760, k), lerp(560, 520, k), 1.0 + 0.18 * k, vfx=V(R, 960, 760)):  # slow dolly toward Ripley
             bg_medical(ctx, t, flick=0.05)
             exam_table(ctx, 960, 880)
             A3["ripley"].draw(ctx, 620, 1010, 0.9, t=t, expr="sad", look=1, tears=True)
@@ -1152,9 +1290,11 @@ def S2(ctx, R, t, p):
         lower_third(ctx, R, lt, 0.8, "CLEMENS", "the prison doctor", 3.5)
 
     def damage(ctx, R, lt):
-        with cam(ctx, R, 1000, 640, 1.6 + 0.1 * lt / 6, vfx=1000):
-            C.sky(ctx, hx("#141c22"), hx("#0a0e12"))
-            cryo_pod(ctx, 1000, 1080, 1.4, t, None, light=0.6, burn=ap(lt, 0.5, 1.5))
+        def draw(c):
+            with cam(c, R, 1000, 640, 1.6 + 0.1 * lt / 6, vfx=1000):
+                C.sky(c, hx("#141c22"), hx("#0a0e12"))
+                cryo_pod(c, 1000, 1080, 1.4, t, None, light=0.6, burn=ap(lt, 0.5, 1.5))
+        defocus(ctx, R, draw, 1 - ap(lt, 0.2, 1.2))  # rack focus onto the burn mark
         grade(ctx, R, strength=0.7)
         badge(ctx, W / 2, H * 0.14, "SUSPICIOUS DAMAGE", 44 * u, BONE, hx("#5a4a14"))
 
@@ -1173,10 +1313,64 @@ def S2(ctx, R, t, p):
             bg_foundry(ctx, t, heat=1.0)
             furnace(ctx, 960, 900, 1.2, t, k=ap(lt, 0.3, 1.0))
             A3["ripley"].draw(ctx, 520, 1010, 0.85, t=t, expr="sad", look=1, tears=True)
+            embers(ctx, t, 0.9, 40, seed=5)  # drifting ash
         grade(ctx, R, strength=0.6)
+        m = 1 - ap(lt, 0.0, 0.7)  # match cut: the burn mark becomes the furnace mouth
+        if m > 0:
+            ell(ctx, W / 2, H * 0.6, 260 * u * (1 + 2 * (1 - m)), 190 * u * (1 + 2 * (1 - m)))
+            ctx.set_source_rgba(0.12, 0.08, 0.05, m)
+            ctx.fill()
         badge(ctx, W / 2, H * 0.14, "SHE REFUSES TO TAKE ANOTHER CHANCE", 40 * u, BONE, RUST)
 
-    shots(ctx, R, t, [(0, morgue), (t_notice, damage), (t_aut, autopsy), (t_crem, cremate)])
+    def overhead(ctx, R, lt):
+        g = cairo.LinearGradient(0, 0, 0, H)
+        g.add_color_stop_rgb(0, *hx("#2a3234"))
+        g.add_color_stop_rgb(1, *hx("#1e2426"))
+        ctx.set_source(g)
+        ctx.paint()
+        ctx.save()
+        ctx.translate(W / 2, H / 2)
+        ctx.rotate(0.05 * math.sin(lt * 0.3))
+        ctx.scale(u * (1 + 0.04 * lt / 6), u * (1 + 0.04 * lt / 6))
+        g = cairo.RadialGradient(0, 0, 50, 0, 0, 700)  # surgical lamp pool
+        g.add_color_stop_rgba(0, 0.95, 1, 1, 0.35)
+        g.add_color_stop_rgba(1, 0.95, 1, 1, 0)
+        ctx.set_source(g)
+        ctx.paint()
+        rrect(ctx, -380, -150, 760, 300, 20)
+        C.fs(ctx, hx("#8a9294"), 5)
+        ctx.new_path()  # small shape under the sheet
+        ctx.move_to(-300, -80)
+        ctx.curve_to(-120, -130, 220, -110, 300, -60)
+        ctx.curve_to(320, 40, 220, 100, -300, 90)
+        ctx.close_path()
+        C.fs(ctx, hx("#e8ecec"), 4)
+        rrect(ctx, 420, -200, 200, 120, 10)  # instrument tray
+        C.fs(ctx, hx("#a8b0b4"), 4)
+        for i in range(5):
+            ctx.rectangle(440 + i * 34, -180, 8, 80)
+            C.fs(ctx, hx("#d8dde0"), 2)
+        top_head(ctx, 0, 270, 50, hx("#eccab0"), hx("#d8d4c8"), PI)
+        top_head(ctx, -520, 60, 48, hx("#ecc8b0"), hx("#5a5248"), PI / 2)
+        ctx.restore()
+        grade(ctx, R, strength=0.6)
+        text(ctx, "AUTOPSY", W / 2, H * V(R, 0.12, 0.12), V(R, 90, 66) * u, BONE, "Liberation Serif", outline=6 * u)
+
+    def eyes(ctx, R, lt):
+        with cam(ctx, R, 960, 420, 2.0 + 0.1 * lt, vfx=960):
+            bg_foundry(ctx, t, heat=1.2)
+            h = A3["ripley"].draw(ctx, 960, 1060, 1.0, t=t, expr="sad", look=0, tears=True)
+            eye_fire(ctx, h["head"], 64, 1.0, t)
+        g = cairo.LinearGradient(0, H, 0, 0)
+        g.add_color_stop_rgba(0, 1, 0.5, 0.1, 0.35)
+        g.add_color_stop_rgba(1, 1, 0.5, 0.1, 0)
+        ctx.set_source(g)
+        ctx.paint()
+        embers(ctx, t, 0.8, 40, seed=3)
+        grade(ctx, R, strength=0.75)
+
+    shots(ctx, R, t, [(0, morgue), (t_notice, damage), (t_aut, overhead), (t_none, autopsy), (t_crem, cremate),
+                      (p.cue("She doesn't explain"), eyes)])
     scene_header(ctx, R, 2, t)
 
 
@@ -1205,6 +1399,10 @@ def S3(ctx, R, t, p):
         with cam(ctx, R, 960, lerp(560, 430, min(1, lt / 4)), 1.5, vfx=960):
             bg_foundry(ctx, t)
             A3["dillon"].draw(ctx, 960, 1060, 1.0, t=t, expr="cold", look=0)
+            for i in range(7):  # narrow shafts of light form bars across his face
+                ctx.rectangle(560 + i * 120, -100, 60, 1300)
+            ctx.set_source_rgba(0, 0, 0, 0.35)
+            ctx.fill()
         warm(ctx, R, 0.25)
         grade(ctx, R, strength=0.7)
         lower_third(ctx, R, lt, 0.5, "DILLON", "leader of the prisoners' faith", 4)
@@ -1353,6 +1551,11 @@ def S5(ctx, R, t, p):
             scrapyard(ctx, t)
             A3["ripley_bald"].draw(ctx, lerp(400, 1000, min(1, lt / 5)), 1010, 0.85, t=t, walk=t * 4, expr="neutral", look=1)
             bishop_head(ctx, 1450, 940, 0.7, t)
+        ctx.set_source_rgba(0.03, 0.02, 0.02, 0.95)  # over-the-shoulder foreground silhouette
+        ell(ctx, W * 0.1, H * 1.05, W * 0.22, H * 0.4)
+        ctx.fill()
+        ell(ctx, W * 0.16, H * 0.62, W * 0.07, H * 0.13)
+        ctx.fill()
         grade(ctx, R, strength=0.7)
 
     def corner(ctx, R, lt):
@@ -1370,7 +1573,7 @@ def S5(ctx, R, t, p):
             badge(ctx, W / 2, H * 0.14, "DILLON STEPS IN", 44 * u, BONE, hx("#3a2a1a"))
 
     def bishop(ctx, R, lt):
-        with cam(ctx, R, 960, 520, 1.25, vfx=960):
+        with cam(ctx, R, 960, 560, 1.15 + 0.35 * ease(min(1, lt / 6)), vfx=960):  # slow push toward his face
             bg_medical(ctx, t)
             ctx.rectangle(500, 720, 920, 40)
             C.fs(ctx, hx("#5a5a5a"), 4)
@@ -1393,7 +1596,32 @@ def S5(ctx, R, t, p):
         grade(ctx, R, strength=0.6)
         vhs(ctx, R, t, 0.7)
 
-    shots(ctx, R, t, [(0, search), (t_corner, corner), (t_rec, bishop),
+    def connect(ctx, R, lt):
+        k = ap(lt, 0.3, 1.2)
+        with cam(ctx, R, 960, 540, 1.0 + 0.1 * lt, vfx=960):
+            C.sky(ctx, hx("#06100a"), hx("#020604"))
+            rrect(ctx, 1000, 380, 500, 320, 30)  # socket
+            C.fs(ctx, hx("#3a3e42"), 6)
+            for i in range(6):
+                ell(ctx, 1110 + (i % 3) * 140, 480 + (i // 3) * 120, 26, 26)
+                C.fs(ctx, hx("#0a0a0a"), 4)
+            x = lerp(300, 990, k)
+            rrect(ctx, x - 500, 420, 500, 240, 26)  # plug sliding in
+            C.fs(ctx, hx("#5a5e64"), 6)
+            for i in range(5):
+                ctx.new_path()
+                ctx.move_to(x - 500, 460 + i * 40)
+                ctx.curve_to(x - 700, 460 + i * 40, x - 800, 300 + i * 90, x - 1100, 360 + i * 80)
+                ctx.set_line_width(14)
+                src(ctx, [hx("#c03030"), hx("#3060c0"), hx("#e8c040"), hx("#40a060"), hx("#e8e8e8")][i])
+                ctx.stroke()
+            if k >= 1:
+                heal_glow(ctx, 1000, 540, 120, 1 - ap(lt, 1.6, 0.6), t)
+        grade(ctx, R, strength=0.6)
+        vhs(ctx, R, t, 0.8)
+        text(ctx, "DIAGNOSTIC LINK..." if k < 1 else "LINK ESTABLISHED", W / 2, H * 0.15, 46 * u, WY_GREEN, "Liberation Mono", outline=0)
+
+    shots(ctx, R, t, [(0, search), (t_corner, corner), (t_rec, connect), (p.cue("to the escape vehicle's"), bishop),
                       (t_conf, lambda c, r, lt: recorder(c, r, lt, ["FLIGHT RECORDER: SULACO", "BIO-SIGNATURE ON BOARD",
                                                                     "STATUS: ALIEN ABOARD EEV"])),
                       (t_dist, lambda c, r, lt: recorder(c, r, lt, ["DATA TRANSMITTED TO:", "WEYLAND-YUTANI", "", "THEY WANT IT."])),
@@ -1451,8 +1679,9 @@ def S6(ctx, R, t, p):
         with cam(ctx, R, 900, 470, 1.4 + 0.25 * k, vfx=900):
             bg_medical(ctx, t, flick=0.1)
             A3["ripley_bald"].draw(ctx, 760, 1010, 0.95, t=t, expr="scared", look=1, tears=True, lean=-5)
-            xeno(ctx, lerp(1650, 1380, k), 1010, 0.75, t, facing=-1, jaw=0.6 + 0.2 * math.sin(t * 2), rear=0.7,
-                 strike=0.55 * ap(lt, 3.5, 2.0) * (1 - ap(lt, 6.5, 1.0)), look=0.3 * math.sin(t * 0.7))
+            with rim_light(hx("#e09a40")):
+                xeno(ctx, lerp(1650, 1380, k), 1010, 0.75, t, facing=-1, jaw=0.6 + 0.2 * math.sin(t * 2), rear=0.7,
+                     strike=0.55 * ap(lt, 3.5, 2.0) * (1 - ap(lt, 6.5, 1.0)), look=0.3 * math.sin(t * 0.7))
         ctx.set_source_rgba(0, 0, 0, 0.35)
         ctx.paint()
         grade(ctx, R, strength=0.85)
@@ -1586,7 +1815,92 @@ def S7(ctx, R, t, p):
         grade(ctx, R, (0.2, 0.02, 0), 0.8)
         badge(ctx, W / 2, H * 0.14, "MANY PRISONERS DIE", 44 * u, BONE, hx("#5a0a0a"))
 
-    shots(ctx, R, t, [(0, planning), (t_no, no_weapons), (t_prop, plan), (t_prep, prep), (t_flare, flare), (t_tears, inferno)])
+    def orbit(ctx, R, lt):
+        g = cairo.LinearGradient(0, 0, 0, H)
+        g.add_color_stop_rgb(0, *hx("#2a1e16"))
+        g.add_color_stop_rgb(1, *hx("#120c08"))
+        ctx.set_source(g)
+        ctx.paint()
+        ctx.save()
+        ctx.translate(W / 2, H / 2)
+        ctx.rotate(lt * 0.12)  # slow overhead orbit around the planning table
+        ctx.scale(u, u)
+        g = cairo.RadialGradient(0, 0, 50, 0, 0, 650)
+        g.add_color_stop_rgba(0, 1, 0.75, 0.4, 0.35)
+        g.add_color_stop_rgba(1, 1, 0.75, 0.4, 0)
+        ctx.set_source(g)
+        ctx.paint()
+        rrect(ctx, -420, -260, 840, 520, 20)
+        C.fs(ctx, hx("#4a3424"), 6)
+        ctx.save()
+        ctx.rotate(0.05)
+        rrect(ctx, -330, -200, 660, 400, 6)
+        C.fs(ctx, hx("#d8ccb0"), 3)
+        ctx.set_line_width(5)
+        ctx.set_source_rgba(0.75, 0.35, 0.1, 0.9)
+        for a, b in (((-280, -150), (-50, -150)), ((-50, -150), (-50, 120)), ((-50, 120), (200, 120)), ((200, 120), (200, -60))):
+            ctx.move_to(*a)
+            ctx.line_to(*b)
+        ctx.stroke()
+        ctx.restore()
+        people = [("#5a3626", "#4a3a2c"), ("#ecc8b0", "#5a5248"), ("#ecc8aa", "#3a4048"), ("#e0b898", "#4a4a46"),
+                  ("#c8946a", "#5a4a3a"), ("#eac8b0", "#3a3a34")]
+        for i, (sk, co) in enumerate(people):
+            a = i * 2 * PI / len(people)
+            top_head(ctx, 560 * math.cos(a), 360 * math.sin(a), 52, hx(sk), hx(co), a + PI / 2)
+        ctx.restore()
+        grade(ctx, R, strength=0.6)
+
+    def brushes(ctx, R, lt):
+        with cam(ctx, R, 960, 540, 1.0, vfx=960):
+            bg_foundry(ctx, t, heat=0.6)
+            ctx.rectangle(-200, 200, 1300, 700)  # wall being painted with flammable compound
+            C.fs(ctx, hx("#4a4038"), 5)
+            k = min(1, lt / 3)
+            for i in range(4):
+                ctx.rectangle(-150, 260 + i * 150, 1200 * k, 70)
+                ctx.set_source_rgba(0.62, 0.78, 0.3, 0.7)
+                ctx.fill()
+            bx = -150 + 1200 * k
+            ctx.save()
+            ctx.translate(bx, 300 + 40 * math.sin(lt * 8))
+            ctx.rotate(-0.5)
+            rrect(ctx, -12, -260, 24, 260, 8)
+            C.fs(ctx, hx("#8a5a2a"), 4)
+            rrect(ctx, -30, 0, 60, 70, 10)
+            C.fs(ctx, hx("#a0b85a"), 4)
+            ctx.restore()
+            for i in range(3):  # chemical drums, one pouring
+                x = 1350 + i * 200
+                rrect(ctx, x - 70, 700, 140, 200, 14)
+                C.fs(ctx, hx("#7a3a1a"), 5)
+                text(ctx, "FLAMMABLE", x, 800, 18, hx("#e8d040"), outline=0)
+            ctx.new_path()
+            ctx.move_to(1350, 700)
+            ctx.curve_to(1300, 760, 1280, 860, 1290, 920)
+            ctx.set_line_width(14)
+            ctx.set_source_rgba(0.62, 0.78, 0.3, 0.8)
+            ctx.stroke()
+        warm(ctx, R)
+        grade(ctx, R, strength=0.6)
+
+    def fireball(ctx, R, lt):
+        with cam(ctx, R, 960, 520, 1.0 + 0.05 * math.sin(lt * 30), vfx=960):
+            tunnel(ctx, t, red=1)
+            k = min(1, lt / 1.4)
+            r = lerp(30, 1600, k ** 2)
+            g = cairo.RadialGradient(960, 520, r * 0.1, 960, 520, r)
+            g.add_color_stop_rgba(0, 1, 0.95, 0.7, 1)
+            g.add_color_stop_rgba(0.5, 1, 0.55, 0.1, 0.95)
+            g.add_color_stop_rgba(1, 0.6, 0.1, 0.0, 0)
+            ctx.set_source(g)
+            ell(ctx, 960, 520, r, r * 0.8)
+            ctx.fill()
+        grade(ctx, R, (0.2, 0.02, 0), 0.7)
+
+    shots(ctx, R, t, [(0, orbit), (p.cue("But accepting"), planning), (t_no, no_weapons), (t_prop, plan), (t_prep, brushes),
+                      (p.cue("but their improvised"), prep), (t_flare, flare), (t_tears, fireball),
+                      (p.cue("killing many"), inferno)])
     scene_header(ctx, R, 7, t)
 
 
@@ -1637,9 +1951,11 @@ def S8(ctx, R, t, p):
         text(ctx, "COUNTLESS MORE", W / 2, H * V(R, 0.16, 0.14), V(R, 90, 66) * u, hx("#ff6a4a"), "Liberation Serif", outline=6 * u)
 
     def realize(ctx, R, lt):
-        with cam(ctx, R, 960, 440, 1.7 + 0.05 * lt, vfx=960):
+        k = ease(min(1, lt / 5))
+        with cam(ctx, R, lerp(500, 1400, k), 440, 1.7 + 0.05 * lt, vfx=lerp(500, 1400, k)):  # background sweeps behind her
             bg_medical(ctx, t)
-            A3["ripley_bald"].draw(ctx, 960, 1060, 1.0, t=t, expr="sad", look=0, tears=True)
+        with cam(ctx, R, 960, 440, 1.7 + 0.05 * lt, vfx=960):
+            A3["ripley_bald"].draw(ctx, 960, 1060, 1.0, t=t, expr="sad", look=lerp(1, -1, k), tears=True)
         ctx.set_source_rgba(0, 0, 0, 0.4 * ap(lt, 0.5, 2))
         ctx.paint()
         grade(ctx, R, strength=0.8)
@@ -1653,7 +1969,7 @@ def S9(ctx, R, t, p):
     t_years, t_dec, t_asks, t_ref = p.cue("For years"), p.cue("Ripley decides"), p.cue("She approaches"), p.cue("But Dillon refuses")
 
     def message(ctx, R, lt):
-        with cam(ctx, R, 960, 540, 1.0, vfx=960):
+        with cam(ctx, R, lerp(820, 1100, min(1, lt / 5)), 540, 1.15, vfx=960):
             C.sky(ctx, hx("#06100a"), hx("#020604"))
             monitor(ctx, 360, 180, 1200, 680, t, ["WEYLAND-YUTANI", "", "RECOVERY TEAM INBOUND", "PRIORITY: RIPLEY"], k=ap(lt, 0.2, 2.5))
         grade(ctx, R, strength=0.6)
@@ -1676,6 +1992,13 @@ def S9(ctx, R, t, p):
             bg_foundry(ctx, t)
             furnace(ctx, 960, 760, 0.8, t, 0.7)
             A3["ripley_bald"].draw(ctx, 720, 1010, 0.88, t=t, expr="sad", look=1, armR=40, elbowR=60)
+            g = cairo.LinearGradient(860, 0, 1080, 0)  # deep shadow separating the two
+            g.add_color_stop_rgba(0, 0, 0, 0, 0)
+            g.add_color_stop_rgba(0.5, 0, 0, 0, 0.85)
+            g.add_color_stop_rgba(1, 0, 0, 0, 0)
+            ctx.set_source(g)
+            ctx.rectangle(860, -200, 220, 1400)
+            ctx.fill()
             A3["dillon"].draw(ctx, 1220, 1030, 0.95, t=t, facing=-1, expr="sad" if t < t_ref else "angry", look=-1,
                               tilt=8 * math.sin(t * 5) if t > t_ref else 0)
         warm(ctx, R, 0.25)
@@ -1685,7 +2008,14 @@ def S9(ctx, R, t, p):
         elif t > t_ref:
             badge(ctx, W / 2, H * 0.14, "\"NOT UNTIL WE KILL IT.\"", 46 * u, BONE, hx("#3a2a1a"))
 
-    shots(ctx, R, t, [(0, message), (t_years, history), (t_dec, asks)])
+    def aaron(ctx, R, lt):
+        with cam(ctx, R, 960, 430, 1.8, vfx=960):
+            bg_medical(ctx, t, flick=0.1)
+            A3["aaron"].draw(ctx, 960, 1060, 1.0, t=t, expr="scared", look=0.6 * math.sin(t * 1.5))
+        grade(ctx, R, strength=0.75)
+        lower_third(ctx, R, lt, 0.3, "AARON (\"85\")", "trusts the company... for now", 3)
+
+    shots(ctx, R, t, [(0, message), (p.cue("but Ripley understands"), aaron), (t_years, history), (t_dec, asks)])
     scene_header(ctx, R, 9, t)
 
 
@@ -1860,7 +2190,30 @@ def S11(ctx, R, t, p):
         if lt > 1.2:
             text(ctx, "THERMAL SHOCK", W / 2, H * V(R, 0.2, 0.16), V(R, 96, 70) * u, BONE, "Liberation Serif", outline=6 * u)
 
-    shots(ctx, R, t, [(0, chase), (t_some, mold), (t_sac, pour), (t_even, erupts), (t_water, water), (t_shock, shatter)])
+    def dillon_low(ctx, R, lt):
+        with cam(ctx, R, 900, lerp(760, 640, min(1, lt / 4)), 1.5, vfx=900):  # low angle on Dillon holding his ground
+            bg_foundry(ctx, t, heat=1.3)
+            A3["dillon"].draw(ctx, 900, 1080, 1.05, t=t, expr="angry", look=0.5, armL=60, armR=60)
+            xeno(ctx, 1500, 1080, 0.7, t, facing=-1, jaw=0.8, crouch=0.3)
+        warm(ctx, R, 0.3)
+        grade(ctx, R, strength=0.7)
+
+    def macro(ctx, R, lt):
+        with cam(ctx, R, 960, 540, 1.0 + 0.08 * lt, vfx=960):
+            bg_foundry(ctx, t, heat=1.4)
+            xeno_closeup(ctx, 1450, 560, 1.15, t, jaw=1, strike=0.3, color=hx("#5a200a"))
+            ctx.set_operator(cairo.OPERATOR_ADD)
+            g = cairo.RadialGradient(1100, 520, 30, 1100, 520, 700)
+            g.add_color_stop_rgba(0, 1, 0.5, 0.1, 0.7)
+            g.add_color_stop_rgba(1, 1, 0.3, 0.05, 0)
+            ctx.set_source(g)
+            ctx.paint()
+            ctx.set_operator(cairo.OPERATOR_OVER)
+            embers(ctx, t, 1.0, 60)
+        grade(ctx, R, (0.2, 0.04, 0), 0.7)
+
+    shots(ctx, R, t, [(0, chase), (t_some, mold), (p.cue("But the alien still"), dillon_low), (t_sac, pour), (t_even, erupts),
+                      (t_water, macro), (p.cue("rapidly cooling"), water), (t_shock, shatter)])
     scene_header(ctx, R, 11, t)
 
 
@@ -1907,7 +2260,8 @@ def S12(ctx, R, t, p):
         badge(ctx, W / 2, H * 0.14, "AARON FIGHTS BACK", 44 * u, BONE, hx("#5a0a0a"))
 
     def platform(ctx, R, lt):
-        with cam(ctx, R, 960, 560, 1.0 + 0.03 * lt, vfx=V(R, 960, 960)):
+        z = lerp(1.9, 1.0, ease(min(1, lt / 3)))  # high-angle reveal of the furnace below her
+        with cam(ctx, R, 960, lerp(380, 560, ease(min(1, lt / 3))), z, vfx=V(R, 960, 960)):
             bg_foundry(ctx, t, heat=1.4)
             molten_pit(ctx, 960, 900, 1600, t)
             ctx.rectangle(760, 520, 420, 26)  # raised platform
@@ -1984,11 +2338,90 @@ def S12(ctx, R, t, p):
             ctx.pop_group_to_source()
             ctx.paint_with_alpha(ap(lt, 6.0, 1.0))
 
-    shots(ctx, R, t, [(0, arrive), (t_claims, offer), (t_viol, violent), (t_plat, platform), (t_falls, fall), (t_morse, ending)])
+    def face(ctx, R, lt):
+        with cam(ctx, R, 960, 420, 1.8 + 0.25 * ease(min(1, lt / 6)), vfx=960):  # slow push toward Ripley's face
+            bg_foundry(ctx, t, heat=1.3)
+            h = A3["ripley_bald"].draw(ctx, 960, 1060, 1.0, t=t, expr="cold", look=0)
+            eye_fire(ctx, h["head"], 64, 1.0, t)
+        warm(ctx, R, 0.3)
+        grade(ctx, R, strength=0.8)
+
+    shots(ctx, R, t, [(0, arrive), (t_claims, offer), (t_knows, face), (t_viol, violent), (t_plat, platform), (t_falls, fall),
+                      (t_morse, ending)])
     scene_header(ctx, R, 12, t)
 
 
 LONG = [S1, S2, S3, S4, S5, S6, S7, S8, S9, S10, S11, S12]
+
+# ---------------------------------------------------------------- sound design (from the storyboard's audio notes)
+# (cue phrase or seconds into the scene, offset, effect, gain, duration)
+SFX = {
+    0: [(0, 0, "buzz", 0.3, 10), ("an electrical fire", 0, "sparks", 0.6, 3), ("triggers the emergency", 0, "alarm", 0.5, 5),
+        ("Their escape vehicle", 0, "whoosh", 0.7, 2.5), ("crashes onto", 0, "clang", 0.4, None), ("crashes onto", 0.6, "clang", 0.4, None),
+        ("a remote prison", 2.9, "impact", 1.0, 3)],
+    1: [(0, 0, "buzz", 0.35, 30), ("But Ripley notices", 0, "heartbeat", 0.5, 8), ("but Ripley still insists", 0, "fireball", 0.4, 3),
+        ("but Ripley still insists", 0.5, "fire", 0.4, 8)],
+    2: [("It's an aging", 0, "door", 0.5, None), ("These men", 0, "chant", 0.5, 8), ("Ripley's arrival", 0.5, "clippers", 0.5, 3),
+        ("Even more dangerous", 0.3, "clang", 0.5, None)],
+    3: [(0, 0, "chant", 0.5, 8), (0, 0, "fire", 0.3, 8), ("A facehugger", 0.5, "hiss", 0.4, None), ("The resulting alien", 0.8, "hiss", 0.6, None),
+        ("The resulting alien", 2.05, "shriek", 0.7, None), ("This one moves", 0, "footsteps", 0.3, 4),
+        ("One maintenance worker", 0, "fan", 0.6, 5), ("One maintenance worker", 2.6, "shriek", 0.6, None)],
+    4: [("Ripley searches", 0, "footsteps", 0.3, 4), ("But several prisoners", 0, "clang", 0.3, None),
+        ("After recovering", 0.3, "static", 0.4, 2), ("After recovering", 1.5, "sparks", 0.4, 0.8),
+        ("to the escape vehicle's", 0, "buzz", 0.4, 8), ("His findings", 0, "beeps", 0.4, 1.5)],
+    5: [(0, 0, "drip", 0.4, None), (0.8, 0, "drip", 0.4, None), ("The alien's attacks", 1.2, "shriek", 0.6, None),
+        ("The alien's attacks", 2.0, "impact", 0.5, 1), ("Then the creature", 1.6, "growl", 0.5, 1.5),
+        ("Then the creature", 1.95, "shriek", 0.6, None), ("What happens next", 0, "heartbeat", 0.6, 8),
+        ("What happens next", 0, "hiss", 0.4, 2.5), ("What happens next", 4.0, "hiss", 0.5, 2),
+        ("Moments later", 2.4, "clang", 0.6, None), ("Moments later", 2.5, "shriek", 0.5, None)],
+    6: [("Ripley proposes", 0, "beeps", 0.25, 2), ("The prisoners begin", 0, "footsteps", 0.2, 3), ("During an attack", 0, "shriek", 0.5, None),
+        ("During an attack", 0.2, "whoosh", 0.4, 1.5), ("Fire tears through", 0, "fireball", 0.9, 3), ("Fire tears through", 0.5, "fire", 0.6, 8)],
+    7: [("and a medical scan", 0, "heartbeat", 0.6, 10), ("and a medical scan", 0.5, "beeps", 0.25, 2), ("An Alien Queen", 0, "impact", 0.5, 2)],
+    8: [(0, 0, "static", 0.35, 2.5), (0.2, 0, "beeps", 0.3, 1.5), ("Ripley decides", 0, "fire", 0.25, 10)],
+    9: [(0, 0, "chant", 0.3, 6), ("By using themselves", 0, "footsteps", 0.4, 5), ("By using themselves", 1.8, "door", 0.6, None),
+        ("By using themselves", 4.3, "door", 0.6, None), ("One mistake", 0, "alarm", 0.3, 3), ("One mistake", 0.5, "door", 0.7, None)],
+    10: [(0, 0, "footsteps", 0.5, 6), (0, 0, "shriek", 0.5, None), (2.5, 0, "door", 0.6, None), ("Dillon makes", 0.5, "pour", 0.8, 4),
+         ("Dillon makes", 0.8, "shriek", 0.6, None), ("Even that", 0, "shriek", 0.8, None), ("Even that", 1.2, "hiss", 0.6, None),
+         ("She activates", 0, "steam", 0.6, 3), ("rapidly cooling", 0, "steam", 0.8, 4), ("The resulting", 0.6, "crack", 1.0, 3)],
+    11: [(0, 0, "footsteps", 0.4, 3), ("As the confrontation", 1.0, "clang", 0.6, None), ("As the confrontation", 1.6, "gunshot", 0.8, None),
+         ("As the confrontation", 1.9, "gunshot", 0.7, None), ("As the confrontation", 2.2, "gunshot", 0.6, None),
+         ("she reaches", 0, "fire", 0.5, 8), ("she reaches", 0, "heartbeat", 0.4, 5), ("Ripley falls", 0, "fireball", 0.4, 3)],
+}
+# the storyboard's "three-second absence of music" right after the crash
+SILENCE = [(0, "a remote prison", 3.0, 3.0)]
+
+
+def sfx_events(paras):
+    ev = []
+    for i, items in SFX.items():
+        p = paras[i]
+        for cue, off, name, gain, dur in items:
+            base = p.cue(cue) if isinstance(cue, str) else cue
+            ev.append((p.start + base + off, name, gain, dur))
+    return ev
+
+
+def apply_silence(path, paras):
+    import wave as _w
+    import numpy as np
+    with _w.open(path) as w:
+        sr = w.getframerate()
+        x = np.frombuffer(w.readframes(w.getnframes()), np.int16).astype(float)
+    env = np.ones_like(x)
+    for i, cue, off, d in SILENCE:
+        p = paras[i]
+        t0 = p.start + p.cue(cue) + off
+        a, b = int(t0 * sr), int((t0 + d) * sr)
+        f = int(0.3 * sr)
+        env[a:b] = 0
+        env[max(0, a - f):a] = np.linspace(1, 0, a - max(0, a - f))
+        env[b:b + f] = np.linspace(0, 1, len(env[b:b + f]))
+    with _w.open(path, "w") as w:
+        w.setnchannels(1)
+        w.setsampwidth(2)
+        w.setframerate(sr)
+        w.writeframes((x * env).astype(np.int16).tobytes())
+
 
 # ---------------------------------------------------------------- pipeline
 A3_PROG = [("D", [50, 53, 57]), ("Bb", [46, 50, 53]), ("G", [43, 46, 50]), ("A", [45, 49, 52]),
@@ -2072,6 +2505,8 @@ def main():
     fc = ";".join(parts) + ";" + "".join(f"[a{i}]" for i in range(len(paras))) + f"concat=n={len(paras)}:v=0:a=1[vo]"
     subprocess.run(["ffmpeg", "-y", "-loglevel", "error", *inputs, "-filter_complex", fc, "-map", "[vo]", f"{work}/vo.wav"], check=True)
     gm.music(f"{work}/music.wav", total, prog=A3_PROG, bpm=58)
+    import sfx
+    sfx.render_track(sfx_events(paras), total, f"{work}/sfx.wav")
     # industrial drone bed under the score
     subprocess.run(["ffmpeg", "-y", "-loglevel", "error",
                     "-f", "lavfi", "-i", f"anoisesrc=color=brown:amplitude=0.5:d={total:.2f}:r=48000",
@@ -2079,15 +2514,18 @@ def main():
                     "-filter_complex", "[0]lowpass=f=160,volume=0.12[n];[1]volume=0.06,tremolo=f=0.15:d=0.7[s];"
                     f"[n][s]amix=inputs=2:normalize=0,afade=t=in:d=2,afade=t=out:st={total - 3:.2f}:d=3[amb]",
                     "-map", "[amb]", f"{work}/amb.wav"], check=True)
+    apply_silence(f"{work}/music.wav", paras)
+    apply_silence(f"{work}/amb.wav", paras)
     with open(f"{work}/list.txt", "w") as fh:
         for i in range(len(paras)):
             fh.write(f"file 's{i:02d}.mp4'\n")
     subprocess.run(["ffmpeg", "-y", "-loglevel", "error", "-f", "concat", "-safe", "0", "-i", f"{work}/list.txt",
-                    "-i", f"{work}/vo.wav", "-i", f"{work}/music.wav", "-i", f"{work}/amb.wav",
+                    "-i", f"{work}/vo.wav", "-i", f"{work}/music.wav", "-i", f"{work}/amb.wav", "-i", f"{work}/sfx.wav",
                     "-filter_complex", "[1]aresample=48000,asplit=2[v][sc];[2]aresample=48000,volume=0.5[m];[3]volume=0.7[b];"
                     "[m][b]amix=inputs=2:normalize=0[bed];"
                     "[bed][sc]sidechaincompress=threshold=0.03:ratio=6:attack=20:release=400[md];"
-                    "[v][md]amix=inputs=2:normalize=0:duration=first,alimiter=limit=0.95[a]",
+                    "[4]aresample=48000,volume=0.6[fx];"
+                    "[v][md][fx]amix=inputs=3:normalize=0:duration=first,alimiter=limit=0.95[a]",
                     "-map", "0:v", "-map", "[a]", "-c:v", "copy", "-c:a", "aac", "-b:a", "192k", "-movflags", "+faststart",
                     "-shortest", out], check=True)
     print("wrote", out, round(total, 1), "s")
