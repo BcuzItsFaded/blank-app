@@ -1,4 +1,5 @@
 // Scenes. Each shot: {s: sentence index where it starts, cut: hard cut?, fn(lt, d, A)} where A(j)=local time of sentence j start.
+function bigHeadMouth(x, y, r, f, on) { line([x + 0.1 * r * f, y + r * 0.42, x + 0.35 * r * f, y + r * 0.42], CREAM, r * 0.03); if (on < 0.5) { line([x + 0.0 * r * f, y - r * 0.12, x + 0.18 * r * f, y - r * 0.12], '#555', r * 0.03); } }
 const RIP = (o) => Object.assign({ hair: !o.baldR, bald: !!o.baldR, label: o.label }, o);
 const GF = 0; // ground default
 function corridorSide(cx, t, o = {}) {
@@ -76,7 +77,7 @@ const SCENES = [
    stars(lt * 30, 0, 300, 0.4, lt); planet(1250, 1550, 1050, lt); ship(380 - lt * 20, 160, 0.4, lt, 1);
    const u = eo(p * 1.05); const x = lerp(470, 1250, u), y = lerp(200, 680, u * u);
    capsuleEEV(x, y, 1.1 - 0.4 * u, lt * 3.2, true);
-   X.restore(); txt('FIORINA 161', 1400, 980, 40, '#ffb27a', { ls: 10, a: prog(lt, 1, 2) * 0.85 });
+   X.restore(); txt('FIORINA 161', 1400, 860, 40, '#ffb27a', { ls: 10, a: prog(lt, 1, 2) * 0.85 });
    const fl = prog(lt, d - 0.7, d - 0.35) - prog(lt, d - 0.35, d);
    return { flash: fl, flashc: '#fff2e0' }; } },
  { s: 6, cut: true, fn(lt, d, A) { fillBG('#1c0a06', '#4a1e10'); camL([960, 600, 1.15], [960, 620, 1.05], lt / d);
@@ -91,8 +92,8 @@ const SCENES = [
    const a0 = A(6);
    stick(RIP({ x: 560, y: 820, h: 240, rot: -PI / 2, ex: 'closed', label: 'RIPLEY · ALIVE', la: prog(lt, 0.5, 1), ly: 150, lx: -120 }));
    stick({ x: 1000, y: 830, h: 240, rot: PI / 2 + 0.1, col: GREY, ex: 'closed', label: 'HICKS · KILLED', la: prog(lt, 2.3, 2.7), lc: '#d77', ly: 150, lx: 120 });
-   stick({ x: 880, y: 860, h: 140, rot: -PI / 2, col: GREY, pig: true, ex: 'closed', label: 'NEWT · KILLED', la: prog(lt, 2.8, 3.2), lc: '#d77', ly: 60, lx: -40 });
-   bishopPieces(1200, 850, 1, 1); label('BISHOP · IN PIECES', 1200, 820, prog(lt, 3.6, 4), BLUE);
+   stick({ x: 880, y: 860, h: 140, rot: -PI / 2, col: GREY, pig: true, ex: 'closed', label: 'NEWT · KILLED', la: prog(lt, 2.8, 3.2), lc: '#d77', ly: 10, lx: -60 });
+   bishopPieces(1200, 850, 1, 1); label('BISHOP · IN PIECES', 1260, 760, prog(lt, 3.6, 4), BLUE);
    particles(lt, { n: 60, c: '#ffb070', a: 0.6, up: true, sp: 50, r: 3, add: true });
    return { tint: '#ff7030', tintA: 0.2 }; } },
  { s: 7, cut: true, fn(lt, d) { fillBG('#0c1013', '#030405'); camL([960, 600, 1], [960, 640, 1.3], lt / d);
@@ -100,7 +101,7 @@ const SCENES = [
    rect(700, 720, 520, 18, '#3b4048'); line([730, 738, 730, 840], '#3b4048', 10); line([1190, 738, 1190, 840], '#3b4048', 10);
    ekg(1300, 520, 200, 80, lt, GREEN); line([1400, 600, 1400, 840], '#2a3036', 8); line([600, 380, 600, 840], '#3a4048', 5); rect(570, 380, 60, 90, 'rgba(160,210,255,0.25)'); line([600, 470, 900, 690], 'rgba(200,220,240,0.4)', 2);
    stick(RIP({ x: 1100, y: 716, h: 300, rot: -PI / 2, gb: 4, ex: 'closed' }));
-   txt('EVERYTHING SHE FOUGHT TO SAVE — GONE', 960, 300, 40, CREAM, { a: prog(lt, 1.5, 2.5) * 0.85, ls: 6, w: 600 });
+   X.setTransform(1, 0, 0, 1, 0, 0); txt('EVERYTHING SHE FOUGHT TO SAVE — GONE', 960, 200, 40, CREAM, { a: prog(lt, 1.5, 2.5) * 0.85, ls: 6, w: 600 });
    return { desat: 0.35 + 0.5 * prog(lt, 0, d), flash: 0 }; } },
 ],
 // ================= SCENE 2 =================
@@ -109,7 +110,7 @@ const SCENES = [
    for (let i = 0; i < 10; i++) rect(i * 220 - 40, 120, 200, 700, i % 2 ? '#0f171b' : '#111b20'); rect(-200, 820, 2400, 400, '#070a0c');
    for (let r = 0; r < 3; r++) for (let c = 0; c < 4; c++) { const dx = 1480 + c * 110, dy = 380 + r * 120; rect(dx, dy, 100, 105, '#1a2328'); rect(dx + 30, dy + 45, 40, 8, '#55646c'); txt(String(r * 4 + c + 1).padStart(2, '0'), dx + 50, dy + 22, 16, '#7d8d95', { w: 600, font: 'DejaVu Sans Mono' }); }
    rect(120, 330, 220, 160, '#0a1218'); X.save(); X.globalAlpha = 0.55; rect(130, 340, 200, 140, '#a8c8dc'); X.restore(); X.save(); X.globalAlpha = 0.6; X.strokeStyle = '#123'; X.lineWidth = 4; for (let k = 0; k < 5; k++) { X.beginPath(); X.arc(230, 420 + k * 6, 40 + k * 8, PI * 1.15, PI * 1.85); X.stroke(); } X.restore();
-   wallSign(330, 280, 'INFIRMARY · MORGUE', '#9fb8c8', '#0b1216', 18);
+   wallSign(1700, 320, 'INFIRMARY · MORGUE', '#9fb8c8', '#0b1216', 18);
    lamp(1060, 170, 380, 700, 'rgb(205,235,255)', lt, 0.25); sheetBody(1080, 720, 0.85);
    stick(RIP({ x: 760, y: 830, h: 320, f: 1, pose: 'headdown', ph: lt }));
    return { tint: '#5a8fb0', tintA: 0.25, desat: 0.3 }; } },
@@ -117,7 +118,7 @@ const SCENES = [
    for (let i = 0; i < 10; i++) rect(i * 220 - 40, 120, 200, 700, i % 2 ? '#0f171b' : '#111b20'); rect(-200, 820, 2400, 400, '#070a0c');
    for (let r = 0; r < 3; r++) for (let c = 0; c < 4; c++) { const dx = 1480 + c * 110, dy = 380 + r * 120; rect(dx, dy, 100, 105, '#1a2328'); rect(dx + 30, dy + 45, 40, 8, '#55646c'); txt(String(r * 4 + c + 1).padStart(2, '0'), dx + 50, dy + 22, 16, '#7d8d95', { w: 600, font: 'DejaVu Sans Mono' }); }
    rect(120, 330, 220, 160, '#0a1218'); X.save(); X.globalAlpha = 0.55; rect(130, 340, 200, 140, '#a8c8dc'); X.restore(); X.save(); X.globalAlpha = 0.6; X.strokeStyle = '#123'; X.lineWidth = 4; for (let k = 0; k < 5; k++) { X.beginPath(); X.arc(230, 420 + k * 6, 40 + k * 8, PI * 1.15, PI * 1.85); X.stroke(); } X.restore();
-   wallSign(330, 280, 'INFIRMARY · MORGUE', '#9fb8c8', '#0b1216', 18);
+   wallSign(1700, 320, 'INFIRMARY · MORGUE', '#9fb8c8', '#0b1216', 18);
    lamp(960, 170, 380, 700, 'rgb(205,235,255)', lt, 0.25); sheetBody(960, 720, 0.85);
    stick(RIP({ x: 600, y: 830, h: 320, f: 1 }));
    stick({ x: 1330, y: 830, h: 330, f: -1, coat: true, pose: 'talk', ph: lt * 3, label: 'CLEMENS · DOCTOR', la: prog(lt, 0.3, 0.8) });
@@ -156,7 +157,7 @@ const SCENES = [
    for (let i = 0; i < 4; i++) { const x = 400 + i * 420; rect(x, -300, 70, 520, '#0c0504'); steam(x + 35, -260, lt + i, 80, 0.35); }
    rect(-600, 1000, 3200, 600, '#090403');
    X.setTransform(1, 0, 0, 1, 0, 0);
-   txt('FIORINA 161', 960, 200, 70, CREAM, { ls: 18, a: prog(lt, 0.5, 1.5) * (1 - prog(lt, A(1) - 0.5, A(1))) });
+   txt('FIORINA 161', 960, 480, 90, CREAM, { ls: 22, glow: 'rgba(255,120,50,0.8)', gb: 30, a: prog(lt, 0.8, 1.8) * (1 - prog(lt, A(1) - 0.5, A(1))) });
    txt('FOUNDRY · PRISON · OPERATED FOR WEYLAND-YUTANI', 960, 200, 38, '#ffb07a', { ls: 6, a: prog(lt, A(1), A(1) + 0.6), w: 700 });
    return { tint: '#ff7a30', tintA: 0.2 }; } },
  { s: 2, fn(lt, d, A) { const p = lt / d; industrial(lt, { cx: p * 300 }); camL([780, 560, 1], [1000, 520, 1.25], p);
@@ -222,7 +223,7 @@ const SCENES = [
    if (!ceil) alien({ x: 900 + Math.sin(lt * 0.8) * 60, y: 880, s: 150, f: 1, mode: 'run', ph, jaw: 0.15 });
    else alien({ x: 1000 + Math.sin(lt * 0.8) * 60, y: 182, s: 150, f: 1, mode: 'run', ph, flipY: true });
    X.setTransform(1, 0, 0, 1, 0, 0); streaks(lt, 18, 0.25);
-   if (lt < A(3)) { txt('FOUR LEGS', 360, 980 - 0, 34, AMBER, { a: prog(lt, A(2) + 1.2, A(2) + 1.6), ls: 6 }); txt('INCREDIBLE SPEED', 960, 980 - 0, 34, AMBER, { a: prog(lt, A(2) + 2.4, A(2) + 2.8) * 0, ls: 6 }); }
+   if (lt < A(3)) { txt('FOUR LEGS · INCREDIBLE SPEED', 960, 150 - 0, 34, AMBER, { a: prog(lt, A(2) + 1.2, A(2) + 1.6), ls: 6 }); txt('INCREDIBLE SPEED', 960, 980 - 0, 34, AMBER, { a: prog(lt, A(2) + 2.4, A(2) + 2.8) * 0, ls: 6 }); }
    return { tint: '#6a8060', tintA: 0.15 }; } },
  { s: 4, cut: true, fn(lt, d) { corridorSide(0, lt, { lights: 'rgba(255,190,110,0.18)', flick: true }); camL([960, 560, 1.05], [960, 560, 1.15], lt / d);
    stick({ x: 520, y: 880, h: 330, f: 1, bald: true, prisoner: true, col: GREY, pose: lt > d * 0.5 ? 'cower' : 'hold', qmark: prog(lt, d * 0.55, d * 0.7) });
@@ -258,7 +259,7 @@ const SCENES = [
  { s: 2, cut: true, fn(lt, d) { fillBG('#050a07', '#010302'); camL([960, 540, 1.0], [960, 500, 1.25], lt / d);
    lamp(960, 120, 300, 700, 'rgb(140,255,170)', lt, 0.15);
    const on = prog(lt, d * 0.45, d * 0.6);
-   bigHead(960, 470, 170, { eyec: on > 0.5 ? BLUE : '#333', f: -1 }); X.save(); X.strokeStyle = 'rgba(180,230,255,0.8)'; X.lineWidth = 3; X.beginPath(); X.moveTo(900, 520); X.lineTo(960, 430); X.lineTo(1030, 450); X.stroke(); X.restore();
+   bigHead(960, 470, 170, { eyec: on > 0.5 ? BLUE : '#333', f: -1, eyes: on > 0.5 }); X.save(); X.strokeStyle = 'rgba(160,220,255,0.7)'; X.lineWidth = 3; X.beginPath(); X.moveTo(840, 560); X.lineTo(880, 560); X.lineTo(880, 590); X.moveTo(860, 610); X.lineTo(910, 610); X.lineTo(910, 625); X.stroke(); circ(880, 590, 5, 'rgba(160,220,255,0.8)'); circ(910, 625, 5, 'rgba(160,220,255,0.8)'); line([835, 380, 860, 400, 860, 430], 'rgba(160,220,255,0.5)', 3); X.restore(); bigHeadMouth(960, 470, 170, -1, on);
    for (let i = 0; i < 5; i++) { X.beginPath(); X.moveTo(940 + i * 10, 840); X.bezierCurveTo(940 + i * 10, 960, 1300 + i * 30, 900, 1500 + i * 20, 1000); X.strokeStyle = ['#2a6', '#a22', '#444', '#26a', '#aa2'][i]; X.lineWidth = 8; X.stroke(); }
    rect(1440, 860, 260, 160, '#1c2220'); for (let i = 0; i < 4; i++) circ(1480 + i * 55, 900, 10, Math.sin(lt * 5 + i) > 0 ? GREEN : '#133');
    if (lt > d * 0.3 && lt < d * 0.55) sparks(950, 850, lt * 2, 12, '#bfffd0');
@@ -269,8 +270,8 @@ const SCENES = [
    if (lt > A(4)) { X.save(); X.globalAlpha = 0.9 * (0.6 + 0.4 * Math.sin(lt * 6)); alien({ x: 1460, y: 790, s: 45, f: 1, mode: 'crouch', rim: RED, ph: lt }); X.restore(); }
    vhs(lt, 0.6); return { tint: '#30ff80', tintA: 0.1 }; } },
  { s: 5, cut: true, fn(lt, d) { fillBG('#000', '#000'); monitor(960, 420, 1700, 640, ['> FLIGHT DATA TRANSMITTED TO: WEYLAND-YUTANI', '> STATUS: RECEIVED', '!> THEY KNOW', '!> THEY WANT THE CREATURE'], lt, GREEN, { cps: 24 });
-   X.save(); X.globalCompositeOperation = 'lighter'; for (let i = 0; i < 6; i++) { const r = ((lt * 220 + i * 120) % 720); X.globalAlpha = 0.5 * (1 - r / 720); X.beginPath(); X.arc(260, 960, r, -PI / 2.2, -PI / 8); X.strokeStyle = GREEN; X.lineWidth = 5; X.stroke(); } X.restore();
-   circ(260, 960, 30, '#2a1408', '#ff9a3c', 4); txt('FIORINA 161', 260, 1030, 24, '#ffb07a', { ls: 3 }); txt('→ COMPANY', 1660, 1000, 30, GREEN, { ls: 4 });
+   X.save(); X.globalCompositeOperation = 'lighter'; for (let i = 0; i < 6; i++) { const r = ((lt * 220 + i * 120) % 720); X.globalAlpha = 0.5 * (1 - r / 720); X.beginPath(); X.arc(260, 820, r, -PI / 2.2, -PI / 8); X.strokeStyle = GREEN; X.lineWidth = 5; X.stroke(); } X.restore();
+   circ(260, 820, 30, '#2a1408', '#ff9a3c', 4); txt('FIORINA 161', 260, 880, 24, '#ffb07a', { ls: 3 }); txt('→ COMPANY', 1660, 860, 30, GREEN, { ls: 4 });
    vhs(lt, 0.4); return { tint: '#30ff80', tintA: 0.1 }; } },
  { s: 7, cut: true, fn(lt, d) { fillBG('#08100b', '#020403'); camL([960, 540, 1], [900, 520, 1.25], lt / d);
    glow(900, 450, 700, 'rgba(120,255,160,0.12)');
@@ -284,7 +285,7 @@ const SCENES = [
  { s: 0, fn(lt, d) { const p = lt / d; corridorSide(p * 500, lt, { lights: 'rgba(160,255,190,0.15)', top: '#050807', c1: '#0e1511', c2: '#121a15' }); camL([960, 560, 1.0], [1000, 560, 1.1], p);
    const atk = prog(p, 0.55, 0.62);
    if (p < 0.75) { stick({ x: 760 + p * 300, y: 880, h: 300, bald: true, prisoner: true, col: GREY, pose: 'hold', ph: lt * 5, label: 'BOGGS', la: prog(lt, 0.3, 0.8) }); stick({ x: 1060 + p * 300, y: 880, h: 300, bald: true, prisoner: true, col: GREY, pose: 'walk', ph: lt * 5, label: 'RAINS', la: prog(lt, 0.5, 1) }); glow(1000 + p * 300, 700, 240, 'rgba(255,240,180,0.3)'); }
-   alien({ x: 1500, y: lerp(-200, 182, eo(prog(p, 0.4, 0.58))), s: 140, f: -1, mode: 'crouch', flipY: true, ph: lt * 3, jaw: 0.8 * atk });
+   alien({ x: 1720, y: lerp(-200, 182, eo(prog(p, 0.4, 0.58))), s: 140, f: -1, mode: 'crouch', flipY: true, ph: lt * 3, jaw: 0.8 * atk });
    const strobe = p > 0.6 && p < 0.8 && Math.sin(lt * 40) > 0 ? 0.85 : 0;
    return { tint: '#50a070', tintA: 0.2, flash: strobe, flashc: '#000' }; } },
  { s: 1, cut: true, fn(lt, d) { fillBG('#050807', '#010202'); camL([960, 600, 1.2], [960, 620, 1.4], lt / d); rect(-200, 880, 2400, 400, '#030404'); for (let i = 0; i < 3; i++) rect(1100 + i * 200, 100, 30, 800, '#0c120f');
@@ -361,7 +362,11 @@ const SCENES = [
    drawPath(pts, Math.sin(lt * 14) > 0 ? RED : '#ff9a3c', 22, 1); txt('IGNITION', 960, 540, 90, RED, { ls: 20, glow: RED, gb: 40 });
    return { tint: '#ff3020', tintA: 0.3 }; } },
  { s: 7, cut: true, fn(lt, d) { const p = lt / d; X.save(); shake(lt, 6); tunnel(lt, 1.5, { rc: '150,90,50', top: '#0a0503', bot: '#140805' });
-   const fr = eo(prog(p, 0, 0.7)); X.save(); X.globalCompositeOperation = 'lighter'; for (let i = 0; i < 70; i++) { const life = (lt * 0.9 + R(i)) % 1; const ang = R(i + 2) * 2 * PI, rad = (life * 900 + 50) * fr; X.globalAlpha = (1 - life) * 0.4; circ(960 + Math.cos(ang) * rad * 1.5, 520 + Math.sin(ang) * rad, 60 + life * 200 * fr, life < 0.3 ? '#fff0a0' : life < 0.6 ? '#ff9a3c' : '#a02810'); } X.restore();
+   const fr = eo(prog(p, 0, 0.7)); const rr = 120 + 1100 * fr;
+   X.save(); X.globalCompositeOperation = 'lighter'; const fg = X.createRadialGradient(960, 520, 0, 960, 520, rr); fg.addColorStop(0, 'rgba(255,250,210,1)'); fg.addColorStop(0.25, 'rgba(255,190,80,0.9)'); fg.addColorStop(0.6, 'rgba(230,80,20,0.6)'); fg.addColorStop(1, 'rgba(120,20,0,0)'); X.fillStyle = fg; X.fillRect(0, 0, W, H);
+   for (let i = 0; i < 90; i++) { const ang = R(i + 2) * 2 * PI, life = (lt * 1.3 + R(i)) % 1, d0 = rr * (0.35 + 0.6 * life); const x = 960 + Math.cos(ang) * d0 * 1.4, y = 520 + Math.sin(ang) * d0, sz = (30 + 70 * R(i + 9)) * (1 - life) * (0.4 + fr);
+     X.save(); X.translate(x, y); X.rotate(ang + PI / 2); X.globalAlpha = 0.5 * (1 - life); X.fillStyle = life < 0.4 ? '#ffe08a' : '#ff7a2a'; X.beginPath(); X.moveTo(-sz * 0.4, 0); X.quadraticCurveTo(-sz * 0.4, -sz, 0, -sz * 2); X.quadraticCurveTo(sz * 0.4, -sz, sz * 0.4, 0); X.closePath(); X.fill(); X.restore(); }
+   X.restore(); sparks(960, 600, lt, 30, '#ffd27a', 2); flames(960, 1080, 1900, 300 * fr + 60, lt, 40, 1);
    for (let i = 0; i < 3; i++) { const u = prog(p, 0.1 + i * 0.15, 0.6 + i * 0.1); if (u > 0 && u < 1) stick({ x: 760 + i * 200 + (i - 1) * u * 500, y: 640 + u * 600, h: 120 + u * 700, col: '#0a0a0a', glowc: 'rgba(255,150,60,1)', gb: 25, pose: 'run', ph: lt * 10 + i, headFill: '#050505' }); }
    X.restore(); return { tint: '#ff6020', tintA: 0.3 }; } },
 ],
@@ -376,19 +381,19 @@ const SCENES = [
  { s: 1, cut: true, fn(lt, d) { blueprintGrid('rgba(80,255,140,0.08)'); fillBG('rgba(0,10,4,0.6)', 'rgba(0,10,4,0.6)'); camL([960, 540, 1], [960, 470, 1.35], prog(lt, 0, d));
    stick({ x: 960, y: 960, h: 760, col: GREEN, glowc: 'rgba(80,255,140,0.8)', gb: 20, bald: true, lw: 10, headFill: '#02140a' });
    const st = Math.floor(prog(lt, 0.6, 2.6) * 4) / 4;
-   X.save(); X.globalAlpha = st; alien({ x: 990, y: 480, s: 62, f: -1, mode: 'crouch', rim: GREEN, ph: lt, rot: 0.6, jaw: 0.2 }); X.restore();
+   X.save(); X.globalAlpha = st; alien({ x: 985, y: 470, s: 40, f: -1, mode: 'crouch', rim: GREEN, ph: lt, rot: 0.6, jaw: 0.2 }); X.restore();
    glow(960, 480, 160, `rgba(255,60,40,${0.3 * st})`);
    stamp('QUEEN EMBRYO', 960, 160, 60, RED, prog(lt, 2.6, 3.0));
    for (let i = 0; i < H; i += 8) { X.globalAlpha = 0.08; rect(-200, i, 2400, 3, '#000'); } X.globalAlpha = 1;
    return { tint: '#30ff80', tintA: 0.1, flash: (prog(lt, 2.55, 2.6) - prog(lt, 2.6, 3.0)) * 0.5, flashc: '#ff2010' }; } },
  { s: 2, cut: true, fn(lt, d, A) { fillBG('#020202', '#000'); camL([960, 520, 1.05], [960, 520, 1.12], lt / d);
    bigHead(560, 520, 200, { bald: true, f: 1, ex: 'fear' }); alien({ x: 1610, y: 950, s: 380, f: -1, mode: 'stand', ph: lt, jaw: 0.4, ha: 0.1 });
-   txt('NOT MERCY.', 1380, 180, 54, CREAM, { ls: 8, a: prog(lt, A(3) - 0.2, A(3) + 0.4), w: 800 });
-   txt('PROTECTING ITS FUTURE QUEEN.', 1240, 260, 40, RED, { ls: 6, a: prog(lt, A(4), A(4) + 0.6), w: 700, glow: RED });
+   X.setTransform(1, 0, 0, 1, 0, 0); txt('NOT MERCY.', 1300, 160, 54, CREAM, { ls: 8, a: prog(lt, A(3) - 0.2, A(3) + 0.4), w: 800 });
+   txt('PROTECTING ITS FUTURE QUEEN.', 1250, 240, 40, RED, { ls: 6, a: prog(lt, A(4), A(4) + 0.6), w: 700, glow: RED });
    return { tint: '#ff8a40', tintA: 0.1 }; } },
- { s: 5, cut: true, fn(lt, d, A) { fillBG('#071012', '#020405'); camL([960, 540, 1.2], [960, 540, 0.9], prog(lt, A(6) - 0.5, d));
+ { s: 5, cut: true, fn(lt, d, A) { fillBG('#071012', '#020405'); camL([960, 600, 1.2], [960, 600, 0.78], prog(lt, A(6) - 0.5, d));
    const n = lt < A(6) ? 1 : lt < A(7) - 0.4 ? 3 : 21; const cols = n === 1 ? 1 : n === 3 ? 3 : 7;
-   for (let k = 0; k < n; k++) { const c = k % cols, r = Math.floor(k / cols); const x = 960 + (c - (cols - 1) / 2) * 230, y = 520 + (r - (Math.ceil(n / cols) - 1) / 2) * 330;
+   for (let k = 0; k < n; k++) { const c = k % cols, r = Math.floor(k / cols); const x = 960 + (c - (cols - 1) / 2) * 230, y = 600 + (r - (Math.ceil(n / cols) - 1) / 2) * 300;
      X.save(); X.globalAlpha = prog(lt, (n === 21 ? A(7) - 0.4 : 0) + k * 0.05, (n === 21 ? A(7) : 0.5) + k * 0.05);
      rect(x - 70, y - 130, 140, 260, 'rgba(120,255,200,0.12)'); X.strokeStyle = 'rgba(160,255,210,0.5)'; X.lineWidth = 4; X.strokeRect(x - 70, y - 130, 140, 260); rect(x - 80, y + 130, 160, 24, '#2a3436');
      alien({ x: x + 10, y: y + 40, s: 26, f: -1, mode: 'crouch', ph: lt + k, rim: GREEN, rot: 0.5 }); X.restore(); }
@@ -402,12 +407,12 @@ const SCENES = [
 // ================= SCENE 9 =================
 [
  { s: 0, fn(lt, d) { fillBG('#000', '#000'); camL([960, 540, 1], [960, 520, 1.08], lt / d); monitor(960, 600, 1500, 560, ['INCOMING TRANSMISSION', '> SOURCE: WEYLAND-YUTANI', '!> RECOVERY TEAM EN ROUTE', '> ARRIVAL: IMMINENT'], lt, '#ffb070', { cps: 22, bg: '#120802', alert: RED });
-   X.setTransform(1, 0, 0, 1, 0, 0); stick({ x: 380, y: 1150, h: 600, col: '#111', glasses: true, bald: true, glowc: 'rgba(255,170,100,0.8)', gb: 20, headFill: '#080503', f: 1, p: { ht: 0.1 } });
+   X.setTransform(1, 0, 0, 1, 0, 0); stick({ x: 230, y: 1300, h: 600, col: '#111', glasses: true, bald: true, glowc: 'rgba(255,170,100,0.8)', gb: 20, headFill: '#080503', f: 1, p: { ht: 0.1 } });
    vhs(lt, 0.3); return { tint: '#ff9a50', tintA: 0.15 }; } },
  { s: 1, cut: true, fn(lt, d, A) { if (lt < A(2) - 0.3) { fillBG('#010205', '#04060c'); camL([960, 540, 1], [960, 540, 1.1], lt / (A(2))); stars(lt * 20, 0, 400, 0.3, lt); planet(1500, 900, 400, lt); ship(lerp(200, 700, lt / A(2)), 400, 0.55, lt);
-     X.setTransform(1, 0, 0, 1, 0, 0); txt('LIVES SACRIFICED  →  FOR A LIVING ALIEN', 960, 980, 36, '#ffb07a', { ls: 5, a: prog(lt, 0.5, 1.2), w: 700 }); return {}; }
+     X.setTransform(1, 0, 0, 1, 0, 0); txt('LIVES SACRIFICED  →  FOR A LIVING ALIEN', 960, 160, 36, '#ffb07a', { ls: 5, a: prog(lt, 0.5, 1.2), w: 700 }); return {}; }
    const q = lt - A(2); fillBG('#070707', '#000'); camL([960, 520, 1.05], [960, 500, 1.2], q / (d - A(2))); bigHead(960, 470, 220, { bald: true, ex: 'firm' });
-   X.setTransform(1, 0, 0, 1, 0, 0); ['SPECIMEN', 'HOST', 'PRIORITY ONE', 'PROPERTY'].forEach((s, i) => txt(s, 960 + (i % 2 ? 1 : -1) * (lerp(600, 260, prog(q, i * 0.6, i * 0.6 + 1.5))), 260 + i * 160, 48, RED, { a: prog(q, i * 0.6, i * 0.6 + 0.4) * 0.75, ls: 10, font: 'DejaVu Sans Mono', w: 600 }));
+   X.setTransform(1, 0, 0, 1, 0, 0); ['SPECIMEN', 'HOST', 'PRIORITY ONE', 'PROPERTY'].forEach((s, i) => txt(s, 960 + (i % 2 ? 1 : -1) * (lerp(800, 480, prog(q, i * 0.6, i * 0.6 + 1.5))), 260 + i * 160, 48, RED, { a: prog(q, i * 0.6, i * 0.6 + 0.4) * 0.75, ls: 10, font: 'DejaVu Sans Mono', w: 600 }));
    return { tint: '#ff3020', tintA: 0.12 }; } },
  { s: 3, cut: true, fn(lt, d) { const p = lt / d; industrial(lt, { cx: p * 200 }); camL([800, 560, 1], [1000, 560, 1.12], p); rect(-500, 860, 3200, 500, '#0d0604');
    stick(RIP({ x: lerp(400, 1100, p), y: 880, h: 320, baldR: true, pose: 'walk', ph: lt * 5 }));
@@ -415,8 +420,8 @@ const SCENES = [
  { s: 4, cut: true, fn(lt, d) { fillBG('#120604', '#050201'); camL([960, 560, 1.05], [960, 540, 1.15], lt / d); furnace(960, 860, 1400, 800, lt, 0.5);
    for (let i = 0; i < 6; i++) rect(100 + i * 340, -100, 40, 1000, '#0a0403'); line([0, 160, 1920, 160], '#0a0403', 40);
    rect(-200, 860, 2400, 400, '#080302');
-   stick(RIP({ x: 760, y: 885, h: 330, baldR: true, pose: 'talk', ph: lt * 2, col: '#151515', glowc: 'rgba(255,150,60,0.9)', headFill: '#080404', label: 'RIPLEY', la: 1 }));
-   stick({ x: 1180, y: 885, h: 380, f: -1, bald: true, glasses: true, lw: 13, col: '#151515', glowc: 'rgba(255,150,60,0.9)', headFill: '#080404', label: 'DILLON', la: 1 });
+   stick(RIP({ x: 760, y: 885, h: 330, baldR: true, pose: 'talk', ph: lt * 2, col: '#151515', glowc: 'rgba(255,150,60,0.9)', headFill: '#080404', label: 'RIPLEY', la: 1, lc: CREAM }));
+   stick({ x: 1180, y: 885, h: 380, f: -1, bald: true, glasses: true, lw: 13, col: '#151515', glowc: 'rgba(255,150,60,0.9)', headFill: '#080404', label: 'DILLON', la: 1, lc: CREAM });
    rect(930, -200, 100, 1600, 'rgba(0,0,0,0.85)');
    stamp('"KILL ME."', 960, 260, 56, CREAM, prog(lt, 0.8, 1.2)); return { tint: '#ff7a30', tintA: 0.2 }; } },
  { s: 5, fn(lt, d, A) { fillBG('#120604', '#050201'); camL([960, 560, 1.15], [1060, 540, 1.25], lt / d); furnace(960, 860, 1400, 800, lt, 0.5);
@@ -432,7 +437,7 @@ const SCENES = [
 [
  { s: 0, fn(lt, d) { industrial(lt, {}); camL([960, 760, 1.1], [960, 440, 1.15], lt / d); rect(-500, 940, 3200, 500, '#0d0604');
    rect(860, 760, 200, 180, '#2a1810'); X.strokeStyle = '#3d2418'; X.lineWidth = 6; X.strokeRect(860, 760, 200, 180);
-   stick({ x: 960, y: 760, h: 380, bald: true, glasses: true, lw: 13, pose: 'preach', ph: lt, label: 'DILLON', la: prog(lt, 0.4, 0.9) });
+   stick({ x: 960, y: 760, h: 380, bald: true, glasses: true, lw: 13, pose: 'preach', ph: lt, label: 'DILLON', la: prog(lt, 5.0, 5.5) });
    for (let i = 0; i < 9; i++) if (i !== 4) stick({ x: 200 + i * 190, y: 960, h: 250, bald: true, prisoner: true, col: GREY, glow: false, f: i < 4 ? 1 : -1, p: { ht: -0.15 } });
    return { tint: '#ff8a40', tintA: 0.2 }; } },
  { s: 1, cut: true, fn(lt, d, A) { blueprintGrid(); const pts = [[150, 900], [150, 600], [500, 600], [500, 250], [900, 250], [900, 700], [1300, 700], [1300, 400], [1640, 400]];
@@ -444,7 +449,7 @@ const SCENES = [
    drawPath(pts, CREAM, 4, u, [10, 10]);
    if (u > 0) { const [rx, ry] = pathPt(pts, u); circ(rx, ry, 18, CREAM); glow(rx, ry, 60, 'rgba(255,255,255,0.5)'); const [axx, ayy] = pathPt(pts, ua); if (ua > 0) { circ(axx, ayy, 18, RED); glow(axx, ayy, 70, 'rgba(255,50,30,0.6)'); } }
    txt('THE PLAN', 960, 80, 46, '#bcd8ff', { ls: 14, font: 'DejaVu Sans Mono', w: 700 });
-   [['● RUNNER (BAIT)', CREAM], ['● ALIEN', RED], ['■ CLOSE THE DOOR BEHIND', 'rgba(255,90,60,1)']].forEach(([s, c], i) => txt(s, 60, 900 + i * 50, 28, c, { al: 'left', ls: 3, a: prog(lt, A(2) + i * 0.5, A(2) + i * 0.5 + 0.5) }));
+   [['● RUNNER (BAIT)', CREAM], ['● ALIEN', RED], ['■ CLOSE THE DOOR BEHIND', 'rgba(255,90,60,1)']].forEach(([s, c], i) => txt(s, 1440, 760 + i * 46, 26, c, { al: 'left', ls: 3, a: prog(lt, A(2) + i * 0.5, A(2) + i * 0.5 + 0.5) }));
    return {}; } },
  { s: 4, cut: true, fn(lt, d, A) { const p = lt / d; const cx = lt * 700; corridorSide(cx, lt, { lights: 'rgba(255,90,60,0.2)', flick: true });
    stick({ x: 1100, y: 880, h: 320, bald: true, prisoner: true, col: GREY, pose: 'run', ph: lt * 10 }); fgPipe(lt * 900, lt, '#040505');
@@ -466,7 +471,7 @@ const SCENES = [
    for (let i = 0; i < 3; i++) stick({ x: 1100 + i * 220, y: 880, h: 300, bald: true, prisoner: true, col: GREY, pose: 'run', ph: lt * 11 + i * 2, a: i === 0 ? 1 - prog(p, 0.55, 0.58) : 1 });
    alien({ x: 700 + p * 300, y: 880, s: 140, f: 1, mode: 'run', ph: lt * 11, jaw: 0.6 });
    const dx = 1600; rect(dx - 60, 180, 120, 360 + 30 * Math.sin(lt * 20), '#3a3f44'); sparks(dx, 540, lt, 16);
-   X.restore(); txt('DOORS JAM', 1600, 980, 34, AMBER, { ls: 6, a: prog(lt, 1, 1.5) });
+   X.restore(); txt('DOORS JAM', 1600, 150, 34, AMBER, { ls: 6, a: prog(lt, 1, 1.5) });
    return { tint: '#ff2010', tintA: 0.25, flash: (prog(p, 0.55, 0.57) - prog(p, 0.6, 0.66)) * 0.9, flashc: '#000' }; } },
  { s: 2, cut: true, fn(lt, d, A) { fillBG('#140804', '#050201'); camL([960, 560, 1], [960, 560, 1.08], lt / d); glow(960, 700, 900, 'rgba(255,120,40,0.2)');
    X.strokeStyle = '#2c160c'; X.lineWidth = 40; X.strokeRect(260, 140, 1400, 760); rect(-200, 880, 2400, 400, '#0a0503');
@@ -497,17 +502,17 @@ const SCENES = [
    const shattered = lt > A(8);
    if (!shattered) { alien({ x: 980, y: 880, s: 160, f: -1, mode: 'rear', ph: lt * 3, jaw: 1, rim: '#ffcf60', rimA: 1 - prog(lt, 0.5, A(8)) * 0.5 }); glow(980, 760, 360, `rgba(255,150,60,${0.6 * (1 - prog(lt, 0.5, A(8)))})`); }
    else { const q = lt - A(8); for (let i = 0; i < 26; i++) { const a = R(i) * 2 * PI, v = 200 + R(i + 1) * 900; const x = 980 + Math.cos(a) * v * eo(q), y = 700 + Math.sin(a) * v * eo(q) + 300 * q * q; X.save(); X.translate(x, y); X.rotate(q * 6 + i); poly([-24, -10, 30, -16, 12, 22], '#050505'); X.restore(); } }
-   steam(980, 1000, lt, 1400, prog(lt, 0.8, 2.5));
+   steam(980, 1000, lt, 1400, 0.7 * prog(lt, 0.8, 2.5));
    if (shattered) stick(RIP({ x: 1500, y: 880, h: 300, baldR: true, f: -1, a: prog(lt, A(8) + 1.2, A(8) + 2.2) }));
    X.restore(); txt('THERMAL SHOCK', 960, 120, 54, '#e8f6ff', { ls: 14, a: prog(lt, A(8) + 0.4, A(8) + 1.0), w: 800, glow: '#9fd8ff' });
-   return { tint: '#8fb8d0', tintA: 0.2, flash: (prog(lt, A(8) - 0.15, A(8)) - prog(lt, A(8), A(8) + 1.2)) * 0.95, flashc: '#f2f6f8' }; } },
+   return { tint: '#8fb8d0', tintA: 0.2, flash: (prog(lt, A(8) - 0.15, A(8)) - prog(lt, A(8), A(8) + 1.0)) * 0.8, flashc: '#f2f6f8' }; } },
 ],
 // ================= SCENE 12 =================
 [
  { s: 0, fn(lt, d) { fillBG('#0c0806', '#030202'); const p = lt / d; camL([960, 560, 1], [900, 560, 1.12], p);
    X.save(); X.globalCompositeOperation = 'lighter'; rect(260, 220, 520, 660, 'rgba(230,240,255,0.55)'); glow(520, 560, 700, 'rgba(220,235,255,0.4)'); X.restore();
    rect(-200, 880, 2400, 400, '#050302');
-   for (let i = 0; i < 4; i++) stick({ x: lerp(380 + i * 90, 300 + i * 180, eo(p)), y: 880, h: 320, col: '#1a1c20', glowc: 'rgba(220,235,255,0.9)', gb: 18, pose: 'gun', gunHeld: true, headFill: '#0c0d10', glow: true });
+   for (let i = 0; i < 4; i++) stick({ x: lerp(-500, 120, eo(p)) + i * 210, y: 880, h: 300, col: '#1a1c20', glowc: 'rgba(220,235,255,0.9)', gb: 18, pose: 'gun', gunHeld: true, headFill: '#0c0d10', glow: true });
    stick({ x: lerp(560, 900, eo(p)), y: 880, h: 340, pose: 'walk', ph: lt * 4 * (1 - eo(p)), android: false, label: 'THE MAN WHO LOOKS LIKE BISHOP', la: prog(lt, 1.5, 2), lc: BLUE });
    stick(RIP({ x: 1500, y: 880, h: 320, baldR: true, f: -1 }));
    return { tint: '#a0b8d0', tintA: 0.15 }; } },
@@ -520,7 +525,7 @@ const SCENES = [
  { s: 4, cut: true, fn(lt, d) { fillBG('#120604', '#050201'); const p = lt / d; X.save(); shake(lt, 5); camL([960, 560, 1.1], [960, 560, 1.0], p); rect(-200, 880, 2400, 400, '#080302');
    const hit = eo(prog(p, 0.2, 0.35)); stick({ x: lerp(500, 860, hit), y: 880, h: 330, bald: true, glasses: true, pose: 'push', label: 'AARON', la: 1 - prog(p, 0.5, 0.6), rot: prog(p, 0.55, 0.7) * -PI / 2 });
    stick({ x: 1000, y: 880, h: 340, f: -1, pose: hit > 0.9 ? 'fall' : 'stand', rot: hit * 0.25 });
-   for (let i = 0; i < 3; i++) stick({ x: 1350 + i * 160, y: 880, h: 320, f: -1, col: '#1a1c20', glowc: 'rgba(255,170,90,0.8)', pose: 'gun', gunHeld: true, headFill: '#0c0d10' });
+   for (let i = 0; i < 3; i++) stick({ x: 1350 + i * 220, y: 880, h: 300, f: -1, col: '#1a1c20', glowc: 'rgba(255,170,90,0.8)', pose: 'gun', gunHeld: true, headFill: '#0c0d10' });
    X.restore(); const fl = [0.5, 0.56, 0.62].reduce((m, t0) => Math.max(m, p > t0 && p < t0 + 0.02 ? 0.8 : 0), 0);
    return { tint: '#ff7a30', tintA: 0.2, flash: fl }; } },
  { s: 5, cut: true, fn(lt, d) { fillBG('#0a0302', '#000'); camL([960, 380, 1.0], [960, 440, 1.25], lt / d);
@@ -530,12 +535,14 @@ const SCENES = [
    stick(RIP({ x: 960, y: 380, h: 180, baldR: true, col: '#111', glowc: 'rgba(255,170,60,1)', gb: 18, headFill: '#050302' }));
    particles(lt, { n: 60, c: '#ffb050', a: 0.9, up: true, sp: 70, add: true });
    return { tint: '#ff7a30', tintA: 0.3 }; } },
- { s: 6, cut: true, fn(lt, d, A) { const p = lt / d; fillBG('#ff9a3c', '#a02a08');
-   X.save(); X.globalCompositeOperation = 'lighter'; for (let i = 0; i < 40; i++) { const y = ((R(i) * 1400 - lt * 300) % 1400 + 1400) % 1400 - 200; X.globalAlpha = 0.25; circ(R(i + 3) * W, y, 80 + R(i + 1) * 120, '#fff0a0'); } X.restore();
+ { s: 6, cut: true, fn(lt, d, A) { const p = lt / d; fillBG('#2a0a03', '#ff8a2a'); glow(960, 1300, 1300, 'rgba(255,200,90,0.8)');
+   for (let i = 0; i < 6; i++) { const x = 80 + i * 360 + Math.sin(i) * 40; rect(x, -200, 46, 1600, 'rgba(20,6,2,0.55)'); }
+   X.save(); X.globalCompositeOperation = 'lighter'; for (let i = 0; i < 70; i++) { const y = ((R(i) * 1500 - lt * (700 + R(i + 1) * 500)) % 1500 + 1500) % 1500 - 200; X.globalAlpha = 0.5; line([R(i + 3) * W, y, R(i + 3) * W, y + 40 + R(i + 4) * 60], '#ffd890', 2 + R(i) * 2); } X.restore();
+   flames(960, 1100, 2200, 380 + 300 * p, lt, 50, 1);
    camL([960, 520, 1.0], [960, 560, 1.15], p);
    const em = prog(lt, A(7) * 0.0 + d * 0.35, d * 0.5);
-   X.save(); X.translate(960, 560); X.rotate(-0.15 - p * 0.35);
-   stick(RIP({ x: 0, y: 200, h: 380, baldR: true, col: '#050505', glow: false, pose: em > 0.5 ? 'hold' : 'fall', headFill: '#050505', lw: 16 }));
+   X.save(); X.translate(960, 560); X.rotate(-0.5 - p * 0.5);
+   stick(RIP({ x: 0, y: 200, h: 380, baldR: true, col: '#050505', glow: false, shadow: false, pose: em > 0.5 ? 'hold' : 'fall', headFill: '#050505', lw: 16 }));
    if (em > 0) alien({ x: 50, y: -20, s: 28 * em, f: 1, mode: 'crouch', ph: lt, jaw: 1, rim: '#ffcf60', rot: -0.5 });
    X.restore();
    return { tint: '#ff7a30', tintA: 0.2, flash: prog(p, 0.85, 1), flashc: '#000' }; } },
@@ -543,7 +550,7 @@ const SCENES = [
    const open = 1 - eo(prog(p, 0.45, 0.9)); glow(960, 560, 600 * open + 50, 'rgba(255,230,200,0.4)'); rect(960 - 400 * open, 200, 800 * open, 680, 'rgba(255,230,200,0.5)');
    rect(560 - 400 * (1 - open) * 0, 200, 400 * (1 - open), 680, '#1a1d22'); rect(1360 - 400 * (1 - open), 200, 400 * (1 - open), 680, '#1a1d22');
    rect(-200, 880, 2400, 400, '#050302');
-   stick({ x: lerp(960, 960, p), y: 880, h: lerp(330, 260, p), bald: true, band: true, pose: 'walk', ph: lt * 4, col: '#111', glowc: 'rgba(255,230,200,0.9)', headFill: '#050505', label: 'MORSE · SURVIVES', la: prog(lt, 0.5, 1) * (1 - prog(p, 0.5, 0.6)), lc: '#ffe0c0' });
+   stick({ x: lerp(960, 960, p), y: 880, h: lerp(330, 260, p), bald: true, pose: 'walk', ph: lt * 4, col: '#111', glowc: 'rgba(255,230,200,0.9)', headFill: '#050505', label: 'MORSE · SURVIVES', la: prog(lt, 0.5, 1) * (1 - prog(p, 0.5, 0.6)), lc: '#ffe0c0' });
    txt('FIORINA 161 — CLOSED', 960, 140, 40, '#ffe0c0', { ls: 12, a: prog(p, 0.5, 0.7), w: 700 });
    return { flash: prog(p, 0.85, 1), flashc: '#000', desat: 0.3 }; } },
 ],

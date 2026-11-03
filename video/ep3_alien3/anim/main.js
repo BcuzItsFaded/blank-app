@@ -2,7 +2,7 @@
 const INTRO = 5, OUTRO = 7;
 function chunks(sent) {
   const words = sent.text.split(' '), out = []; let cur = [];
-  for (const w of words) { cur.push(w); if (cur.length >= 9 || (cur.length >= 5 && /[,;:]$/.test(w))) { out.push(cur.join(' ')); cur = []; } }
+  for (const w of words) { cur.push(w); if (cur.length >= 8 || (cur.length >= 5 && /[,;:]$/.test(w))) { out.push(cur.join(' ')); cur = []; } }
   if (cur.length) { if (cur.length <= 2 && out.length) out[out.length - 1] += ' ' + cur.join(' '); else out.push(cur.join(' ')); }
   const tot = out.reduce((a, s) => a + s.length, 0); let t = sent.start; const dur = sent.end - sent.start;
   return out.map(s => { const st = t; t += dur * s.length / tot; return { s, st, en: t }; });
@@ -10,9 +10,10 @@ function chunks(sent) {
 function captions(sc, t) {
   for (const se of TIM[sc].sents) { if (t < se.start - 0.05 || t > se.end + 0.35) continue;
     for (const c of chunks(se)) if (t >= c.st - 0.05 && t < c.en + (c.en >= se.end - 0.01 ? 0.35 : 0)) {
-      X.save(); X.font = '700 46px Inter'; const w = X.measureText(c.s).width;
+      X.save(); let fs = 46; X.font = `700 ${fs}px Inter`; let w = X.measureText(c.s).width;
+      if (w > 1640) { fs = Math.floor(46 * 1640 / w); X.font = `700 ${fs}px Inter`; w = X.measureText(c.s).width; }
       X.globalAlpha = 0.55; rect(960 - w / 2 - 26, 1000 - 36, w + 52, 72, '#000'); X.globalAlpha = 1; X.restore();
-      txt(c.s, 960, 1000, 46, '#fff', { w: 700, stroke: 'rgba(0,0,0,0.9)', sw: 6 }); return; } }
+      txt(c.s, 960, 1000, fs, '#fff', { w: 700, stroke: 'rgba(0,0,0,0.9)', sw: 6 }); return; } }
 }
 function sceneTitle(sc, t) {
   const a = prog(t, 0.2, 0.8) * (1 - prog(t, 4.6, 5.3)); if (a <= 0) return;

@@ -462,6 +462,5 @@ function post(t, o = {}) {
   X.drawImage(vigC, 0, 0);
   X.save(); X.globalCompositeOperation = 'overlay'; X.globalAlpha = 0.16; X.imageSmoothingEnabled = false; X.drawImage(grainC[Math.floor(t * 24) % 6], 0, 0, W, H); X.restore();
   // film scratches
-  if (R(Math.floor(t * 24)) > 0.85) { X.globalAlpha = 0.15; rect(R(Math.floor(t * 24) + 1) * W, 0, 2, H, '#fff'); X.globalAlpha = 1; }
   if (o.flash) { X.globalAlpha = clamp(o.flash); rect(0, 0, W, H, o.flashc || '#fff'); X.globalAlpha = 1; }
 }

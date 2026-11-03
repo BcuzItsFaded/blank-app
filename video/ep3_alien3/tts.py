@@ -1,27 +1,28 @@
 import json, re, subprocess, wave, os, sys
 import numpy as np
+from kokoro_onnx import Kokoro
+KK = Kokoro(os.path.dirname(os.path.abspath(__file__)) + "/voices/kokoro-v1.0.onnx", os.path.dirname(os.path.abspath(__file__)) + "/voices/voices-v1.0.bin")
+VOICE = os.environ.get("VOICE", "am_michael")
 
 D = os.path.dirname(os.path.abspath(__file__))
 MODEL = f"{D}/voices/en_US-ryan-high.onnx"
-SR = 22050
+SR = 24000
 LS = sys.argv[1] if len(sys.argv) > 1 else "1.08"
 script = json.load(open(f"{D}/script.json"))
 os.makedirs(f"{D}/tts", exist_ok=True)
 
-FIX = [("Alien 3", "Alien Three"), ("LV-426", "L V four twenty six"), ("Fiorina 161", "Fiorina one sixty one"),
-       ("Weyland-Yutani", "Wayland Yutani"), ("Sulaco", "Sue-lah-co")]
+FIX = [("Alien 3", "Alien Three"), ("LV-426", "L V four twenty-six"), ("Fiorina 161", "Fiorina one sixty-one"),
+       ("Weyland-Yutani", "Weyland Yutani"), ("Xenomorph", "Zeenomorph")]
 
 def speak(text, path):
     for a, b in FIX: text = text.replace(a, b)
-    subprocess.run(["piper", "-m", MODEL, "--length_scale", LS, "--sentence_silence", "0", "-f", path],
-                   input=text.encode(), check=True, capture_output=True)
-    with wave.open(path) as w:
-        return np.frombuffer(w.readframes(w.getnframes()), dtype=np.int16).astype(np.float32) / 32768
+    a, sr = KK.create(text, voice=VOICE, speed=float(LS), lang="en-gb" if VOICE.startswith("b") else "en-us")
+    return np.asarray(a, dtype=np.float32)
 
 def split(vo):
     return [s.strip() for s in re.split(r'(?<=[.?!])\s+(?=[A-Z])', vo) if s.strip()]
 
-LEAD, GAP, TAIL = 0.8, 0.45, 2.2
+LEAD, GAP, TAIL = 0.8, 0.5, 2.2
 timings = []
 for i, sc in enumerate(script):
     sents = split(sc["vo"])
