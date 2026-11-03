@@ -22,8 +22,8 @@ SR = 48000
 SCENE = 5.0
 TOTAL = 60.0
 N = int(SR * TOTAL)
-VO_OFFSET = 0.25      # narration starts this long after each scene cut
-VO_MAX = 4.45         # narration must end before the next cut
+VO_OFFSET = 0.15      # narration starts this long after each scene cut
+VO_MAX = 4.72         # narration must end before the next cut
 rng = np.random.default_rng(1949)
 
 
@@ -65,6 +65,7 @@ def reverb(x, secs=2.2, wet=0.3, tone=5000):
 
 def place(buf, clip, t, gain=1.0):
     i = int(t * SR)
+    if i < 0: clip = clip[-i:]; i = 0
     if i >= len(buf): return
     j = min(len(buf), i + len(clip))
     buf[i:j] += clip[: j - i] * gain
@@ -99,27 +100,59 @@ def trim(x, thr=0.012):
     if len(idx) == 0: return x
     return x[max(0, idx[0] - 240): idx[-1] + 2400]
 
-def word_timings(words, dur):
-    """Distribute words across the spoken duration, weighting long words
-    and pausing after punctuation. Approximate - good enough for captions."""
-    weights, pauses = [], []
-    for w in words:
-        core = re.sub(r"[^A-Za-z0-9]", "", w)
-        weights.append(max(2, len(core)) + 1.5)
-        pauses.append(4.0 if re.search(r"[.:!?]$", w) else (2.0 if w.endswith(",") else 0.0))
-    total = sum(weights) + sum(pauses[:-1])
-    unit = dur / total
-    out, t = [], 0.0
-    for w, wt, p in zip(words, weights, pauses):
-        t0 = t; t1 = t + wt * unit
-        out.append({"w": w, "t0": round(t0, 3), "t1": round(t1, 3)})
-        t = t1 + p * unit
+def syllables(w):
+    core = re.sub(r"[^A-Za-z0-9']", "", w).lower()
+    if core.isdigit():
+        return 4 if len(core) == 4 else max(1, len(core))
+    groups = re.findall(r"[aeiouy]+", core)
+    n = len(groups) - (1 if core.endswith("e") and len(groups) > 1 and not core.endswith("le") else 0)
+    return max(1, n)
+
+def speech_gaps(x, min_gap=0.07, thr_ratio=0.06):
+    """(start, end) seconds of pauses inside the clip, longest first."""
+    hop = 240
+    e = np.sqrt(np.convolve(x ** 2, np.ones(hop * 2) / (hop * 2), mode="same"))[::hop]
+    quiet = e < (np.max(e) * thr_ratio)
+    gaps, i = [], 0
+    while i < len(quiet):
+        if quiet[i]:
+            j = i
+            while j < len(quiet) and quiet[j]: j += 1
+            a, b = i * hop / SR, j * hop / SR
+            if b - a >= min_gap and a > 0.05 and b < len(x) / SR - 0.05: gaps.append((a, b))
+            i = j
+        else:
+            i += 1
+    return sorted(gaps, key=lambda g: g[0] - g[1])
+
+def word_timings(words, x):
+    """Align caption words to the take: split at punctuation using the clip's
+    longest detected pauses, then spread words in each phrase by syllables."""
+    dur = len(x) / SR
+    breaks = [k for k, w in enumerate(words[:-1]) if re.search(r"[.,:;!?]$", w)]
+    gaps = sorted(speech_gaps(x)[: len(breaks)])
+    phrases, start = [], 0
+    for k in breaks: phrases.append(list(range(start, k + 1))); start = k + 1
+    phrases.append(list(range(start, len(words))))
+    if len(gaps) == len(breaks):
+        bounds = [0.0] + [v for g in gaps for v in g] + [dur]
+        spans = [(bounds[2 * i], bounds[2 * i + 1]) for i in range(len(phrases))]
+    else:  # fall back to proportional split
+        tot = sum(syllables(w) for w in words); spans, t = [], 0.0
+        for ph in phrases:
+            d = dur * sum(syllables(words[k]) for k in ph) / tot; spans.append((t, t + d)); t += d
+    out = []
+    for ph, (a, b) in zip(phrases, spans):
+        tot = sum(syllables(words[k]) for k in ph); t = a
+        for k in ph:
+            d = (b - a) * syllables(words[k]) / tot
+            out.append({"w": words[k], "t0": round(t, 3), "t1": round(t + d, 3)}); t += d
     return out
 
 def build_narration(scenes, voice):
     buf = np.zeros(N); timings = []
     for s in scenes:
-        i = s["id"]; text = s["narration"]
+        i = s["id"]; text = s.get("spoken", s["narration"])
         custom = os.path.join(ROOT, "public", "audio", "vo", f"scene-{i:02d}.wav")
         if os.path.exists(custom):
             x = trim(read_wav(custom)); src = "custom"
@@ -140,7 +173,7 @@ def build_narration(scenes, voice):
         place(buf, x, start)
         dur = len(x) / SR
         timings.append({"id": i, "start": round(start, 3), "duration": round(dur, 3), "source": src,
-                        "words": word_timings(text.split(), dur)})
+                        "words": word_timings(s["narration"].split(), x)})
         print(f"  scene {i:02d}: {dur:.2f}s ({src})")
     return buf, timings
 
@@ -313,78 +346,6 @@ def s_impact():
     return reverb(np.tanh(x * 1.4), 4.0, .45)
 
 
-def build_sfx(timings):
-    buf = np.zeros(N)
-    W = {}
-    for tm in timings:  # absolute time of word k in scene i
-        W[tm["id"]] = [tm["start"] + w["t0"] for w in tm["words"]]
-    def at(i, word_idx): return W[i][min(word_idx, len(W[i]) - 1)]
-    S = lambda i: (i - 1) * SCENE
-
-    # 1 Ash City
-    place(buf, s_rain(5.4, .7), 0)
-    place(buf, s_wind(5.0), 0, .6)
-    place(buf, s_thunder(4.5), 1.4, .7)
-    # 2 Sleepless survivor
-    place(buf, hp(s_rain(5.2, .6), 400), S(2))
-    place(buf, s_heartbeat(62, 4.8), S(2) + .1, .7)
-    place(buf, s_thunder(4.0, crack=True), at(2, 9) - .05, .9)   # "peace"
-    # 3 The mark
-    place(buf, s_tick(5.0), S(3))
-    place(buf, s_drone(5.0, 73.4), S(3), .8)
-    place(buf, s_stinger(), at(3, 7) - .03, .9)                  # "mark"
-    # 4 Noda
-    place(buf, s_phone(1.6), S(4) + .05, .7)
-    place(buf, s_rustle(.8), at(4, 4), .8)
-    place(buf, s_rustle(.6), at(4, 9), .6)
-    place(buf, s_whoosh(.6), S(5) - .35, .9)                     # whip pan
-    # 5 Murakami
-    place(buf, s_bubbles(5.0), S(5), .8)
-    place(buf, s_hum(5.0), S(5), 1.0)
-    place(buf, s_heartbeat(54, 5.0), S(5), .35)
-    # 6 Sagami Bay
-    place(buf, s_underwater(5.3), S(6), .9)
-    place(buf, s_heartbeat(40, 5.0, deep=True), S(6) + .2, 1.1)
-    place(buf, s_sonar(), S(6) + .6, .8)
-    place(buf, s_whoosh(.8), S(7) - .45, .7)                     # rise wipe
-    # 7 Blue light
-    place(buf, s_waves(5.2), S(7), .9)
-    place(buf, s_creak(), S(7) + .7, 1.0)
-    place(buf, s_creak(), S(7) + 3.2, .8)
-    place(buf, s_throb(4.0, 1.4), at(7, 6), .8)                  # "pulsing"
-    # 8 Godzilla returns
-    place(buf, s_surge(2.0), S(8), 1.0)
-    place(buf, s_crash(), at(8, 3) - .1, 1.0)                    # "open"
-    place(buf, s_roar(3.4), at(8, 6) - .25, 1.0)                 # "returned"
-    place(buf, s_thunder(3.0), S(8) + .3, .5)
-    # 9 Spines
-    plate_words = [at(9, 3), at(9, 4) + .15, at(9, 5), at(9, 6) + .15, at(9, 7), at(9, 8)]
-    for k, tp in enumerate(plate_words):
-        place(buf, s_clank(), tp, .7 + .05 * k)
-    place(buf, s_charge(4.6), S(9) + .2, .9)
-    # 10 Plot twist
-    place(buf, s_beam(2.2), S(10) + .1, 1.0)
-    place(buf, s_boom(6.0), S(10) + 1.0, 1.25)
-    place(buf, s_ring(2.5), S(10) + 2.4, 1.0)
-    # 11 Face the nightmare
-    place(buf, s_wind(5.2), S(11), .8)
-    place(buf, lp(s_roar(3.0), 900), S(11) + 2.2, .5)
-    # 12 Title
-    place(buf, s_impact(), S(12) + .2, 1.1)
-    place(buf, lp(s_roar(3.4), 1500), S(12) + 1.6, .45)
-    return buf
-
-
-# ---------------------------------------------------------------- score
-SCALE = [146.83, 155.56, 196.0, 220.0, 233.08]   # D Eb G A Bb (miyako-bushi)
-INTENSITY = [0.30, 0.32, 0.36, 0.42, 0.46, 0.52, 0.58, 0.88, 0.92, 1.0, 0.72, 0.82]
-
-def pluck(f, dur=1.6):
-    tt = t_arr(dur)
-    x = sum(np.sin(2 * np.pi * f * h * tt) * np.exp(-tt * (2.2 + h * 1.4)) / h for h in range(1, 7))
-    x += hp(noise(dur), 3000) * np.exp(-tt * 60) * .2
-    return x * .35
-
 def taiko(big=False):
     tt = t_arr(1.4)
     f = np.interp(tt, [0, .08, 1.4], [120 if big else 95, 55, 48])
@@ -401,52 +362,235 @@ def brass(freqs, dur=2.5):
         out[k:k + 2400] = lp(x[k:k + 2400], cut[k])
     return out * np.interp(tt, [0, .06, dur - .5, dur], [0, 1, .7, 0]) * .12
 
-def build_score():
+# ---------------------------------------------------------------- extra synth voices
+def s_footfall(dist=False):
+    tt = t_arr(3.0)
+    x = np.sin(2 * np.pi * np.cumsum(np.interp(tt, [0, .2, 3], [60, 32, 26])) / SR) * env_ad(len(tt), .004, 3, 3.5)
+    x += lp(noise(3.0), 400 if dist else 1200, 4) * env_ad(len(tt), .002, 3, 7) * (1.2 if dist else 2.2)
+    x = np.tanh(x * 1.6)
+    return reverb(lp(x, 900) if dist else x, 3.5, .5 if dist else .35, 2500)
+
+def s_bass_hit():
+    tt = t_arr(2.0)
+    x = np.sin(2 * np.pi * np.cumsum(np.interp(tt, [0, .1, 2], [90, 42, 38])) / SR) * env_ad(len(tt), .002, 2, 3)
+    return np.tanh(x * 2.2) * .9
+
+def s_pinwheel(dur=3.5):
+    out = np.zeros(int(SR * dur))
+    for k in np.arange(0, dur, 0.11):
+        c = bp(noise(.012), 2500, 7000) * np.exp(-np.linspace(0, 8, int(SR * .012)))
+        place(out, c, k + rng.uniform(-.01, .01), .25 + .1 * rng.random())
+    return out + s_wind(dur) * .7
+
+def s_mallets(n=5, gap=0.55):
+    out = np.zeros(int(SR * (n * gap + 1)))
+    for k in range(n):
+        tt = t_arr(.4)
+        hit = (np.sin(2 * np.pi * 220 * tt) * .6 + np.sin(2 * np.pi * 517 * tt) * .3) * np.exp(-tt * 22)
+        hit += bp(noise(.4), 800, 3000) * np.exp(-tt * 60) * .8
+        place(out, reverb(hit, 1.4, .35), k * gap + rng.uniform(-.03, .03), .7)
+    return out
+
+def s_cloth(dur=1.2):
+    n = noise(dur); e = np.abs(lp(noise(dur), 6)); e /= e.max() + 1e-9
+    return bp(n, 1500, 7000) * e * .4
+
+def s_violin_harm(dur=3.2):
+    tt = t_arr(dur)
+    f = 1760 * (1 + .004 * np.sin(2 * np.pi * 5.2 * tt))
+    x = np.sin(2 * np.pi * np.cumsum(f) / SR) + .2 * np.sin(2 * np.pi * np.cumsum(f * 2) / SR)
+    return reverb(x * np.interp(tt, [0, .8, dur - .8, dur], [0, .18, .14, 0]), 3.0, .5)
+
+def s_minor_chord(dur=4.0):
+    tt = t_arr(dur)
+    x = sum(signal.sawtooth(2 * np.pi * f * tt * d) for f in (73.42, 87.31, 110.0, 146.83) for d in (1, 1.003))
+    return reverb(lp(x, 1100) * np.interp(tt, [0, .4, dur - 1.2, dur], [0, .07, .06, 0]), 3.5, .5)
+
+def s_pencil(n=6):
+    out = np.zeros(int(SR * 2.0))
+    for k in range(n):
+        c = bp(noise(.03), 1200, 5000) * np.exp(-np.linspace(0, 12, int(SR * .03)))
+        place(out, c, k * .22, .6)
+    return out
+
+def s_page():
+    tt = t_arr(.7); n = noise(.7)
+    return bp(n, 1500, 8000) * np.interp(tt, [0, .1, .35, .7], [0, 1, .4, 0]) * .5
+
+def s_radio(dur=1.4):
+    tt = t_arr(dur)
+    x = bp(noise(dur), 800, 4500) * .25 + np.sin(2 * np.pi * 1000 * tt) * .02 * (np.sin(2 * np.pi * 3 * tt) > .6)
+    return x * np.interp(tt, [0, .1, dur - .3, dur], [0, 1, 1, 0])
+
+def s_crowd(dur=3.0):
+    out = np.zeros(int(SR * dur))
+    for _ in range(int(dur * 40)):  # footsteps
+        c = lp(noise(.05), 900) * np.exp(-np.linspace(0, 9, int(SR * .05)))
+        place(out, c, rng.uniform(0, dur - .1), rng.uniform(.2, .5))
+    murmur = bp(noise(dur), 300, 1400) * (0.5 + 0.5 * np.abs(np.sin(2 * np.pi * 3.3 * t_arr(dur)))) * .35
+    return (out + murmur) * np.interp(t_arr(dur), [0, .3, dur - .5, dur], [0, 1, 1, 0])
+
+def s_masonry():
+    n = noise(2.0); tt = t_arr(2.0)
+    crack = hp(n, 1500) * env_ad(len(n), .001, 2, 14) * 1.5
+    debris = np.zeros_like(n)
+    for _ in range(30):
+        c = bp(noise(.04), 600, 4000) * np.exp(-np.linspace(0, 10, int(SR * .04)))
+        place(debris, c, rng.uniform(.05, 1.6), rng.uniform(.1, .4))
+    return reverb(crack + debris + lp(n, 200) * env_ad(len(n), .01, 2, 4), 2.0, .3)
+
+def s_inhale():
+    tt = t_arr(.9)
+    return bp(noise(.9), 600, 3500) * np.interp(tt, [0, .6, .9], [0, .35, 0])
+
+def s_drone_rise(dur=4.8):
+    tt = t_arr(dur)
+    f = np.interp(tt, [0, dur], [70, 420])
+    ph = 2 * np.pi * np.cumsum(f) / SR
+    wob = 1 + .5 * np.sin(2 * np.pi * np.interp(tt, [0, dur], [3, 14]) * tt)
+    x = (signal.sawtooth(ph) * .5 + np.sin(ph * 2)) * wob
+    return lp(x, 2500) * np.interp(tt, [0, .3, dur], [0, .25, .55])
+
+def s_crackle(dur=2.0):
+    tt = t_arr(dur)
+    x = hp(noise(dur), 3000) * (rng.random(len(tt)) > .985) * 3
+    return x + s_charge(dur) * .4
+
+def s_heat_ray(dur=1.0):
+    tt = t_arr(dur)
+    boom = s_boom(4.0)
+    return boom * .9
+
+def piano(f, dur=3.0, vel=1.0):
+    tt = t_arr(dur)
+    x = sum(np.sin(2 * np.pi * f * h * tt * (1 + .0004 * h * h)) * np.exp(-tt * (1.1 + h * .9)) / h ** 1.3 for h in range(1, 9))
+    x += bp(noise(dur), 2000, 6000) * np.exp(-tt * 80) * .08
+    return reverb(x * .32 * vel, 2.8, .4)
+
+def choir(freqs, dur=5.0):
+    tt = t_arr(dur); out = np.zeros_like(tt)
+    for f in freqs:
+        for d in (0.997, 1.0, 1.004):
+            ph = 2 * np.pi * np.cumsum(f * d * (1 + .006 * np.sin(2 * np.pi * 5 * tt + f))) / SR
+            v = signal.sawtooth(ph)
+            out += bp(v, 600, 1100) + bp(v, 250, 450) * .8   # "ah" formants
+    return reverb(out * np.interp(tt, [0, 1.2, dur - 1.4, dur], [0, .045, .045, 0]), 4.0, .55)
+
+
+SFX = {
+    "sub_rumble": lambda: s_drone(5.0, 36.7) * 1.4 + lp(noise(5.0), 90, 4) * 1.5,
+    "wind_pinwheel": lambda: s_pinwheel(3.6),
+    "distant_footfall": lambda: s_footfall(dist=True),
+    "bass_hit": s_bass_hit,
+    "mallets": lambda: s_mallets(5, .6),
+    "low_rumble": lambda: lp(noise(2.4), 110, 4) * 1.8 * np.interp(t_arr(2.4), [0, 1, 2.4], [0, 1, 0]),
+    "cloth_rustle": lambda: s_cloth(1.2),
+    "low_wind": lambda: s_wind(1.6) * .8,
+    "clock_tick": lambda: s_tick(4.5),
+    "paper_scrape": lambda: s_rustle(.9),
+    "medical_tick": lambda: s_tick(4.0) * .8,
+    "muffled_sub": lambda: s_underwater(5.0),
+    "bubble": lambda: s_bubbles(1.5),
+    "organic_pulse": lambda: s_heartbeat(50, 1.4, deep=True) * 1.2,
+    "stinger": s_stinger,
+    "pencil_tap": lambda: s_pencil(6),
+    "page_turn": s_page,
+    "radio_hiss": lambda: s_radio(1.4),
+    "rain_glass": lambda: hp(s_rain(5.0, .8), 500),
+    "paper_scratch": lambda: s_rustle(1.4),
+    "thunder_soft": lambda: s_thunder(2.6),
+    "transition_whoosh": lambda: s_whoosh(.5),
+    "roar_distant": lambda: lp(s_roar(3.4), 1400) * .8,
+    "crowd_run": lambda: s_crowd(3.2),
+    "huge_footfall": lambda: s_footfall(),
+    "masonry_crack": s_masonry,
+    "inhale": s_inhale,
+    "electric_drone": lambda: s_drone_rise(4.8),
+    "plate_crackle": lambda: s_crackle(2.0),
+    "heat_ray": lambda: s_beam(1.0) * .9,
+    "roar_tail": lambda: lp(s_roar(2.6), 1800) * .6,
+    "title_impact": s_impact,
+}
+SFX_GAIN = {"heat_ray": 1.0, "huge_footfall": 1.2, "title_impact": 1.0, "bass_hit": 1.0}
+
+# ambience beds per scene (start, dur, generator, gain) — under the cue sheet
+BEDS = [
+    (0.0, 5.0, lambda d: s_wind(d), .35),
+    (5.0, 5.0, lambda d: lp(noise(d), 500) * .15, 1.0),
+    (35.0, 5.0, lambda d: s_rain(d, .5), .5),
+    (40.0, 5.0, lambda d: s_rain(d, .7) + s_waves(d) * .8, .6),
+    (45.0, 4.3, lambda d: lp(s_rain(d, .7), 700), .55),
+    (50.0, 5.0, lambda d: s_rain(d, .6) + s_thunder(d) * .3, .5),
+    (55.0, 4.5, lambda d: s_wind(d), .35),
+]
+
+
+def build_sfx(scenes):
+    buf = np.zeros(N)
+    for st, d, gen, g in BEDS:
+        place(buf, gen(d), st, g)
+    for s in scenes:
+        for t, key in s["cues"]:
+            if key in SFX:
+                place(buf, SFX[key](), t, SFX_GAIN.get(key, .8))
+            if key == "heat_ray":
+                place(buf, s_boom(5.5), t + .15, 1.1)
+    return buf
+
+
+def build_score(scenes):
+    """Original cue-sheet score: hopeful piano (5–15 s) → dread (15–30) → percussion (34.6–45)
+    → muffled prayer + silence (45–50) → rising heat-ray climax (50–55) → choir minor resolve."""
     buf = np.zeros(N); tt = np.arange(N) / SR
-    inten = np.interp(tt, [i * SCENE + 2.5 for i in range(12)], INTENSITY)
-    # pad: D minor drone with slow movement (D-A, then Bb-F, then C-G over the climax)
-    roots = [73.42] * 6 + [58.27] * 2 + [73.42, 65.41, 58.27, 73.42]
-    pad = np.zeros(N)
-    for i, r in enumerate(roots):
-        seg = np.arange(int(SR * (SCENE + 1))) / SR
-        v = sum(signal.sawtooth(2 * np.pi * r * m * seg * d) / m for m in (1, 1.5, 2) for d in (1, 1.003))
-        v = lp(v, 500 + 900 * INTENSITY[i]) * np.interp(seg, [0, .5, SCENE, SCENE + 1], [0, 1, 1, 0])
-        place(pad, v * .09, i * SCENE - .5 if i else 0)
-    buf += pad * (0.6 + 0.6 * inten)
-    # koto-like ostinato: sparse early, busier from scene 6
-    motif = [0, 2, 1, 3, 2, 4, 3, 1]
-    step = 0
-    t = 0.6
-    while t < 55:
-        sc = int(t // SCENE)
-        if sc == 9 and t % SCENE > .8: t += .25; continue        # silence after the blast
-        rate = .75 if sc < 5 else (.5 if sc < 7 else .25)
-        oct_ = 2 if sc >= 7 and step % 4 == 0 else 1
-        place(buf, pluck(SCALE[motif[step % len(motif)]] * oct_), t, .55 * INTENSITY[sc] + .1)
-        step += 1; t += rate
-    # taiko pulse grows
-    for k in np.arange(0, 60, 1.0):
-        sc = int(k // SCENE)
-        if sc < 3 and int(k) % 4: continue
-        if sc == 9 and 46 < k < 49: continue
-        place(buf, taiko(big=int(k) % 5 == 0), k, .5 * INTENSITY[sc])
-        if sc >= 7 and sc != 9:
-            place(buf, taiko(), k + .5, .3 * INTENSITY[sc])
-    # brass stabs on the big beats
-    place(buf, brass([73.42, 110, 146.83, 174.6], 3.0), 35.9, 1.0)      # Godzilla returns
-    place(buf, brass([58.27, 87.3, 116.5, 146.83], 4.0), 45.1, 1.1)     # plot twist
-    place(buf, brass([73.42, 110, 146.83, 220, 174.6], 4.5), 55.2, 1.2) # title
-    # 1.2s of near-silence after the blast hit (scene 10)
+    D, F, A, Bb, C, E, G = 293.66, 349.23, 440.0, 466.16, 523.25, 329.63, 392.0
+    # 0–5: dread pad under the sub rumble
+    place(buf, s_drone(5.2, 36.7) * .8, 0)
+    # 5.0 hopeful two-note piano, then a gentle repeating figure until 15.0 ("piano stops")
+    notes = [(5.0, A), (5.45, D * 2), (6.6, F), (7.1, A), (8.2, G), (8.7, D * 2), (9.8, A), (10.4, F), (11.5, E), (12.0, A), (13.1, D), (13.6, F)]
+    for t, f in notes:
+        place(buf, piano(f, 2.6, .9), t)
+    place(buf, piano(D / 2, 6, .5) + piano(A / 2, 6, .4), 5.0)
+    place(buf, piano(Bb / 2, 6, .5) + piano(F / 2, 6, .4), 10.0)
+    # 13.7 – dip music at cut, 15.0 piano stops (hard fade)
     gate = np.ones(N)
-    a, b = int(46.2 * SR), int(47.6 * SR)
-    gate[a:b] = np.interp(np.arange(b - a), [0, 2400, b - a - 9600, b - a], [1, .05, .05, 1])
+    a, b = int(14.6 * SR), int(15.0 * SR); gate[a:b] = np.linspace(1, 0, b - a)
+    gate[b:int(15.5 * SR)] = 0
+    # 15–30: dread
+    place(buf, s_drone(15.0, 36.7) * .9, 15.0)
+    place(buf, s_violin_harm(3.4), 18.4)
+    place(buf, s_minor_chord(4.6), 23.2)
+    # 30–45: percussion from 34.6
+    for k in np.arange(34.6, 45.0, 0.5):
+        big = abs((k - 34.6) % 2.0) < 1e-6
+        place(buf, taiko(big=big), k, .55 if big else .32)
+    place(buf, s_drone(10.5, 36.7) * .9, 34.6)
+    place(buf, brass([73.42, 110, 146.83, 174.6], 3.5), 40.0, .9)
+    # 45–50: single piano note at 46.8, everything else muffled
+    place(buf, piano(A, 3.5, 1.0), 46.8)
+    # 50–55: rising climax
+    for k in np.arange(50.0, 54.0, 0.25):
+        place(buf, taiko(big=(k * 4) % 4 == 0), k, .35 + .1 * (k - 50))
+    place(buf, brass([58.27, 87.3, 116.5, 146.83], 4.0), 50.4, .7)
+    # 55.0 low choir resolving into a dark minor chord
+    place(buf, choir([146.83, 174.61, 220.0], 2.6), 55.0)
+    place(buf, choir([73.42, 146.83, 174.61, 220.0, 293.66], 4.4), 56.4)
+    place(buf, brass([73.42, 110, 146.83, 174.6], 2.0), 58.0, .8)
     buf *= gate
-    # tail fade
-    buf *= np.interp(tt, [0, .3, 58.6, 60], [0, 1, 1, 0])
-    return reverb(buf, 2.8, .3)
+    buf *= np.interp(tt, [0, .1, 59.0, 59.95], [0, 1, 1, 0])
+    return buf
 
 
-def duck(score, narr, depth=0.45):
+def muffle_and_silence(x):
+    """45.0 action ambience muffles (low-pass), 49.2 inhale then silence until the 50 s cut."""
+    a, b = int(45.0 * SR), int(49.5 * SR)
+    seg = x[a:b].copy()
+    x[a:b] = lp(seg, 650, 2) * 1.2
+    c, d = int(49.45 * SR), int(50.0 * SR)
+    x[c:d] *= np.linspace(1, 0, d - c) ** 3
+    return x
+
+
+def duck(score, narr, depth=0.7):  # ≈ -10.5 dB under narration (pack spec: -8 to -12 dB)
     env = np.convolve(np.abs(narr), np.ones(2400) / 2400, mode="same")
     env = np.minimum(1, env / (np.max(env) * 0.25 + 1e-9))
     env = signal.lfilter([0.002], [1, -0.998], env)
@@ -464,8 +608,8 @@ def main():
     scenes = json.load(open(os.path.join(ROOT, "src", "scenes.json")))["scenes"]
     os.makedirs(os.path.join(ROOT, "public", "audio"), exist_ok=True)
     print("narration…"); narr, timings = build_narration(scenes, args.voice)
-    print("sfx…"); sfx = build_sfx(timings)
-    print("score…"); score = duck(build_score(), narr)
+    print("sfx…"); sfx = muffle_and_silence(build_sfx(scenes))
+    print("score…"); score = duck(muffle_and_silence(build_score(scenes)), narr)
     narr = norm(narr, .92); sfx = norm(sfx, .85); score = norm(score, .8)
     write("narration.wav", narr); write("sfx.wav", sfx); write("score.wav", score)
     mix = narr * 1.0 + sfx * 0.55 + score * 0.42

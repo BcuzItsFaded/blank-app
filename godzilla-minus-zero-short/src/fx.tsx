@@ -6,13 +6,22 @@ import { H, W, SceneData, lerp, rand, wobble, SCENE_FRAMES } from "./lib";
 type Cam = { x: number; y: number; zoom: number; rot: number };
 const CamCtx = createContext<Cam>({ x: 0, y: 0, zoom: 1, rot: 0 });
 
+/** Camera from the scene's timed phases: keys = [[sec, zoom, x, y, rot], …], eased per phase. */
 export const cameraAt = (s: SceneData, f: number, shake = 0): Cam => {
-  const c = s.camera;
+  const k = s.camera.keys;
+  const t = f / 30;
+  let i = 0;
+  while (i < k.length - 2 && t > k[i + 1][0]) i++;
+  const [t0, z0, x0, y0, r0] = k[i];
+  const [t1, z1, x1, y1, r1] = k[Math.min(i + 1, k.length - 1)];
+  const p = t1 > t0 ? Math.max(0, Math.min(1, (t - t0) / (t1 - t0))) : 1;
+  const e = p < 0.5 ? 2 * p * p : 1 - Math.pow(-2 * p + 2, 2) / 2; // ease in-out per phase
+  const L = (a: number, b: number) => a + (b - a) * e;
   return {
-    x: lerp(f, c.xFrom, c.xTo) + wobble(f, s.id, 0.9) * shake,
-    y: lerp(f, c.yFrom, c.yTo) + wobble(f, s.id + 5, 1.1) * shake,
-    zoom: lerp(f, c.zoomFrom, c.zoomTo),
-    rot: lerp(f, c.rotFrom, c.rotTo),
+    x: L(x0, x1) + wobble(f, s.id, 0.9) * shake,
+    y: L(y0, y1) + wobble(f, s.id + 5, 1.1) * shake,
+    zoom: L(z0, z1),
+    rot: L(r0, r1),
   };
 };
 
@@ -230,11 +239,11 @@ export const Vignette: React.FC<{ strength?: number }> = ({ strength = 1 }) => (
 
 /** optional painted keyframe plate: if scene.keyframe is set, show it as the BG plate */
 export const KeyframePlate: React.FC<{ s: SceneData; f: number }> = ({ s, f }) => {
-  if (!s.keyframe) return null;
+  if (!s.keyframe) return null; // set "keyframe": "keyframes/scene_XX.png" in scenes.json
   const c = cameraAt(s, f);
   return (
     <AbsoluteFill style={{ overflow: "hidden" }}>
-      <Img src={staticFile(s.keyframe)} style={{
+      <Img src={staticFile(s.keyframe as string)} style={{
         width: W, height: H, objectFit: "cover",
         transform: `translate(${-c.x * 0.6}px, ${-c.y * 0.6}px) scale(${c.zoom}) rotate(${c.rot}deg)`,
       }} />

@@ -9,7 +9,7 @@ import { rand } from "./lib";
    ===================================================================== */
 
 export type Look = {
-  hair: "short" | "bob" | "parted" | "elder";
+  hair: "short" | "bob" | "parted" | "elder" | "shoulder" | "child" | "pinned";
   hairColor: string;
   skin: string;
   skinShadow: string;
@@ -20,14 +20,21 @@ export type Look = {
 };
 
 export const LOOKS: Record<string, Look> = {
-  // Koichi Shikishima — late 20s, gaunt ex-pilot, short black hair, dark work jacket over white shirt
-  shikishima: { hair: "short", hairColor: "#0d0c0e", skin: "#b89a84", skinShadow: "#5b4a48", clothes: "jacket", clothColor: "#23262c" },
-  // Noriko — chin-length bob, pale blouse, neck mark on the left side (viewer's side of profile)
-  noriko: { hair: "bob", hairColor: "#110e10", skin: "#c9ab95", skinShadow: "#665052", clothes: "blouse", clothColor: "#c8c2b4" },
-  // Kenji Noda — 40s scientist, neat side part, round wire glasses, suit
-  noda: { hair: "parted", hairColor: "#1a1816", skin: "#b49580", skinShadow: "#574644", clothes: "suit", clothColor: "#3a3530", glasses: true, age: 0.35 },
-  // Kanji Murakami — elderly biologist, cropped grey hair, deep lines, lab coat (invented design)
+  // Continuity bible (production-pack/VISUAL_CONTINUITY.md)
+  // Koichi Shikishima — adult, neat 1940s dark hair, lean face, dark work jacket, protective
+  koichi: { hair: "short", hairColor: "#0d0c0e", skin: "#b89a84", skinShadow: "#5b4a48", clothes: "jacket", clothColor: "#23262c" },
+  // Noriko Shikishima — black shoulder-length 1940s hair, pale beige clothing, small dark neck mark (cause not asserted)
+  noriko: { hair: "shoulder", hairColor: "#110e10", skin: "#c9ab95", skinShadow: "#665052", clothes: "blouse", clothColor: "#cdbf9f" },
+  // Akiko — young girl, short dark hair, modest period dress
+  akiko: { hair: "child", hairColor: "#141012", skin: "#d0b09a", skinShadow: "#6a5352", clothes: "blouse", clothColor: "#8a5a4a" },
+  // Doctor Ogata — mature doctor, graying hair, brown period jacket over collared shirt
+  ogata: { hair: "parted", hairColor: "#6f6b66", skin: "#ad8f7b", skinShadow: "#544442", clothes: "suit", clothColor: "#4a3a2a", age: 0.7 },
+  // Kenji Noda — technical strategist, dark 1940s suit, battle-weary, round glasses
+  noda: { hair: "parted", hairColor: "#1a1816", skin: "#b49580", skinShadow: "#574644", clothes: "suit", clothColor: "#23211f", glasses: true, age: 0.35 },
+  // Kanji Murakami — elder biologist with war trauma (original look, not an actor likeness)
   murakami: { hair: "elder", hairColor: "#8d8a86", skin: "#a88c78", skinShadow: "#4f403d", clothes: "labcoat", clothColor: "#d6d2c8", age: 1 },
+  // Makoto Aoyama — woman weather specialist, pinned 1940s hair, period blouse + cardigan
+  aoyama: { hair: "pinned", hairColor: "#120e0f", skin: "#c4a58f", skinShadow: "#624c4c", clothes: "blouse", clothColor: "#3c4a52" },
 };
 
 const HEAD =
@@ -53,6 +60,15 @@ const HAIR: Record<Look["hair"], string> = {
   parted:
     "M 84,-96 C 88,-142 40,-178 -20,-178 C -92,-174 -130,-120 -124,-40 C -120,10 -104,50 -82,74 C -72,48 -62,26 -50,8 " +
     "C -44,-14 -32,-30 -14,-40 L -8,-6 L 4,-6 C 4,-36 10,-62 30,-80 C 50,-92 70,-96 84,-96 Z",
+  shoulder:
+    "M 98,-54 C 106,-132 56,-192 -18,-192 C -110,-190 -152,-112 -150,-20 C -150,70 -140,150 -110,196 C -90,206 -70,200 -62,186 " +
+    "C -70,140 -66,90 -56,56 C -54,24 -42,-10 -22,-34 C -10,-46 2,-56 14,-66 C 40,-76 70,-64 98,-54 Z",
+  child:
+    "M 100,-66 C 104,-136 56,-188 -16,-188 C -104,-186 -146,-110 -142,-24 C -140,30 -126,70 -104,86 C -84,84 -66,70 -62,44 " +
+    "C -56,14 -40,-16 -20,-36 C 10,-60 50,-70 100,-66 Z",
+  pinned:
+    "M 86,-90 C 92,-140 44,-184 -20,-184 C -96,-180 -134,-122 -128,-50 C -124,-6 -110,26 -92,44 C -80,30 -66,10 -54,-6 " +
+    "C -44,-22 -30,-34 -14,-42 C 12,-74 50,-86 86,-90 Z M -150,-70 a 46,42 0 1,0 92,0 a 46,42 0 1,0 -92,0 Z",
   elder:
     "M 62,-118 C 30,-162 -62,-170 -106,-102 C -124,-62 -120,-10 -100,30 C -90,10 -80,-10 -62,-24 C -42,-32 -28,-36 -16,-40 " +
     "C 0,-72 22,-102 62,-118 Z",
@@ -61,6 +77,9 @@ const HAIR_STRANDS: Record<Look["hair"], string[]> = {
   short: ["M 60,-150 Q 0,-170 -70,-140", "M 50,-120 Q -20,-130 -100,-70", "M 20,-100 Q -50,-90 -110,-10", "M 70,-110 Q 40,-130 0,-140"],
   bob: ["M 70,-150 Q 0,-176 -80,-140", "M 60,-110 Q -20,-120 -120,-40", "M 0,-90 Q -80,-30 -110,90", "M -40,-60 Q -70,20 -80,100", "M 90,-70 Q 60,-90 20,-80"],
   parted: ["M 30,-176 Q 40,-130 84,-100", "M 20,-160 Q -40,-150 -100,-90", "M 0,-120 Q -60,-100 -112,-20"],
+  shoulder: ["M 70,-150 Q 0,-176 -80,-140", "M 60,-110 Q -20,-120 -130,-30", "M -10,-90 Q -90,0 -110,180", "M -50,-50 Q -84,60 -84,180", "M 90,-70 Q 60,-90 20,-80"],
+  child: ["M 70,-150 Q 0,-176 -80,-140", "M 40,-100 Q -40,-100 -120,0", "M 96,-80 L 70,-60 M 76,-90 L 50,-66"],
+  pinned: ["M 60,-150 Q 0,-170 -70,-140", "M 40,-120 Q -30,-120 -100,-60", "M -140,-80 Q -104,-100 -66,-80"],
   elder: ["M 40,-130 Q -20,-150 -90,-100", "M 10,-100 Q -50,-100 -108,-20"],
 };
 
@@ -69,8 +88,8 @@ export const Profile: React.FC<{
   x: number; y: number; scale?: number; flip?: boolean;
   rim?: string; rimStrength?: number; light?: number;
   blink?: boolean; tilt?: number; breathe?: number;
-  mark?: number; markGlow?: number; boil?: string; id: string;
-}> = ({ look, x, y, scale = 1, flip = false, rim = "#9fc4ff", rimStrength = 1, light = 1, blink = false, tilt = 0, breathe = 0, mark = 0, markGlow = 0, boil, id }) => {
+  mark?: number; markGlow?: number; boil?: string; id: string; smile?: number;
+}> = ({ look, x, y, scale = 1, flip = false, rim = "#9fc4ff", rimStrength = 1, light = 1, blink = false, tilt = 0, breathe = 0, mark = 0, markGlow = 0, boil, id, smile = 0 }) => {
   const a = look.age ?? 0;
   return (
     <g transform={`translate(${x} ${y}) scale(${flip ? -scale : scale} ${scale})`} filter={boil ? `url(#${boil})` : undefined}>
@@ -110,7 +129,7 @@ export const Profile: React.FC<{
           </>
         )}
         <path d="M 84,32 Q 76,48 84,68" stroke="#3a2a2a" strokeWidth={2} fill="none" opacity={0.5 + a * 0.4} />
-        <path d="M 95,61 L 80,63" stroke="#2a1a1a" strokeWidth={2.5} strokeLinecap="round" />
+        <path d={`M 95,61 Q 88,${62 + smile * 4} 80,${63 - smile * 5}`} stroke="#2a1a1a" strokeWidth={2.5} strokeLinecap="round" fill="none" />
         {a > 0.2 && (
           <g stroke="#3a2a28" strokeWidth={1.6} fill="none" opacity={a}>
             <path d="M 20,-110 Q 50,-116 76,-104" /><path d="M 26,-94 Q 52,-100 78,-90" />
@@ -121,7 +140,7 @@ export const Profile: React.FC<{
         {/* hair */}
         <path d={HAIR[look.hair]} fill={look.hairColor} />
         {/* anime hair sheen band + strand lines */}
-        <path d={look.hair === "bob" ? "M 70,-160 Q 0,-182 -90,-136" : "M 50,-162 Q -10,-176 -86,-134"} stroke={rim} strokeWidth={12} fill="none" opacity={0.22 * rimStrength} strokeLinecap="round" />
+        <path d={look.hair === "bob" || look.hair === "shoulder" || look.hair === "child" ? "M 70,-160 Q 0,-182 -90,-136" : "M 50,-162 Q -10,-176 -86,-134"} stroke={rim} strokeWidth={12} fill="none" opacity={0.22 * rimStrength} strokeLinecap="round" />
         <g stroke={look.hair === "elder" ? "#c9c4bc" : "#3a3236"} strokeWidth={2.2} fill="none" opacity={0.75} strokeLinecap="round">
           {HAIR_STRANDS[look.hair].map((d, i) => <path key={i} d={d} />)}
         </g>

@@ -1,0 +1,5 @@
+# COPY THIS INTO CLAUDE (attach all files in this folder or the ZIP)
+
+Create an animated 60-second 9:16 YouTube Short titled **GODZILLA MINUS ZERO (2026)** for the channel **DON'T SPOIL IT RG**. Use the accompanying `ALL_IN_ONE_CLAUDE_PROMPT.md` and `scene_metadata.json` as the complete authoritative shot plan. Render 12 individual 5-second shots, preserving the exact narration, sound-effects timeline, scene transitions, facts-vs-creative labels, and consistent 1990s hand-painted Japanese anime horror artwork. No LEGO. No host avatars. Apply the only branding **DON'T SPOIL IT RG** in a small editable logo overlay and final card.
+
+Create the 12 stills or clearly report any missing source imagery; make editable motion compositions from each still; mix legally usable original/licensed audio; add subtitles from `captions.srt`. Prefer Claude Code + Remotion if supported. If rendering is possible, export and verify a 1080×1920, 30fps, 60-second H.264 MP4. If video generation/rendering is unavailable, create a correct editable project and supply the remaining asset prompts without claiming a final video exists. Do not ask for confirmation, start with what you have.

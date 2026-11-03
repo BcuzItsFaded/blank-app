@@ -2,11 +2,12 @@
   "name": "godzilla-minus-zero-short",
   "version": "1.0.0",
   "private": true,
-  "description": "60s 9:16 YouTube Short animatic for Godzilla Minus Zero (Plot Twist with A&R)",
+  "description": "60s 9:16 YouTube Short for Godzilla Minus Zero (2026) — Don't Spoil It RG",
   "scripts": {
     "audio": "python3 scripts/make_audio.py",
     "studio": "remotion studio src/index.ts",
-    "render": "remotion render src/index.ts GodzillaMinusZero out/godzilla-minus-zero-short.mp4",
+    "render": "node scripts/render.mjs",
+    "render:cli": "remotion render src/index.ts GodzillaMinusZero out/godzilla-minus-zero-short.mp4",
     "still": "remotion still src/index.ts GodzillaMinusZero out/still.png"
   },
   "dependencies": {

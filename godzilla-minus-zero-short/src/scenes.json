@@ -1,196 +1,645 @@
 {
   "meta": {
-    "title": "Godzilla Minus Zero (2026) — Plot Twist with A&R Short",
+    "brand": "DON'T SPOIL IT RG",
+    "title": "GODZILLA MINUS ZERO (2026) — 12 Things the Trailer Reveals | Don't Spoil It RG",
     "fps": 30,
     "width": 1080,
     "height": 1920,
     "sceneSeconds": 5,
-    "scriptStatus": "DRAFT — written by Claude because the user's production package did not reach the session. Replace narration/staging fields with the user's script and re-run `npm run audio && npm run render`.",
-    "confirmedSources": [
-      "https://en.wikipedia.org/wiki/Godzilla_Minus_Zero",
-      "https://theplaylist.net/godzilla-minus-zero-teaser-poster-takashi-yamazaki-min-tanaka-20260709/",
-      "https://screenanarchy.com/2026/07/godzilla-minus-zero-official-poster-and-trailer-debut.html"
-    ]
+    "source": "Dont_Spoil_It_RG_Godzilla_Minus_Zero_Claude_Pack (scene_metadata.json, captions.srt, voiceover.txt, audio_cue_sheet.csv) — narration and timings used verbatim",
+    "storyScope": "Trailer-based preview, not a full film ending explanation",
+    "creativeNotice": "The illustrated compositions, staging, and dramatic camera moves are creative visualizations, not asserted film footage."
   },
   "scenes": [
     {
       "id": 1,
-      "name": "Ash City",
-      "narration": "Tokyo, 1949. Two years after Godzilla sank, the city still smells of ash.",
-      "factTag": "CONFIRMED",
-      "factNote": "1949 setting, two years after Minus One",
-      "confirmed": ["Story is set in 1949, two years after Godzilla Minus One (1947)"],
-      "staged": ["Rain, smoke columns, rebuilt shacks and the lone umbrella walker are invented staging"],
-      "camera": { "move": "push-in + slight tilt down", "zoomFrom": 1.0, "zoomTo": 1.14, "xFrom": 0, "xTo": -20, "yFrom": -40, "yTo": 30, "rotFrom": 0, "rotTo": 0 },
-      "parallax": "BG storm sky 0.1 / far burnt skyline + clock tower 0.3 / mid rebuilt wooden houses 0.6 / FG utility pole, wires, rubble 1.3",
-      "actions": "Smoke columns rise from the skyline; a lone figure with an oil-paper umbrella crosses the street; ash and rain fall together",
-      "transitionOut": "dissolve",
-      "sfx": ["rain bed", "distant thunder roll", "wind gust"],
+      "name": "The nightmare returns",
+      "narration": "Godzilla was defeated. Two years later, the nightmare returns.",
+      "status": "CONFIRMED PREMISE + CREATIVE SHOT",
+      "camera": {
+        "plan": "0–2 s slow push along street at knee height; 2–4 s tilt up 25°; 4–5 s silhouette appears",
+        "keys": [
+          [
+            0,
+            1.0,
+            0,
+            120,
+            0
+          ],
+          [
+            2,
+            1.12,
+            0,
+            100,
+            0
+          ],
+          [
+            4,
+            1.14,
+            0,
+            -160,
+            0
+          ],
+          [
+            5,
+            1.15,
+            0,
+            -175,
+            0
+          ]
+        ]
+      },
+      "transitionOut": "cut",
+      "cues": [
+        [
+          0.0,
+          "sub_rumble"
+        ],
+        [
+          1.2,
+          "wind_pinwheel"
+        ],
+        [
+          3.9,
+          "distant_footfall"
+        ],
+        [
+          4.7,
+          "bass_hit"
+        ]
+      ],
       "keyframe": null
     },
     {
       "id": 2,
-      "name": "Sleepless Survivor",
-      "narration": "Koichi Shikishima survived the war and the monster. But peace never came.",
-      "factTag": "CONFIRMED",
-      "factNote": "Ryunosuke Kamiki returns as Shikishima",
-      "confirmed": ["Koichi Shikishima returns, played by Ryunosuke Kamiki"],
-      "staged": ["Night window, lightning and his restlessness are invented staging"],
-      "camera": { "move": "slow dolly left-to-right + push", "zoomFrom": 1.05, "zoomTo": 1.15, "xFrom": -40, "xTo": 40, "yFrom": 0, "yTo": -10, "rotFrom": 0, "rotTo": 0 },
-      "parallax": "BG dark room + window 0.2 / mid Shikishima profile 0.8 / FG rain rivulets on glass 1.4",
-      "actions": "He breathes, blinks, his jaw tightens; lightning on 'peace never came' reveals his face; hand clenches the sill",
-      "transitionOut": "flash",
-      "sfx": ["rain on glass", "heartbeat", "thunder crack on 'peace'"],
+      "name": "A country rebuilding",
+      "narration": "It's 1949. Japan rebuilds, but the scars remain.",
+      "spoken": "It's nineteen forty-nine. Japan rebuilds, but the scars remain.",
+      "status": "CONFIRMED SETTING + CREATIVE SHOT",
+      "camera": {
+        "plan": "0–3 s horizontal truck right past construction frame; 3–5 s push toward the damaged wall; match cut to family home",
+        "keys": [
+          [
+            0,
+            1.08,
+            -160,
+            0,
+            0
+          ],
+          [
+            3,
+            1.08,
+            140,
+            0,
+            0
+          ],
+          [
+            5,
+            1.32,
+            210,
+            40,
+            0
+          ]
+        ]
+      },
+      "transitionOut": "match",
+      "cues": [
+        [
+          5.0,
+          "piano_hope"
+        ],
+        [
+          5.3,
+          "mallets"
+        ],
+        [
+          8.6,
+          "low_rumble"
+        ]
+      ],
       "keyframe": null
     },
     {
       "id": 3,
-      "name": "The Mark",
-      "narration": "Noriko lived too. Yet the dark mark on her neck never faded.",
-      "factTag": "CONFIRMED",
-      "factNote": "Noriko returns (Minami Hamabe); neck mark from Minus One ending",
-      "confirmed": ["Noriko returns, played by Minami Hamabe", "Godzilla Minus One ended with a dark mark spreading on Noriko's neck"],
-      "staged": ["The mark visibly crawling and the lamp-lit shoji room are invented staging"],
-      "camera": { "move": "slow push-in toward her neck", "zoomFrom": 1.0, "zoomTo": 1.3, "xFrom": 0, "xTo": 60, "yFrom": 0, "yTo": -80, "rotFrom": 0, "rotTo": 0 },
-      "parallax": "BG shoji screen + paper lamp 0.2 / mid Noriko profile 0.8 / FG drifting dust bokeh 1.4",
-      "actions": "She turns slightly, raises her hand to her neck; black veins creep outward from the mark on 'never faded'",
-      "transitionOut": "zoomBlack",
-      "sfx": ["clock ticking", "low string drone", "sharp string stinger on 'mark'"],
+      "name": "Koichi's fragile peace",
+      "narration": "Koichi, Noriko, and Akiko finally share a fragile peace.",
+      "status": "CONFIRMED CHARACTERS + CREATIVE SHOT",
+      "camera": {
+        "plan": "0–2 s slow slide to reveal all three; 2–4 s push toward Koichi; 4–5 s cut on his glance",
+        "keys": [
+          [
+            0,
+            1.03,
+            140,
+            0,
+            0
+          ],
+          [
+            2,
+            1.03,
+            0,
+            0,
+            0
+          ],
+          [
+            4,
+            1.08,
+            -200,
+            -20,
+            0
+          ],
+          [
+            5,
+            1.08,
+            -205,
+            -20,
+            0
+          ]
+        ]
+      },
+      "transitionOut": "cut",
+      "cues": [
+        [
+          11.2,
+          "cloth_rustle"
+        ],
+        [
+          13.7,
+          "low_wind"
+        ]
+      ],
       "keyframe": null
     },
     {
       "id": 4,
-      "name": "Noda Returns",
-      "narration": "Kenji Noda, the man who sank Godzilla once, is called back.",
-      "factTag": "CONFIRMED",
-      "factNote": "Hidetaka Yoshioka returns as Kenji Noda",
-      "confirmed": ["Kenji Noda returns, played by Hidetaka Yoshioka", "Noda planned the operation that sank Godzilla in Minus One"],
-      "staged": ["The telegram, the blackboard sketch and lamp-lit office are invented staging"],
-      "camera": { "move": "tilt up from desk to face", "zoomFrom": 1.12, "zoomTo": 1.04, "xFrom": 0, "xTo": 0, "yFrom": 260, "yTo": -40, "rotFrom": 0, "rotTo": 0 },
-      "parallax": "BG blackboard with Godzilla sketch 0.3 / mid Noda 0.8 / FG desk lamp + papers 1.3",
-      "actions": "Telegram slides in; he lifts his glasses, lenses glint on 'called back'",
-      "transitionOut": "whip",
-      "sfx": ["1940s telephone ring", "paper rustle", "whoosh on whip pan"],
+      "name": "The mystery of Noriko",
+      "narration": "Noriko survived the impossible. But that strange neck mark remains unexplained.",
+      "status": "PRIOR FILM CLUE + ORIGINAL VISUALIZATION",
+      "camera": {
+        "plan": "0–3 s macro dolly toward reflection; 3–5 s rack-focus from fingertips to mark; straight cut",
+        "keys": [
+          [
+            0,
+            1.0,
+            80,
+            0,
+            0
+          ],
+          [
+            3,
+            1.16,
+            10,
+            -20,
+            0
+          ],
+          [
+            5,
+            1.2,
+            -20,
+            -40,
+            0
+          ]
+        ]
+      },
+      "transitionOut": "cut",
+      "cues": [
+        [
+          15.5,
+          "clock_tick"
+        ],
+        [
+          18.4,
+          "violin_harmonic"
+        ]
+      ],
       "keyframe": null
     },
     {
       "id": 5,
-      "name": "What It Left Behind",
-      "narration": "With biologist Kanji Murakami, he studies what the monster left behind.",
-      "factTag": "CONFIRMED",
-      "factNote": "Min Tanaka joins as biologist Kanji Murakami",
-      "confirmed": ["Min Tanaka plays biologist Kanji Murakami"],
-      "staged": ["The glowing tissue in the jar and what they study are invented staging"],
-      "camera": { "move": "slow lateral arc + rack focus FG to BG", "zoomFrom": 1.06, "zoomTo": 1.16, "xFrom": 50, "xTo": -50, "yFrom": 0, "yTo": 0, "rotFrom": -1.2, "rotTo": 1.0 },
-      "parallax": "BG Noda silhouette + shelves 0.25 / mid Murakami leaning in 0.8 / FG specimen jar 1.3",
-      "actions": "Murakami leans toward the jar; the tissue twitches on 'left behind', throwing blue light on his face",
-      "transitionOut": "dissolve",
-      "sfx": ["bubbling jar", "electric hum", "faint wet heartbeat"],
+      "name": "A doctor's warning",
+      "narration": "Doctor Ogata warns that one patient should never have survived.",
+      "status": "CONFIRMED TRAILER STATEMENT + CREATIVE STAGING",
+      "camera": {
+        "plan": "0–3 s dolly around shoulder, chart in soft focus; 3–5 s close-up on his eyes; hard cut to ocean",
+        "keys": [
+          [
+            0,
+            1.0,
+            -90,
+            40,
+            -1.5
+          ],
+          [
+            3,
+            1.08,
+            40,
+            0,
+            1.0
+          ],
+          [
+            5,
+            1.6,
+            30,
+            -48,
+            0.5
+          ]
+        ]
+      },
+      "transitionOut": "cut",
+      "cues": [
+        [
+          20.0,
+          "paper_scrape"
+        ],
+        [
+          21.0,
+          "medical_tick"
+        ],
+        [
+          23.2,
+          "minor_chord"
+        ]
+      ],
       "keyframe": null
     },
     {
       "id": 6,
-      "name": "Sagami Bay",
-      "narration": "Because deep in Sagami Bay, something is still growing.",
-      "factTag": "CONFIRMED",
-      "factNote": "Minus One's final shot: Godzilla flesh regenerating at sea",
-      "confirmed": ["Godzilla was sunk off Sagami Bay in Minus One", "Minus One's final shot showed a piece of Godzilla flesh regenerating underwater"],
-      "staged": ["How far it has regrown in Minus Zero is invented staging"],
-      "camera": { "move": "descending tilt down + slow push", "zoomFrom": 1.0, "zoomTo": 1.18, "xFrom": 0, "xTo": 0, "yFrom": -220, "yTo": 80, "rotFrom": 0, "rotTo": 0 },
-      "parallax": "BG god-rays from the surface 0.2 / mid flesh mass on the seabed 0.7 / FG marine snow 1.3",
-      "actions": "The mass throbs to a heartbeat; blue veins light up; a dorsal-plate tip pushes out on 'growing'",
-      "transitionOut": "riseWipe",
-      "sfx": ["deep underwater rumble", "slow giant heartbeat", "sonar ping"],
+      "name": "The ocean remembers",
+      "narration": "And Godzilla's body was never completely destroyed.",
+      "status": "CONFIRMED SURVIVAL + ILLUSTRATIVE VISUALIZATION",
+      "camera": {
+        "plan": "0–3 s extremely slow underwater dolly-in; 3–5 s slight pulse of backlight; smash cut",
+        "keys": [
+          [
+            0,
+            1.0,
+            0,
+            0,
+            0
+          ],
+          [
+            3,
+            1.08,
+            0,
+            20,
+            0
+          ],
+          [
+            5,
+            1.12,
+            0,
+            30,
+            0
+          ]
+        ]
+      },
+      "transitionOut": "cut",
+      "cues": [
+        [
+          25.0,
+          "muffled_sub"
+        ],
+        [
+          26.5,
+          "bubble"
+        ],
+        [
+          28.5,
+          "organic_pulse"
+        ],
+        [
+          29.8,
+          "stinger"
+        ]
+      ],
       "keyframe": null
     },
     {
       "id": 7,
-      "name": "Blue Light",
-      "narration": "Fishermen whisper about a blue light pulsing beneath the waves.",
-      "factTag": "STAGED VISUAL",
-      "factNote": "Invented staging — not a confirmed scene",
-      "confirmed": [],
-      "staged": ["The fishing boat sighting is invented staging, not a confirmed film scene"],
-      "camera": { "move": "handheld sway + slow pull-back", "zoomFrom": 1.2, "zoomTo": 1.04, "xFrom": 0, "xTo": 0, "yFrom": 0, "yTo": 0, "rotFrom": -1.5, "rotTo": 1.5 },
-      "parallax": "BG horizon + storm clouds 0.2 / mid fishing boat with lantern 0.9 / FG wave crests 1.4",
-      "actions": "Boat rocks; two fishermen lean over the rail; blue glow pulses brighter under the hull on 'pulsing'",
-      "transitionOut": "dissolve",
-      "sfx": ["waves against hull", "wood creak", "low pulsing throb"],
+      "name": "Another plan",
+      "narration": "Noda prepares another extermination operation. Murakami studies the danger.",
+      "status": "CONFIRMED ROLES + CREATIVE STAGING",
+      "camera": {
+        "plan": "0–2 s overhead pan on map; 2–4 s tilt up to Noda; 4–5 s rack focus to Murakami; match cut to weather map",
+        "keys": [
+          [
+            0,
+            1.1,
+            -120,
+            520,
+            0
+          ],
+          [
+            2,
+            1.1,
+            60,
+            520,
+            0
+          ],
+          [
+            4,
+            1.06,
+            0,
+            -60,
+            0
+          ],
+          [
+            5,
+            1.08,
+            40,
+            -70,
+            0
+          ]
+        ]
+      },
+      "transitionOut": "match",
+      "cues": [
+        [
+          30.0,
+          "pencil_tap"
+        ],
+        [
+          31.8,
+          "page_turn"
+        ],
+        [
+          33.4,
+          "radio_hiss"
+        ],
+        [
+          34.6,
+          "perc_start"
+        ]
+      ],
       "keyframe": null
     },
     {
       "id": 8,
-      "name": "The Sea Tears Open",
-      "narration": "Then the sea tears open. Godzilla has returned.",
-      "factTag": "CONFIRMED",
-      "factNote": "Godzilla returns (official trailer)",
-      "confirmed": ["Godzilla returns in Godzilla Minus Zero"],
-      "staged": ["The exact emergence shot is invented staging"],
-      "camera": { "move": "low-angle tilt up + impact shake", "zoomFrom": 1.15, "zoomTo": 1.0, "xFrom": 0, "xTo": 0, "yFrom": 200, "yTo": -60, "rotFrom": 0, "rotTo": 0 },
-      "parallax": "BG storm clouds + lightning 0.15 / mid Godzilla rising 0.6 / FG spray and breaking waves 1.5",
-      "actions": "The sea bulges and splits; Godzilla's head and shoulders rise, water cascading; jaws open into a roar on 'returned'",
+      "name": "Storm calculations",
+      "narration": "Weather expert Aoyama joins as ominous storms gather.",
+      "status": "CONFIRMED CHARACTER ROLE + CREATIVE STAGING",
+      "camera": {
+        "plan": "0–2 s lateral slide past weather instruments; 2–4 s push to chart; 4–5 s lightning-flash match cut to seaside",
+        "keys": [
+          [
+            0,
+            1.06,
+            -170,
+            0,
+            0
+          ],
+          [
+            2,
+            1.06,
+            30,
+            0,
+            0
+          ],
+          [
+            4,
+            1.3,
+            60,
+            260,
+            0
+          ],
+          [
+            5,
+            1.32,
+            64,
+            270,
+            0
+          ]
+        ]
+      },
       "transitionOut": "flash",
-      "sfx": ["water surge", "massive wave crash", "Godzilla roar", "thunder"],
+      "cues": [
+        [
+          35.0,
+          "rain_glass"
+        ],
+        [
+          36.0,
+          "paper_scratch"
+        ],
+        [
+          38.6,
+          "thunder_soft"
+        ],
+        [
+          39.8,
+          "transition_whoosh"
+        ]
+      ],
       "keyframe": null
     },
     {
       "id": 9,
-      "name": "Spines Ignite",
-      "narration": "His spines snap upward, one by one, glowing atomic blue.",
-      "factTag": "STAGED VISUAL",
-      "factNote": "Signature charge-up; exact shot invented",
-      "confirmed": ["Minus One's Godzilla charges its heat ray by raising its dorsal plates"],
-      "staged": ["This specific shot over the city is invented staging"],
-      "camera": { "move": "track up the spine (pan) + push", "zoomFrom": 1.05, "zoomTo": 1.2, "xFrom": 80, "xTo": -60, "yFrom": 160, "yTo": -120, "rotFrom": 0, "rotTo": 0 },
-      "parallax": "BG burning city 0.2 / mid dorsal plates 0.8 / FG sparks and ash 1.3",
-      "actions": "Plates click up one at a time from tail to head, synced to 'one by one'; blue energy crawls between them",
-      "transitionOut": "flash",
-      "sfx": ["heavy mechanical clank per plate", "rising electric whine"],
+      "name": "The return",
+      "narration": "Then Godzilla rises again, sending entire neighborhoods fleeing.",
+      "status": "OFFICIAL GODZILLA THREAT + ORIGINAL STAGING",
+      "camera": {
+        "plan": "0–2 s low camera tracks backward with crowd; 2–4 s tilt vertically to monster; 4–5 s shake on heavy footfall",
+        "keys": [
+          [
+            0,
+            1.2,
+            0,
+            380,
+            0
+          ],
+          [
+            2,
+            1.08,
+            0,
+            360,
+            0
+          ],
+          [
+            4,
+            1.0,
+            0,
+            -40,
+            0
+          ],
+          [
+            5,
+            1.0,
+            0,
+            -50,
+            0
+          ]
+        ]
+      },
+      "transitionOut": "cut",
+      "cues": [
+        [
+          40.0,
+          "roar_distant"
+        ],
+        [
+          40.7,
+          "crowd_run"
+        ],
+        [
+          43.0,
+          "huge_footfall"
+        ],
+        [
+          44.3,
+          "masonry_crack"
+        ]
+      ],
       "keyframe": null
     },
     {
       "id": 10,
-      "name": "Plot Twist",
-      "narration": "Plot twist: Minus One was the countdown. Zero means there is nothing left.",
-      "factTag": "THEORY",
-      "factNote": "Channel theory about the title — not confirmed",
-      "confirmed": [],
-      "staged": ["The title-countdown reading is a channel theory, not confirmed story", "The atomic blast over Tokyo is invented staging"],
-      "camera": { "move": "wide hold, shockwave shake, pull-out", "zoomFrom": 1.15, "zoomTo": 0.98, "xFrom": 0, "xTo": 0, "yFrom": 0, "yTo": 0, "rotFrom": 0, "rotTo": 0 },
-      "parallax": "BG blue-white mushroom cloud 0.2 / mid disintegrating skyline 0.7 / FG flying debris 1.4",
-      "actions": "Blue heat ray fires across the city; blast blooms; PLOT TWIST card slams in; black rain begins on 'nothing left'",
-      "transitionOut": "dissolve",
-      "sfx": ["heat-ray scream", "colossal boom", "sub drop", "ringing silence"],
+      "name": "Akiko's prayer",
+      "narration": "As chaos spreads, Akiko closes her eyes and prays.",
+      "status": "CONFIRMED TRAILER IMAGE + CREATIVE SHOT",
+      "camera": {
+        "plan": "0–3 s slow push on Akiko; 3–5 s shallow focus shift to smoke behind; hard cut on sound vacuum",
+        "keys": [
+          [
+            0,
+            1.0,
+            0,
+            0,
+            0
+          ],
+          [
+            3,
+            1.12,
+            20,
+            -30,
+            0
+          ],
+          [
+            5,
+            1.14,
+            24,
+            -34,
+            0
+          ]
+        ]
+      },
+      "transitionOut": "cut",
+      "cues": [
+        [
+          45.0,
+          "muffle_start"
+        ],
+        [
+          46.8,
+          "piano_single"
+        ],
+        [
+          49.2,
+          "inhale"
+        ]
+      ],
       "keyframe": null
     },
     {
       "id": 11,
-      "name": "Face the Nightmare",
-      "narration": "Shikishima must face his nightmare again, with everyone he loves in its path.",
-      "factTag": "STAGED VISUAL",
-      "factNote": "Characters confirmed; this moment is invented",
-      "confirmed": ["Shikishima and Noriko both return"],
-      "staged": ["The two facing Godzilla together in the ash is invented staging"],
-      "camera": { "move": "push-in over their shoulders + slight rise", "zoomFrom": 1.0, "zoomTo": 1.16, "xFrom": 0, "xTo": 0, "yFrom": 40, "yTo": -40, "rotFrom": 0, "rotTo": 0 },
-      "parallax": "BG Godzilla + burning city 0.25 / mid Shikishima and Noriko 0.8 / FG embers and ash 1.3",
-      "actions": "Shikishima steps forward and takes Noriko's hand on 'everyone he loves'; Godzilla's head turns toward them",
-      "transitionOut": "fadeBlack",
-      "sfx": ["wind", "distant roar", "score swell"],
+      "name": "Pale blue judgment",
+      "narration": "His spines ignite pale blue. The atomic heat ray erupts.",
+      "status": "CONFIRMED TRAILER HEAT RAY + CREATIVE SHOT",
+      "camera": {
+        "plan": "0–2.5 s tracking push along back plates; 2.5–4 s extreme close-up on head; 4–5 s white-blue flash wipe to aftermath",
+        "keys": [
+          [
+            0,
+            1.1,
+            560,
+            560,
+            0
+          ],
+          [
+            2.5,
+            1.2,
+            333,
+            -217,
+            0
+          ],
+          [
+            4,
+            1.9,
+            -544,
+            -1165,
+            0
+          ],
+          [
+            5,
+            1.95,
+            -560,
+            -1190,
+            0
+          ]
+        ]
+      },
+      "transitionOut": "flashWipe",
+      "cues": [
+        [
+          50.0,
+          "electric_drone"
+        ],
+        [
+          52.2,
+          "plate_crackle"
+        ],
+        [
+          54.0,
+          "heat_ray"
+        ]
+      ],
       "keyframe": null
     },
     {
       "id": 12,
-      "name": "Title",
-      "narration": "Godzilla Minus Zero. In theaters November 2026. Follow for more plot twists.",
-      "factTag": "CONFIRMED",
-      "factNote": "Japan Nov 3 · US Nov 6, 2026",
-      "confirmed": ["Directed by Takashi Yamazaki", "Japan release November 3, 2026; US release November 6, 2026"],
-      "staged": ["Title-card design is original to this Short (not the official logo)"],
-      "camera": { "move": "slow push-in", "zoomFrom": 1.0, "zoomTo": 1.08, "xFrom": 0, "xTo": 0, "yFrom": 0, "yTo": 0, "rotFrom": 0, "rotTo": 0 },
-      "parallax": "BG backlit Godzilla silhouette 0.2 / mid title lockup 0.6 / FG ash 1.3",
-      "actions": "Title burns in on 'Godzilla Minus Zero'; release line on 'November 2026'; A&R mark grows on 'plot twists'",
+      "name": "No third miracle",
+      "narration": "Japan survived him once. Will there be another miracle?",
+      "status": "OFFICIAL THEMATIC PREMISE + CREATIVE FINALE",
+      "camera": {
+        "plan": "0–2.5 s slow pullback as smoke clears; 2.5–4 s dissolve to black; 4–5 s sharp title reveal then hold",
+        "keys": [
+          [
+            0,
+            1.14,
+            0,
+            -20,
+            0
+          ],
+          [
+            2.5,
+            1.0,
+            0,
+            0,
+            0
+          ],
+          [
+            5,
+            0.98,
+            0,
+            0,
+            0
+          ]
+        ]
+      },
       "transitionOut": "none",
-      "sfx": ["title impact boom", "roar tail", "final score hit"],
+      "cues": [
+        [
+          55.0,
+          "choir"
+        ],
+        [
+          57.5,
+          "roar_tail"
+        ],
+        [
+          58.0,
+          "title_impact"
+        ]
+      ],
       "keyframe": null
     }
   ]
