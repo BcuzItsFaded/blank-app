@@ -2,7 +2,7 @@ import React from "react";
 import { AbsoluteFill, Audio, Sequence, staticFile, useCurrentFrame, interpolate, continueRender, delayRender } from "remotion";
 import { SCENES, SCENE_FRAMES, PAD, W, H, clamp, pulse } from "./lib";
 import meta from "./scenes.json";
-import { Grain, Vignette, FilmDamage, KeyframePlate } from "./fx";
+import { Grain, Vignette, FilmDamage, KeyframePlate, DBG } from "./fx";
 import { SCENE_COMPONENTS, wordFrame } from "./scenes";
 import timings from "./timings.json";
 
@@ -193,10 +193,12 @@ export const Main: React.FC = () => {
       </AbsoluteFill>
       <BoundaryFlash />
       {/* 90s anime-horror finishing: grade, aged cel grain, vignette, damage */}
-      <AbsoluteFill style={{ background: "linear-gradient(180deg, rgba(10,20,40,0.18), rgba(30,10,5,0.12))", mixBlendMode: "multiply" }} />
+      {!DBG.noPost && <>
+      <AbsoluteFill style={{ background: "linear-gradient(180deg, rgba(4,8,18,0.16), rgba(12,4,2,0.12))" }} />
       <Vignette />
       <Grain f={fr} />
       <FilmDamage f={fr} />
+      </>}
       {SCENES.map((s, i) => (
         <Sequence key={`t${s.id}`} from={i * SCENE_FRAMES} durationInFrames={SCENE_FRAMES} layout="none" name={`text ${s.id}`}>
           <FactTag i={i} />

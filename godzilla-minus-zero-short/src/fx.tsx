@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useMemo } from "react";
-import { AbsoluteFill, Img, staticFile } from "remotion";
+import { AbsoluteFill, Img, staticFile, getInputProps } from "remotion";
+export const DBG = getInputProps() as Record<string, boolean>;
 import { H, W, SceneData, lerp, rand, wobble, SCENE_FRAMES } from "./lib";
 
 /* ------------------------------------------------------------------ camera */
@@ -61,7 +62,13 @@ export const Layer: React.FC<{ depth: number; children: React.ReactNode; filter?
 };
 
 /* ------------------------------------------------------------------ shared filters */
-export const SharedDefs: React.FC = () => (
+export const SharedDefs: React.FC = () => DBG.noGlow ? (
+  <>
+    {["blur2", "blur6", "blur14", "blur30", "glowBlue", "glowSoft"].map((id) => <filter key={id} id={id}><feOffset dx={0} dy={0} /></filter>)}
+    <radialGradient id="vign" cx="50%" cy="48%" r="75%"><stop offset="55%" stopColor="#000" stopOpacity="0" /><stop offset="100%" stopColor="#000" stopOpacity="0.85" /></radialGradient>
+    <linearGradient id="fadeDown" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stopColor="#000" stopOpacity="0" /><stop offset="1" stopColor="#000" stopOpacity="0.9" /></linearGradient>
+  </>
+) : (
   <>
     <filter id="blur2"><feGaussianBlur stdDeviation="2" /></filter>
     <filter id="blur6"><feGaussianBlur stdDeviation="6" /></filter>
@@ -87,9 +94,9 @@ export const SharedDefs: React.FC = () => (
 );
 
 /** "Boiling line" — hand-drawn 90s cel wobble. Seed steps every 3 frames. */
-export const Boil: React.FC<{ id: string; f: number; scale?: number }> = ({ id, f, scale = 3 }) => (
+export const Boil: React.FC<{ id: string; f: number; scale?: number }> = ({ id, f, scale = 3 }) => DBG.noBoil ? <filter id={id}><feOffset dx={0} dy={0} /></filter> : (
   <filter id={id} x="-5%" y="-5%" width="110%" height="110%">
-    <feTurbulence type="fractalNoise" baseFrequency="0.035" numOctaves="2" seed={Math.floor(f / 3) % 9} result="n" />
+    <feTurbulence type="fractalNoise" baseFrequency="0.035" numOctaves="1" seed={Math.floor(f / 3) % 9} result="n" />
     <feDisplacementMap in="SourceGraphic" in2="n" scale={scale} xChannelSelector="R" yChannelSelector="G" />
   </filter>
 );
@@ -104,6 +111,25 @@ export const Painterly: React.FC<{ id: string; freq?: number; scale?: number; se
     <feGaussianBlur in="d" stdDeviation="3" />
   </filter>
 );
+
+/** Soft light pool: a radial-gradient ellipse (cheap stand-in for a heavily blurred shape) */
+let glowSeq = 0;
+export const SoftGlow: React.FC<{ cx: number; cy: number; rx: number; ry: number; color: string; opacity?: number; blend?: string }> = ({ cx, cy, rx, ry, color, opacity = 1, blend }) => {
+  const id = React.useMemo(() => `sg${glowSeq++}`, []);
+  return (
+    <g style={blend ? { mixBlendMode: blend as React.CSSProperties["mixBlendMode"] } : undefined}>
+      <defs>
+        <radialGradient id={id}>
+          <stop offset="0" stopColor={color} stopOpacity={1} />
+          <stop offset="0.45" stopColor={color} stopOpacity={0.75} />
+          <stop offset="0.75" stopColor={color} stopOpacity={0.25} />
+          <stop offset="1" stopColor={color} stopOpacity={0} />
+        </radialGradient>
+      </defs>
+      <ellipse cx={cx} cy={cy} rx={rx * 1.25 + 40} ry={ry * 1.25 + 40} fill={`url(#${id})`} opacity={opacity} />
+    </g>
+  );
+};
 
 /* ------------------------------------------------------------------ particles */
 export const Rain: React.FC<{ f: number; n?: number; angle?: number; color?: string; speed?: number; len?: number; seed?: number; opacity?: number }> = ({
@@ -133,7 +159,7 @@ export const Ash: React.FC<{ f: number; n?: number; color?: string; seed?: numbe
     return Array.from({ length: n }, () => ({ x: r() * W, y: r() * H, s: 0.4 + r(), ph: r() * 100, a: 0.4 + r() * 0.6 }));
   }, [n, seed]);
   return (
-    <g filter={glow ? "url(#glowBlue)" : undefined}>
+    <g>
       {p.map((q, i) => {
         const dy = (rise ? -1 : 1) * f * speed * q.s;
         const y = (((q.y + dy) % H) + H) % H;
@@ -155,14 +181,21 @@ export const Smoke: React.FC<{ f: number; x: number; y: number; scale?: number; 
     const r = rand(seed);
     return Array.from({ length: 16 }, (_, i) => ({ t: i / 16, ph: r() * 6, s: 0.7 + r() * 0.6 }));
   }, [seed]);
+  const gid = `smk-${seed}-${color.slice(1)}`;
+  void filter;
   return (
-    <g filter={filter} opacity={opacity}>
+    <g opacity={opacity}>
+      <defs>
+        <radialGradient id={gid}>
+          <stop offset="0" stopColor={color} stopOpacity={1} /><stop offset="0.6" stopColor={color} stopOpacity={0.7} /><stop offset="1" stopColor={color} stopOpacity={0} />
+        </radialGradient>
+      </defs>
       {puffs.map((p, i) => {
         const t = (p.t + f / 220) % 1;
         const py = y - t * 900 * scale;
         const px = x + Math.sin(t * 5 + p.ph) * 40 * scale + t * 140 * scale;
-        const rr = (40 + t * 170) * scale * p.s;
-        return <circle key={i} cx={px} cy={py} r={rr} fill={color} opacity={Math.sin(t * Math.PI) * 0.9} />;
+        const rr = (60 + t * 200) * scale * p.s;
+        return <circle key={i} cx={px} cy={py} r={rr} fill={`url(#${gid})`} opacity={Math.sin(t * Math.PI) * 0.9} />;
       })}
     </g>
   );
@@ -189,7 +222,8 @@ export const Bolt: React.FC<{ x: number; y: number; len: number; seed: number; o
   }, [x, y, len, seed]);
   if (opacity <= 0.01) return null;
   return (
-    <g opacity={opacity} filter="url(#glowBlue)" stroke={color} fill="none" strokeLinejoin="round">
+    <g opacity={opacity} stroke={color} fill="none" strokeLinejoin="round">
+      <path d={d.s} strokeWidth={18} opacity={0.25} />
       <path d={d.s} strokeWidth={5} />
       {d.branches.map((b, i) => <path key={i} d={b} strokeWidth={2} />)}
     </g>
@@ -204,13 +238,13 @@ export const flashAt = (f: number, at: number) => {
 };
 
 /* ------------------------------------------------------------------ screen overlays (HTML) */
-export const Grain: React.FC<{ f: number; opacity?: number }> = ({ f, opacity = 0.16 }) => {
+export const Grain: React.FC<{ f: number; opacity?: number }> = ({ f, opacity = 0.55 }) => {
   const r = rand(Math.floor(f / 2));
-  const ox = Math.floor(r() * 1024), oy = Math.floor(r() * 1024);
+  const ox = Math.floor(r() * 768), oy = Math.floor(r() * 768);
   return (
     <AbsoluteFill style={{
-      backgroundImage: `url(${staticFile("grain.png")})`, backgroundPosition: `${ox}px ${oy}px`,
-      mixBlendMode: "overlay", opacity, pointerEvents: "none",
+      backgroundImage: `url(${staticFile("grain_alpha.png")})`, backgroundPosition: `${ox}px ${oy}px`,
+      opacity, pointerEvents: "none",
     }} />
   );
 };

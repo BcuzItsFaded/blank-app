@@ -6,3 +6,4 @@ public/audio/mix.wav
 out/*.mp4.part
 out/render.log
 out/stills/
+frames/

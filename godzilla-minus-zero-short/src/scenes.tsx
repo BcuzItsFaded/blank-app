@@ -1,6 +1,6 @@
 import React from "react";
 import { H, W, SceneData, lerp, onTwos, pulse, wobble, clamp, rand } from "./lib";
-import { Stage, Layer, cameraAt, Rain, Ash, Smoke, Bolt, flashAt, Boil } from "./fx";
+import { Stage, Layer, cameraAt, Rain, Ash, Smoke, Bolt, flashAt, Boil, SoftGlow } from "./fx";
 import { Sky, Skyline, House, Pole, Rubble, Ocean } from "./env";
 import { Profile, LOOKS, Figure, Godzilla, PLATE_COUNT, mix } from "./characters";
 import timings from "./timings.json";
@@ -58,7 +58,7 @@ export const S01: React.FC<P> = ({ s, f }) => {
         <Sky f={f} id="s1" top="#160505" mid="#6e1c0c" bottom="#d4642a" clouds="#2a0c08" seed={5} />
       </Layer>
       <Layer depth={0.25}>
-        <g opacity={sil} filter="url(#blur6)">
+        <g opacity={sil}>
           <Godzilla id="g1" x={600} y={1500} scale={0.72} bodyColor="#1a0806" rim="#ff8a4a" rimStrength={0.4} eye={0} />
         </g>
         <Smoke f={f} x={380} y={1300} scale={1.6} color="#2a0f0a" seed={11} opacity={0.9} />
@@ -70,7 +70,7 @@ export const S01: React.FC<P> = ({ s, f }) => {
         <Facade side="R" color="#1e100e" lit="#a04a1e" seed={4} />
         {/* the huge shadow crossing the shattered right facade */}
         <g opacity={0.75} transform={`translate(${shadowX} 0)`}>
-          <path d="M 600,300 C 640,500 700,700 720,1000 L 900,1400 L 1400,1400 L 1400,300 C 1200,240 900,240 600,300 Z" fill="#000" filter="url(#blur14)" />
+          <path d="M 600,300 C 640,500 700,700 720,1000 L 900,1400 L 1400,1400 L 1400,300 C 1200,240 900,240 600,300 Z" fill="#000" opacity={0.85} />
         </g>
       </Layer>
       <Layer depth={0.85}>
@@ -111,11 +111,11 @@ export const S02: React.FC<P> = ({ s, f }) => {
     <Stage cam={cameraAt(s, f)} bg="#2a2018" defs={<Boil id="b2" f={f} scale={2.2} />}>
       <Layer depth={0.1}>
         <Sky f={f} id="s2" top="#2c2c3c" mid="#c8845a" bottom="#f2c890" clouds="#8a5a48" cloudOpacity={0.5} seed={8} />
-        <circle cx={760} cy={1040} r={120} fill="#ffe2a8" opacity={0.85} filter="url(#blur14)" />
+        <SoftGlow cx={760} cy={1040} rx={120} ry={120} color="#ffe2a8" opacity={0.85} />
       </Layer>
       <Layer depth={0.3}>
         <Skyline y={1180} color="#5a4038" seed={19} tower={false} height={0.7} />
-        <rect x={-400} y={1000} width={W + 800} height={240} fill="#f0c890" opacity={0.25} filter="url(#blur30)" />
+        <SoftGlow cx={540} cy={1120} rx={900} ry={140} color="#f0c890" opacity={0.3} />
       </Layer>
       <Layer depth={0.6}>
         {[[-260, 240], [0, 220], [240, 200], [470, 0], [780, 240], [1040, 220]].map(([x, w], i) => w > 0 && (
@@ -171,7 +171,7 @@ export const S03: React.FC<P> = ({ s, f }) => {
         {[0, 1, 2].map((i) => <rect key={i} x={-260 + i * 173} y={260} width={8} height={760} fill="#3a2414" />)}
         <rect x={-260} y={630} width={520} height={8} fill="#3a2414" />
         <path d={`M 250,240 C ${230 + Math.sin(f / 20) * 14},500 ${260 + Math.sin(f / 17) * 18},800 240,1060 L 330,1060 C ${330 + Math.sin(f / 19) * 10},800 320,500 330,240 Z`} fill="#8a4a32" opacity={0.9} />
-        <path d="M 260,260 L 1400,700 L 1400,1500 L 260,1040 Z" fill="#ffcf8a" opacity={0.14} filter="url(#blur30)" />
+        <path d="M 260,260 L 1400,700 L 1400,1500 L 260,1040 Z" fill="#ffcf8a" opacity={0.1} />
         <rect x={-400} y={1300} width={W + 800} height={900} fill="#3a2a18" />
         {/* chabudai with tea */}
         <ellipse cx={600} cy={1430} rx={420} ry={70} fill="#4a2a18" stroke="#1a0e08" strokeWidth={4} />
@@ -202,7 +202,7 @@ export const S04: React.FC<P> = ({ s, f }) => {
     <Stage cam={cameraAt(s, f)} bg="#04070c" defs={<><Boil id="b4" f={f} scale={2.2} />{blurF("rk4a", 5 * (1 - rack))}{blurF("rk4b", 9 * rack)}<clipPath id="mir4"><ellipse cx={800} cy={860} rx={300} ry={520} /></clipPath></>}>
       <Layer depth={0.2}>
         <Fill c="#070b12" />
-        <path d="M 1000,-200 L 1400,-200 L 1400,1400 L 600,1900 Z" fill="#6a88b8" opacity={0.18} filter="url(#blur30)" />
+        <path d="M 1000,-200 L 1400,-200 L 1400,1400 L 600,1900 Z" fill="#6a88b8" opacity={0.12} />
       </Layer>
       <Layer depth={0.6}>
         {/* the mirror and her reflection (dimmer, cooler) */}
@@ -216,11 +216,11 @@ export const S04: React.FC<P> = ({ s, f }) => {
           <rect x={460} y={300} width={200} height={1200} fill="#cfe0ff" opacity={0.06} transform="rotate(12 560 900)" />
         </g>
       </Layer>
-      <Layer depth={0.85} filter="url(#rk4a)">
+      <Layer depth={0.85} filter={rack < 0.95 ? "url(#rk4a)" : undefined}>
         <Profile id="nor4" look={LOOKS.noriko} x={330} y={1020} scale={2.25} boil="b4" mark={0.6} rim="#9fc0ff" rimStrength={1} light={0.5}
           blink={(ft % 90) < 4} breathe={Math.sin(ft / 24)} tilt={-2} />
       </Layer>
-      <Layer depth={1.25} filter="url(#rk4b)">
+      <Layer depth={1.25} filter={rack > 0.04 ? "url(#rk4b)" : undefined}>
         {/* one natural hand lift — fingertips stop just short of the mark */}
         <g transform={`translate(${lerp(hand, 520, 300, 0, 1)} ${lerp(hand, 1950, 1430, 0, 1)}) rotate(${-40 + hand * 22})`}>
           <path d="M -50,80 C -64,10 -36,-60 6,-90 C 22,-100 40,-90 36,-70 C 56,-84 74,-66 62,-46 C 80,-50 84,-28 66,-16 C 80,-6 70,14 54,18 C 54,50 26,90 -50,80 Z" fill="#9fa6b8" stroke="#05070a" strokeWidth={4} />
@@ -244,7 +244,7 @@ export const S05: React.FC<P> = ({ s, f }) => {
         <rect x={760} y={300} width={360} height={1100} fill="#050304" />
         <rect x={-200} y={420} width={420} height={700} fill="#241a12" stroke="#0a0604" strokeWidth={6} />
         {[0, 1, 2].map((i) => <rect key={i} x={-180} y={450 + i * 220} width={380} height={190} fill="#18110c" />)}
-        <ellipse cx={460} cy={240} rx={520} ry={420} fill="#ffc06a" opacity={0.32 * flicker} filter="url(#blur30)" />
+        <SoftGlow cx={460} cy={240} rx={520} ry={420} color="#ffc06a" opacity={0.32 * flicker} />
         <path d="M 400,0 L 400,150 M 330,150 L 470,150 L 440,210 L 360,210 Z" stroke="#0a0604" strokeWidth={6} fill="#2a2218" />
       </Layer>
       <Layer depth={0.8}>
@@ -273,8 +273,8 @@ export const S06: React.FC<P> = ({ s, f }) => {
       <Layer depth={0.2}>
         <defs><linearGradient id="sea6" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stopColor="#0b1e30" /><stop offset="0.5" stopColor="#040c16" /><stop offset="1" stopColor="#010205" /></linearGradient></defs>
         <rect x={-600} y={-600} width={W + 1200} height={H + 1200} fill="url(#sea6)" />
-        {[0, 1, 2, 3].map((i) => <path key={i} d={`M ${200 + i * 220 + Math.sin(f / 40 + i) * 30},-600 L ${100 + i * 260},1600 L ${220 + i * 260},1600 Z`} fill="#6fb8d8" opacity={0.06} filter="url(#blur14)" />)}
-        <ellipse cx={540} cy={1180} rx={520} ry={300} fill="#3a7ab8" opacity={0.12 + back * 0.45} filter="url(#blur30)" />
+        {[0, 1, 2, 3].map((i) => <path key={i} d={`M ${200 + i * 220 + Math.sin(f / 40 + i) * 30},-600 L ${100 + i * 260},1600 L ${220 + i * 260},1600 Z`} fill="#6fb8d8" opacity={0.045} />)}
+        <SoftGlow cx={540} cy={1180} rx={520} ry={300} color="#3a7ab8" opacity={0.12 + back * 0.45} />
       </Layer>
       <Layer depth={0.7}>
         {/* dark rock and the obscure organic remnant */}
@@ -287,7 +287,7 @@ export const S06: React.FC<P> = ({ s, f }) => {
           ))}
         </g>
         {/* caustics */}
-        {Array.from({ length: 8 }, (_, i) => { const r = rand(i + 600); return <ellipse key={i} cx={(r() * 1200 + f * (0.6 + r())) % 1300 - 100} cy={1360 + r() * 200} rx={60 + r() * 60} ry={10} fill="#8fd0ff" opacity={0.06} filter="url(#blur6)" />; })}
+        {Array.from({ length: 8 }, (_, i) => { const r = rand(i + 600); return <ellipse key={i} cx={(r() * 1200 + f * (0.6 + r())) % 1300 - 100} cy={1360 + r() * 200} rx={60 + r() * 60} ry={10} fill="#8fd0ff" opacity={0.05} />; })}
       </Layer>
       <Layer depth={1.3}><Ash f={f} n={90} color="#b8d6e6" size={3} seed={61} speed={0.35} opacity={0.45} /></Layer>
     </Stage>
@@ -301,9 +301,9 @@ export const S07: React.FC<P> = ({ s, f }) => {
   const tap = Math.max(0, Math.sin(f / 2.2)) * (f < sec(1.6) ? 1 : 0);
   return (
     <Stage cam={cameraAt(s, f)} bg="#0c0a08" defs={<><Boil id="b7" f={f} scale={2.2} />{blurF("rk7a", 7 * rack)}{blurF("rk7b", 7 * (1 - rack))}</>}>
-      <Layer depth={0.4} filter="url(#rk7b)">
+      <Layer depth={0.4} filter={rack < 0.95 ? "url(#rk7b)" : undefined}>
         <Fill c="#16120e" />
-        <ellipse cx={540} cy={420} rx={700} ry={360} fill="#ffb860" opacity={0.25} filter="url(#blur30)" />
+        <SoftGlow cx={540} cy={420} rx={700} ry={360} color="#ffb860" opacity={0.25} />
         <Smoke f={f} x={900} y={900} scale={0.6} color="#3a3026" seed={71} opacity={0.35} />
         {/* Murakami (background) studying biological sketches */}
         <Profile id="mur7" look={LOOKS.murakami} x={860} y={980} scale={1.25} flip rim="#ffb860" rimStrength={0.7} light={0.55} blink={(ft % 66) < 4} tilt={8} breathe={Math.sin(ft / 26)} />
@@ -312,7 +312,7 @@ export const S07: React.FC<P> = ({ s, f }) => {
           <path d="M 30,110 C 50,40 110,30 150,70 C 170,90 180,110 190,120 M 60,80 l 20,-30 M 100,60 l 14,-34 M 140,66 l 16,-30" stroke="#4a3e2e" strokeWidth={3} fill="none" />
         </g>
       </Layer>
-      <Layer depth={0.85} filter="url(#rk7a)">
+      <Layer depth={0.85} filter={rack > 0.04 ? "url(#rk7a)" : undefined}>
         <Profile id="noda7" look={LOOKS.noda} x={330} y={960} scale={1.7} boil="b7" rim="#ffb860" rimStrength={0.9} light={0.6} blink={(ft % 80) < 4} tilt={lerp(f, 14, 4, sec(1.8), sec(3.5))} breathe={Math.sin(ft / 22)} />
         {/* his arm reaching down to the map */}
         <path d={`M 470,1260 Q 560,1420 ${600 + tap * 6},${1560 - tap * 10}`} stroke="#23211f" strokeWidth={46} fill="none" strokeLinecap="round" />
@@ -354,7 +354,7 @@ export const S08: React.FC<P> = ({ s, f }) => {
         {[840, 1020].map((x) => <rect key={x} x={x} y={200} width={14} height={1100} fill="#020304" />)}
         <rect x={660} y={700} width={560} height={14} fill="#020304" />
         <g clipPath="none">{Array.from({ length: 18 }, (_, i) => { const r = rand(i + 800); const x = 680 + r() * 520; const y = ((r() * 1100 + f * (2 + r() * 5)) % 1100) + 200; return <path key={i} d={`M ${x} ${y - 90} Q ${x + 5} ${y - 40} ${x} ${y}`} stroke="#a9c2dc" strokeWidth={3 + r() * 2} opacity={0.4} fill="none" />; })}</g>
-        <ellipse cx={300} cy={700} rx={420} ry={320} fill="#ffb860" opacity={0.25} filter="url(#blur30)" />
+        <SoftGlow cx={300} cy={700} rx={420} ry={320} color="#ffb860" opacity={0.25} />
       </Layer>
       <Layer depth={0.55}>
         {/* analog barometers and gauges (no readable text) */}
@@ -410,7 +410,7 @@ export const S09: React.FC<P> = ({ s, f }) => {
           headTurn={lerp(f, -4, 4)} jaw={lerp(f, 0, 0.5, 0, sec(1.5)) * (1 - lerp(f, 0, 1, sec(2.2), sec(3)))} />
         <Ocean f={f * 1.6} y={1340} color="#0a141e" crest="#c8dcea" layers={2} amp={30} speed={1.8} seed={6} />
         {/* spray against the docks */}
-        {Array.from({ length: 10 }, (_, i) => { const r = rand(i + 900); return <ellipse key={i} cx={100 + r() * 900} cy={1330 - pulse(f + r() * 40, 30) * 80} rx={60 + r() * 80} ry={30 + r() * 40} fill="#c8dcea" opacity={0.25} filter="url(#blur6)" />; })}
+        {Array.from({ length: 10 }, (_, i) => { const r = rand(i + 900); return <ellipse key={i} cx={100 + r() * 900} cy={1330 - pulse(f + r() * 40, 30) * 80} rx={60 + r() * 80} ry={30 + r() * 40} fill="#c8dcea" opacity={0.2} />; })}
       </Layer>
       <Layer depth={0.6}>
         {[[-260, 230], [0, 200], [230, 240], [500, 210], [740, 230], [990, 220]].map(([x, w], i) => (
@@ -444,7 +444,7 @@ export const S10: React.FC<P> = ({ s, f }) => {
   const koichiX = lerp(f, -200, 1300, sec(0.6), sec(3.0));
   return (
     <Stage cam={cameraAt(s, f)} bg="#100604" defs={<><Boil id="b10" f={f} scale={2.2} />{blurF("rk10a", 8 * (1 - rack))}{blurF("rk10b", 6 * rack)}{blurF("kb10", 10)}</>}>
-      <Layer depth={0.2} filter="url(#rk10a)">
+      <Layer depth={0.2} filter={rack < 0.95 ? "url(#rk10a)" : undefined}>
         <Sky f={f} id="s10" top="#0a0608" mid="#4a1a10" bottom="#d0582a" clouds="#1a0a08" seed={33} />
         <Skyline y={1200} color="#0c0606" seed={77} tower={false} height={1.2} glow="#ff7a2a" />
         <Smoke f={f} x={300} y={1180} scale={1.5} color="#1a0c0a" seed={14} />
@@ -454,7 +454,7 @@ export const S10: React.FC<P> = ({ s, f }) => {
         {/* Koichi passing in the blurred background, searching toward the street */}
         <g filter="url(#kb10)"><Figure x={koichiX} y={1500} h={420} color="#0a0606" step={ft * 0.35} /></g>
       </Layer>
-      <Layer depth={0.85} filter="url(#rk10b)">
+      <Layer depth={0.85} filter={rack > 0.04 ? "url(#rk10b)" : undefined}>
         <Profile id="aki10" look={LOOKS.akiko} x={420} y={860} scale={2.1} boil="b10" rim="#ff9a5a" rimStrength={1} light={0.55}
           blink={shut} tilt={lerp(f, 0, 8, close - 6, close + 12)} breathe={Math.sin(ft / 14) * 1.4} />
         {/* clasped hands at her chin */}
@@ -521,8 +521,8 @@ export const S12: React.FC<P> = ({ s, f }) => {
         <Sky f={f} id="s12" top="#0a0204" mid="#4a0a0e" bottom="#8a2a1a" clouds="#1a0406" seed={43} />
       </Layer>
       <Layer depth={0.3}>
-        <ellipse cx={600} cy={900} rx={420} ry={600} fill="#5fb8e8" opacity={0.25} filter="url(#blur30)" />
-        <g opacity={0.9} filter="url(#blur2)">
+        <SoftGlow cx={600} cy={900} rx={420} ry={600} color="#5fb8e8" opacity={0.25} />
+        <g opacity={0.9}>
           <Godzilla id="g12" x={lerp(f, 620, 700)} y={lerp(f, 1450, 1400)} scale={lerp(f, 0.82, 0.74)} rim="#9fd8ff" rimStrength={1.2} bodyColor="#0a0406" eye={0.4}
             glow={Array(PLATE_COUNT).fill(0.25)} plates={Array(PLATE_COUNT).fill(0.6)} boil="b12" />
         </g>

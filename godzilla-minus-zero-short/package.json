@@ -6,7 +6,9 @@
   "scripts": {
     "audio": "python3 scripts/make_audio.py",
     "studio": "remotion studio src/index.ts",
-    "render": "node scripts/render.mjs",
+    "render": "node scripts/render_twos.mjs",
+    "render:ones": "node scripts/render_twos.mjs --ones",
+    "render:api": "node scripts/render.mjs",
     "render:cli": "remotion render src/index.ts GodzillaMinusZero out/godzilla-minus-zero-short.mp4",
     "still": "remotion still src/index.ts GodzillaMinusZero out/still.png"
   },

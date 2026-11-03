@@ -1,5 +1,7 @@
 import React, { useMemo } from "react";
 import { H, W, rand } from "./lib";
+import { getInputProps, staticFile } from "remotion";
+const DBG = getInputProps() as Record<string, boolean>;
 
 /** gradient sky with drifting painted cloud masses */
 export const Sky: React.FC<{ f: number; top: string; mid: string; bottom: string; clouds?: string; cloudOpacity?: number; id: string; seed?: number }> = ({
@@ -15,19 +17,25 @@ export const Sky: React.FC<{ f: number; top: string; mid: string; bottom: string
         <linearGradient id={`sky-${id}`} x1="0" y1="0" x2="0" y2="1">
           <stop offset="0" stopColor={top} /><stop offset="0.55" stopColor={mid} /><stop offset="1" stopColor={bottom} />
         </linearGradient>
-        <filter id={`cl-${id}`} x="-30%" y="-30%" width="160%" height="160%">
-          <feTurbulence type="fractalNoise" baseFrequency="0.009" numOctaves="4" seed={seed} result="n" />
-          <feDisplacementMap in="SourceGraphic" in2="n" scale="140" xChannelSelector="R" yChannelSelector="G" result="d" />
-          <feGaussianBlur in="d" stdDeviation="10" />
-        </filter>
       </defs>
       <rect x={-400} y={-400} width={W + 800} height={H + 800} fill={`url(#sky-${id})`} />
-      <g filter={`url(#cl-${id})`} opacity={cloudOpacity}>
-        {cl.map((c, i) => <ellipse key={i} cx={c.x + f * c.v} cy={c.y} rx={c.rx} ry={c.ry} fill={clouds} />)}
-      </g>
+      {/* baked painterly cloud plates (public/clouds_*.png) drifting at two speeds */}
+      {!DBG.noClouds && (() => {
+        const tex = staticFile(warmClouds(clouds) ? "clouds_warm.png" : "clouds_dark.png");
+        const r = rand(seed); const ox = -r() * 500, oy = -r() * 300;
+        return (
+          <g opacity={cloudOpacity}>
+            <image href={tex} x={-500 + ox + f * 0.5} y={-300 + oy} width={2200} height={1540} preserveAspectRatio="none" />
+            <image href={tex} x={-300 + ox * 0.5 - f * 0.25} y={-100 + oy * 0.6} width={2000} height={1100} preserveAspectRatio="none" opacity={0.7} transform={`scale(-1 1) translate(${-W} 0)`} />
+          </g>
+        );
+      })()}
+      {void cl}
     </g>
   );
 };
+
+const warmClouds = (c: string) => { const v = parseInt(c.slice(1, 3), 16); return v > 0x50; };
 
 /** distant burnt-out skyline (rubble, chimneys, a surviving clock-tower block) */
 export const Skyline: React.FC<{ y: number; color: string; seed?: number; tower?: boolean; glow?: string; height?: number }> = ({
@@ -50,7 +58,12 @@ export const Skyline: React.FC<{ y: number; color: string; seed?: number; tower?
   }, [y, seed, height]);
   return (
     <g>
-      {glow && <rect x={-300} y={y - 220} width={W + 600} height={260} fill={glow} opacity={0.35} filter="url(#blur30)" />}
+      {glow && (
+        <g>
+          <defs><linearGradient id={`skg-${seed}`} x1="0" y1="0" x2="0" y2="1"><stop offset="0" stopColor={glow} stopOpacity={0} /><stop offset="0.7" stopColor={glow} stopOpacity={0.5} /><stop offset="1" stopColor={glow} stopOpacity={0.15} /></linearGradient></defs>
+          <rect x={-300} y={y - 320} width={W + 600} height={360} fill={`url(#skg-${seed})`} />
+        </g>
+      )}
       <path d={d} fill={color} />
       {tower && (
         <g fill={color}>
@@ -79,7 +92,7 @@ export const House: React.FC<{ x: number; y: number; w: number; h: number; color
         <line key={i} x1={x + 9 + i * 18} y1={y - h} x2={x + 9 + i * 18} y2={y} stroke="#000" strokeOpacity={0.35} strokeWidth={2} />
       ))}
       {win && <rect x={x + w * 0.3} y={y - h * 0.7} width={w * 0.35} height={h * 0.3} fill={lit ? "#e0a04a" : "#0a0a0a"} opacity={lit ? lit : 0.8} />}
-      {win && lit > 0 && <rect x={x + w * 0.3} y={y - h * 0.7} width={w * 0.35} height={h * 0.3} fill="#ffb560" opacity={lit * 0.5} filter="url(#blur14)" />}
+      {win && lit > 0 && <rect x={x + w * 0.3 - 10} y={y - h * 0.7 - 10} width={w * 0.35 + 20} height={h * 0.3 + 20} rx={14} fill="#ffb560" opacity={lit * 0.25} />}
       <path d={`M ${x - 26} ${y - h + 6} Q ${x + w / 2} ${y - h - 10} ${x + w + 26} ${y - h + 6} L ${x + w - 8} ${y - h - 50} Q ${x + w / 2} ${y - h - 40} ${x + 8} ${y - h - 50} Z`} fill={roof} />
       {Array.from({ length: Math.floor(w / 14) + 3 }, (_, i) => (
         <line key={i} x1={x - 16 + i * 14} y1={y - h + 2} x2={x + 2 + i * 13} y2={y - h - 46} stroke="#000" strokeOpacity={0.45} strokeWidth={2} />
@@ -166,7 +179,7 @@ export const Boat: React.FC<{ x: number; y: number; scale?: number; rock?: numbe
     <line x1={110} y1={-360} x2={290} y2={-20} stroke="#0d0b0a" strokeWidth={2} />
     <line x1={110} y1={-360} x2={-260} y2={0} stroke="#0d0b0a" strokeWidth={2} />
     <circle cx={110} cy={-250} r={14} fill="#ffcf7a" opacity={lantern} />
-    <circle cx={110} cy={-250} r={70} fill="#ffb24a" opacity={0.35 * lantern} filter="url(#blur14)" />
+    <circle cx={110} cy={-250} r={50} fill="#ffb24a" opacity={0.25 * lantern} />
     {/* fishermen leaning over the rail */}
     <g fill="#060505">
       <g transform={`translate(${170 - recoil * 30} -10) rotate(${-25 + recoil * 35})`}>

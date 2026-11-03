@@ -1,5 +1,6 @@
 import React, { useMemo } from "react";
 import { rand } from "./lib";
+import { SoftGlow } from "./fx";
 
 /* =====================================================================
    PROFILE CHARACTER RIG
@@ -154,7 +155,7 @@ export const Profile: React.FC<{
           </g>
         )}
         {/* rim light along the lit profile edge */}
-        <path d={PROFILE_EDGE} stroke={rim} strokeWidth={5} fill="none" opacity={0.85 * rimStrength} filter="url(#glowBlue)" />
+        <path d={PROFILE_EDGE} stroke={rim} strokeWidth={5} fill="none" opacity={0.85 * rimStrength} />
         {/* ink contour */}
         <path d={HEAD} stroke="#0a0708" strokeWidth={3.2} fill="none" />
         <path d={HAIR[look.hair]} stroke="#050405" strokeWidth={2.4} fill="none" />
@@ -177,7 +178,7 @@ const NeckMark: React.FC<{ amount: number; glow: number }> = ({ amount, glow }) 
           pathLength={1} strokeDasharray={`${Math.min(1, amount)} 1`} />
       ))}
       {glow > 0 && (
-        <ellipse cx={-20} cy={142} rx={10} ry={7} fill="#7fd4ff" opacity={glow} filter="url(#glowBlue)" />
+        <ellipse cx={-20} cy={142} rx={10} ry={7} fill="#7fd4ff" opacity={glow} />
       )}
     </g>
   );
@@ -215,7 +216,7 @@ const Torso: React.FC<{ look: Look; id: string; rim: string; rimStrength: number
           <path d="M 30,250 L 4,620" /><path d="M -50,200 C -20,240 0,260 30,250" /><path d="M 100,210 C 70,240 50,250 30,250" />
         </g>
       )}
-      <path d="M 10,190 C 130,206 196,240 214,300 L 250,620" stroke={rim} strokeWidth={4} fill="none" opacity={0.6 * rimStrength} filter="url(#glowBlue)" />
+      <path d="M 10,190 C 130,206 196,240 214,300 L 250,620" stroke={rim} strokeWidth={4} fill="none" opacity={0.6 * rimStrength} />
       <path d={body} stroke="#050405" strokeWidth={3} fill="none" />
     </g>
   );
@@ -308,7 +309,7 @@ export const Godzilla: React.FC<{
           return (
             <g key={`${row}-${i}`} transform={`translate(${px + nx * off + (row === 0 ? 14 : 0)} ${py + ny * off}) rotate(${ang})`}>
               <path d={PLATE(s, pr[i] ?? 0.4)} fill={g > 0.05 ? mix("#1c1d22", "#9fe0ff", g) : row === 0 ? "#0b0b0d" : "#1d1e22"}
-                stroke="#030304" strokeWidth={3} filter={g > 0.3 ? "url(#glowBlue)" : undefined} />
+                stroke="#030304" strokeWidth={3}  />
               {/* central ridge + side veins */}
               <path d={`M 0,0 L ${(0.3 * s * 0.62).toFixed(1)},${(-0.95 * s * (0.62 + 0.38 * (pr[i] ?? 0.4))).toFixed(1)} M ${(0.08 * s).toFixed(1)},${(-0.3 * s).toFixed(1)} l ${(-0.3 * s).toFixed(1)},${(-0.12 * s).toFixed(1)} M ${(0.12 * s).toFixed(1)},${(-0.4 * s).toFixed(1)} l ${(0.26 * s).toFixed(1)},${(-0.06 * s).toFixed(1)}`}
                 stroke={g > 0.3 ? "#5fb8e8" : "#000"} strokeWidth={3} fill="none" opacity={0.55} />
@@ -317,6 +318,7 @@ export const Godzilla: React.FC<{
           );
         })
       )}
+      {anyGlow > 0.05 && SPINE_PTS.map(([px, py], i) => (gl[i] ?? 0) > 0.05 && <SoftGlow key={`h${i}`} cx={px + 40} cy={py - 60} rx={sizes[i] * 0.9} ry={sizes[i] * 0.9} color="#7fd4ff" opacity={(gl[i] ?? 0) * 0.55} />)}
       {/* body */}
       <path d={G_BODY} fill={`url(#gg-${id})`} />
       <g clipPath={`url(#gb-${id})`}>
@@ -324,12 +326,12 @@ export const Godzilla: React.FC<{
         <g stroke="#3a3c44" strokeWidth={2} fill="none" opacity={0.35} transform="translate(3 -4)">{tex.slice(0, 120).map((d, i) => <path key={i} d={d} />)}</g>
         {/* chest plates / folds */}
         <path d="M -300,-300 C -250,-280 -200,-280 -160,-300 M -310,-200 C -250,-180 -190,-180 -150,-200 M -320,-100 C -250,-80 -180,-80 -140,-100" stroke="#000" strokeWidth={6} fill="none" opacity={0.6} />
-        {anyGlow > 0 && <path d="M 80,-760 C 160,-560 260,-300 330,-60" stroke="#8fd8ff" strokeWidth={30} fill="none" opacity={anyGlow * 0.35} filter="url(#blur14)" />}
+        {anyGlow > 0 && <path d="M 80,-760 C 160,-560 260,-300 330,-60" stroke="#8fd8ff" strokeWidth={40} fill="none" opacity={anyGlow * 0.2} />}
       </g>
       <path d={G_ARM} fill="#101012" stroke="#000" strokeWidth={3} />
       {/* head */}
       <g transform={`rotate(${headTurn} -150 -990)`}>
-        {mouthGlow > 0 && <ellipse cx={-280} cy={-985} rx={90} ry={30 + jaw * 30} fill="#bfefff" opacity={mouthGlow} filter="url(#glowSoft)" />}
+        {mouthGlow > 0 && <SoftGlow cx={-280} cy={-985} rx={90} ry={30 + jaw * 30} color="#bfefff" opacity={mouthGlow} />}
         <ellipse cx={-240} cy={-982} rx={95} ry={6 + jaw * 34} fill="#2a0a0c" />
         <g transform={`rotate(${-jaw * 26} -140 -985)`}>
           <path d={G_JAW} fill="#151517" stroke="#000" strokeWidth={3} />
@@ -341,9 +343,9 @@ export const Godzilla: React.FC<{
         <path d="M -330,-1030 C -300,-1040 -260,-1046 -220,-1040" stroke="#000" strokeWidth={3} fill="none" opacity={0.6} />
         <ellipse cx={-236} cy={-1104} rx={9} ry={6} fill="#f2f0e6" opacity={eye} />
         <circle cx={-238} cy={-1104} r={3.5} fill="#000" />
-        <path d={G_HEAD} stroke={rim} strokeWidth={4} fill="none" opacity={0.5 * rimStrength} filter="url(#glowBlue)" />
+        <path d={G_HEAD} stroke={rim} strokeWidth={4} fill="none" opacity={0.5 * rimStrength} />
       </g>
-      <path d="M -60,-1030 C -20,-960 30,-880 80,-760 C 160,-560 260,-300 330,-60" stroke={rim} strokeWidth={5} fill="none" opacity={0.55 * rimStrength} filter="url(#glowBlue)" />
+      <path d="M -60,-1030 C -20,-960 30,-880 80,-760 C 160,-560 260,-300 330,-60" stroke={rim} strokeWidth={5} fill="none" opacity={0.55 * rimStrength} />
       <path d={G_BODY} stroke="#000" strokeWidth={4} fill="none" />
     </g>
   );
