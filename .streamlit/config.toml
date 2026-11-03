@@ -1,0 +1,7 @@
+[theme]
+base = "light"
+primaryColor = "#B83A2B"            # vermilion (shu)
+backgroundColor = "#EFE4CC"         # washi paper
+secondaryBackgroundColor = "#E4D5B4"
+textColor = "#1C1A17"               # sumi ink
+font = "serif"
