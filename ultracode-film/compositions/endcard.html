@@ -1,0 +1,91 @@
+<template>
+  <style>
+    #root { position: absolute; inset: 0; overflow: hidden; background: #f0eee6; font-family: "Inter", sans-serif; }
+    #e-flood { position: absolute; inset: 0; background: #d97757; }
+    #e-h { position: absolute; left: 150px; top: 250px; width: 1000px; font-weight: 900; font-size: 132px; line-height: 1.0; letter-spacing: -0.035em; color: #141413; }
+    #e-h1 { color: #c9653f; display: block; }
+    #e-h2 { display: block; }
+    #e-body { position: absolute; left: 154px; top: 560px; width: 860px; font-size: 42px; line-height: 1.32; color: #3d3929; }
+    #e-cmd { position: absolute; left: 154px; top: 800px; font-family: "JetBrains Mono", monospace; font-size: 32px; color: #1f1e1d; padding: 14px 26px; border: 2px solid #1f1e1d; border-radius: 12px; }
+    #e-cmd .o { color: #c9653f; font-weight: 700; }
+    #e-ground { position: absolute; left: 1150px; top: 900px; width: 680px; height: 6px; border-radius: 3px; background: #d6cebd; }
+    .char { position: absolute; }
+    .char svg { width: 100%; height: 100%; overflow: visible; }
+  </style>
+  <div id="root" data-composition-id="endcard" data-width="1920" data-height="1080">
+    <div id="e-h"><span id="e-h1">Ultracode,</span><span id="e-h2">every day.</span></div>
+    <div id="e-body">Opus 5.5 is efficient enough to run Claude Code’s biggest workflows without torching your usage limits.</div>
+    <div id="e-cmd"><span class="o">&gt;</span> /effort ultracode</div>
+    <div id="e-ground"></div>
+    <div class="char" id="e-c1" style="left: 1160px; top: 650px; width: 200px; height: 238px"></div>
+    <div class="char" id="e-c2" style="left: 1330px; top: 600px; width: 240px; height: 286px"></div>
+    <div class="char" id="e-c3" style="left: 1540px; top: 650px; width: 200px; height: 238px"></div>
+    <div class="char" id="e-c4" style="left: 1690px; top: 690px; width: 170px; height: 202px"></div>
+    <div id="e-flood"></div>
+  </div>
+  <script>
+    (function () {
+      var INK = "#141413", OR = "#d97757";
+      var LENS = [1, 0.84, 0.95, 0.78, 1, 0.9, 0.82, 0.98, 0.86, 0.94, 0.8, 0.97];
+      function spark(R, color, sw) {
+        var pts = [];
+        for (var i = 0; i < 24; i++) {
+          var a = (i * Math.PI) / 12 - Math.PI / 2, rr = i % 2 === 0 ? R * LENS[i / 2] : R * 0.3;
+          pts.push((Math.cos(a) * rr).toFixed(1) + "," + (Math.sin(a) * rr).toFixed(1));
+        }
+        return '<polygon points="' + pts.join(" ") + '" fill="' + color + '" stroke="' + color + '" stroke-width="' + sw + '" stroke-linejoin="round"/><circle r="' + R * 0.5 + '" fill="' + color + '"/>';
+      }
+      function rig(id, o) {
+        var L = 'stroke="' + INK + '" stroke-width="10" stroke-linecap="round" stroke-linejoin="round" fill="none"';
+        var s = '<svg viewBox="-130 -130 260 310">';
+        s += '<path d="M-24 50 L-30 152 L-50 154" ' + L + '/><path d="M24 50 L30 152 L50 154" ' + L + "/>";
+        s += '<g class="armL"><path d="M-58 12 L-108 54" ' + L + '/><circle cx="-108" cy="54" r="9" fill="' + INK + '"/></g>';
+        s += '<g class="bod">' + spark(92, OR, 14);
+        if (o.glasses) s += '<rect x="-50" y="-22" width="100" height="30" rx="12" fill="' + INK + '"/>';
+        else s += '<g class="eyes"><ellipse cx="-22" cy="-6" rx="14" ry="18" fill="#fff"/><ellipse cx="22" cy="-6" rx="14" ry="18" fill="#fff"/><circle cx="-24" cy="-3" r="8" fill="' + INK + '"/><circle cx="20" cy="-3" r="8" fill="' + INK + '"/></g>';
+        s += '<path d="M-14 20 Q0 36 14 20" stroke="' + INK + '" stroke-width="6" stroke-linecap="round" fill="none"/>';
+        if (o.band) s += '<path d="M-74 -40 Q0 -62 74 -40" stroke="#c4473a" stroke-width="16" stroke-linecap="round" fill="none"/>';
+        if (o.beret) s += '<ellipse cx="-8" cy="-70" rx="58" ry="20" fill="' + INK + '" transform="rotate(-10 -8 -70)"/>';
+        if (o.cap) s += '<path d="M-56 -56 Q0 -104 56 -56 Z" fill="' + INK + '"/><rect x="20" y="-62" width="64" height="12" rx="6" fill="' + INK + '"/>';
+        if (o.phones) s += '<path d="M-66 -6 A66 66 0 0 1 66 -6" stroke="' + INK + '" stroke-width="10" fill="none"/>';
+        s += "</g>";
+        s += '<g class="armR"><path d="M58 12 L108 54" ' + L + '/><circle cx="108" cy="54" r="9" fill="' + INK + '"/></g></svg>';
+        var el = document.getElementById(id);
+        el.innerHTML = s;
+        gsap.set(el.querySelector(".armL"), { svgOrigin: "-58 12" });
+        gsap.set(el.querySelector(".armR"), { svgOrigin: "58 12" });
+        gsap.set(el.querySelector(".bod"), { svgOrigin: "0 40" });
+      }
+      rig("e-c1", { beret: true });
+      rig("e-c2", { glasses: true, band: true });
+      rig("e-c3", { cap: true });
+      rig("e-c4", { phones: true });
+
+      var tl = gsap.timeline({ paused: true });
+      // colour flood: orange from the render wipe gives way to cream
+      tl.fromTo("#e-flood", { opacity: 1 }, { opacity: 0, duration: 0.4, ease: "power2.inOut" }, 0.05);
+
+      // title: per word blur-in, then the body line
+      tl.fromTo("#e-h1", { opacity: 0, filter: "blur(10px)" }, { opacity: 1, filter: "blur(0px)", duration: 0.2, ease: "power4.out" }, 0.35);
+      tl.fromTo("#e-h2", { opacity: 0, filter: "blur(10px)" }, { opacity: 1, filter: "blur(0px)", duration: 0.2, ease: "power4.out" }, 0.5);
+      tl.fromTo("#e-body", { opacity: 0, filter: "blur(8px)" }, { opacity: 1, filter: "blur(0px)", duration: 0.2, ease: "power3.out" }, 0.65);
+      tl.fromTo("#e-cmd", { opacity: 0, scale: 0.94 }, { opacity: 1, scale: 1, duration: 0.3, ease: "back.out(2)", transformOrigin: "0% 50%" }, 1.2);
+
+      // the crew drops in (each its own spring), then takes a bow, offset
+      [["#e-c1", 0.2], ["#e-c2", 0.3], ["#e-c3", 0.38], ["#e-c4", 0.46]].forEach(function (c) {
+        tl.fromTo(c[0], { y: -700, rotation: -20 }, { y: 0, rotation: 0, duration: 0.7, ease: "back.out(1.3)" }, c[1]);
+      });
+      [["#e-c1", 1.5], ["#e-c2", 1.62], ["#e-c3", 1.72], ["#e-c4", 1.86]].forEach(function (c, k) {
+        tl.to(c[0] + " .bod", { rotation: 28, duration: 0.28, ease: "power2.inOut" }, c[1]);
+        tl.to(c[0] + " .armL", { rotation: 50, duration: 0.28, ease: "power2.inOut" }, c[1] + 0.04);
+        tl.to(c[0] + " .bod", { rotation: 0, duration: 0.4, ease: "back.out(2)" }, c[1] + 0.55);
+        tl.to(c[0] + " .armL", { rotation: 0, duration: 0.35 }, c[1] + 0.6);
+      });
+      // the star waves
+      tl.to("#e-c2 .armR", { rotation: -130, duration: 0.3, ease: "back.out(2)" }, 2.6);
+      tl.to("#e-c2 .armR", { rotation: -100, duration: 0.18, yoyo: true, repeat: 3, ease: "sine.inOut" }, 2.9);
+
+      window.__timelines["endcard"] = tl;
+    })();
+  </script>
+</template>

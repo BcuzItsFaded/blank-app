@@ -1,0 +1,429 @@
+<template>
+  <style>
+    #root { position: absolute; inset: 0; overflow: hidden; background: #e7e1d4; font-family: "Inter", sans-serif; color: #1f1e1d; }
+    .abs { position: absolute; }
+
+    /* ---------- editor (behind the set) ---------- */
+    #s-mon { position: absolute; left: 52px; top: 72px; width: 1144px; height: 654px; background: #141413; border-radius: 16px; }
+    .panel { position: absolute; background: #fbfaf7; border: 2px solid #d6cebd; border-radius: 16px; overflow: hidden; }
+    #s-wf { left: 1224px; top: 72px; width: 644px; height: 654px; }
+    #s-tlp { left: 52px; top: 752px; width: 1816px; height: 292px; overflow: visible; }
+    .wf-h { position: absolute; left: 28px; top: 22px; font-family: "JetBrains Mono", monospace; font-size: 26px; color: #d97757; font-weight: 700; }
+    .row { position: absolute; left: 0; width: 100%; height: 80px; }
+    .row .av { position: absolute; left: 26px; top: 10px; width: 48px; height: 48px; }
+    .row .lb { position: absolute; left: 92px; top: 4px; font-size: 28px; font-weight: 700; white-space: nowrap; }
+    .row .tr { position: absolute; left: 92px; top: 50px; width: 440px; height: 12px; border-radius: 6px; background: #e7e1d4; overflow: hidden; }
+    .row .fl { position: absolute; inset: 0; background: #d97757; border-radius: 6px; transform-origin: 0 50%; }
+    .row .ck { position: absolute; right: 30px; top: 10px; font-size: 40px; font-weight: 900; color: #4f7a4a; }
+    #s-use { position: absolute; left: 28px; top: 572px; width: 588px; height: 60px; }
+    #s-use .lb2 { position: absolute; left: 0; top: 0; font-size: 26px; color: #5e5a52; }
+    #s-use .num { position: absolute; right: 0; top: 0; font-size: 26px; font-weight: 700; font-family: "JetBrains Mono", monospace; }
+    #s-use .tr2 { position: absolute; left: 0; top: 42px; width: 100%; height: 14px; border-radius: 7px; background: #e7e1d4; overflow: hidden; }
+    #s-usefill { position: absolute; inset: 0; background: #4f7a4a; transform-origin: 0 50%; }
+
+    .tk { position: absolute; left: 22px; font-family: "JetBrains Mono", monospace; font-size: 24px; color: #8c8a82; }
+    .lane { position: absolute; left: 96px; width: 1690px; border-radius: 10px; background: #f0ece3; }
+    .clipv { position: absolute; top: 0; height: 64px; border-radius: 10px; background: #7d7466; overflow: hidden; }
+    .clipv .thumbs { position: absolute; left: 6px; top: 6px; bottom: 6px; right: 6px; background: repeating-linear-gradient(90deg, rgba(255,255,255,.22) 0 70px, rgba(0,0,0,0) 70px 78px); border-radius: 6px; }
+    .clipv .nm { position: absolute; left: 14px; top: 14px; font-family: "JetBrains Mono", monospace; font-size: 24px; color: #fbfaf7; font-weight: 700; }
+    #s-a1 { position: absolute; left: 0; top: 0; width: 1190px; height: 56px; border-radius: 10px; background: #6e7f5e; transform-origin: 0 50%; overflow: hidden; }
+    #s-v2 { position: absolute; left: 0; top: 0; width: 420px; height: 56px; border-radius: 10px; background: #141413; color: #d97757; font-family: "Archivo Black", sans-serif; font-size: 28px; line-height: 56px; padding-left: 18px; }
+    #s-ph { position: absolute; left: 96px; top: 40px; width: 4px; height: 232px; background: #d97757; }
+    #s-ph::before { content: ""; position: absolute; left: -10px; top: -14px; border-left: 12px solid transparent; border-right: 12px solid transparent; border-top: 16px solid #d97757; }
+
+    .agent { position: absolute; width: 104px; height: 124px; }
+
+    /* ---------- the set (a world that later becomes the monitor picture) ---------- */
+    #s-set { position: absolute; left: 0; top: 0; width: 1920px; height: 1080px; overflow: hidden; background: #f4ddb8; border-radius: 0; }
+    #s-sun { position: absolute; left: 1360px; top: 150px; width: 300px; height: 300px; border-radius: 50%; background: #eda66c; }
+    .far { position: absolute; background: #d9be95; }
+    .bld { position: absolute; background: #5e4f41; }
+    .bld .ledge { position: absolute; left: -10px; right: -10px; top: -14px; height: 22px; background: #4a3e33; border-radius: 4px; }
+    .bld .win { position: absolute; inset: 60px 40px 0 40px; background:
+      repeating-linear-gradient(90deg, transparent 0 70px, #5e4f41 70px 110px),
+      repeating-linear-gradient(0deg, #4a3e33 0 70px, #5e4f41 70px 110px); opacity: .9; }
+    #s-floor { position: absolute; left: 0; top: 880px; width: 1920px; height: 200px; background: #3b342c; }
+    .tape { position: absolute; height: 10px; width: 70px; background: #e9c46a; border-radius: 3px; }
+    .char { position: absolute; }
+    .char svg { width: 100%; height: 100%; overflow: visible; }
+    #s-camera { position: absolute; left: 40px; top: 600px; width: 340px; height: 460px; }
+    #s-camera svg { width: 100%; height: 100%; overflow: visible; }
+    #s-boom { position: absolute; left: 470px; top: 280px; width: 520px; height: 520px; }
+    #s-boom svg { width: 100%; height: 100%; overflow: visible; }
+    .say { position: absolute; padding: 18px 40px; background: #fbfaf7; border: 5px solid #141413; border-radius: 28px; font-family: "Archivo Black", sans-serif; font-size: 84px; line-height: 1; color: #141413; white-space: nowrap; }
+    .say::after { content: ""; position: absolute; right: 70px; bottom: -34px; border-left: 22px solid transparent; border-right: 22px solid transparent; border-top: 34px solid #141413; }
+    #s-lb1, #s-lb2 { position: absolute; left: 0; width: 1920px; height: 120px; background: #141413; }
+    #s-lb1 { top: 0; } #s-lb2 { bottom: 0; }
+    #s-ttl { position: absolute; left: 0; width: 1920px; top: 140px; text-align: center; font-family: "Archivo Black", sans-serif; font-size: 150px; color: #fbfaf7; letter-spacing: -2px; -webkit-text-stroke: 6px #141413; paint-order: stroke fill; }
+
+    /* ---------- burst + wipe ---------- */
+    #s-flood { position: absolute; inset: 0; background: #d97757; }
+    #s-burst { position: absolute; left: 960px; top: 540px; width: 1000px; height: 1000px; margin-left: -500px; margin-top: -500px; }
+    #s-wipe { position: absolute; inset: 0; background: #d97757; }
+  </style>
+
+  <div id="root" data-composition-id="studio" data-width="1920" data-height="1080" data-layout-allow-overlap data-layout-allow-overflow>
+    <!-- EDITOR -->
+    <div id="s-mon"></div>
+    <div id="s-wf" class="panel">
+      <div class="wf-h">ultracode · dynamic workflow</div>
+      <div class="row" id="s-r0" style="top: 84px"><div class="av"></div><div class="lb">Plan shots &amp; beats</div><div class="tr"><div class="fl"></div></div><div class="ck">✓</div></div>
+      <div class="row" id="s-r1" style="top: 164px"><div class="av"></div><div class="lb">Cut · trim the takes</div><div class="tr"><div class="fl"></div></div><div class="ck">✓</div></div>
+      <div class="row" id="s-r2" style="top: 244px"><div class="av"></div><div class="lb">Grade · warm action look</div><div class="tr"><div class="fl"></div></div><div class="ck">✓</div></div>
+      <div class="row" id="s-r3" style="top: 324px"><div class="av"></div><div class="lb">Score + sound effects</div><div class="tr"><div class="fl"></div></div><div class="ck">✓</div></div>
+      <div class="row" id="s-r4" style="top: 404px"><div class="av"></div><div class="lb">Titles</div><div class="tr"><div class="fl"></div></div><div class="ck">✓</div></div>
+      <div class="row" id="s-r5" style="top: 484px"><div class="av"></div><div class="lb">Render 30s trailer</div><div class="tr"><div class="fl"></div></div><div class="ck">✓</div></div>
+      <div id="s-use"><div class="lb2">Session usage</div><div class="num" id="s-usenum">9%</div><div class="tr2"><div id="s-usefill"></div></div></div>
+    </div>
+    <div id="s-tlp" class="panel">
+      <div class="tk" style="top: 66px">V2</div>
+      <div class="tk" style="top: 140px">V1</div>
+      <div class="tk" style="top: 214px">A1</div>
+      <div class="lane" style="top: 56px; height: 56px"><div id="s-v2">ULTRACODE</div></div>
+      <div class="lane" id="s-v1lane" style="top: 124px; height: 64px">
+        <div class="clipv" id="s-c0" style="left: 0px; width: 300px"><div class="thumbs"></div><div class="nm">take 01</div></div>
+        <div class="clipv" id="s-c1" style="left: 310px; width: 260px"><div class="thumbs"></div><div class="nm">take 02</div></div>
+        <div class="clipv" id="s-c2" style="left: 580px; width: 340px"><div class="thumbs"></div><div class="nm">take 03</div></div>
+        <div class="clipv" id="s-c3" style="left: 930px; width: 280px"><div class="thumbs"></div><div class="nm">take 04</div></div>
+        <div class="clipv" id="s-c4" style="left: 1220px; width: 320px"><div class="thumbs"></div><div class="nm">take 05</div></div>
+      </div>
+      <div class="lane" style="top: 200px; height: 56px"><div id="s-a1"></div></div>
+      <div id="s-ph"></div>
+      <div class="char agent" id="s-ag1" style="left: 690px; top: 10px"></div>
+      <div class="char agent" id="s-ag2" style="left: 100px; top: 10px"></div>
+      <div class="char agent" id="s-ag3" style="left: 1310px; top: 112px"></div>
+      <div class="char agent" id="s-ag4" style="left: 540px; top: -60px"></div>
+    </div>
+
+    <!-- THE SET -->
+    <div id="s-set">
+      <div id="s-sun"></div>
+      <div class="far" style="left: 60px; top: 380px; width: 160px; height: 300px"></div>
+      <div class="far" style="left: 260px; top: 300px; width: 120px; height: 380px"></div>
+      <div class="far" style="left: 420px; top: 420px; width: 220px; height: 260px"></div>
+      <div class="far" style="left: 1080px; top: 340px; width: 150px; height: 340px"></div>
+      <div class="far" style="left: 1700px; top: 400px; width: 180px; height: 280px"></div>
+      <div class="bld" style="left: 0; top: 600px; width: 1000px; height: 300px"><div class="ledge"></div><div class="win"></div></div>
+      <div class="bld" style="left: 1260px; top: 560px; width: 700px; height: 340px"><div class="ledge"></div><div class="win"></div></div>
+      <div id="s-boom"></div>
+      <div id="s-floor">
+        <div class="tape" style="left: 760px; top: 120px; transform: rotate(45deg)"></div>
+        <div class="tape" style="left: 760px; top: 120px; transform: rotate(-45deg)"></div>
+        <div class="tape" style="left: 1580px; top: 150px"></div>
+      </div>
+      <div class="char" id="s-actor" style="left: 80px; top: 380px; width: 190px; height: 227px"></div>
+      <div id="s-camera"></div>
+      <div class="char" id="s-camop" style="left: 330px; top: 766px; width: 240px; height: 286px"></div>
+      <div class="char" id="s-clapper" style="left: 820px; top: 735px; width: 260px; height: 310px"></div>
+      <div class="char" id="s-dir" style="left: 1580px; top: 755px; width: 250px; height: 298px"></div>
+      <div id="s-say1" class="say" style="left: 1140px; top: 520px">ACTION!</div>
+      <div id="s-say2" class="say" style="left: 1260px; top: 520px">CUT!</div>
+      <div id="s-lb1"></div>
+      <div id="s-lb2"></div>
+      <div id="s-ttl">ULTRACODE</div>
+    </div>
+
+    <div id="s-flood"></div>
+    <div id="s-burst"></div>
+    <div id="s-wipe"></div>
+  </div>
+
+  <script>
+    (function () {
+      var INK = "#141413", OR = "#d97757", CREAM = "#fbfaf7";
+      var LENS = [1, 0.84, 0.95, 0.78, 1, 0.9, 0.82, 0.98, 0.86, 0.94, 0.8, 0.97];
+      function sparkPts(R, r) {
+        var pts = [];
+        for (var i = 0; i < 24; i++) {
+          var a = (i * Math.PI) / 12 - Math.PI / 2;
+          var rr = i % 2 === 0 ? R * LENS[i / 2] : r;
+          pts.push((Math.cos(a) * rr).toFixed(1) + "," + (Math.sin(a) * rr).toFixed(1));
+        }
+        return pts.join(" ");
+      }
+      function spark(R, color, sw) {
+        return '<polygon points="' + sparkPts(R, R * 0.3) + '" fill="' + color + '" stroke="' + color + '" stroke-width="' + sw + '" stroke-linejoin="round"/>' +
+          '<circle r="' + R * 0.5 + '" fill="' + color + '"/>';
+      }
+      function sparkSVG(color) { return '<svg viewBox="-100 -100 200 200" width="100%" height="100%">' + spark(88, color, 14) + "</svg>"; }
+
+      // ---- character rig: a Claude spark with line limbs ----
+      function rig(id, o) {
+        o = o || {};
+        var L = 'stroke="' + INK + '" stroke-width="10" stroke-linecap="round" stroke-linejoin="round" fill="none"';
+        var s = '<svg viewBox="-130 -130 260 310">';
+        s += '<g class="legL"><path d="M-24 50 L-30 152 L-50 154" ' + L + "/></g>";
+        s += '<g class="legR"><path d="M24 50 L30 152 L50 154" ' + L + "/></g>";
+        // back arm (left)
+        s += '<g class="armL"><path d="M-58 12 L-108 54" ' + L + '/><circle cx="-108" cy="54" r="9" fill="' + INK + '"/>';
+        if (o.mega) s += '<g transform="translate(-108 54) rotate(-30)"><polygon points="0,-10 -78,-38 -78,38 0,10" fill="' + CREAM + '" stroke="' + INK + '" stroke-width="6" stroke-linejoin="round"/><rect x="-6" y="-6" width="22" height="26" rx="4" fill="' + INK + '"/></g>';
+        s += "</g>";
+        s += '<g class="bod">' + spark(92, o.color || OR, 14);
+        s += '<g class="face">';
+        if (o.glasses) {
+          s += '<rect x="-50" y="-22" width="100" height="30" rx="12" fill="' + INK + '"/><path d="M-36 -14 L-22 -14" stroke="#fff" stroke-width="5" stroke-linecap="round"/>';
+        } else {
+          s += '<g class="eyes"><ellipse cx="-22" cy="-6" rx="14" ry="18" fill="#fff"/><ellipse cx="22" cy="-6" rx="14" ry="18" fill="#fff"/>' +
+            '<circle class="pup" cx="' + (-19 + (o.look || 0)) + '" cy="-3" r="8" fill="' + INK + '"/><circle class="pup" cx="' + (25 + (o.look || 0)) + '" cy="-3" r="8" fill="' + INK + '"/></g>';
+        }
+        s += '<path class="mouth" d="M-12 22 Q0 32 12 22" stroke="' + INK + '" stroke-width="6" stroke-linecap="round" fill="none"/>';
+        s += "</g>";
+        if (o.band) s += '<path d="M-74 -40 Q0 -62 74 -40" stroke="#c4473a" stroke-width="16" stroke-linecap="round" fill="none"/><path d="M70 -42 L104 -60 M70 -40 L100 -28" stroke="#c4473a" stroke-width="10" stroke-linecap="round"/>';
+        if (o.beret) s += '<ellipse cx="-8" cy="-70" rx="58" ry="20" fill="' + INK + '" transform="rotate(-10 -8 -70)"/><circle cx="-6" cy="-92" r="7" fill="' + INK + '"/>';
+        if (o.cap) s += '<path d="M-56 -56 Q0 -104 56 -56 Z" fill="' + INK + '"/><rect x="20" y="-62" width="64" height="12" rx="6" fill="' + INK + '"/>';
+        if (o.phones) s += '<path d="M-66 -6 A66 66 0 0 1 66 -6" stroke="' + INK + '" stroke-width="10" fill="none"/><rect x="-80" y="-14" width="22" height="40" rx="8" fill="' + INK + '"/><rect x="58" y="-14" width="22" height="40" rx="8" fill="' + INK + '"/>';
+        s += "</g>";
+        // front arm (right)
+        s += '<g class="armR"><path d="M58 12 L108 54" ' + L + '/><circle cx="108" cy="54" r="9" fill="' + INK + '"/>';
+        if (o.clap) {
+          s += '<g transform="translate(96 -40)"><rect x="0" y="0" width="250" height="150" rx="8" fill="' + INK + '"/>' +
+            '<text x="16" y="52" font-family="Archivo Black" font-size="36" fill="' + CREAM + '">ULTRACODE</text>' +
+            '<text x="16" y="96" font-family="JetBrains Mono" font-size="28" fill="' + CREAM + '">SC 1   TK 1</text>' +
+            '<text x="16" y="134" font-family="JetBrains Mono" font-size="22" fill="#bdb8ac">dir. Claude</text>' +
+            '<g class="clapTop"><rect x="0" y="-30" width="250" height="28" rx="5" fill="' + CREAM + '" stroke="' + INK + '" stroke-width="4"/>' +
+            '<path d="M24 -30 L44 -2 M74 -30 L94 -2 M124 -30 L144 -2 M174 -30 L194 -2 M224 -30 L244 -2" stroke="' + INK + '" stroke-width="14"/></g></g>';
+        }
+        if (o.scissors) s += '<g transform="translate(112 50)"><g class="bladeA"><path d="M0 0 L52 -18" stroke="' + INK + '" stroke-width="8" stroke-linecap="round"/><circle cx="-10" cy="6" r="10" fill="none" stroke="' + OR + '" stroke-width="6"/></g><g class="bladeB"><path d="M0 0 L52 18" stroke="' + INK + '" stroke-width="8" stroke-linecap="round"/><circle cx="-10" cy="-6" r="10" fill="none" stroke="' + OR + '" stroke-width="6"/></g></g>';
+        if (o.roller) s += '<g transform="translate(108 54)"><path d="M0 0 L30 -10 L30 -50" stroke="' + INK + '" stroke-width="7" fill="none" stroke-linecap="round"/><rect x="12" y="-82" width="70" height="30" rx="10" fill="#e09a6b" stroke="' + INK + '" stroke-width="5"/></g>';
+        if (o.stamp) s += '<g transform="translate(108 40)"><rect x="-6" y="-60" width="60" height="60" rx="8" fill="' + INK + '"/><text x="8" y="-14" font-family="Archivo Black" font-size="44" fill="' + OR + '">T</text></g>';
+        if (o.thumb) s += '<path d="M108 54 L108 30" stroke="' + INK + '" stroke-width="10" stroke-linecap="round"/>';
+        s += "</g></svg>";
+        var el = document.getElementById(id);
+        el.innerHTML = s;
+        var q = function (c) { return el.querySelector("." + c); };
+        gsap.set(q("armL"), { svgOrigin: "-58 12" });
+        gsap.set(q("armR"), { svgOrigin: "58 12" });
+        gsap.set(q("legL"), { svgOrigin: "-24 50" });
+        gsap.set(q("legR"), { svgOrigin: "24 50" });
+        gsap.set(q("bod"), { svgOrigin: "0 40" });
+        if (q("clapTop")) gsap.set(q("clapTop"), { svgOrigin: "0 -2" });
+        if (q("eyes")) gsap.set(q("eyes"), { svgOrigin: "0 -6" });
+        return el;
+      }
+
+      rig("s-actor", { glasses: true, band: true });
+      rig("s-camop", { cap: true, look: 6 });
+      rig("s-clapper", { clap: true, look: -4 });
+      rig("s-dir", { beret: true, mega: true, look: -6 });
+      rig("s-ag1", { scissors: true });
+      rig("s-ag2", { roller: true });
+      rig("s-ag3", { phones: true });
+      rig("s-ag4", { stamp: true });
+      document.querySelectorAll(".row .av").forEach(function (a) { a.innerHTML = sparkSVG(OR); });
+      document.getElementById("s-burst").innerHTML = sparkSVG(OR);
+
+      // camera on a tripod
+      document.getElementById("s-camera").innerHTML =
+        '<svg viewBox="0 0 340 460">' +
+        '<path d="M170 210 L70 450 M170 210 L270 450 M170 210 L170 450" stroke="' + INK + '" stroke-width="12" stroke-linecap="round"/>' +
+        '<g class="head">' +
+        '<circle cx="110" cy="70" r="52" fill="' + INK + '"/><circle cx="110" cy="70" r="18" fill="#5e5a52"/>' +
+        '<circle cx="215" cy="62" r="44" fill="' + INK + '"/><circle cx="215" cy="62" r="15" fill="#5e5a52"/>' +
+        '<rect x="60" y="112" width="210" height="100" rx="14" fill="' + INK + '"/>' +
+        '<polygon points="270,132 330,110 330,214 270,192" fill="' + INK + '"/>' +
+        '<circle cx="96" cy="162" r="10" fill="#c4473a"/>' +
+        "</g></svg>";
+      gsap.set("#s-camera .head", { svgOrigin: "170 200" });
+
+      // cartoon explosion
+      document.getElementById("s-boom").innerHTML =
+        '<svg viewBox="-260 -260 520 520">' +
+        '<g class="b1">' + spark(250, "#e9c46a", 30) + "</g>" +
+        '<g class="b2">' + spark(180, "#e07a3f", 24) + "</g>" +
+        '<g class="b3">' + spark(100, "#fbfaf7", 18) + "</g>" +
+        '<g class="deb"><rect class="d1" x="-14" y="-14" width="28" height="28" fill="' + INK + '"/><rect class="d2" x="-10" y="-10" width="20" height="20" fill="' + INK + '"/><rect class="d3" x="-12" y="-12" width="24" height="24" fill="#5e4f41"/><rect class="d4" x="-9" y="-9" width="18" height="18" fill="#5e4f41"/></g>' +
+        "</svg>";
+
+      // waveform on A1
+      var wf = "";
+      for (var i = 0; i < 118; i++) {
+        var h = 8 + Math.abs(Math.sin(i * 0.53) * 18 + Math.sin(i * 0.17) * 12) ;
+        wf += '<div style="position:absolute;left:' + (8 + i * 10) + "px;top:" + (28 - h / 2) + "px;width:5px;height:" + h + 'px;border-radius:3px;background:#e8e6dc"></div>';
+      }
+      document.getElementById("s-a1").innerHTML = wf;
+
+      var tl = gsap.timeline({ paused: true });
+
+      // ================= initial states =================
+      gsap.set(["#s-say1", "#s-say2", "#s-lb1", "#s-lb2", "#s-ttl", "#s-wipe"], { opacity: 0 });
+      gsap.set("#s-set", { scale: 1, x: 0, y: 0, transformOrigin: "0 0", clipPath: "circle(0% at 50% 50%)" });
+      gsap.set(["#s-wf", "#s-tlp", "#s-mon"], { opacity: 0 });
+      gsap.set(".row .fl", { scaleX: 0 });
+      gsap.set(".row .ck", { opacity: 0, scale: 0.4 });
+      gsap.set(".row", { opacity: 0.35 });
+      gsap.set("#s-usefill", { scaleX: 0.09 });
+      gsap.set(".clipv", { opacity: 0, y: -40 });
+      gsap.set("#s-a1", { scaleX: 0 });
+      gsap.set("#s-v2", { opacity: 0, scale: 1.5 });
+      gsap.set("#s-ph", { opacity: 0, x: 0 });
+      gsap.set(".agent", { opacity: 0, y: 40 });
+      gsap.set("#s-boom .b1, #s-boom .b2, #s-boom .b3", { scale: 0, svgOrigin: "0 0" });
+      gsap.set("#s-boom .deb rect", { opacity: 0, x: 0, y: 0 });
+
+      // ================= 1. the spark explodes into the crew =================
+      tl.fromTo("#s-burst", { scale: 0.6, rotation: 0, opacity: 1 }, { scale: 2.2, rotation: 70, opacity: 0, duration: 0.5, ease: "power2.out" }, 0);
+      tl.fromTo("#s-set", { clipPath: "circle(18% at 50% 50%)" }, { clipPath: "circle(80% at 50% 50%)", duration: 0.32, ease: "expo.out" }, 0.0);
+      tl.to("#s-flood", { opacity: 0, duration: 0.18, ease: "power2.out" }, 0.04);
+
+      var crew = [
+        ["#s-camop", 450, 886, 0.1, -360],
+        ["#s-clapper", 950, 865, 0.16, 300],
+        ["#s-dir", 1705, 880, 0.22, -280],
+        ["#s-actor", 175, 495, 0.28, 360],
+        ["#s-camera", 210, 830, 0.12, 0],
+      ];
+      crew.forEach(function (c) {
+        tl.fromTo(c[0], { x: 960 - c[1], y: 540 - c[2], scale: 0.15, rotation: c[4] },
+          { x: 0, y: 0, scale: 1, rotation: 0, duration: 0.75, ease: "back.out(1.5)" }, c[3] + 0.05);
+      });
+
+      // ================= 2. clapperboard =================
+      tl.fromTo("#s-clapper .armR", { rotation: 30 }, { rotation: -12, duration: 0.35, ease: "back.out(2)" }, 0.95);
+      tl.fromTo("#s-clapper .clapTop", { rotation: 0 }, { rotation: -26, duration: 0.25, ease: "power2.out" }, 1.0);
+      tl.to("#s-clapper .clapTop", { rotation: 0, duration: 0.07, ease: "power4.in" }, 1.5);
+      tl.to("#s-clapper .bod", { scaleY: 0.92, scaleX: 1.05, duration: 0.06, yoyo: true, repeat: 1 }, 1.57);
+      tl.to("#s-clapper", { x: -1300, y: -60, rotation: -14, duration: 0.5, ease: "power3.in" }, 1.8);
+
+      // ================= 3. ACTION! =================
+      tl.fromTo("#s-dir .armL", { rotation: 0 }, { rotation: 48, duration: 0.25, ease: "back.out(2)" }, 1.95);
+      tl.fromTo("#s-dir .bod", { scaleY: 1 }, { scaleY: 1.08, duration: 0.15, ease: "power2.out", yoyo: true, repeat: 1 }, 2.0);
+      tl.fromTo("#s-say1", { opacity: 0, scale: 0.4, rotation: -8 }, { opacity: 1, scale: 1, rotation: -3, duration: 0.35, ease: "back.out(2.4)", transformOrigin: "85% 100%" }, 2.0);
+      tl.to("#s-say1", { opacity: 0, scale: 0.9, duration: 0.15 }, 2.95);
+      tl.to("#s-dir .armL", { rotation: 0, duration: 0.3, ease: "power2.inOut" }, 3.0);
+
+      // blinks (offset, for life)
+      [["#s-camop", 1.3], ["#s-dir", 3.4], ["#s-camop", 4.1], ["#s-dir", 5.2]].forEach(function (b) {
+        tl.fromTo(b[0] + " .eyes", { scaleY: 1 }, { scaleY: 0.1, duration: 0.06, yoyo: true, repeat: 1 }, b[1]);
+      });
+
+      // ================= 4. the stunt =================
+      tl.fromTo("#s-actor", { x: 0 }, { x: 740, duration: 0.95, ease: "power1.in" }, 2.2);
+      tl.fromTo("#s-actor .legL", { rotation: -35 }, { rotation: 35, duration: 0.12, ease: "sine.inOut", yoyo: true, repeat: 7 }, 2.2);
+      tl.fromTo("#s-actor .legR", { rotation: 35 }, { rotation: -35, duration: 0.12, ease: "sine.inOut", yoyo: true, repeat: 7 }, 2.2);
+      tl.fromTo("#s-actor .armL", { rotation: 40 }, { rotation: -30, duration: 0.12, ease: "sine.inOut", yoyo: true, repeat: 7 }, 2.2);
+      tl.fromTo("#s-actor .armR", { rotation: -40 }, { rotation: 30, duration: 0.12, ease: "sine.inOut", yoyo: true, repeat: 7 }, 2.2);
+      tl.fromTo("#s-actor .bod", { y: 0 }, { y: -8, duration: 0.06, yoyo: true, repeat: 15 }, 2.2);
+      tl.fromTo("#s-camera .head", { rotation: -8 }, { rotation: 10, duration: 1.7, ease: "power1.inOut" }, 2.2);
+      // anticipation + leap with a flip
+      tl.to("#s-actor .bod", { scaleY: 0.84, scaleX: 1.1, duration: 0.07 }, 3.13);
+      tl.to("#s-actor .bod", { scaleY: 1.1, scaleX: 0.92, duration: 0.1 }, 3.2);
+      tl.to("#s-actor", { x: 1320, duration: 0.62, ease: "none" }, 3.2);
+      tl.to("#s-actor", { y: -250, duration: 0.31, ease: "power2.out" }, 3.2);
+      tl.to("#s-actor", { y: -40, duration: 0.31, ease: "power2.in" }, 3.51);
+      tl.fromTo("#s-actor", { rotation: 0 }, { rotation: 360, duration: 0.6, ease: "power1.inOut" }, 3.2);
+      tl.set(["#s-actor .legL", "#s-actor .legR", "#s-actor .armL", "#s-actor .armR"], { rotation: 0 }, 3.2);
+      // explosion where the actor took off
+      tl.fromTo("#s-boom .b1", { scale: 0, rotation: 0 }, { scale: 1, rotation: 20, duration: 0.3, ease: "expo.out" }, 3.24);
+      tl.fromTo("#s-boom .b2", { scale: 0, rotation: 0 }, { scale: 1, rotation: -25, duration: 0.3, ease: "expo.out" }, 3.28);
+      tl.fromTo("#s-boom .b3", { scale: 0 }, { scale: 1, duration: 0.24, ease: "expo.out" }, 3.31);
+      [[".d1", -220, -180], [".d2", 200, -230], [".d3", -160, 120], [".d4", 240, 60]].forEach(function (d, k) {
+        tl.fromTo("#s-boom " + d[0], { opacity: 1, x: 0, y: 0, rotation: 0 }, { x: d[1], y: d[2], rotation: 200 + k * 60, duration: 0.6, ease: "power2.out" }, 3.26);
+        tl.to("#s-boom " + d[0], { opacity: 0, duration: 0.2 }, 3.75);
+      });
+      tl.to("#s-boom .b3", { scale: 0, duration: 0.3, ease: "power2.in" }, 3.7);
+      tl.to("#s-boom .b2", { scale: 0, duration: 0.35, ease: "power2.in" }, 3.8);
+      tl.to("#s-boom .b1", { scale: 0, duration: 0.4, ease: "power2.in" }, 3.9);
+      tl.fromTo("#s-set", { y: 0 }, { y: 10, duration: 0.04, yoyo: true, repeat: 5, ease: "none" }, 3.26);
+      // landing
+      tl.to("#s-actor .bod", { scaleY: 0.76, scaleX: 1.2, duration: 0.07, ease: "power2.out" }, 3.82);
+      tl.to("#s-actor .bod", { scaleY: 1, scaleX: 1, duration: 0.45, ease: "elastic.out(1, 0.45)" }, 3.89);
+      tl.to("#s-actor .armR", { rotation: -120, duration: 0.3, ease: "back.out(2)" }, 4.15);
+      tl.to("#s-actor .armL", { rotation: 30, duration: 0.3, ease: "back.out(2)" }, 4.22);
+      // crew reacts (offset, not in unison)
+      tl.fromTo("#s-camop .bod", { rotation: 0 }, { rotation: 8, duration: 0.2, yoyo: true, repeat: 1 }, 3.3);
+      tl.fromTo("#s-dir .bod", { rotation: 0 }, { rotation: -6, duration: 0.18, yoyo: true, repeat: 1 }, 3.38);
+
+      // ================= 5. CUT! =================
+      tl.to("#s-dir .armL", { rotation: 55, duration: 0.22, ease: "back.out(2)" }, 4.5);
+      tl.fromTo("#s-say2", { opacity: 0, scale: 0.4, rotation: 8 }, { opacity: 1, scale: 1, rotation: 3, duration: 0.32, ease: "back.out(2.4)", transformOrigin: "85% 100%" }, 4.55);
+      tl.to("#s-say2", { opacity: 0, scale: 0.9, duration: 0.15 }, 5.45);
+      tl.to("#s-camop .armR", { rotation: -110, duration: 0.3, ease: "back.out(2)" }, 4.8);
+      tl.fromTo("#s-camop", { y: 0 }, { y: -40, duration: 0.16, ease: "power2.out", yoyo: true, repeat: 1 }, 4.85);
+      tl.to("#s-dir .armL", { rotation: 0, duration: 0.3 }, 5.3);
+      tl.to("#s-camop .armR", { rotation: 0, duration: 0.3 }, 5.45);
+
+      // ================= 6. carry across into the editor =================
+      tl.set("#s-set", { clipPath: "none" }, 5.5);
+      tl.fromTo("#s-mon", { opacity: 0 }, { opacity: 1, duration: 0.2 }, 5.7);
+      tl.to("#s-set", { scale: 1120 / 1920, x: 64, y: 84, borderRadius: 14, duration: 0.75, ease: "power3.inOut" }, 5.6);
+      tl.fromTo("#s-wf", { opacity: 0, x: 80 }, { opacity: 1, x: 0, duration: 0.5, ease: "expo.out" }, 6.05);
+      tl.fromTo("#s-tlp", { opacity: 0, y: 80 }, { opacity: 1, y: 0, duration: 0.5, ease: "expo.out" }, 6.15);
+
+      // ================= 7. dynamic workflow =================
+      function rowRun(i, a, b) {
+        var r = "#s-r" + i;
+        tl.to(r, { opacity: 1, duration: 0.15 }, a);
+        tl.fromTo(r + " .fl", { scaleX: 0 }, { scaleX: 1, duration: b - a, ease: "power1.inOut" }, a);
+        tl.fromTo(r + " .ck", { opacity: 0, scale: 0.4 }, { opacity: 1, scale: 1, duration: 0.3, ease: "back.out(2.5)" }, b + 0.02);
+      }
+      rowRun(0, 6.35, 6.8);
+      rowRun(1, 6.9, 8.4);
+      rowRun(2, 7.2, 9.2);
+      rowRun(3, 7.5, 9.5);
+      rowRun(4, 7.8, 9.8);
+      rowRun(5, 9.9, 11.55);
+      tl.fromTo("#s-usefill", { scaleX: 0.09 }, { scaleX: 0.14, duration: 5.2, ease: "none" }, 6.35);
+      var u = { v: 9 };
+      tl.to(u, { v: 14, duration: 5.2, ease: "none", onUpdate: function () { document.getElementById("s-usenum").textContent = Math.round(u.v) + "%"; } }, 6.35);
+
+      // clips drop in
+      tl.to(".clipv", { opacity: 1, y: 0, duration: 0.4, ease: "back.out(1.8)", stagger: 0.07 }, 6.45);
+      // agents hop on (staggered, each its own spring)
+      [["#s-ag1", 6.9], ["#s-ag2", 7.2], ["#s-ag3", 7.5], ["#s-ag4", 7.8]].forEach(function (a) {
+        tl.fromTo(a[0], { opacity: 0, y: 40, scale: 0.4 }, { opacity: 1, y: 0, scale: 1, duration: 0.45, ease: "back.out(2.2)" }, a[1]);
+      });
+
+      // cut agent: snips take 03, it falls away, the gap closes
+      tl.fromTo("#s-ag1 .armR", { rotation: 0 }, { rotation: -20, duration: 0.15, ease: "power2.out" }, 7.3);
+      tl.fromTo("#s-ag1 .bladeA", { rotation: 0, svgOrigin: "0 0" }, { rotation: 14, duration: 0.07, yoyo: true, repeat: 3, svgOrigin: "0 0" }, 7.45);
+      tl.fromTo("#s-ag1 .bladeB", { rotation: 0, svgOrigin: "0 0" }, { rotation: -14, duration: 0.07, yoyo: true, repeat: 3, svgOrigin: "0 0" }, 7.45);
+      tl.to("#s-c2", { y: 110, rotation: 10, opacity: 0, duration: 0.42, ease: "power3.in" }, 7.75);
+      tl.to(["#s-c3", "#s-c4"], { x: -350, duration: 0.35, ease: "power3.inOut" }, 8.1);
+      tl.to("#s-ag1", { y: -20, x: 60, opacity: 0, duration: 0.3, ease: "power2.in" }, 8.55);
+
+      // grade agent rolls across V1, each clip warms as it passes
+      tl.fromTo("#s-ag2", { x: 0 }, { x: 1110, duration: 1.2, ease: "power1.inOut" }, 8.25);
+      tl.fromTo("#s-ag2 .bod", { rotation: -4 }, { rotation: 4, duration: 0.15, yoyo: true, repeat: 7 }, 8.25);
+      [["#s-c0", 8.3], ["#s-c1", 8.55], ["#s-c3", 8.8], ["#s-c4", 9.1]].forEach(function (c) {
+        tl.to(c[0], { backgroundColor: "#d9895f", duration: 0.25 }, c[1]);
+      });
+      tl.to("#s-ag2", { opacity: 0, y: -20, duration: 0.25 }, 9.5);
+
+      // sound agent lays the score
+      tl.fromTo("#s-a1", { scaleX: 0 }, { scaleX: 1, duration: 0.9, ease: "power2.inOut" }, 8.6);
+      tl.fromTo("#s-ag3 .bod", { y: 0 }, { y: -10, duration: 0.14, yoyo: true, repeat: 9 }, 8.6);
+      tl.to("#s-ag3", { opacity: 0, y: -20, duration: 0.25 }, 9.7);
+
+      // titles agent stamps the title
+      tl.fromTo("#s-ag4 .armR", { rotation: -60 }, { rotation: 20, duration: 0.14, ease: "power3.in" }, 9.3);
+      tl.to("#s-v2", { opacity: 1, scale: 1, duration: 0.2, ease: "power3.out" }, 9.42);
+      tl.to("#s-ag4", { opacity: 0, y: -20, duration: 0.25 }, 9.85);
+
+      // playback: the cut plays in the monitor
+      tl.to("#s-ph", { opacity: 1, duration: 0.1 }, 9.9);
+      tl.fromTo("#s-ph", { x: 0 }, { x: 1190, duration: 1.7, ease: "none" }, 9.9);
+      tl.fromTo(["#s-lb1", "#s-lb2"], { opacity: 0 }, { opacity: 1, duration: 0.1 }, 9.9);
+      tl.set("#s-actor", { x: 420, y: 0, rotation: 0 }, 9.9);
+      tl.set(["#s-actor .armL", "#s-actor .armR"], { rotation: 0 }, 9.9);
+      tl.to("#s-actor", { x: 740, duration: 0.3, ease: "none" }, 9.95);
+      tl.to("#s-actor", { x: 1320, duration: 0.5, ease: "none" }, 10.25);
+      tl.to("#s-actor", { y: -250, duration: 0.25, ease: "power2.out" }, 10.25);
+      tl.to("#s-actor", { y: -40, duration: 0.25, ease: "power2.in" }, 10.5);
+      tl.to("#s-actor", { rotation: 360, duration: 0.5, ease: "power1.inOut" }, 10.25);
+      tl.fromTo("#s-boom .b1", { scale: 0 }, { scale: 1, duration: 0.25, ease: "expo.out", immediateRender: false }, 10.28);
+      tl.fromTo("#s-boom .b2", { scale: 0 }, { scale: 1, duration: 0.25, ease: "expo.out", immediateRender: false }, 10.31);
+      tl.fromTo("#s-boom .b3", { scale: 0 }, { scale: 1, duration: 0.2, ease: "expo.out", immediateRender: false }, 10.34);
+      tl.to("#s-boom .b3", { scale: 0, duration: 0.25, ease: "power2.in" }, 10.75);
+      tl.to("#s-boom .b2", { scale: 0, duration: 0.3, ease: "power2.in" }, 10.85);
+      tl.to("#s-boom .b1", { scale: 0, duration: 0.35, ease: "power2.in" }, 10.95);
+      tl.to("#s-actor .armR", { rotation: -120, duration: 0.25, ease: "back.out(2)" }, 10.85);
+      tl.fromTo("#s-ttl", { opacity: 0, scale: 1.25 }, { opacity: 1, scale: 1, duration: 0.25, ease: "expo.out" }, 10.9);
+
+      // ================= 8. render row becomes the next world =================
+      tl.set("#s-wipe", { opacity: 1, clipPath: "inset(556px 52px 438px 1228px round 14px)" }, 11.8);
+      tl.to("#s-wipe", { clipPath: "inset(0px 0px 0px 0px round 0px)", duration: 0.6, ease: "power3.in" }, 11.85);
+
+      window.__timelines["studio"] = tl;
+    })();
+  </script>
+</template>
