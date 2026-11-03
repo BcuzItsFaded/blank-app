@@ -2,6 +2,7 @@
 // Run: node tools/build.mjs   (re-run after editing this file)
 import fs from "node:fs";
 import path from "node:path";
+import { fileURLToPath } from "node:url";
 
 const ROOT = path.resolve(path.dirname(new URL(import.meta.url).pathname), "..");
 const W = 1080, H = 1920;
@@ -926,8 +927,11 @@ function root() {
 `;
 }
 
+export { C, zeke, figure, panel, heartPath, rotAttr, RIG };
+if (process.argv[1] === fileURLToPath(import.meta.url)) {
 fs.mkdirSync(path.join(ROOT, "compositions"), { recursive: true });
 const out = { s1: s1(), s2: s2(), s3: s3(), s4: s4(), s5: s5(), s6: s6(), captions: captions() };
 for (const [k, v] of Object.entries(out)) fs.writeFileSync(path.join(ROOT, `compositions/${k}.html`), v);
 fs.writeFileSync(path.join(ROOT, "index.html"), root());
 console.log("built", Object.keys(out).join(", "), "total", TOTAL, "s");
+}
