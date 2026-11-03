@@ -114,6 +114,15 @@ class Char:
         facing = p.get("facing", 1)
         kneel = p.get("kneel", 0.0)
         armL, armR = p.get("armL", 6), p.get("armR", 6)
+        if p.get("idle") and walk is None:
+            ph0 = (sum(map(ord, self.hair_style)) + int(self.head_r * 7) + int(x)) % 97 * 0.37
+            armL += 5 * math.sin(t * 1.1 + ph0)
+            armR += 5 * math.sin(t * 1.3 + ph0 + 1.7)
+            p = dict(p)
+            p["lean"] = p.get("lean", 0) + 1.8 * math.sin(t * 0.8 + ph0)
+            if "look" not in p:
+                p["look"] = 0.7 * math.sin(t * 0.45 + ph0) * (1 if math.sin(t * 0.21 + ph0) > -0.3 else 0)
+            p["tilt"] = p.get("tilt", 0) + 3 * math.sin(t * 0.6 + ph0 * 2)
         legL = legR = 0.0
         bob = 1.5 * math.sin(t * 2.2)            # breathing
         if walk is not None:
@@ -598,7 +607,11 @@ class Char:
         my = R * 0.52
         ctx.set_line_width(4)
         src(ctx, INK)
-        if expr in ("scared", "shock", "sing"):
+        if p.get("talk"):
+            o = abs(math.sin(t * 11)) * (0.5 + 0.5 * abs(math.sin(t * 3.7)))
+            ell(ctx, 0, my, R * 0.16, R * (0.04 + 0.14 * o))
+            fs(ctx, hx("#5a1c22"), 3.5)
+        elif expr in ("scared", "shock", "sing"):
             o = 0.6 + 0.4 * abs(math.sin(t * 5)) if expr == "sing" else 1.0
             ell(ctx, 0, my, R * 0.15, R * 0.17 * o)
             fs(ctx, hx("#5a1c22"), 3.5)

@@ -34,6 +34,17 @@ RIM = hx("#8a9ab8")  # cold rim light so the black creature reads on dark sets
 COAT_B, COAT_G = hx("#5a4a3a"), hx("#4a4a46")
 
 
+_orig_draw = Char.draw
+
+
+def _lively_draw(self, ctx, x, y, size=1.0, **pose):
+    pose.setdefault("idle", True)
+    return _orig_draw(self, ctx, x, y, size, **pose)
+
+
+Char.draw = _lively_draw  # this episode only: everyone breathes, shifts, glances around
+
+
 def con(skin, coat=COAT_B, **k):
     k.setdefault("hair_style", "bald")
     k.setdefault("hair", skin)
@@ -568,6 +579,24 @@ def bg_foundry(ctx, t, heat=1.0, red=0.0):
     ctx.set_source(g)
     ctx.rectangle(-1200, 880, 4400, 600)
     ctx.fill()
+    dust(ctx, t, -200, 2100, 0, 1000, 60, seed=11)
+    for k, vx in enumerate((260, 1180, 1880)):  # steam vents puffing on a cycle
+        ph = (t * 0.35 + k * 0.37) % 1
+        if ph < 0.55:
+            smoke(ctx, vx, 880, t * 1.5 + k, 0.6 * (1 - ph / 0.55), seed=20 + k)
+    wk = (t * 0.5) % 4  # distant welding sparks on the upper catwalk
+    if wk < 1.2:
+        rnd = random.Random(int(t * 25))
+        wx, wy = 1500, 225
+        ell(ctx, wx, wy, 14, 14)
+        ctx.set_source_rgba(1, 1, 0.9, 0.9)
+        ctx.fill()
+        for i in range(10):
+            ctx.move_to(wx, wy)
+            ctx.line_to(wx + rnd.uniform(-90, 90), wy + rnd.uniform(10, 160))
+            ctx.set_line_width(2)
+            ctx.set_source_rgba(1, rnd.uniform(0.6, 0.9), 0.3, 0.9)
+            ctx.stroke()
     embers(ctx, t, 0.6 * heat)
 
 
@@ -800,7 +829,7 @@ def bishop_head(ctx, x, y, s, t, talk=0.0, glitch=0.0):
         ctx.set_line_width(6)
         src(ctx, [hx("#c03030"), hx("#3060c0"), hx("#e8c040"), hx("#40a060"), hx("#a0a0a0"), hx("#e8e8e8")][k])
         ctx.stroke()
-    A3["bishop"]._head(ctx, 64, dict(t=t, expr="sad" if talk < 0.5 else "shock", blink=0))
+    A3["bishop"]._head(ctx, 64, dict(t=t, expr="sad", blink=0, talk=talk > 0.5, look=0.4 * math.sin(t * 0.7)))
     ctx.set_source_rgba(0.95, 0.95, 0.9, 0.9)
     ell(ctx, 10, 70, 60, 14)
     ctx.fill()
@@ -1285,7 +1314,7 @@ def S2(ctx, R, t, p):
             bg_medical(ctx, t, flick=0.05)
             exam_table(ctx, 960, 880)
             A3["ripley"].draw(ctx, 620, 1010, 0.9, t=t, expr="sad", look=1, tears=True)
-            A3["clemens"].draw(ctx, 1350, 1010, 0.9, t=t, facing=-1, expr="sad", look=-1)
+            A3["clemens"].draw(ctx, 1350, 1010, 0.9, t=t, facing=-1, expr="sad", look=-1, talk=True)
         grade(ctx, R, strength=0.6)
         lower_third(ctx, R, lt, 0.8, "CLEMENS", "the prison doctor", 3.5)
 
@@ -1466,7 +1495,8 @@ def S4(ctx, R, t, p):
         with cam(ctx, R, 960, 560, 1.0, vfx=V(R, 960, 1250)):
             bg_foundry(ctx, t)
             furnace(ctx, 640, 900, 1.0, t)
-            A3["dillon"].draw(ctx, 1250, 1020, 0.9, t=t, expr="sad", look=-0.5, armL=60, armR=60, elbowL=60, elbowR=60)
+            A3["dillon"].draw(ctx, 1250, 1020, 0.9, t=t, expr="sad", look=-0.5, armL=60 + 15 * math.sin(t * 1.3),
+                              armR=60 + 15 * math.sin(t * 1.1 + 1), elbowL=60, elbowR=60, talk=True)
             for i in range(3):
                 prisoner(i + 7).draw(ctx, 1500 + i * 160, 1020, 0.75, t=t + i, expr="sad", look=-1)
         warm(ctx, R)
@@ -1655,7 +1685,8 @@ def S6(ctx, R, t, p):
     def andrews(ctx, R, lt):
         with cam(ctx, R, 960, 560, 1.0, vfx=V(R, 960, 1100)):
             bg_medical(ctx, t)
-            A3["andrews"].draw(ctx, 1100, 1010, 0.92, t=t, facing=-1, expr="angry", look=-1, armR=70, elbowR=40)
+            A3["andrews"].draw(ctx, 1100, 1010, 0.92, t=t, facing=-1, expr="angry", look=-1, armR=70 + 20 * math.sin(t * 2.2),
+                               elbowR=40, talk=True)
             A3["ripley_bald"].draw(ctx, 700, 1010, 0.86, t=t, expr="angry", look=1)
         grade(ctx, R, strength=0.6)
         badge(ctx, W / 2, H * 0.14, "ANDREWS: \"THERE IS NO MONSTER\"", 40 * u, BONE, hx("#2e3440"))
@@ -2011,7 +2042,7 @@ def S9(ctx, R, t, p):
     def aaron(ctx, R, lt):
         with cam(ctx, R, 960, 430, 1.8, vfx=960):
             bg_medical(ctx, t, flick=0.1)
-            A3["aaron"].draw(ctx, 960, 1060, 1.0, t=t, expr="scared", look=0.6 * math.sin(t * 1.5))
+            A3["aaron"].draw(ctx, 960, 1060, 1.0, t=t, expr="scared", look=0.6 * math.sin(t * 1.5), talk=True)
         grade(ctx, R, strength=0.75)
         lower_third(ctx, R, lt, 0.3, "AARON (\"85\")", "trusts the company... for now", 3)
 
@@ -2026,7 +2057,7 @@ def S10(ctx, R, t, p):
     def rally(ctx, R, lt):
         with cam(ctx, R, 960, lerp(700, 520, min(1, lt / 6)), 1.2, vfx=V(R, 960, 960)):
             bg_foundry(ctx, t)
-            A3["dillon"].draw(ctx, 960, 1060, 1.05, t=t, expr="angry", look=0, armR=110 + 15 * math.sin(t * 2), elbowR=20)
+            A3["dillon"].draw(ctx, 960, 1060, 1.05, t=t, expr="angry", look=0, armR=110 + 15 * math.sin(t * 2), elbowR=20, talk=True)
             for i in range(4):
                 prisoner(i + 60).draw(ctx, 300 + i * 440 if i < 2 else 1100 + (i - 2) * 440, 1080, 0.85, t=t + i, expr="neutral",
                                       look=0)
@@ -2238,7 +2269,8 @@ def S12(ctx, R, t, p):
     def offer(ctx, R, lt):
         with cam(ctx, R, 960, 520, 1.15, vfx=V(R, 960, 960)):
             bg_foundry(ctx, t, heat=1.2)
-            A3["bishop2"].draw(ctx, 1150, 1010, 0.9, t=t, facing=-1, expr="happy", look=-1, armR=70, elbowR=10)
+            A3["bishop2"].draw(ctx, 1150, 1010, 0.9, t=t, facing=-1, expr="happy", look=-1, armR=70 + 8 * math.sin(t * 1.5),
+                               elbowR=10, talk=True)
             A3["ripley_bald"].draw(ctx, 740, 1010, 0.88, t=t, expr="cold" if t > t_knows else "sad", look=1)
         warm(ctx, R, 0.2)
         grade(ctx, R, strength=0.65)
@@ -2351,7 +2383,26 @@ def S12(ctx, R, t, p):
     scene_header(ctx, R, 12, t)
 
 
-LONG = [S1, S2, S3, S4, S5, S6, S7, S8, S9, S10, S11, S12]
+_T = [0.0]
+_cam = cam
+
+
+def cam(ctx, R, fx=960, fy=540, zoom=1.0, vfx=None):
+    """Same camera as before plus a slow handheld drift, so no shot is ever perfectly still."""
+    t = _T[0]
+    dx = 7 * math.sin(t * 0.63) + 3 * math.sin(t * 1.7)
+    dy = 5 * math.sin(t * 0.81 + 1) + 2 * math.sin(t * 2.3)
+    return _cam(ctx, R, fx + dx, fy + dy, zoom * (1 + 0.006 * math.sin(t * 0.4)), vfx=(vfx + dx) if vfx is not None else None)
+
+
+def _timed(fn):
+    def wrapper(ctx, R, t, p):
+        _T[0] = t
+        return fn(ctx, R, t, p)
+    return wrapper
+
+
+LONG = [_timed(f) for f in (S1, S2, S3, S4, S5, S6, S7, S8, S9, S10, S11, S12)]
 
 # ---------------------------------------------------------------- sound design (from the storyboard's audio notes)
 # (cue phrase or seconds into the scene, offset, effect, gain, duration)
