@@ -12,7 +12,7 @@ END_CARD = 3.0
 
 # id, board title, entry, camera stops [(scale, fx, fy)], narration
 SCENES = [
-    ("Fifty-seven years of loss", "cut", [(1.05, .40, .50), (1.30, .75, .50)],
+    ("Fifty-seven years of loss", "cut", [(1.05, .24, .45), (1.30, .72, .50)],
      "Ripley wakes up fifty-seven years after the Nostromo. Her daughter grew old and died while she drifted in hypersleep."),
     ("Who started the outbreak?", "whip-l", [(1.50, .30, .45), (1.60, .76, .66)],
      "Meanwhile, Burke sends a colony family to check out a derelict ship. Newt's father comes back with something wrapped around his face."),
@@ -26,7 +26,7 @@ SCENES = [
      "The Marines are torn apart. Ripley rescues the survivors, but an alien brings down their dropship."),
     ("They came through the ceiling", "cut", [(1.20, .45, .28), (1.45, .20, .80)],
      "Sentry guns buy them precious time. Then the motion tracker picks up movement inside their defenses. They're coming through the ceiling."),
-    ("Burke is the real traitor", "zoom", [(1.80, .25, .33), (1.60, .74, .33), (1.70, .50, .86)],
+    ("Burke is the real traitor", "zoom", [(1.00, .25, .33), (1.60, .74, .33), (1.70, .50, .86)],
      "Then Ripley uncovers the truth. Burke sent the colonists to that ship on purpose. He wants alien specimens brought home, growing inside her and Newt."),
     ("The colony collapses", "whip-l", [(1.80, .18, .30), (1.70, .66, .25), (1.60, .80, .76)],
      "The aliens break in. Marines fall, Hicks is burned by acid, and Newt is dragged down into the hive."),
@@ -85,11 +85,29 @@ def cam_state(s, fx, fy):
     return dict(scale=s, xPercent=round(x, 2), yPercent=round(y, 2))
 
 
+WIN_H = 1640  # the panel fills the frame from the top edge down to the strip
+
+
+def panel_size(n):
+    from PIL import Image
+    w, h = Image.open(os.path.join(ROOT, "assets", "panels", f"p{n:02d}.jpg")).size
+    return round(WIN_H * w / h), WIN_H
+
+
 def scene_html(i, title, entry, stops, dur):
     n = i + 1
     sid = f"s{n:02d}"
     words = title.upper().split()
     word_spans = "".join(f'<span class="w">{html.escape(w)}</span> ' for w in words)
+    cw_, ch_ = panel_size(n)
+
+    def cam_state(s, fx, fy):
+        # board scales were for a width-fit panel; the height-fit panel is already closer
+        s = round(1 + (s - 1) * 0.5, 3)
+        x = max(W - cw_ * s, min(0, W / 2 - fx * cw_ * s))
+        y = max(WIN_H - ch_ * s, min(0, WIN_H / 2 - fy * ch_ * s))
+        return dict(scale=s, x=round(x, 1), y=round(y, 1))
+
     first = cam_state(*stops[0])
     js = [f"const tl = gsap.timeline({{ paused: true }});", f"const D = {dur:.3f};"]
     # camera
@@ -130,12 +148,13 @@ def scene_html(i, title, entry, stops, dur):
     return f"""<template>
   <style>
     #root {{ position: absolute; inset: 0; overflow: hidden; }}
-    #{sid}-head {{ position: absolute; left: 70px; right: 70px; top: 180px; height: 200px; display: flex; flex-direction: column; justify-content: flex-end; }}
+    #{sid}-head {{ position: absolute; left: 70px; right: 70px; top: 190px; display: flex; flex-direction: column; }}
     #{sid}-num {{ align-self: flex-start; background: var(--accent); color: var(--ink); font: 400 40px/1 'League Gothic'; padding: 6px 14px 4px; letter-spacing: 0.04em; margin-bottom: 10px; }}
-    #{sid}-title {{ color: var(--ink); font: 400 104px/0.92 'League Gothic'; letter-spacing: 0.01em; text-transform: uppercase; }}
-    #{sid}-win {{ position: absolute; left: 0; top: 400px; width: {W}px; height: 780px; overflow: hidden; border-top: 6px solid var(--paper); border-bottom: 6px solid var(--paper); background: #000; }}
-    #{sid}-cam {{ position: absolute; inset: 0; }}
-    #{sid}-cam img {{ width: 100%; height: 100%; object-fit: cover; display: block; }}
+    #{sid}-title {{ color: var(--ink); font: 400 112px/0.92 'League Gothic'; letter-spacing: 0.01em; text-transform: uppercase; text-shadow: 0 4px 0 #000, 0 0 24px rgba(0,0,0,0.7); }}
+    #{sid}-win {{ position: absolute; left: 0; top: 0; width: {W}px; height: {WIN_H}px; overflow: hidden; border-bottom: 6px solid var(--paper); background: #000; }}
+    #{sid}-cam {{ position: absolute; left: 0; top: 0; width: {cw_}px; height: {ch_}px; transform-origin: 0 0; }}
+    #{sid}-cam img {{ width: 100%; height: 100%; display: block; }}
+    #{sid}-scrim {{ position: absolute; left: 0; top: 0; width: {W}px; height: 620px; background: linear-gradient(rgba(6,8,12,0.88) 0%, rgba(6,8,12,0.55) 55%, rgba(6,8,12,0) 100%); }}
     #{sid}-veil, #{sid}-flash {{ position: absolute; inset: 0; opacity: 0; pointer-events: none; }}
     #{sid}-veil {{ background: #000; }}
     #{sid}-flash {{ background: #fff7e8; }}
@@ -144,6 +163,7 @@ def scene_html(i, title, entry, stops, dur):
   <div id="root" data-composition-id="{sid}" data-width="{W}" data-height="{H}">
     <div id="{sid}-win" data-layout-allow-overflow>
       <div id="{sid}-cam"><img id="{sid}-img" src="assets/panels/p{n:02d}.jpg" alt="{html.escape(title)}" /></div>
+      <div id="{sid}-scrim"></div>
     </div>
     <div id="{sid}-head" data-layout-allow-overlap>
       <div id="{sid}-num">{n:02d}</div>
@@ -238,7 +258,7 @@ def endcard_html():
 
 def strip_html(starts):
     """The 12 board panels as a strip under the platform UI; the current one centred and lit."""
-    tw, th, gap, top = 340, 248, 22, 1420
+    tw, th, gap, top = 272, 198, 18, 1672
     thumbs = "\n    ".join(
         f'<div class="th" id="strip-t{k + 1:02d}" style="left:{k * (tw + gap)}px"><img src="assets/panels/p{k + 1:02d}.jpg" alt="" /></div>'
         for k in range(len(SCENES)))
