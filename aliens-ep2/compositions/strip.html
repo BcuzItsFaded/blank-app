@@ -1,0 +1,64 @@
+<template>
+  <style>
+    #root { position: absolute; inset: 0; }
+    #strip-row { position: absolute; left: 0; top: 1420px; height: 248px; width: 4344px; }
+    .th { position: absolute; top: 0; width: 340px; height: 248px; border: 4px solid var(--paper); overflow: hidden; background: #000; }
+    .th img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  </style>
+  <div id="root" data-composition-id="strip" data-width="1080" data-height="1920" data-layout-ignore>
+    <div id="strip-row" data-layout-allow-overflow data-layout-ignore>
+    <div class="th" id="strip-t01" style="left:0px"><img src="assets/panels/p01.jpg" alt="" /></div>
+    <div class="th" id="strip-t02" style="left:362px"><img src="assets/panels/p02.jpg" alt="" /></div>
+    <div class="th" id="strip-t03" style="left:724px"><img src="assets/panels/p03.jpg" alt="" /></div>
+    <div class="th" id="strip-t04" style="left:1086px"><img src="assets/panels/p04.jpg" alt="" /></div>
+    <div class="th" id="strip-t05" style="left:1448px"><img src="assets/panels/p05.jpg" alt="" /></div>
+    <div class="th" id="strip-t06" style="left:1810px"><img src="assets/panels/p06.jpg" alt="" /></div>
+    <div class="th" id="strip-t07" style="left:2172px"><img src="assets/panels/p07.jpg" alt="" /></div>
+    <div class="th" id="strip-t08" style="left:2534px"><img src="assets/panels/p08.jpg" alt="" /></div>
+    <div class="th" id="strip-t09" style="left:2896px"><img src="assets/panels/p09.jpg" alt="" /></div>
+    <div class="th" id="strip-t10" style="left:3258px"><img src="assets/panels/p10.jpg" alt="" /></div>
+    <div class="th" id="strip-t11" style="left:3620px"><img src="assets/panels/p11.jpg" alt="" /></div>
+    <div class="th" id="strip-t12" style="left:3982px"><img src="assets/panels/p12.jpg" alt="" /></div>
+    </div>
+  </div>
+  <script>
+    const tl = gsap.timeline({ paused: true });
+    tl.fromTo('#strip-row', { x: 370 }, { x: 370, duration: 0.01 }, 0);
+    tl.fromTo('.th', { opacity: 0.32 }, { opacity: 0.32, duration: 0.01 }, 0);
+    tl.fromTo('#strip-t01', { opacity: 0.32 }, { opacity: 1, duration: 0.3 }, 0);
+    tl.to('#strip-row', { x: 8, duration: 0.5, ease: 'power3.inOut' }, 7.750);
+    tl.to('#strip-t01', { opacity: 0.32, duration: 0.3 }, 8.000);
+    tl.to('#strip-t02', { opacity: 1, duration: 0.3 }, 8.000);
+    tl.to('#strip-row', { x: -354, duration: 0.5, ease: 'power3.inOut' }, 14.750);
+    tl.to('#strip-t02', { opacity: 0.32, duration: 0.3 }, 15.000);
+    tl.to('#strip-t03', { opacity: 1, duration: 0.3 }, 15.000);
+    tl.to('#strip-row', { x: -716, duration: 0.5, ease: 'power3.inOut' }, 21.750);
+    tl.to('#strip-t03', { opacity: 0.32, duration: 0.3 }, 22.000);
+    tl.to('#strip-t04', { opacity: 1, duration: 0.3 }, 22.000);
+    tl.to('#strip-row', { x: -1078, duration: 0.5, ease: 'power3.inOut' }, 29.750);
+    tl.to('#strip-t04', { opacity: 0.32, duration: 0.3 }, 30.000);
+    tl.to('#strip-t05', { opacity: 1, duration: 0.3 }, 30.000);
+    tl.to('#strip-row', { x: -1440, duration: 0.5, ease: 'power3.inOut' }, 37.750);
+    tl.to('#strip-t05', { opacity: 0.32, duration: 0.3 }, 38.000);
+    tl.to('#strip-t06', { opacity: 1, duration: 0.3 }, 38.000);
+    tl.to('#strip-row', { x: -1802, duration: 0.5, ease: 'power3.inOut' }, 44.750);
+    tl.to('#strip-t06', { opacity: 0.32, duration: 0.3 }, 45.000);
+    tl.to('#strip-t07', { opacity: 1, duration: 0.3 }, 45.000);
+    tl.to('#strip-row', { x: -2164, duration: 0.5, ease: 'power3.inOut' }, 52.750);
+    tl.to('#strip-t07', { opacity: 0.32, duration: 0.3 }, 53.000);
+    tl.to('#strip-t08', { opacity: 1, duration: 0.3 }, 53.000);
+    tl.to('#strip-row', { x: -2526, duration: 0.5, ease: 'power3.inOut' }, 59.750);
+    tl.to('#strip-t08', { opacity: 0.32, duration: 0.3 }, 60.000);
+    tl.to('#strip-t09', { opacity: 1, duration: 0.3 }, 60.000);
+    tl.to('#strip-row', { x: -2888, duration: 0.5, ease: 'power3.inOut' }, 67.750);
+    tl.to('#strip-t09', { opacity: 0.32, duration: 0.3 }, 68.000);
+    tl.to('#strip-t10', { opacity: 1, duration: 0.3 }, 68.000);
+    tl.to('#strip-row', { x: -3250, duration: 0.5, ease: 'power3.inOut' }, 74.750);
+    tl.to('#strip-t10', { opacity: 0.32, duration: 0.3 }, 75.000);
+    tl.to('#strip-t11', { opacity: 1, duration: 0.3 }, 75.000);
+    tl.to('#strip-row', { x: -3612, duration: 0.5, ease: 'power3.inOut' }, 81.750);
+    tl.to('#strip-t11', { opacity: 0.32, duration: 0.3 }, 82.000);
+    tl.to('#strip-t12', { opacity: 1, duration: 0.3 }, 82.000);
+    window.__timelines['strip'] = tl;
+  </script>
+</template>
