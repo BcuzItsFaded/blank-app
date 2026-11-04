@@ -59,11 +59,9 @@ const A = (f) => path.resolve("public/audio", f);
 execFileSync("ffmpeg", [
   "-y", "-v", "error",
   "-f", "concat", "-safe", "0", "-i", list,
-  "-i", A("narration.wav"), "-i", A("score.wav"), "-i", A("sfx.wav"),
-  "-filter_complex",
-  // same stem levels as the Remotion <Audio> tracks, then a true-peak limiter at -1.5 dBTP
-  "[1:a]volume=1.0[n];[2:a]volume=0.42[m];[3:a]volume=0.6[s];[n][m][s]amix=inputs=3:normalize=0,alimiter=limit=0.84:level=false[a]",
-  "-map", "0:v", "-map", "[a]",
+  // the audio is already mastered by scripts/make_audio.py (-14 LUFS, -1.5 dBTP)
+  "-i", A("mix.wav"),
+  "-map", "0:v", "-map", "1:a",
   "-vf", "fps=30,format=yuv420p", "-r", "30", "-frames:v", String(total),
   "-c:v", "libx264", "-preset", "slow", "-crf", "19", "-maxrate", "12M", "-bufsize", "24M", "-profile:v", "high", "-movflags", "+faststart",
   "-c:a", "aac", "-b:a", "256k", "-ar", "48000", "-t", "60",

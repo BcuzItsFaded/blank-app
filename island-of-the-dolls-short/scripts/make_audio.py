@@ -17,7 +17,35 @@ ROOT = S.ROOT
 TOTAL = 60.0
 N = int(SR * TOTAL)
 rng = np.random.default_rng(1950)
-LEAD, TAIL, GAP = 0.2, 0.35, 0.3   # narration starts 0.2 s into a scene, ends ≥0.35 s before the next
+LEAD, TAIL, GAP = 0.12, 0.2, 0.28   # narration starts 0.2 s into a scene, ends ≥0.35 s before the next
+
+
+# ---------------------------------------------------------------- voice processing
+VOICE_RMS_DB = -18.0
+
+def compress(x, thr_db=-24.0, ratio=3.0, att=0.004, rel=0.12):
+    """feed-forward RMS compressor (smooths the TTS level jumps)"""
+    env = np.sqrt(signal.lfilter([1 - np.exp(-1 / (SR * 0.01))], [1, -np.exp(-1 / (SR * 0.01))], x ** 2) + 1e-12)
+    lvl = 20 * np.log10(env)
+    gain_db = np.minimum(0, (thr_db - lvl) * (1 - 1 / ratio))
+    g = 10 ** (gain_db / 20)
+    a, r = np.exp(-1 / (SR * att)), np.exp(-1 / (SR * rel))
+    out = np.empty_like(g); prev = 1.0
+    for i in range(0, len(g), 64):  # block-wise smoothing (fast enough, inaudible stepping)
+        tgt = g[i:i + 64].min()
+        k = a if tgt < prev else r
+        prev = tgt + (prev - tgt) * k ** 64
+        out[i:i + 64] = prev
+    return x * out
+
+def polish_voice(x):
+    x = hp(x, 85, 2)
+    x = x + 0.35 * bp(x, 2200, 5200)          # presence: intelligibility on phone speakers
+    x = x - 0.25 * bp(x, 250, 450)             # de-mud
+    x = compress(x)
+    rms = np.sqrt(np.mean(x[np.abs(x) > 1e-3] ** 2))
+    x = x * (10 ** (VOICE_RMS_DB / 20) / (rms + 1e-9))   # both hosts at the same loudness
+    return x
 
 
 # ---------------------------------------------------------------- narration (two hosts)
@@ -48,9 +76,8 @@ def build_narration(meta, scenes):
             raise SystemExit(f"scene {s['id']}: narration {tot:.2f}s exceeds {budget:.2f}s — re-record or retime")
         t = s["start"] + LEAD; rec = {"id": s["id"], "start": s["start"], "dur": s["dur"], "lines": []}
         for (x, src), l in zip(clips, lines):
-            x = norm(hp(x, 70), 0.85)
+            x = polish_voice(x)
             words = word_timings(l["text"].split(), x)
-            x = reverb(x, secs=0.8, wet=0.1, tone=6500)
             place(buf, x, t)
             rec["lines"].append({"speaker": l["speaker"], "start": round(t, 3), "duration": round(len(x) / SR, 3), "source": src, "words": words})
             t += len(x) / SR + GAP
@@ -61,17 +88,17 @@ def build_narration(meta, scenes):
 
 # ---------------------------------------------------------------- sound design
 def s_night(dur):
-    """Xochimilco night bed: crickets + frogs + soft water lap."""
+    """Xochimilco night bed: soft noise-based insects + distant frogs + gentle water lap (no pure tones)."""
     tt = t_arr(dur); out = np.zeros_like(tt)
-    for f, rate, g in ((4300, 18, .05), (5100, 23, .035), (3800, 14, .03)):
-        chirp = np.sin(2 * np.pi * f * tt) * (np.sin(2 * np.pi * rate * tt) > .55) * (0.5 + 0.5 * np.sin(2 * np.pi * .3 * tt + f))
-        out += chirp * g
-    for _ in range(int(dur * 1.2)):  # frogs
-        d = .18; t2 = t_arr(d); fr = rng.uniform(180, 320)
-        croak = signal.sawtooth(2 * np.pi * fr * t2) * (np.sin(2 * np.pi * 34 * t2) > 0) * np.exp(-t2 * 9)
-        place(out, bp(croak, 200, 1400) * .12, rng.uniform(0, dur - .3))
-    lap = lp(noise(dur), 500) * (0.5 + 0.5 * np.sin(2 * np.pi * tt / 3.1) ** 2) * .25
-    return out + lap
+    for lo, hi, rate, g in ((3200, 4800, 9.0, .035), (4200, 6200, 13.0, .02)):
+        trill = (0.5 + 0.5 * np.sin(2 * np.pi * rate * tt)) ** 3 * (0.6 + 0.4 * np.sin(2 * np.pi * .17 * tt + lo))
+        out += bp(noise(dur), lo, hi) * lp(trill, 60) * g
+    for _ in range(int(dur * 0.5)):  # occasional distant frog
+        d = .22; t2 = t_arr(d); fr = rng.uniform(140, 220)
+        croak = signal.sawtooth(2 * np.pi * fr * t2) * (0.5 + 0.5 * np.sin(2 * np.pi * 28 * t2)) * np.exp(-t2 * 8)
+        place(out, lp(croak, 700) * .05, rng.uniform(0, dur - .3))
+    lap = lp(noise(dur), 420) * (0.5 + 0.5 * np.sin(2 * np.pi * tt / 3.1) ** 2) * .22
+    return reverb(out, 1.5, .3) + lap
 
 def s_paddle():
     tt = t_arr(1.0)
@@ -146,27 +173,35 @@ SFX = {
     "water_drip": s_drip,
     "rope_creak": s_rope_creak,
     "leaves_rustle": lambda: bp(noise(6.5), 1500, 7000) * (0.4 + 0.6 * np.abs(lp(noise(6.5), 3)) / 3) * .2,
-    "rain_bed": lambda: S.s_rain(8.0, .9) * np.interp(t_arr(8.0), [0, .5, 7.3, 8], [0, 1, 1, 0]),
-    "thunder_far": lambda: lp(S.s_thunder(4.0), 600) * .8,
+    "rain_bed": lambda: S.s_rain(8.0, .45) * np.interp(t_arr(8.0), [0, .5, 7.3, 8], [0, 1, 1, 0]),
+    "thunder_far": lambda: lp(S.s_thunder(4.0), 600) * .5,
     "eyes_sting": s_eyes_sting,
     "shutter": s_shutter,
     "phone_click": s_phone_click,
-    "whispers": lambda: s_whispers(3.4),
-    "bell": lambda: s_bell(6.0, 196.0, 1.0),
+    "whispers": lambda: s_whispers(3.4) * .7,
+    "bell": lambda: s_bell(6.0, 196.0, .55),
     "bell_soft": lambda: s_bell(4.5, 196.0, .5),
-    "twist_turn": lambda: S.s_minor_chord(3.6) * 1.2,
+    "twist_turn": lambda: S.s_minor_chord(3.6) * .6,
     "final_creak": s_rope_creak,
 }
 
-def build_sfx(scenes):
+ACCENTS = {"real_hit", "twist_hit", "shutter", "phone_click", "eyes_sting", "bell", "sting_open"}
+
+def build_sfx(scenes, accents_only=None):
+    """accents_only=None → everything; True → only accent hits; False → only ambience/foley"""
     buf = np.zeros(N)
-    place(buf, s_night(TOTAL) * np.interp(t_arr(TOTAL), [0, 1, 30, 38, 52, 52.2, 59, 60], [0, 1, 1, .5, .5, .2, 1, 0]), 0, .8)
+    if accents_only is not True:
+        place(buf, s_night(TOTAL) * np.interp(t_arr(TOTAL), [0, 1, 30, 38, 52, 52.2, 59, 60], [0, 1, 1, .5, .5, .2, 1, 0]), 0, .8)
     for s in scenes:
         for t, key in s["cues"]:
+            if accents_only is not None and ((key in ACCENTS) != accents_only):
+                continue
             at = s["start"] + t
             if key == "twist_hit":
                 hit, pre = s_twist_hit()
-                place(buf, pre, at - .5); place(buf, hit, at, 1.0)
+                # hit lands just before the cut so its transient clears the first word; tail is shortened
+                hit = hit * np.interp(t_arr(len(hit) / SR), [0, .25, 1.6, len(hit) / SR], [1, .8, .25, 0])
+                place(buf, pre, at - .62); place(buf, hit, at - .12, 1.0)
             elif key in SFX:
                 place(buf, SFX[key](), at, .9)
     return buf
@@ -210,21 +245,50 @@ def build_score(scenes):
     return reverb(buf, 2.4, .3)
 
 
-def duck(score, narr, depth=0.68):
+def duck(x, narr, depth):
     env = np.convolve(np.abs(narr), np.ones(2400) / 2400, mode="same")
-    env = np.minimum(1, env / (np.max(env) * 0.25 + 1e-9))
-    env = signal.lfilter([0.002], [1, -0.998], env)
-    return score * (1 - depth * np.clip(env, 0, 1))
+    env = np.minimum(1, env / (np.max(env) * 0.2 + 1e-9))
+    env = signal.lfilter([0.003], [1, -0.997], env)          # ~7 ms attack/≈330 ms release feel
+    return x * (1 - depth * np.clip(env, 0, 1))
+
+def true_peak_limit(x, ceiling_db=-1.5, look_ms=5.0, release_ms=120.0):
+    """Look-ahead true-peak limiter: 4x-oversampled peak detection, gain reduction only where needed."""
+    from scipy.ndimage import minimum_filter1d
+    ceil = 10 ** (ceiling_db / 20)
+    up = signal.resample_poly(x, 4, 1)
+    pk = np.abs(up[: len(x) * 4]).reshape(-1, 4).max(axis=1)
+    g = np.minimum(1.0, ceil / (pk + 1e-12))
+    la = max(1, int(SR * look_ms / 1000))
+    g = minimum_filter1d(g, size=2 * la + 1)                    # look-ahead: reduce before the peak arrives
+    r = np.exp(-1 / (SR * release_ms / 1000))
+    sm = signal.lfilter([1 - r], [1, -r], g - 1) + 1            # smooth recovery
+    g = np.minimum(g, sm)
+    y = x * g
+    up = signal.resample_poly(y, 4, 1); over = np.abs(up).max() / ceil
+    return y / over if over > 1 else y
 
 
 def main():
+    import pyloudnorm as pyln
     d = json.load(open(os.path.join(ROOT, "src", "scenes.json")))
     meta, scenes = d["meta"], d["scenes"]
     os.makedirs(os.path.join(ROOT, "public", "audio"), exist_ok=True)
     print("narration…"); narr, timings = build_narration(meta, scenes)
-    print("sfx…"); sfx = build_sfx(scenes)
-    print("score…"); score = duck(build_score(scenes), narr)
-    S.write("narration.wav", norm(narr, .92)); S.write("sfx.wav", norm(sfx, .85)); S.write("score.wav", norm(score, .8))
+    print("sfx…"); amb = build_sfx(scenes, accents_only=False); acc = build_sfx(scenes, accents_only=True)
+    print("score…"); score = build_score(scenes)
+    # stem levels (relative), then ducking under the voice
+    score = duck(norm(score, 1.0) * 10 ** (-27 / 20) / (np.sqrt(np.mean(norm(score, 1.0) ** 2)) + 1e-9), narr, 0.82)
+    amb = duck(amb / (np.sqrt(np.mean(amb ** 2)) + 1e-9) * 10 ** (-33 / 20), narr, 0.75)
+    acc = duck(acc / (np.max(np.abs(acc)) + 1e-9) * 10 ** (-9 / 20), narr, 0.55)
+    sfx = amb + acc
+    mix = narr + score + sfx
+    meter = pyln.Meter(SR)
+    gain = 10 ** ((-14.0 - meter.integrated_loudness(mix)) / 20)
+    mix = true_peak_limit(mix * gain, -1.5)
+    print(f"  mix: {meter.integrated_loudness(mix):.1f} LUFS")
+    # stems are written at the same gain so studio previews match the master mix
+    S.write("narration.wav", narr * gain); S.write("score.wav", score * gain); S.write("sfx.wav", sfx * gain)
+    S.write("mix.wav", mix)
     json.dump({"scenes": timings}, open(os.path.join(ROOT, "src", "timings.json"), "w"), indent=1, ensure_ascii=False)
     print("done")
 

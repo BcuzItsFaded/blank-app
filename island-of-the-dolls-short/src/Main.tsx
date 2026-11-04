@@ -147,9 +147,9 @@ export const Main: React.FC<{ cel?: boolean }> = ({ cel = false }) => {
         </Sequence>
       ))}
       {!inScene1 && <div style={{ position: "absolute", left: 40, top: 56, opacity: logoIn }}><BrandMark /></div>}
-      <Audio src={staticFile("audio/narration.wav")} volume={1} />
-      <Audio src={staticFile("audio/score.wav")} volume={0.45} />
-      <Audio src={staticFile("audio/sfx.wav")} volume={0.6} />
+      {/* mastered mix (voices + score + SFX, −14 LUFS, −1.5 dBTP) built by scripts/make_audio.py;
+          stems narration/score/sfx.wav are kept alongside for re-balancing */}
+      <Audio src={staticFile("audio/mix.wav")} volume={1} />
     </AbsoluteFill>
   );
 };
