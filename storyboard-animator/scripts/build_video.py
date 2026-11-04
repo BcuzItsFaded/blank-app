@@ -40,6 +40,9 @@ duration: optional; defaults to narration length + 0.5 s (or 4 s with no narrati
 "shots": [{"media": "a.png", "keys": [...], "share": 2}, ...] — several hard-cut camera shots under one
   narration; each gets its share of the scene length (keys default to a gentle push-in).
   A shot can add "flashes": [0.3, 0.8] — lightning flashes at those fractions of the shot.
+  Extra effects (on a shot or a media+keys scene): "shakes": [t,...] camera-shake impulses that
+  decay; "pulses": [t,...] warm amber/red colour-glow impulses on a beat; "flicker": 0-1 lantern/
+  candle brightness wobble through the shot. All are fractions of the shot (0-1), like flashes.
 caption_scale: caption font size as a fraction of frame width (default 0.075 for large captions;
   about 0.04 suits horizontal 16:9 videos).
 narration_mode: "scene" (default: each scene voiced in one go, natural flow) or "sentences" (each
@@ -276,7 +279,7 @@ def contain_on_blur(src, w, h, out, inset=1.0):
     return out
 
 
-def render_path(src, keys, w, h, fps, frames, out, flashes=()):
+def render_path(src, keys, w, h, fps, frames, out, flashes=(), shakes=(), flicker=0.0, pulses=()):
     """Render a keyframed camera move over a still image with sub-pixel smoothness (needs opencv)."""
     import cv2
     import numpy as np
@@ -302,18 +305,36 @@ def render_path(src, keys, w, h, fps, frames, out, flashes=()):
     proc = subprocess.Popen(["ffmpeg", "-y", "-v", "error", "-f", "rawvideo", "-pix_fmt", "bgr24", "-s", f"{w}x{h}",
                              "-r", str(fps), "-i", "-", "-c:v", "libx264", "-preset", "fast", "-crf", "18",
                              "-pix_fmt", "yuv420p", out], stdin=subprocess.PIPE)
+    rng = np.random.default_rng(1234)
+    white = np.full((h, w, 3), 255, dtype=np.uint8)
+    glow = np.full((h, w, 3), (40, 70, 235), dtype=np.uint8)  # BGR warm amber/red for colour pulses
+    # smoothed per-frame noise for light flicker (lantern/candle)
+    fnoise = np.convolve(rng.standard_normal(frames + 4), np.ones(3) / 3, mode="same")[:frames] if flicker > 0 else None
     for i in range(frames):
-        cx, cy, z, cool = at(i / max(frames - 1, 1))
+        u = i / max(frames - 1, 1)
+        cx, cy, z, cool = at(u)
         vw, vh = base_w / max(z, 1), base_h / max(z, 1)
         x0 = min(max(cx * W - vw / 2, 0), W - vw)
         y0 = min(max(cy * H - vh / 2, 0), H - vh)
+        if shakes:  # camera shake impulse (decays) — jitter the crop window
+            amp = max([np.exp(-(u - t) * frames / 6.0) for t in shakes if u >= t] or [0])
+            if amp > 0.01:
+                j = amp * 0.03 * W
+                x0 = min(max(x0 + rng.uniform(-j, j), 0), W - vw)
+                y0 = min(max(y0 + rng.uniform(-j, j), 0), H - vh)
         sc = w / vw
         m = np.float32([[sc, 0, -x0 * sc], [0, sc, -y0 * sc]])
         frame = cv2.warpAffine(img, m, (w, h), flags=cv2.INTER_CUBIC, borderMode=cv2.BORDER_REFLECT)
-        u = i / max(frames - 1, 1)
         flash = max([np.exp(-(u - f) * frames / 3.0) for f in flashes if u >= f] or [0])
         if flash > 0.02:  # lightning: blow out toward white, decaying over a few frames
-            frame = cv2.addWeighted(frame, 1 - 0.75 * flash, np.full_like(frame, 255), 0.75 * flash, 0)
+            frame = cv2.addWeighted(frame, 1 - 0.75 * flash, white, 0.75 * flash, 0)
+        if pulses:  # colour pulse: warm amber/red glow impulse on a dramatic beat
+            pz = max([np.exp(-(u - t) * frames / 4.0) for t in pulses if u >= t] or [0])
+            if pz > 0.02:
+                frame = cv2.addWeighted(frame, 1 - 0.5 * pz, glow, 0.5 * pz, 0)
+        if flicker > 0:  # light flicker: wobble brightness
+            b = 1.0 + flicker * 0.3 * float(fnoise[i])
+            frame = np.clip(frame.astype(np.float32) * b, 0, 255).astype(np.uint8)
         if cool > 0:  # BGR: lift blue, pull red, slightly desaturate
             f = frame.astype(np.float32)
             gray = f.mean(axis=2, keepdims=True)
@@ -407,7 +428,8 @@ def render_scene(i, scene, base, cfg, tmp, plan=False):
             src = os.path.join(base, sh["media"])
             keys = sh.get("keys") or [{"t": 0, "x": 0.5, "y": 0.5, "zoom": 1}, {"t": 1, "x": 0.5, "y": 0.5, "zoom": 1.08}]
             parts.append(render_path(src, keys, w, h, fps, max(n, 1), os.path.join(tmp, f"shot{i}_{j}.mp4"),
-                                     sh.get("flashes", ())))
+                                     sh.get("flashes", ()), sh.get("shakes", ()),
+                                     sh.get("flicker", scene.get("flicker", 0.0)), sh.get("pulses", ())))
         listing = os.path.join(tmp, f"shots{i}.txt")
         with open(listing, "w") as f:
             f.writelines(f"file '{x}'\n" for x in parts)
@@ -416,7 +438,8 @@ def render_scene(i, scene, base, cfg, tmp, plan=False):
         is_video = True
     if scene.get("keys") and not color and not is_video:
         media = render_path(media, scene["keys"], w, h, fps, frames, os.path.join(tmp, f"path{i}.mp4"),
-                            scene.get("flashes", ()))
+                            scene.get("flashes", ()), scene.get("shakes", ()),
+                            scene.get("flicker", 0.0), scene.get("pulses", ()))
         is_video = True
     zoom = scene.get("zoom", cfg["zoom"])
     if not color and not is_video and scene.get("fit", cfg["fit"]) == "contain":
