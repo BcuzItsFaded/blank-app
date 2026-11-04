@@ -371,7 +371,7 @@ def render_scene(i, scene, base, cfg, tmp, plan=False):
     audio, speech = None, 0.0
     if scene.get("narration"):
         audio = os.path.join(tmp, f"n{i}.wav")
-        timeline = narrate(scene["narration"], cfg["voice"], audio, os.path.join(base, ".tts_cache"), tmp,
+        timeline = narrate(scene["narration"], scene.get("voice", cfg["voice"]), audio, os.path.join(base, ".tts_cache"), tmp,
                             cfg["narration_mode"])
         speech = duration_of(audio)
     dur = scene.get("duration") or ((speech + 0.5) if audio else 4.0)
@@ -415,7 +415,8 @@ def render_scene(i, scene, base, cfg, tmp, plan=False):
         run(["ffmpeg", "-y", "-v", "error", "-f", "concat", "-safe", "0", "-i", listing, "-c", "copy", media])
         is_video = True
     if scene.get("keys") and not color and not is_video:
-        media = render_path(media, scene["keys"], w, h, fps, frames, os.path.join(tmp, f"path{i}.mp4"))
+        media = render_path(media, scene["keys"], w, h, fps, frames, os.path.join(tmp, f"path{i}.mp4"),
+                            scene.get("flashes", ()))
         is_video = True
     zoom = scene.get("zoom", cfg["zoom"])
     if not color and not is_video and scene.get("fit", cfg["fit"]) == "contain":
@@ -550,7 +551,7 @@ def main():
         # Narration first (sequential, network), then render scenes in parallel.
         for i, s in enumerate(sb["scenes"]):
             if s.get("narration"):
-                narrate(s["narration"], cfg["voice"], os.path.join(tmp, f"warm{i}.wav"), os.path.join(base, ".tts_cache"), tmp,
+                narrate(s["narration"], s.get("voice", cfg["voice"]), os.path.join(tmp, f"warm{i}.wav"), os.path.join(base, ".tts_cache"), tmp,
                         cfg["narration_mode"])
         with ThreadPoolExecutor(max_workers=max(1, (os.cpu_count() or 2) // 2)) as pool:
             clips = list(pool.map(lambda args: render_scene(*args, base, cfg, tmp), enumerate(sb["scenes"])))
