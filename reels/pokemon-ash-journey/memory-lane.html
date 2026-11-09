@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Memory Lane Reel</title>
+<link rel="stylesheet" href="../engine/reel.css">
+<style>
+  :root { --accent: #ffd84a; }
+  #flash { background: #fff6c8; }
+  /* silent "memory lane" cards: no box, soft glow, letter-spaced */
+  #caption span { background: none; font-size: 40px; font-weight: 700; letter-spacing: 1px; padding: 0;
+    text-shadow: 0 2px 4px rgba(0,0,0,.85), 0 0 22px rgba(0,0,0,.6); }
+  #caption small { display: block; font-size: 27px; letter-spacing: 6px; color: #ffe14d; margin-bottom: 8px; }
+  #memory { position: absolute; inset: 0; pointer-events: none; z-index: 3;
+    background: radial-gradient(ellipse at 50% 45%, rgba(255,200,120,0) 50%, rgba(60,30,10,.45) 100%),
+                linear-gradient(160deg, rgba(255,170,80,.16) 0%, rgba(255,170,80,0) 35%, rgba(255,120,160,0) 70%, rgba(255,120,160,.12) 100%); }
+  #title .t1 { font-family: "DejaVu Sans", sans-serif; font-weight: 800; font-size: 80px; letter-spacing: 3px; color: #ffe14d;
+    -webkit-text-stroke: 3px #2a4fb0; text-shadow: 0 0 22px rgba(255,220,80,.8), 0 6px 0 #1a3480; }
+  #title .t2 { color: #ffe9a0; }
+  #endlogo span { border-color: #ffd84a; }
+  #brand i, #endlogo i { color: #ffd84a; }
+</style>
+</head>
+<body>
+<div id="ui"><button id="play">Play</button> <input id="scrub" type="range" min="0" max="30" step="0.01" value="0" style="width:260px"> <span id="tc">0.00</span></div>
+<div id="stage">
+  <div id="memory"></div>
+  <div id="title"><div class="t1">ASH &amp;<br>PIKACHU</div><div class="t2">MEMORY LANE · 1997–2023</div></div>
+  <div id="endlogo"><span>Brick <i>Rewind</i></span></div>
+  <div id="caption"></div>
+  <div id="brand">Brick <i>Rewind</i></div>
+  <div id="flash"></div>
+  <div id="fade"></div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/three@0.149.0/build/three.min.js"></script>
+<script src="../engine/engine.js"></script>
+<script src="scenes.js"></script>
+<script>
+"use strict";
+// [story start, story end] shots in order; the cut plays them back to back (30.0 s total)
+const SHOTS = [
+  [1.0, 5.0], [8.2, 12.2], [17.0, 20.4], [22.6, 26.0], [28.0, 31.15], [34.3, 36.0], [39.2, 43.3], [44.4, 46.6], [52.0, 56.05],
+];
+const CUTS = []; { let acc = 0; for (const [a, b] of SHOTS) { CUTS.push([acc, acc + (b - a), a]); acc += b - a; } }
+const timeMap = t => { const c = CUTS.find(c => t < c[1]) || CUTS[CUTS.length - 1]; return c[2] + (t - c[0]); };
+const card = (small, big) => '<small>' + small + '</small>' + big;
+const CARDS = [
+  [0.6, 3.8, card('1997', 'Pallet Town')],
+  [4.4, 7.8, card('DAY ONE', 'The partner who said no')],
+  [8.3, 11.2, card('THE STORM', 'He never let go')],
+  [11.6, 14.6, card('UNDER THE RAINBOW', 'A promise')],
+  [15.0, 17.9, card('25 YEARS', 'Region after region')],
+  [18.1, 19.8, card('2019', 'Alola Champion')],
+  [20.3, 23.9, card('2022', 'World Champion')],
+  [24.1, 25.9, card('OLD FRIENDS', 'Misty &amp; Brock')],
+];
+startReel({
+  duration: 30,
+  timeMap,
+  captions: CARDS,
+  grades: [
+    { tint: [1.0, 1.02, 1.0], sat: 1.2, contrast: 1.12, bloom: 0.25, thr: 1.8, exposure: 0.62 },
+    { tint: [1.0, 1.0, 1.03], sat: 1.15, contrast: 1.12, bloom: 0.3, thr: 1.8, exposure: 0.6 },
+    { tint: [0.9, 0.98, 1.1], sat: 0.9, contrast: 1.12, bloom: 0.9, thr: 1.2, exposure: 0.85 },
+    { tint: [1.06, 1.0, 0.94], sat: 1.2, contrast: 1.1, bloom: 0.6, thr: 1.5, exposure: 0.7 },
+    { tint: [1.0, 1.0, 1.0], sat: 1.2, contrast: 1.12, bloom: 0.4, thr: 1.6, exposure: 0.68 },
+    { tint: [0.96, 0.98, 1.06], sat: 1.15, contrast: 1.12, bloom: 0.7, thr: 1.6, exposure: 0.6 },
+    { tint: [1.06, 1.0, 0.92], sat: 1.18, contrast: 1.1, bloom: 0.4, thr: 1.6, exposure: 0.66 },
+    { tint: [1.06, 0.98, 0.94], sat: 1.2, contrast: 1.1, bloom: 0.6, thr: 1.5, exposure: 0.75 },
+  ],
+  // slightly warmer, softer "memory" look on top of each scene grade
+  gradeAll: { lift: [0.025, 0.015, 0.0] },
+  // soft dip at every shot change (except inside the region montage), darken under the title at the end
+  fade: (t) => {
+    let f = t < 0.5 ? 1 - t / 0.5 : 0;
+    CUTS.slice(1).forEach(([a], i) => { if (i === 4) return; f = Math.max(f, Math.max(0, 1 - Math.abs(t - a) / 0.22) * 0.85); });
+    if (t > 25.9) f = Math.max(f, clamp((t - 25.9) / 0.9, 0, 1) * 0.7);
+    if (t > 29.6) f = Math.max(f, clamp((t - 29.6) / 0.35, 0, 1));
+    return f;
+  },
+  flash: (t, src) => Math.max(t > 7.0 && t < 7.8 ? 0.3 * (1 - (t - 7.0) / 0.8) : 0,
+    src > 19.1 && src < 19.9 ? 0.35 * (1 - (src - 19.1) / 0.8) : 0, src > 40.95 && src < 41.8 ? 0.3 * (1 - (src - 40.95) / 0.85) : 0),
+  shake: (t, src) => (src > 19.1 && src < 20.3 ? 0.1 : 0) + (src > 40.95 && src < 42.4 ? 0.12 : 0),
+  captionTop: () => '64%',
+  title: { in: 26.4, out: 29.95 },
+  endlogo: { in: 27.6, out: 29.95 },
+  brandOut: 26.0,
+});
+</script>
+</body>
+</html>

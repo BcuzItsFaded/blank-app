@@ -478,20 +478,21 @@ const post = (() => {
 const scenes = [];
 function defScene(start, end, build) { const s = { start, end }; Object.assign(s, build()); scenes.push(s); return s; }
 function newScene() { const s = new THREE.Scene(); CUR = s; return s; }
-// cfg: { duration, grades[], captions[[t0,t1,html]], fade(t), flash(t), title:{in,out}, endlogo:{in,out}, brandOut, captionTop(t), shake(t) }
+// cfg: { duration, grades[], captions[[t0,t1,html]], fade(t,src), flash(t,src), title:{in,out}, endlogo:{in,out}, brandOut, captionTop(t), shake(t,src),
+//        timeMap(t) -> story time, for edits/cut-downs that reuse a longer timeline }
 function startReel(cfg) {
   DURATION = cfg.duration || 60;
   scenes.forEach((s, i) => { s.grade = s.grade || (cfg.grades || [])[i] || {}; });
   const $ = id => document.getElementById(id);
   const capEl = $('caption'), fadeEl = $('fade'), flashEl = $('flash'), titleEl = $('title'), endEl = $('endlogo'), brandEl = $('brand');
   let lastCap = null;
-  function overlay(t) {
+  function overlay(t, src) {
     const c = (cfg.captions || []).find(c => t >= c[0] && t < c[1]);
     const html = c ? '<span>' + c[2] + '</span>' : '';
     if (html !== lastCap) { capEl.innerHTML = html; lastCap = html; }
     capEl.style.top = cfg.captionTop ? cfg.captionTop(t) : '66%';
-    fadeEl.style.opacity = cfg.fade ? cfg.fade(t) : 0;
-    flashEl.style.opacity = cfg.flash ? cfg.flash(t) : 0;
+    fadeEl.style.opacity = cfg.fade ? cfg.fade(t, src) : 0;
+    flashEl.style.opacity = cfg.flash ? cfg.flash(t, src) : 0;
     if (titleEl && cfg.title) { const ti = clamp((t - cfg.title.in) / 0.8, 0, 1) * (t < cfg.title.out ? 1 : 0);
       titleEl.style.opacity = ti; titleEl.style.transform = 'scale(' + (0.94 + 0.08 * ease((t - cfg.title.in) / 3.6)) + ')'; }
     if (endEl && cfg.endlogo) endEl.style.opacity = clamp((t - cfg.endlogo.in) / 0.6, 0, 1) * (t < cfg.endlogo.out ? 1 : 0);
@@ -499,15 +500,16 @@ function startReel(cfg) {
   }
   function renderAt(t) {
     t = clamp(t, 0, DURATION - 0.0001);
-    const s = scenes.find(s => t >= s.start && t < s.end) || scenes[scenes.length - 1];
-    const u = (t - s.start) / (s.end - s.start);
+    const src = cfg.timeMap ? cfg.timeMap(t) : t;
+    const s = scenes.find(s => src >= s.start && src < s.end) || scenes[scenes.length - 1];
+    const u = (src - s.start) / (s.end - s.start);
     s.scene.updateMatrixWorld(true);
-    s.update(t, u);
-    (s.scene.userData.ticks || []).forEach(f => f(t, u));
-    const a = cfg.shake ? cfg.shake(t) : 0;
+    s.update(src, u);
+    (s.scene.userData.ticks || []).forEach(f => f(src, u));
+    const a = cfg.shake ? cfg.shake(t, src) : 0;
     if (a) { const R = rng(Math.floor(t * 60)); s.cam.position.x += (R() - 0.5) * a; s.cam.position.y += (R() - 0.5) * a; }
-    post(s.scene, s.cam, s.grade || {}, t);
-    overlay(t);
+    post(s.scene, s.cam, Object.assign({}, s.grade || {}, cfg.gradeAll || {}), t);
+    overlay(t, src);
   }
   window.renderAt = renderAt; window.DURATION = DURATION; window.FPS = FPS;
   scenes.forEach(s => { if (!s.scene.environment) s.scene.environment = envFor(s.scene, s.glint ?? 0.5); s.update(s.start, 0); renderer.compile(s.scene, s.cam); });
