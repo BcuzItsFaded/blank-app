@@ -1,5 +1,5 @@
 """30s Dexter's Laboratory memory-lane soundtrack: original retro spy-jazz + sci-fi lab SFX matched to each card.
-Usage: python3 audio.py out.wav"""
+Usage: python3 audio.py out.wav [full|sfx] [level 0-1]"""
 import sys, os, wave
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'engine'))
 import numpy as np
@@ -47,8 +47,8 @@ def walk(t0, t1, gain=0.34):
 def brush(t0, t1, g=0.12):
     t, i = t0, 0
     while t < t1:
-        FX.put(hit(0.05, 5000, 12000), t, g * 0.5); FX.put(hit(0.05, 5000, 12000), t + B * 0.667, g * 0.35)
-        if i % 2: FX.put(snare(0.14), t, g * 0.7)
+        MUS.put(hit(0.05, 5000, 12000), t, g * 0.5); MUS.put(hit(0.05, 5000, 12000), t + B * 0.667, g * 0.35)
+        if i % 2: MUS.put(snare(0.14), t, g * 0.7)
         t += B; i += 1
 SPY = [('A', 4, 2), ('C', 5, 1), ('E', 5, 1), ('D', 5, 2), ('C', 5, 2), ('B', 4, 2), ('A', 4, 1), ('G#', 4, 1), ('A', 4, 4)]
 def melody(notes, t0, voice, g, step=B / 2):
@@ -109,9 +109,11 @@ FX.put(boom(2.8, 42, 0.7), 26.4, 0.5); FX.put(servo(1.4, 90, 700), 26.2, 0.05)
 for k, f in enumerate([hz('A', 7), hz('E', 7), hz('C', 8)]): FX.put(ding(f, 1.3), 28.0 + k * 0.1, 0.05)
 
 mus = np.stack([reverb(MUS.L, 2.0, 0.3), reverb(MUS.R, 2.0, 0.3)], 1); fx = np.stack([reverb(FX.L, 1.0, 0.15), reverb(FX.R, 1.0, 0.15)], 1)
-out = mus * 0.85 + fx * 1.0
+mode = sys.argv[2] if len(sys.argv) > 2 else 'full'      # 'full' = score + SFX, 'sfx' = quiet SFX only (leave room for your own song)
+level = float(sys.argv[3]) if len(sys.argv) > 3 else 1.0
+out = mus * 0.85 + fx * 1.0 if mode == 'full' else fx
 out[int(29.85 * SR):] = 0; k = int(0.25 * SR); out[:k] *= np.linspace(0, 1, k)[:, None]
-out = np.tanh(out * 1.2); out *= 0.9 / np.abs(out).max()
+out = np.tanh(out * 1.2); out *= 0.9 * level / np.abs(out).max()
 with wave.open(sys.argv[1], 'wb') as o:
     o.setnchannels(2); o.setsampwidth(2); o.setframerate(SR); o.writeframes((out * 32767).astype('<i2').tobytes())
 print('ok')
