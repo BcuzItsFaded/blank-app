@@ -512,7 +512,9 @@ function startReel(cfg) {
     overlay(t, src);
   }
   window.renderAt = renderAt; window.DURATION = DURATION; window.FPS = FPS;
-  scenes.forEach(s => { if (!s.scene.environment) s.scene.environment = envFor(s.scene, s.glint ?? 0.5); s.update(s.start, 0); renderer.compile(s.scene, s.cam); });
+  scenes.forEach(s => { if (!s.scene.environment) s.scene.environment = envFor(s.scene, s.glint ?? 0.5); s.update(s.start, 0);
+    if (cfg.envIntensity != null) s.scene.traverse(o => { if (o.material) [].concat(o.material).forEach(m => { if ('envMapIntensity' in m) m.envMapIntensity = cfg.envIntensity; }); });
+    renderer.compile(s.scene, s.cam); });
   window.READY = true;
   if (location.search.includes('render')) { document.body.classList.add('render'); return; }
   const btn = $('play'), scrub = $('scrub'), tc = $('tc'); scrub.max = DURATION;
