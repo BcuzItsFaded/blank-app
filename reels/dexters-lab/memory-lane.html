@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Dexter's Laboratory Memory Lane</title>
+<link rel="stylesheet" href="../engine/reel.css">
+<style>
+  :root { --accent: #7ee8ff; }
+  #flash { background: #dff8ff; }
+  #caption span { background: none; font-size: 40px; font-weight: 800; letter-spacing: 1px; padding: 0; text-shadow: 0 3px 0 rgba(20,40,90,.9), 0 0 18px rgba(0,0,0,.8); }
+  #caption small { display: block; font-size: 27px; letter-spacing: 6px; color: #7ee8ff; margin-bottom: 8px; }
+  #memory { position: absolute; inset: 0; pointer-events: none; z-index: 3;
+    background: radial-gradient(ellipse at 50% 45%, rgba(120,200,255,0) 52%, rgba(10,10,40,.45) 100%); }
+  #title .t1 { font-family: "DejaVu Sans", sans-serif; font-weight: 800; font-size: 62px; letter-spacing: 2px; color: #eaffff; line-height: 1.08;
+    -webkit-text-stroke: 3px #1a78a8; text-shadow: 0 0 22px rgba(60,200,255,.9), 0 0 50px rgba(60,200,255,.55); }
+  #title .t1 em { font-style: normal; color: #ffb060; -webkit-text-stroke: 3px #a84a14; }
+  #title .t2 { color: #bfefff; }
+  #endlogo span { border-color: #7ee8ff; }
+  #brand i, #endlogo i { color: #7ee8ff; }
+</style>
+</head>
+<body>
+<div id="ui"><button id="play">Play</button> <input id="scrub" type="range" min="0" max="30" step="0.01" value="0" style="width:260px"> <span id="tc">0.00</span></div>
+<div id="stage">
+  <div id="memory"></div>
+  <div id="title"><div class="t1">DEXTER'S<br><em>LABORATORY</em></div><div class="t2">MEMORY LANE · 1996–2003</div></div>
+  <div id="endlogo"><span>RG <i>BrickVerse</i></span></div>
+  <div id="caption"></div>
+  <div id="brand">RG <i>BrickVerse</i></div>
+  <div id="flash"></div>
+  <div id="fade"></div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/three@0.149.0/build/three.min.js"></script>
+<script src="../engine/engine.js"></script>
+<script src="scenes.js"></script>
+<script>
+"use strict";
+const card = (small, big) => '<small>' + small + '</small>' + big;
+const CARDS = [
+  [0.5, 3.9, card('1996', 'Welcome to the lab')],
+  [4.6, 7.8, card('DEXTER', 'Boy genius. Secret lab.')],
+  [8.4, 11.6, card('DEE DEE', "Don't touch that button!")],
+  [12.2, 15.2, card('THE LAB', 'Bigger. Louder. Robots.')],
+  [15.8, 18.8, card('MANDARK', 'The arch-rival')],
+  [19.4, 22.6, card('THE CLASSIC', 'Omelette du fromage')],
+  [23.2, 26.0, card('THE MEMORIES', 'Every invention.<br>Every moment.')],
+];
+const BOUNDS = [4.2, 8.0, 11.8, 15.4, 19.0, 22.8];
+const G = [
+  { tint: [0.96, 0.98, 1.06], sat: 1.15, contrast: 1.1, bloom: 0.8, thr: 1.4, exposure: 0.6 },
+];
+startReel({
+  duration: 30,
+  envIntensity: 0.3,
+  captions: CARDS,
+  grades: [0, 1, 2, 3, 4, 5, 6].map(() => G[0]),
+  gradeAll: { lift: [0.01, 0.0, 0.02] },
+  fade: t => { let f = t < 0.5 ? 1 - t / 0.5 : 0; BOUNDS.forEach(b => { f = Math.max(f, Math.max(0, 1 - Math.abs(t - b) / 0.2) * 0.8); });
+    if (t > 25.6) f = Math.max(f, clamp((t - 25.6) / 1.0, 0, 1) * 0.5); if (t > 29.6) f = Math.max(f, clamp((t - 29.6) / 0.35, 0, 1)); return f; },
+  flash: t => Math.max(t > 9.5 && t < 9.6 ? 0.3 : 0, t > 15.4 && t < 15.7 ? 0.25 * (1 - (t - 15.4) / 0.3) : 0, t > 20.4 && t < 20.7 ? 0.2 * (1 - (t - 20.4) / 0.3) : 0),
+  shake: t => (t > 12.3 && t < 15.2 ? 0.05 * Math.max(0, Math.sin((t - 12.3) * 9)) ** 4 + 0.015 : 0) + (t > 9.5 && t < 11.8 ? 0.03 : 0),
+  captionTop: () => '64%',
+  title: { in: 26.4, out: 29.95 },
+  endlogo: { in: 28.0, out: 29.95 },
+  brandOut: 26.0,
+});
+</script>
+</body>
+</html>
