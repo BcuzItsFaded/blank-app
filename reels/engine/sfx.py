@@ -125,3 +125,42 @@ def roar(dur=2.6, f_hi=210, f_lo=85):
 
 NOTE = {n: 440 * 2 ** ((i - 9) / 12) for i, n in enumerate(['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'])}
 def hz(name, octave=4): return NOTE[name] * 2 ** (octave - 4)
+
+
+# ---- cartoon kit
+def boing(f0=320, dur=0.7):
+    n = int(dur * SR); t = t_axis(n); f = f0 * (1 + 1.2 * np.exp(-t * 4) * np.sin(2 * np.pi * 7 * t))
+    return np.sin(2 * np.pi * np.cumsum(f) / SR) * np.exp(-t * 4.5) * np.minimum(1, t / 0.004)
+
+
+def slide(f0=1800, f1=300, dur=0.8, vib=6):
+    n = int(dur * SR); t = t_axis(n); f = (f0 + (f1 - f0) * (t / dur) ** 0.8) * (1 + 0.015 * np.sin(2 * np.pi * vib * t))
+    return (np.sin(2 * np.pi * np.cumsum(f) / SR) + 0.15 * np.sin(4 * np.pi * np.cumsum(f) / SR)) * np.sin(np.pi * np.minimum(t / dur, 1)) ** 0.5
+
+
+def marimba(f, dur=0.5):
+    n = int(dur * SR); t = t_axis(n)
+    return (np.sin(2 * np.pi * f * t) + 0.35 * np.sin(2 * np.pi * f * 4 * t) * np.exp(-t * 30)) * np.exp(-t * 9) * np.minimum(1, t / 0.002)
+
+
+def crunch(dur=0.35):
+    n = int(dur * SR); t = t_axis(n); g = (np.sin(2 * np.pi * 45 * t) > 0.3).astype(float)
+    return band(noise(n), lo=800, hi=7000) * np.exp(-t * 12) * (0.4 + 0.6 * g)
+
+
+def ding(f=1760, dur=1.0):
+    n = int(dur * SR); t = t_axis(n)
+    return (np.sin(2 * np.pi * f * t) + 0.5 * np.sin(2 * np.pi * f * 2.76 * t)) * np.exp(-t * 5) * np.minimum(1, t / 0.001)
+
+
+def vowel(f0=120, F=(700, 1200), dur=0.4, wob=0.0):
+    """formant-ish cartoon voice"""
+    n = int(dur * SR); t = t_axis(n); f = f0 * (1 + wob * np.sin(2 * np.pi * 6 * t) + 0.25 * np.sin(np.pi * t / dur))
+    saw = 2 * ((np.cumsum(f) / SR) % 1) - 1
+    s = sum(band(saw, lo=max(60, fc - fc * 0.18), hi=fc + fc * 0.18) * g for fc, g in zip(F, (1.0, 0.6, 0.3)))
+    return s / (np.abs(s).max() + 1e-9) * np.sin(np.pi * t / dur) ** 0.5
+
+
+def cartoon_boom(dur=1.6):
+    n = int(dur * SR); t = t_axis(n)
+    return np.tanh(boom(dur, 55, 1.2) * 1.2 + band(noise(n), lo=200, hi=6000) * np.exp(-t * 7) * 0.9)
