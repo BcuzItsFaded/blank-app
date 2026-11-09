@@ -41,33 +41,68 @@ function runLevel(scene, o) {
 }
 const sunnySky = [[0, '#2a8ae8'], [0.6, '#7ac0f4'], [1, '#d8f0ff']];
 
-// ----- 1 (0-5) 1994: jungle run -----
+// ----- 1 (0-5) 1994: mine cart ride through a lantern-lit mine -----
 defScene(0, 5, () => {
-  const scene = newScene(); dayLight(scene, sunnySky); ground(scene, 0x3a7a30, 300).position.y = -1;
-  groundSegs(scene, [[-30, 70]], 0x4aa03a, 0x6a4a28); box(110, 0.04, 3, 0x9a7a44, 20, 0.14, 0, scene);
-  const R = rng(1); for (let i = 0; i < 34; i++) palm(scene, -24 + i * 3.4 + R() * 1.5, -8 - R() * 8, 1 + R() * 0.7, (R() - 0.5) * 0.2);
-  for (let i = 0; i < 20; i++) bush(scene, -24 + i * 4 + R() * 2, -4 - R() * 3, 0.8 + R() * 0.7);
-  for (const x of [8, 19.5, 31]) barrel(scene, x, 0.1, 0.3, x); for (const x of [10.5, 28]) { box(1.6, 1.0, 1.6, 0x6a4a2a, x, 0.6, 0.2, scene); box(1.8, 0.2, 1.8, 0x7a5a38, x, 1.2, 0.2, scene); }
-  const kr = makeKRool(); kr.scale.setScalar(0.9); kr.position.set(36, 0.4, -4); kr.rotation.y = -1.2; scene.add(kr);
-  const run = runLevel(scene, { cast: [makeDK(), makeDiddy()], jumps: [{ x: 7.8, len: 3.4, h: 2.4 }, { x: 13.0, len: 3.0, h: 2.6 }, { x: 19.4, len: 3.4, h: 2.4 }, { x: 25.8, len: 3.0, h: 2.6 }], kremlings: [13.2, 26.0], bananas: [1, 3, 5, 10, 16, 22, 30, 32], gap: 2.6 });
-  return { scene, cam: run.cam, update(t, u) { kr.userData.jaw.position.y = -1.0 - 0.15 * Math.sin(t * 6); run.update(t, u, 0); } };
+  const scene = newScene(); scene.background = new THREE.Color(0x0e0a07); scene.fog = new THREE.Fog(0x140e0a, 20, 70);
+  scene.add(new THREE.HemisphereLight(0x9a7a5a, 0x1a1008, 0.5)); const key = new THREE.DirectionalLight(0xffd8a0, 0.7); key.position.set(10, 20, 20); scene.add(key);
+  const R = rng(7);
+  for (let i = 0; i < 44; i++) box(4 + R() * 3, 8 + R() * 10, 3, [0x3a2a1e, 0x4a3424, 0x2e2218][i % 3], -30 + i * 2.4, 2 + R() * 4, -9 - R() * 3, scene);
+  for (let i = 0; i < 34; i++) box(4, 3 + R() * 4, 12, [0x2e2218, 0x3a2a1e][i % 2], -30 + i * 3.0, 15 + R() * 2, -2, scene);
+  box(150, 2, 24, 0x120c08, 20, -10, 0, scene);
+  const segs = [[-30, 9], [15, 25], [31, 70]];
+  segs.forEach(([a, b]) => { for (const dz of [-0.55, 0.55]) box(b - a, 0.16, 0.16, 0x9a9aa4, (a + b) / 2, 0.2, dz, scene); for (let x = a; x <= b; x += 1.2) box(0.3, 0.14, 1.7, 0x6a4a28, x, 0.06, 0, scene);
+    for (let x = a + 1; x <= b; x += 4) { box(0.4, 9, 0.4, 0x5a3a20, x, -4.6, -0.8, scene); box(0.4, 9, 0.4, 0x5a3a20, x, -4.6, 0.8, scene); box(0.25, 0.25, 2.0, 0x5a3a20, x, -2.5, 0, scene).rotation.x = 0.6; } });
+  for (let x = -28; x < 70; x += 8) { box(0.7, 14, 0.7, 0x6a4a28, x, 6, -4, scene); box(0.7, 0.7, 6, 0x6a4a28, x, 12.6, -1.5, scene); }
+  const lanterns = []; for (let x = -24; x < 70; x += 10) { const g = new THREE.Group(); g.position.set(x, 9.6, -3.4); scene.add(g); box(0.06, 2.4, 0.06, 0x222222, 0, 1.2, 0, g);
+    box(0.7, 0.9, 0.7, new THREE.MeshStandardMaterial({ color: 0xffb040, emissive: 0xff9020, emissiveIntensity: 2.2 }), 0, -0.2, 0, g); box(0.9, 0.16, 0.9, 0x2a2a2a, 0, 0.32, 0, g); lanterns.push(g); }
+  for (let i = 0; i < 4; i++) { const l = new THREE.PointLight(0xffa040, 2.2, 22); l.position.set(-14 + i * 14, 8.5, -1); scene.add(l); }
+  const c = cart(0x8a6a4a); c.scale.setScalar(1.25); scene.add(c); const dk = makeDK(), diddy = makeDiddy(); dk.scale.setScalar(0.5); diddy.scale.setScalar(0.38); c.add(dk, diddy);
+  dk.position.set(-0.45, 1.0, 0); diddy.position.set(0.75, 1.0, 0.1); dk.rotation.y = diddy.rotation.y = Math.PI / 2;
+  const ec = cart(0x5a5a64); ec.scale.setScalar(1.25); scene.add(ec); const krem = makeKremling(); krem.scale.setScalar(0.55); krem.position.y = 1.0; krem.rotation.y = Math.PI / 2; ec.add(krem);
+  const jumps = [{ x: 12, len: 7.5, h: 3.4 }, { x: 22.0, len: 4.0, h: 2.6 }, { x: 28, len: 7.5, h: 3.4 }];
+  const jumpY = x => { let y = 0; for (const j of jumps) { const d = (x - j.x) / (j.len / 2); if (Math.abs(d) < 1) y += j.h * (1 - d * d); } return y; };
+  const items = []; [2, 4, 9, 11, 12, 13, 18, 27, 28, 29, 34].forEach(x => { const b = bananas(0.9); scene.add(b); items.push([b, x, 2.6 + jumpY(x)]); });
+  const sparks = particleField(scene, 9, 60, { x0: -1, x1: 1, y0: 0, y1: 0.8, z0: -0.6, z1: 0.6 }, 0xffc060, 0.16, { vy: 2.5, drift: 0.6, additive: true, opacity: 0.9 });
+  const sparkG = scene.children[scene.children.length - 1];
+  const cam = camera(52);
+  return { scene, cam, update(t, u) {
+    sparks(t); const lt = t, X = X0 + SPEED * lt, y = jumpY(X), air = y > 0.15;
+    c.position.set(X, y + (air ? 0 : Math.abs(Math.sin(t * 15)) * 0.06), 0); c.rotation.z = air ? (jumps.some(j => X < j.x) ? 0.12 : -0.12) * Math.min(1, y) : Math.sin(t * 15) * 0.02;
+    sparkG.position.set(X - 1.2, y, 0); sparkG.visible = !air;
+    [dk, diddy].forEach((f, i) => { const U = f.userData; U.arms.forEach((a, k) => a.rotation.set(air ? -2.8 : -1.2 + Math.sin(t * 9 + k) * 0.2, 0, (k ? -1 : 1) * 0.3)); U.legs.forEach(l => l.rotation.x = -1.3); });
+    const EX = 15.5 + 2.6 * lt, hit = X > EX - 0.2; ec.position.set(EX, Math.abs(Math.sin(t * 14)) * 0.05, 0); krem.scale.y = hit ? 0.12 : 0.55; krem.visible = X < EX + 2.5;
+    items.forEach(([b, x, yy]) => { b.visible = X < x - 0.6; b.position.set(x, yy + Math.sin(t * 3 + x) * 0.15, 0); b.rotation.y = t * 2; });
+    lookFrom(cam, V(X + 2.2, 4.4, 21), V(X + 2.2, 2.2, 0));
+  } };
 });
 
-// ----- 2 (5-10) 1995: pirate galleon deck -----
+// ----- 2 (5-10) 1995: bramble flight on Squawks at dusk -----
+function makeParrot() { const g = new THREE.Group(), G = plastic(0x3ab048), G2 = plastic(0x2a8a38), Y = plastic(0xf2c020);
+  box(1.6, 1.4, 2.4, G, 0, 0, 0, g); box(1.2, 1.1, 0.2, plastic(0xf2e070), 0, -0.1, 1.2, g); const h = new THREE.Group(); h.position.set(0, 1.0, 1.0); g.add(h); box(1.3, 1.2, 1.3, G, 0, 0, 0, h);
+  box(0.6, 0.5, 0.8, Y, 0, -0.15, 0.9, h); box(0.4, 0.3, 0.4, Y, 0, -0.45, 0.85, h); for (const s of [-1, 1]) { box(0.34, 0.36, 0.08, plastic(0xffffff), s * 0.38, 0.2, 0.66, h); box(0.14, 0.18, 0.08, plastic(0x0a0a0a), s * 0.38, 0.2, 0.7, h); }
+  box(0.3, 0.6, 0.3, plastic(0xe8402a), 0, 0.8, -0.1, h); for (let i = 0; i < 3; i++) box(0.4, 0.14, 1.6 - i * 0.3, i % 2 ? G2 : G, (i - 1) * 0.3, -0.3, -1.9, g);
+  const wings = [-1, 1].map(s => { const w = new THREE.Group(); w.position.set(s * 0.8, 0.3, 0); g.add(w); box(2.2, 0.16, 1.4, G, s * 1.1, 0, 0, w); box(1.4, 0.14, 1.0, plastic(0x2a6ad8), s * 2.4, 0, -0.1, w); box(0.9, 0.12, 0.8, plastic(0xe8402a), s * 3.1, 0, -0.1, w); return w; });
+  for (const s of [-1, 1]) box(0.24, 0.6, 0.24, Y, s * 0.4, -0.9, 0.2, g); g.userData = { wings, head: h }; return g; }
+function vine(scene, x, y, z, len, rz, seed) { const g = new THREE.Group(); g.position.set(x, y, z); g.rotation.z = rz; scene.add(g); const R = rng(seed);
+  box(0.7, len, 0.7, [0x3a4a1e, 0x4a3a1e, 0x2e3e18][seed % 3], 0, 0, 0, g); for (let k = -len / 2; k < len / 2; k += 0.55) { const th = box(0.12, 0.55, 0.12, 0x6a4a28, (R() < 0.5 ? -1 : 1) * 0.42, k, (R() - 0.5) * 0.6, g); th.rotation.z = (th.position.x > 0 ? -1 : 1) * 1.1; } return g; }
 defScene(5, 10, () => {
-  const scene = newScene(); dayLight(scene, [[0, '#3a8ae0'], [0.6, '#8ac8f4'], [1, '#fff0d0']], 0xd0e8f4); water(scene, 400, 200, 20, -4, -10);
-  box(110, 1.0, 12, 0x9a6a38, 20, -0.5, 0, scene); for (let x = -30; x < 70; x += 1.8) box(0.08, 0.04, 12, 0x6a4420, x, 0.02, 0, scene); box(110, 1.6, 12.6, 0x6a3e1c, 20, -1.8, 0, scene);
-  box(110, 0.8, 0.3, 0x6a3e1c, 20, 0.8, 5.8, scene); box(110, 0.8, 0.3, 0x6a3e1c, 20, 0.8, -5.8, scene);
-  for (const x of [6, 26]) { const m = new THREE.Mesh(new THREE.CylinderGeometry(0.5, 0.6, 24, 10), plastic(0x5a3a18)); m.position.set(x, 12, -3); scene.add(m);
-    const sail = new THREE.Mesh(new THREE.PlaneGeometry(11, 9, 5, 4), new THREE.MeshStandardMaterial({ color: 0xe8dcc0, side: THREE.DoubleSide, roughness: 0.9 })); sail.position.set(x, 13, -2.4); scene.add(sail); box(12, 0.3, 0.3, 0x4a2a12, x, 18, -3, scene);
-    for (const s of [-1, 1]) { const rp = box(0.06, 22, 0.06, 0x2a2a2a, x + s * 5, 9, -3, scene); rp.rotation.z = s * 0.2; } }
-  const flagM = new THREE.Mesh(new THREE.PlaneGeometry(3.4, 2.5), new THREE.MeshBasicMaterial({ map: flagTex(), side: THREE.DoubleSide })); flagM.position.set(28, 24, -3); scene.add(flagM);
-  for (const x of [14, 30]) { const c = new THREE.Mesh(new THREE.CylinderGeometry(0.6, 0.8, 2.6, 12), plastic(0x2a2a30, { metalness: 0.6, roughness: 0.4 })); c.rotation.z = Math.PI / 2; c.position.set(x, 1.5, -3.5); scene.add(c); box(2.4, 0.3, 1.6, 0x4a2a12, x, 0.4, -3.5, scene); }
-  for (const [x, z] of [[2, -3.5], [9, -2.5], [20, -3.8], [34, -3]]) { barrel(scene, x, 0.1, z, x); box(1.6, 1.6, 1.6, 0x8a5a2c, x + 1.5, 0.8, z, scene); }
-  for (let i = 0; i < 4; i++) { const s = makeKRool(); }
-  const sea = particleField(scene, 3, 140, { x0: -20, x1: 50, y0: -3, y1: 2, z0: 6, z1: 14 }, 0xe8f4ff, 0.2, { vy: 1, drift: 1, opacity: 0.7 }); tick(t => sea(t));
-  const run = runLevel(scene, { cast: [makeDiddy(), makeDixie()], jumps: [{ x: 8.4, len: 3.2, h: 3.0 }, { x: 13.2, len: 3.0, h: 2.6 }, { x: 19.6, len: 3.6, h: 3.4 }, { x: 26.2, len: 3.0, h: 2.6 }, { x: 31.6, len: 3.4, h: 3.0 }], kremlings: [13.4, 26.4], zingers: [[8.8, 4.2], [19.8, 4.6], [31.8, 4.2]], bananas: [2, 4, 6, 10, 16, 22, 23, 24, 29], gap: 3.0 });
-  return { scene, cam: run.cam, update(t, u) { flagM.rotation.y = Math.sin(t * 4) * 0.2; run.update(t, u, 5); } };
+  const scene = newScene(); scene.background = gradientSky([[0, '#140c34'], [0.45, '#5a2e6a'], [0.75, '#d8706a'], [1, '#ffc890']]); scene.fog = new THREE.Fog(0x4a2a5a, 25, 90);
+  scene.add(new THREE.HemisphereLight(0xd8a0c8, 0x1a1a2a, 0.65)); const key = new THREE.DirectionalLight(0xffc0a0, 1.0); key.position.set(-10, 20, 25); scene.add(key);
+  const stars = particleField(scene, 4, 300, { x0: -30, x1: 80, y0: 14, y1: 40, z0: -40, z1: -30 }, 0xffffff, 0.3, { additive: true, opacity: 0.9 }); tick(t => stars(t));
+  let sd = 0; for (let x = -30; x < 70; x += 2.2) { sd++; vine(scene, x, 13.5 + Math.sin(x * 0.4) * 1.5, 0, 9, Math.sin(x) * 0.5, sd); vine(scene, x + 1.1, -2.5 + Math.sin(x * 0.3) * 1.2, 0, 8, Math.cos(x) * 0.5, sd + 1); }
+  for (let x = -30; x < 70; x += 1.6) { sd++; vine(scene, x, 6 + Math.sin(x * 0.7) * 6, -5 - (sd % 3), 14, Math.sin(x * 1.3) * 0.9, sd); }
+  for (const x of [14, 33]) { sd++; vine(scene, x, 11, 0, 5, 0.4, sd); } for (const x of [24, 42]) { sd++; vine(scene, x, 0.6, 0, 5, -0.4, sd); }
+  const parrot = makeParrot(); parrot.rotation.y = Math.PI / 2; parrot.scale.setScalar(1.15); scene.add(parrot); const diddy = makeDiddy(); diddy.scale.setScalar(0.42); diddy.rotation.y = Math.PI / 2; scene.add(diddy);
+  const zs = [[12, 3.0], [20, 8.4], [29, 3.4], [38, 8.0]].map(([x, y]) => { const z = makeZinger(); z.rotation.y = -Math.PI / 2; z.scale.setScalar(0.9); scene.add(z); return [z, x, y]; });
+  const path = x => 5.6 + Math.sin((x + 6) * 0.42) * 2.2; const items = []; [0, 2, 4, 8, 10, 16, 18, 24, 26, 34, 36].forEach(x => { const b = bananas(0.9); scene.add(b); items.push([b, x, path(x) + 0.2]); });
+  const cam = camera(52);
+  return { scene, cam, update(t, u) {
+    const lt = t - 5, X = X0 + SPEED * lt, y = path(X); parrot.position.set(X, y + 1.8, 0); parrot.rotation.z = Math.cos((X + 6) * 0.42) * 0.25; parrot.userData.wings.forEach((w, k) => w.rotation.z = (k ? -1 : 1) * Math.sin(t * 16) * 0.7);
+    diddy.position.set(X + 0.1, y - 0.6, 0); diddy.userData.arms.forEach(a => a.rotation.set(-3.0, 0, 0)); diddy.userData.legs.forEach((l, k) => l.rotation.x = Math.sin(t * 6 + k * 3) * 0.4);
+    zs.forEach(([z, x, yy], i) => { z.position.set(x + Math.sin(t * 1.4 + i) * 0.6, yy + Math.sin(t * 3 + i) * 0.5, 0); z.userData.wings.forEach((w, k) => w.rotation.z = Math.sin(t * 40) * 0.5 * (k ? -1 : 1)); });
+    items.forEach(([b, x, yy]) => { b.visible = X < x - 0.6; b.position.set(x, yy + Math.sin(t * 3 + x) * 0.15, 0); b.rotation.y = t * 2; });
+    lookFrom(cam, V(X + 2.0, 6.4, 24), V(X + 2.0, 5.6, 0));
+  } };
 });
 
 // ----- 3 (10-15) 1996: lakeside boardwalk -----
@@ -83,21 +118,22 @@ defScene(10, 15, () => {
   return { scene, cam: run.cam, update(t, u) { run.update(t, u, 10); } };
 });
 
-// ----- 4 (15-20) 2010: volcano ruins with lava gaps -----
+// ----- 4 (15-20) 2010: sunset silhouette shore -----
+const sunsetTex = (() => { const c = document.createElement('canvas'); c.width = 512; c.height = 1024; const x = c.getContext('2d');
+  const g = x.createLinearGradient(0, 0, 0, 1024); g.addColorStop(0, '#6a1a2a'); g.addColorStop(0.3, '#e8501e'); g.addColorStop(0.55, '#ff9a2a'); g.addColorStop(0.72, '#ffd060'); g.addColorStop(1, '#ffb040'); x.fillStyle = g; x.fillRect(0, 0, 512, 1024);
+  const sg = x.createRadialGradient(256, 420, 30, 256, 420, 260); sg.addColorStop(0, 'rgba(255,250,220,1)'); sg.addColorStop(0.42, 'rgba(255,240,170,1)'); sg.addColorStop(0.47, 'rgba(255,200,90,.6)'); sg.addColorStop(1, 'rgba(255,170,60,0)'); x.fillStyle = sg; x.fillRect(0, 100, 512, 700);
+  x.fillStyle = 'rgba(140,40,30,.55)'; for (const [yy, h] of [[330, 10], [370, 6], [470, 8], [510, 5]]) x.fillRect(0, yy, 512, h);
+  const t = new THREE.CanvasTexture(c); t.encoding = THREE.sRGBEncoding; return t; })();
 defScene(15, 20, () => {
-  const scene = newScene(); scene.background = gradientSky([[0, '#4a3a8a'], [0.4, '#e8705a'], [0.75, '#ffb060'], [1, '#ffe0a0']]); scene.fog = new THREE.Fog(0xf0a070, 60, 260);
-  scene.add(new THREE.HemisphereLight(0xffd8b0, 0x6a5040, 0.8)); sun(scene, 0xffa860, 2.2, V(30, 24, 40), V(0, 0, 0), 60); ground(scene, 0x3a2a24, 300).position.y = -4;
-  const segs = [[-30, 14], [18.2, 30], [34.2, 70]]; groundSegs(scene, segs, 0x6a5a48, 0x4a3a30, 0, 10);
-  const lm = new THREE.MeshStandardMaterial({ color: 0xff5010, emissive: 0xff5010, emissiveIntensity: 2.0 }); [[14, 18.2], [30, 34.2]].forEach(([a, b]) => { const l = box(b - a, 0.4, 10, lm, (a + b) / 2, -1.6, 0, scene); });
-  const lava = new THREE.PointLight(0xff6a20, 3, 40); lava.position.set(16, 0.5, 4); scene.add(lava); const lava2 = lava.clone(); lava2.position.set(32, 0.5, 4); scene.add(lava2);
-  const volc = new THREE.Mesh(new THREE.CylinderGeometry(6, 40, 50, 20), plastic(0x3a2a24, { roughness: 1 })); volc.position.set(28, 22, -50); scene.add(volc); const crater = new THREE.Mesh(new THREE.CylinderGeometry(6.4, 6, 2.4, 20), lm); crater.position.set(28, 47.6, -50); scene.add(crater);
-  for (let i = 0; i < 5; i++) { const l = box(1.6, 22, 1.6, lm, 28 + Math.sin(i * 1.7) * 4, 36, -43 + i * 0.3, scene); l.rotation.z = 0.15 * Math.sin(i * 3); }
-  const sm = smokeField(scene, 12, 24, { x0: 24, x1: 32, z0: -52, z1: -48, y0: 48, y1: 52 }, 0x3a3030, { size: 18, rise: 3, opacity: 0.55, life: 8 }); const emb = particleField(scene, 13, 280, { x0: -10, x1: 50, y0: 0, y1: 30, z0: -20, z1: 6 }, 0xff9040, 0.4, { vy: 3, drift: 2, additive: true, opacity: 0.9 }); tick(t => { sm(t); emb(t); });
-  function tiki(x, z, s) { const g = new THREE.Group(); g.position.set(x, 0, z); g.scale.setScalar(s); scene.add(g); [0x7a3a1a, 0x9a4a22, 0x6a3014].forEach((c, i) => { box(2, 2.2, 2, c, 0, 1.1 + i * 2.2, 0, g); for (const sx of [-0.4, 0.4]) box(0.6, 0.4, 0.1, plastic(0xffd840, { emissive: 0xffa020, emissiveIntensity: 1.2 }), sx, 1.4 + i * 2.2, 1.05, g); box(1.0, 0.3, 0.1, 0x2a1008, 0, 0.7 + i * 2.2, 1.05, g); }); box(2.6, 0.6, 2.6, 0xd83a2a, 0, 7.0, 0, g); }
-  tiki(6, -3, 1.2); tiki(22, -4, 1.4); tiki(40, -3, 1.2); for (let i = 0; i < 14; i++) { const r = box(2.4, 1.2 + (i % 3) * 0.5, 2, 0x5a4a3a, -26 + i * 6, 0.6, -6 - (i % 3) * 2, scene); r.rotation.y = i; }
-  for (const x of [10, 26, 44]) palm(scene, x, -7, 1.2, 0.1);
-  const run = runLevel(scene, { cast: [makeDK(), makeDiddy()], jumps: [{ x: 16.1, len: 6.2, h: 3.4 }, { x: 32.1, len: 6.2, h: 3.4 }, { x: 5.5, len: 3.0, h: 2.0 }, { x: 25, len: 2.8, h: 2.0 }], kremlings: [], bananas: [2, 4, 9, 15, 16, 17, 22, 31, 32, 33, 38], gap: 2.6 });
-  return { scene, cam: run.cam, update(t, u) { run.update(t, u, 15); } };
+  const scene = newScene(); scene.background = sunsetTex;
+  const segs = [[-30, 12], [17, 30], [35, 70]]; groundSegs(scene, segs, 0, 0, 0, 10); box(160, 1, 30, 0, 20, -6, -8, scene);
+  for (let i = 0; i < 18; i++) palm(scene, -26 + i * 5.6, -3 - (i % 3) * 2, 1 + (i % 2) * 0.4, (i % 2 ? -1 : 1) * 0.18);
+  for (let i = 0; i < 9; i++) box(3 + (i % 3), 1.4 + (i % 2), 2, 0, -22 + i * 10, 0.6, -1.5, scene);
+  for (const x of [-20, 6, 40]) { const h = box(30, 6 + (x % 3), 20, 0, x, -1, -30, scene); h.rotation.z = 0.08; }
+  const crabs = [5, 24, 41].map(x => { const g = new THREE.Group(); box(1.4, 0.7, 1.0, 0, 0, 0.6, 0, g); for (const s of [-1, 1]) { box(0.5, 0.4, 0.4, 0, s * 1.0, 1.0, 0.2, g); box(0.1, 0.4, 0.1, 0, s * 0.3, 1.1, 0.2, g); } scene.add(g); return [g, x]; });
+  const run = runLevel(scene, { cast: [makeDK(), makeDiddy()], jumps: [{ x: 14.5, len: 7, h: 3.6 }, { x: 32.5, len: 7, h: 3.6 }, { x: 5, len: 3.0, h: 2.2 }, { x: 24, len: 3.0, h: 2.2 }], kremlings: [], bananas: [1, 3, 9, 13, 14, 15, 20, 31, 32, 33, 38], gap: 2.6, camZ: 26, camY: 2.2, lookY: 7.5 });
+  const black = new THREE.MeshBasicMaterial({ color: 0x080404 }); scene.traverse(o => { if (o.isMesh) o.material = black; });
+  return { scene, cam: run.cam, update(t, u) { run.update(t, u, 15); crabs.forEach(([g, x], i) => { g.position.set(x + Math.sin(t * 2 + i) * 0.8, 0.0, 0); }); } };
 });
 
 // ----- 5 (20-25) 2014: frozen peaks with icy gaps -----

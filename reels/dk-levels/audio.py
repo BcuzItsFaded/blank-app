@@ -31,26 +31,33 @@ def jumps(ls, xs, g=0.09):
 def bananas_(ls, xs):
     for x in xs: banana(when(ls, x) - 0.1)
 
-# 1 (0-5) jungle: birds, insects, steps, hops over barrels, two Kremling stomps
-for s in np.arange(0.3, 4.8, 0.5): FX.put(chirp(2800 + rs.random() * 900, 1800, 0.12), s + rs.random() * 0.3, 0.035, rs.random() * 1.6 - 0.8)
-run_steps(0.2, 5.0); wind(0, 5, 0.02); jumps(0, [7.8, 19.4], 0.08); stomp(when(0, 13.2) + 0.1); stomp(when(0, 26.0) + 0.1); jump(when(0, 13.0) - 0.2); land(when(0, 13.0) + 0.1, 0.1); jump(when(0, 25.8) - 0.2)
-bananas_(0, [1, 3, 5, 10, 16, 22, 30, 32]); FX.put(vowel(180, (700, 1150), 0.7, 0.25), 4.2, 0.05, 0.6)
-# 2 (5-10) galleon: sea, creak, wasp buzz, cannon, steps on planks
-waves(5, 5, 0.1); n = int(5 * SR); tt = t_axis(n); FX.put(band(noise(n), lo=80, hi=300) * (0.6 + 0.4 * np.sin(2 * np.pi * tt / 2.4)) * 0.4, 5, 0.04)
-run_steps(5.2, 10.0, 0.08, 400, 3000)
-for x in (8.8, 19.8, 31.8): t0 = when(5, x); n = int(1.4 * SR); tt = t_axis(n); FX.put(np.sin(2 * np.pi * (220 + 20 * np.sin(2 * np.pi * 30 * tt)) * tt) * 0.4 * np.sin(np.pi * tt / 1.4), t0 - 0.7, 0.05, 0.4)   # Zinger buzz
-jumps(5, [8.4, 13.2, 19.6, 26.2, 31.6]); stomp(when(5, 13.4) + 0.1); stomp(when(5, 26.4) + 0.1); FX.put(boom(1.4, 60, 1.2), 7.4, 0.3); FX.put(chirp(3200, 2500, 0.3), 6.2, 0.035, -0.6)
-bananas_(5, [2, 4, 6, 10, 16, 22, 23, 24, 29])
+# 1 (0-5) mine cart: rail clatter, wheel squeal, cave drips, gap jumps with landing clank, cart stomp
+def clack(t0, t1, every, g):
+    for s_ in np.arange(t0, t1, every): FX.put(hit(0.04, 1500, 6000), s_, g, rs.random() * 0.4 - 0.2); FX.put(hit(0.04, 1500, 6000), s_ + every * 0.5, g * 0.7, rs.random() * 0.4 - 0.2)
+air = [(when(0, 12) - 0.47, when(0, 12) + 0.47), (when(0, 28) - 0.47, when(0, 28) + 0.47)]
+for a_, b_ in [(0.1, air[0][0]), (air[0][1], air[1][0]), (air[1][1], 5.0)]: clack(a_, b_, 0.16, 0.07)
+n = int(5 * SR); tt = t_axis(n); FX.put(band(noise(n), lo=600, hi=3500) * (0.6 + 0.4 * np.sin(2 * np.pi * 14 * tt)) * 0.5, 0, 0.04)
+FX.put(band(noise(n), hi=150) * 0.6, 0, 0.06)
+for s_ in (0.6, 1.7, 3.3, 4.4): FX.put(ding(2600 + rs.random() * 600, 0.4), s_, 0.025, rs.random() - 0.5)
+for a_, b_ in air: jump(a_ - 0.05, 0.09); FX.put(slide(1700, 900, 0.5), b_ - 0.1, 0.04); FX.put(boom(0.5, 60, 0.8), b_, 0.22); FX.put(hit(0.12, 800, 5000), b_, 0.12)
+stomp(when(0, 22.0) + 0.25); jump(when(0, 22.0) - 0.25, 0.07)
+bananas_(0, [2, 4, 9, 11, 12, 13, 18, 27, 28, 29, 34])
+# 2 (5-10) bramble flight: dusk wind, parrot wing flaps, sparkle, Zinger buzzes, bananas
+wind(5, 5, 0.04)
+for s_ in np.arange(5.1, 10.0, 0.39): n = int(0.12 * SR); FX.put(band(noise(n), lo=300, hi=2500) * np.sin(np.pi * t_axis(n) / 0.12), s_, 0.06)
+for k, s_ in enumerate(np.arange(5.3, 9.8, 0.55)): FX.put(ding(hz(['E', 'G', 'B', 'D'][k % 4], 6 + (k % 2)), 1.0), s_, 0.02, (k % 5 - 2) * 0.3)
+for x in (12, 20, 29, 38): t0 = when(5, x); n = int(1.2 * SR); tt = t_axis(n); FX.put(np.sin(2 * np.pi * (220 + 20 * np.sin(2 * np.pi * 30 * tt)) * tt) * 0.4 * np.sin(np.pi * tt / 1.2), t0 - 0.6, 0.06, 0.4)
+FX.put(vowel(520, (900, 2200), 0.3, 0.3), 6.0, 0.05); FX.put(vowel(560, (900, 2200), 0.25, 0.3), 8.4, 0.05)
+bananas_(5, [0, 2, 4, 8, 10, 16, 18, 24, 26, 34, 36])
 # 3 (10-15) boardwalk: planks, water lap, factory clank, barrel hops
 waves(10, 5, 0.09); run_steps(10.2, 15.0, 0.08, 600, 3500)
 for s in np.arange(10.5, 15, 0.8): FX.put(hit(0.1, 300, 1800), s, 0.025, 0.5)                                                              # factory clank
 jumps(10, [6, 11, 17, 24, 28]); bananas_(10, [1, 3, 8, 9, 14, 20, 21, 22, 31, 33]); FX.put(chirp(3000, 2300, 0.3), 12.0, 0.035, -0.6)
-# 4 (15-20) volcano: rumble, lava bubbling, jumps across lava gaps with a flare whoosh
-n = int(5 * SR); tt = t_axis(n); FX.put(band(noise(n), hi=120) * (0.7 + 0.3 * np.sin(2 * np.pi * 2 * tt)) * 0.9, 15, 0.16)
-FX.put(band(noise(n), lo=300, hi=1500) * (0.5 + 0.5 * np.sin(2 * np.pi * 9 * tt)) * 0.4, 15, 0.025)
-run_steps(15.2, 20.0, 0.08, 150, 1800); jumps(15, [16.1, 32.1, 5.5, 25], 0.1); whoosh(when(15, 16.1) - 0.3, 0.6, 0.1); whoosh(when(15, 32.1) - 0.3, 0.6, 0.1)
-for s in (15.8, 17.4, 19.0): FX.put(boom(1.6, 38, 1.2), s, 0.14)
-bananas_(15, [2, 4, 9, 15, 16, 17, 22, 31, 32, 33, 38])
+# 4 (15-20) sunset shore: surf, gulls, soft steps in sand, gap leaps, crab clicks
+waves(15, 5, 0.12); run_steps(15.2, 20.0, 0.06, 150, 1500); jumps(15, [14.5, 32.5, 5, 24], 0.09)
+for s_ in (15.6, 17.2, 18.9): FX.put(chirp(3000, 2300, 0.35), s_, 0.04, rs.random() - 0.5)
+for x in (5, 24, 41): t0 = when(15, x); [FX.put(hit(0.03, 2500, 7000), t0 - 0.3 + k * 0.08, 0.04) for k in range(4)]
+bananas_(15, [1, 3, 9, 13, 14, 15, 20, 31, 32, 33, 38])
 # 5 (20-25) ice: wind, crunchy steps, crevasse leaps, walrus bellow, penguin squeaks
 wind(20, 5, 0.06); run_steps(20.2, 25.0, 0.07, 800, 5000); jumps(20, [14.2, 30.2, 5, 22.6], 0.1)
 for k, s in enumerate(np.arange(20.4, 24.8, 0.45)): FX.put(ding(hz(['E', 'G#', 'B', 'D#'][k % 4], 7), 0.9), s, 0.025, (k % 5 - 2) * 0.3)
