@@ -1,0 +1,113 @@
+<template>
+  <style>
+    #root { position: absolute; inset: 0; overflow: hidden; background: #0b0f14; }
+    #s8-bar { position: absolute; left: 0; top: 0; width: 1920px; height: 140px; background: #0b0f14; }
+    #s8-rule { position: absolute; left: 0; top: 140px; width: 1920px; height: 5px; background: #c8262b; }
+    #s8-tag { position: absolute; left: 80px; top: 38px; height: 66px; display: flex; align-items: center; gap: 22px; white-space: nowrap; }
+    #s8-chip { font-family: "Oswald", sans-serif; font-weight: 700; font-size: 46px; line-height: 1; color: #fff; background: #c8262b; padding: 8px 16px 10px; }
+    #s8-ttl { font-family: "Oswald", sans-serif; font-weight: 600; font-size: 46px; line-height: 1; color: #fff; }
+    #s8-brand { position: absolute; right: 80px; top: 30px; text-align: right; white-space: nowrap; }
+    #s8-brand .b1 { font-family: "Archivo Black", sans-serif; font-size: 46px; line-height: 1; color: #fff; letter-spacing: 2px; }
+    #s8-brand .b2 { font-family: "Oswald", sans-serif; font-weight: 600; font-size: 28px; line-height: 1.3; color: #f6c744; }
+    #s8-v { position: absolute; left: 0; top: 145px; width: 1920px; height: 716px; overflow: hidden; background: #0b0f14; }
+    #s8-sh, #s8-p, #s8-k { position: absolute; inset: 0; }
+    #s8-img { position: absolute; left: 0; top: 0; width: 1920px; height: 716px; object-fit: cover; }
+    #s8-lamp { position: absolute; left: 1210px; top: 185px; width: 160px; height: 160px; border-radius: 50%; background: #ffd27a; mix-blend-mode: screen; opacity: 0; }
+    #s8-spk { position: absolute; left: 860px; top: 470px; width: 90px; height: 80px; opacity: 0; }
+    #s8-dial { position: absolute; left: 1800px; top: 600px; width: 120px; height: 100px; background: #ffb347; mix-blend-mode: screen; opacity: 0; border-radius: 12px; }
+    #s8-scan { position: absolute; left: 700px; top: 0; width: 10px; height: 716px; background: #b8f3ff; opacity: 0; }
+    #s8-win { position: absolute; left: 1150px; top: 0; width: 770px; height: 400px; background: #dfe9ff; mix-blend-mode: screen; opacity: 0; }
+    #s8-bolt { position: absolute; inset: 0; background: #e8efff; mix-blend-mode: screen; opacity: 0; }
+    #s8-pill { position: absolute; left: 40px; top: 28px; padding: 6px 16px 8px; border: 2px solid #f6c744; background: rgba(11,15,20,0.82); font-family: "Oswald", sans-serif; font-weight: 600; font-size: 28px; color: #f6c744; letter-spacing: 1px; white-space: nowrap; opacity: 0; }
+    #s8-cap { position: absolute; left: 0; top: 861px; width: 1920px; height: 219px; }
+    #s8-cap .chunk { position: absolute; left: 110px; width: 1700px; top: 34px; text-align: center; font-family: "Oswald", sans-serif; font-weight: 600; font-size: 64px; line-height: 1.14; color: #fff; opacity: 0; }
+    #s8-cap .w { display: inline-block; margin: 0 0.12em; opacity: 0.28; }
+    #s8-cap .hl { color: #f6c744; }
+    #s8-flash { position: absolute; inset: 0; background: #f4f6ff; opacity: 0; }
+    #s8-dip { position: absolute; inset: 0; background: #0b0f14; opacity: 0; }
+  </style>
+  <div id="root" data-composition-id="s8" data-width="1920" data-height="1080" data-layout-allow-overflow data-layout-allow-overlap>
+    <div id="s8-v">
+      <div id="s8-sh"><div id="s8-p"><div id="s8-k">
+        <img id="s8-img" src="assets/panels/p8.png" alt="" />
+        <div id="s8-lamp"></div>
+        <svg id="s8-spk" viewBox="0 0 90 80"><path d="M45 40 L10 10 M45 40 L80 6 M45 40 L84 60 M45 40 L6 70 M45 40 L46 2" stroke="#ffe27a" stroke-width="7" stroke-linecap="round"/><circle cx="45" cy="40" r="10" fill="#fff6c8"/></svg>
+        <div id="s8-dial"></div>
+        <div id="s8-scan"></div>
+        <div id="s8-win"></div>
+      </div></div></div>
+      <div id="s8-bolt"></div>
+      <div id="s8-pill"></div>
+    </div>
+    <div id="s8-bar">
+      <div id="s8-tag"><div id="s8-chip">SCENE 8.</div><div id="s8-ttl">THE QUESTION</div></div>
+      <div id="s8-brand"><div class="b1">FROM</div><div class="b2">SEASON 1: THE BIG THEORY</div></div>
+    </div>
+    <div id="s8-rule"></div>
+    <div id="s8-cap">
+      <div class="chunk" id="s8-c0"><span class="w">But</span><span class="w">if</span><span class="w">someone</span><span class="w hl">is</span><span class="w">observing</span><span class="w hl">the</span><span class="w">town,</span></div>
+      <div class="chunk" id="s8-c1"><span class="w hl">the</span><span class="w">radio</span><span class="w">warning</span><span class="w">means</span><span class="w">they</span><span class="w">can</span><span class="w">see</span><span class="w">what</span></div>
+      <div class="chunk" id="s8-c2"><span class="w hl">the</span><span class="w">residents</span><span class="w hl">do.</span></div>
+      <div class="chunk" id="s8-c3"><span class="w hl">Who</span><span class="w hl">do</span><span class="w hl">you</span><span class="w hl">think</span><span class="w hl">is</span><span class="w hl">on</span><span class="w hl">the</span><span class="w hl">other</span><span class="w hl">end?</span></div>
+    </div>
+    <div id="s8-flash"></div>
+    <div id="s8-dip"></div>
+  </div>
+  <script>
+    (function () {
+      var C = {"n": 8, "D": 10.78, "enter": "whip", "fx": ["window"], "cam": [1.04, 1.22, 0, -200, 0, 10], "chunks": [{"i": 0, "t0": 0.17, "t1": 2.519, "words": [0.25, 0.462, 0.621, 1.045, 1.203, 1.733, 1.945]}, {"i": 1, "t0": 2.519, "t1": 4.876, "words": [2.599, 2.824, 3.16, 3.609, 3.946, 4.227, 4.451, 4.676]}, {"i": 2, "t0": 4.876, "t1": 6.513, "words": [4.956, 5.181, 5.742]}, {"i": 3, "t0": 6.513, "t1": 10.58, "words": [6.593, 6.774, 6.911, 7.092, 7.365, 7.501, 7.637, 7.819, 8.092]}]}, P = "#s8-", D = C.D, cam = C.cam, fx = C.fx;
+      var tl = gsap.timeline({ paused: true });
+      var has = function (f) { return fx.indexOf(f) >= 0; };
+
+      // one continuous camera move over the panel
+      tl.fromTo(P + "k", { scale: cam[0], x: cam[2], y: cam[4] }, { scale: cam[1], x: cam[3], y: cam[5], duration: D, ease: "sine.inOut" }, 0);
+
+      // entrance
+      if (C.enter === "flash") tl.fromTo(P + "flash", { opacity: 0.95 }, { opacity: 0, duration: 0.4, ease: "power2.out" }, 0);
+      if (C.enter === "dip") tl.fromTo(P + "dip", { opacity: 1 }, { opacity: 0, duration: 0.4, ease: "power2.out" }, 0);
+      if (C.enter === "whip") tl.fromTo(P + "p", { x: 1600 }, { x: 0, duration: 0.32, ease: "power3.out" }, 0);
+      if (C.enter === "glitch") {
+        [[-60, 0], [44, 0.05], [-26, 0.1], [70, 0.14], [-12, 0.19], [0, 0.24]].forEach(function (g) { tl.set(P + "p", { x: g[0] }, g[1]); });
+        tl.fromTo(P + "dip", { opacity: 0.7 }, { opacity: 0, duration: 0.24, ease: "steps(4)" }, 0);
+      }
+
+      // story effects
+      var pill = document.querySelector(P + "pill");
+      if (C.n === 1) pill.textContent = "FAN THEORY · NOT CONFIRMED";
+      if (has("canon")) pill.textContent = "IMAGINED THEORY · NOT CANON";
+      if (pill.textContent) tl.fromTo(P + "pill", { opacity: 0, x: -20 }, { opacity: 1, x: 0, duration: 0.3, ease: "power3.out" }, 0.4);
+      if (has("vortex")) [0.9, 1.02, 3.1].forEach(function (t) { tl.fromTo(P + "bolt", { opacity: 0.5 }, { opacity: 0, duration: 0.18, ease: "power2.out", immediateRender: false }, t); });
+      if (has("lamp")) [0, 0.3, 0.38, 1.1, 1.2, 1.9, 2.6, 2.66, 3.4].forEach(function (t, k) { tl.set(P + "lamp", { opacity: [0.55, 0.1, 0.5, 0.15, 0.55, 0.45, 0.05, 0.5, 0.55][k] }, t); });
+      if (has("sparks")) [0.7, 1.5, 1.62, 2.8, 3.9, 4.0].forEach(function (t) {
+        tl.fromTo(P + "spk", { opacity: 1, scale: 0.6 }, { opacity: 0, scale: 1.2, duration: 0.16, ease: "power2.out", immediateRender: false }, t);
+      });
+      if (has("radio")) {
+        [0, 0.5, 0.56, 1.4, 1.46, 2.3, 3.1, 3.16, 4.0].forEach(function (t, k) { tl.set(P + "dial", { opacity: [0.5, 0.15, 0.55, 0.2, 0.5, 0.45, 0.1, 0.5, 0.45][k] }, t); });
+        [[1.5, 18], [1.56, -14], [1.62, 8], [1.68, 0]].forEach(function (g) { tl.set(P + "sh", { x: g[1] }, g[0]); });
+      }
+      if (has("scan")) {
+        tl.set(P + "scan", { opacity: 0.55 }, 0.5);
+        tl.fromTo(P + "scan", { x: 0 }, { x: 1200, duration: 1.8, ease: "none" }, 0.5);
+        tl.fromTo(P + "scan", { x: 0 }, { x: 1200, duration: 1.8, ease: "none", immediateRender: false }, 2.6);
+        tl.set(P + "scan", { opacity: 0 }, 4.4);
+      }
+      if (has("lightning")) [0.25, 0.33, 2.3, 2.38, 2.5, 6.2, 6.28].forEach(function (t, k) {
+        tl.fromTo(P + "bolt", { opacity: [0.8, 0.5, 0.85, 0.4, 0.7, 0.8, 0.5][k] }, { opacity: 0, duration: 0.12, immediateRender: false }, t);
+        if (k === 2 || k === 5) [[t, 16, -10], [t + 0.04, -12, 8], [t + 0.08, 8, -4], [t + 0.12, 0, 0]].forEach(function (s) { tl.set(P + "sh", { x: s[1], y: s[2] }, s[0]); });
+      });
+      if (has("window")) [1.2, 1.28, 4.6, 4.68].forEach(function (t, k) { tl.fromTo(P + "win", { opacity: [0.45, 0.3, 0.5, 0.3][k] }, { opacity: 0, duration: 0.14, immediateRender: false }, t); });
+
+      // type: scene tag lands, captions light up word by word with the voice
+      tl.fromTo(P + "chip", { opacity: 0, x: -24 }, { opacity: 1, x: 0, duration: 0.28, ease: "power3.out" }, 0.05);
+      tl.fromTo(P + "ttl", { opacity: 0, clipPath: "inset(0% 100% 0% 0%)" }, { opacity: 1, clipPath: "inset(0% 0% 0% 0%)", duration: 0.4, ease: "power3.out" }, 0.12);
+      C.chunks.forEach(function (c) {
+        var el = document.getElementById("s8-c" + c.i);
+        var ws = el.querySelectorAll(".w");
+        tl.fromTo(el, { opacity: 0, y: 14 }, { opacity: 1, y: 0, duration: 0.16, ease: "power3.out" }, Math.max(0, c.t0));
+        c.words.forEach(function (t, k) { tl.fromTo(ws[k], { opacity: 0.28, scale: 1 }, { opacity: 1, scale: 1.06, duration: 0.08, ease: "power2.out", yoyo: false }, t); tl.to(ws[k], { scale: 1, duration: 0.12 }, t + 0.08); });
+        tl.to(el, { opacity: 0, duration: 0.12, ease: "power2.in" }, c.t1);
+      });
+      window.__timelines["s8"] = tl;
+    })();
+  </script>
+</template>
