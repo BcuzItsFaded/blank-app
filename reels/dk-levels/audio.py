@@ -60,6 +60,7 @@ for x in (5, 24, 41): t0 = when(15, x); [FX.put(hit(0.03, 2500, 7000), t0 - 0.3 
 bananas_(15, [1, 3, 9, 13, 14, 15, 20, 31, 32, 33, 38])
 # 5 (20-25) ice: wind, crunchy steps, crevasse leaps, walrus bellow, penguin squeaks
 wind(20, 5, 0.06); run_steps(20.2, 25.0, 0.07, 800, 5000); jumps(20, [14.2, 30.2, 5, 22.6], 0.1)
+stomp(when(20, 22.4) + 0.2); FX.put(vowel(70, (400, 800), 0.5, 0.2), when(20, 22.4) + 0.25, 0.12); FX.put(ding(660, 0.6), when(20, 22.4) + 0.3, 0.06)
 for k, s in enumerate(np.arange(20.4, 24.8, 0.45)): FX.put(ding(hz(['E', 'G#', 'B', 'D#'][k % 4], 7), 0.9), s, 0.025, (k % 5 - 2) * 0.3)
 for s in (21.5, 22.8, 24.0): FX.put(chirp(2200 + rs.random() * 500, 1100, 0.15), s, 0.05, rs.random() - 0.5)
 for s in (22.0, 24.0): FX.put(vowel(75, (400, 800), 0.8, 0.12), s, 0.15)

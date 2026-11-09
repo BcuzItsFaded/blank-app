@@ -46,7 +46,7 @@ const CARDS = [
 const BOUNDS = [5, 10, 15, 20, 25];
 const G = { tint: [1.02, 1.0, 0.96], sat: 1.15, contrast: 1.08, bloom: 0.5, thr: 1.4, exposure: 0.72 };
 startReel({
-  duration: 30, envIntensity: 0.3, captions: CARDS, grades: [0, 1, 2, 3, 4, 5].map(() => G), gradeAll: { lift: [0.012, 0.006, 0.0] },
+  duration: 30, envIntensity: 0.3, captions: CARDS, grades: [0, 1, 2, 3, 4, 5].map(i => i === 4 ? Object.assign({}, G, { exposure: 0.62, contrast: 1.12 }) : G), gradeAll: { lift: [0.012, 0.006, 0.0] },
   fade: t => { let f = t < 0.5 ? 1 - t / 0.5 : 0; BOUNDS.forEach(b => { f = Math.max(f, Math.max(0, 1 - Math.abs(t - b) / 0.18) * 0.8); });
     if (t > 26.2) f = Math.max(f, clamp((t - 26.2) / 1.0, 0, 1) * 0.45); if (t > 29.6) f = Math.max(f, clamp((t - 29.6) / 0.35, 0, 1)); return f; },
   flash: t => (t > 25.1 && t < 25.4 ? 0.25 * (1 - (t - 25.1) / 0.3) : 0),

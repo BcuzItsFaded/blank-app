@@ -127,30 +127,36 @@ const sunsetTex = (() => { const c = document.createElement('canvas'); c.width =
 defScene(15, 20, () => {
   const scene = newScene(); scene.background = sunsetTex;
   const segs = [[-30, 12], [17, 30], [35, 70]]; groundSegs(scene, segs, 0, 0, 0, 10); box(160, 1, 30, 0, 20, -6, -8, scene);
-  for (let i = 0; i < 18; i++) palm(scene, -26 + i * 5.6, -3 - (i % 3) * 2, 1 + (i % 2) * 0.4, (i % 2 ? -1 : 1) * 0.18);
+  for (let i = 0; i < 9; i++) palm(scene, -26 + i * 11, -24 - (i % 2) * 4, 1.1 + (i % 2) * 0.3, (i % 2 ? -1 : 1) * 0.2); box(160, 1, 20, 0, 20, -4.5, 0, scene); box(160, 9, 1, 0, 20, -4.0, -6, scene);
   for (let i = 0; i < 9; i++) box(3 + (i % 3), 1.4 + (i % 2), 2, 0, -22 + i * 10, 0.6, -1.5, scene);
   for (const x of [-20, 6, 40]) { const h = box(30, 6 + (x % 3), 20, 0, x, -1, -30, scene); h.rotation.z = 0.08; }
   const crabs = [5, 24, 41].map(x => { const g = new THREE.Group(); box(1.4, 0.7, 1.0, 0, 0, 0.6, 0, g); for (const s of [-1, 1]) { box(0.5, 0.4, 0.4, 0, s * 1.0, 1.0, 0.2, g); box(0.1, 0.4, 0.1, 0, s * 0.3, 1.1, 0.2, g); } scene.add(g); return [g, x]; });
-  const run = runLevel(scene, { cast: [makeDK(), makeDiddy()], jumps: [{ x: 14.5, len: 7, h: 3.6 }, { x: 32.5, len: 7, h: 3.6 }, { x: 5, len: 3.0, h: 2.2 }, { x: 24, len: 3.0, h: 2.2 }], kremlings: [], bananas: [1, 3, 9, 13, 14, 15, 20, 31, 32, 33, 38], gap: 2.6, camZ: 26, camY: 2.2, lookY: 7.5 });
+  const run = runLevel(scene, { cast: [makeDK(), makeDiddy()], jumps: [{ x: 14.5, len: 7, h: 3.6 }, { x: 32.5, len: 7, h: 3.6 }, { x: 5, len: 3.0, h: 2.2 }, { x: 24, len: 3.0, h: 2.2 }], kremlings: [], bananas: [1, 3, 9, 13, 14, 15, 20, 31, 32, 33, 38], gap: 2.8, camZ: 22, camY: 4.0, lookY: 4.3 });
   const black = new THREE.MeshBasicMaterial({ color: 0x080404 }); scene.traverse(o => { if (o.isMesh) o.material = black; });
   return { scene, cam: run.cam, update(t, u) { run.update(t, u, 15); crabs.forEach(([g, x], i) => { g.position.set(x + Math.sin(t * 2 + i) * 0.8, 0.0, 0); }); } };
 });
 
+function makePenguin() { const g = new THREE.Group(), K = plastic(0x15151c), W = plastic(0xf4f4f8), O = plastic(0xf08a1a);
+  box(1.2, 1.5, 1.0, K, 0, 1.0, 0, g); box(0.85, 1.15, 0.12, W, 0, 0.95, 0.5, g); const h = box(0.95, 0.8, 0.9, K, 0, 2.1, 0.05, g);
+  for (const sd of [-1, 1]) { box(0.28, 0.3, 0.06, W, sd * 0.22, 2.2, 0.5, g); box(0.12, 0.16, 0.06, K, sd * 0.22, 2.2, 0.53, g); const w = box(0.18, 1.0, 0.6, K, sd * 0.68, 1.1, 0, g); w.rotation.z = sd * 0.3; box(0.42, 0.14, 0.6, O, sd * 0.28, 0.08, 0.2, g); }
+  box(0.36, 0.22, 0.44, O, 0, 2.0, 0.64, g); box(1.0, 0.24, 0.2, plastic(0x2a6ad8), 0, 1.65, 0.5, g); return g; }
 // ----- 5 (20-25) 2014: frozen peaks with icy gaps -----
 defScene(20, 25, () => {
-  const scene = newScene(); scene.background = gradientSky([[0, '#8ac4f0'], [0.5, '#d4ecfc'], [1, '#ffffff']]); scene.fog = new THREE.Fog(0xe0f2fc, 50, 220);
-  scene.add(new THREE.HemisphereLight(0xe8f4ff, 0x9ab8d0, 0.45)); sun(scene, 0xfff4e0, 1.5, V(-20, 50, 30), V(0, 0, 0), 50); ground(scene, 0x2a6aa8, 300).position.y = -4;
-  groundSegs(scene, [[-30, 12], [16.4, 28], [32.4, 70]], 0xf4f8fc, 0xa8dcf4, 0, 10);
-  const R = rng(5); const ice = plastic(0xa8dcf4, { roughness: 0.1, emissive: 0x4a98c8, emissiveIntensity: 0.25 });
-  for (let i = 0; i < 30; i++) { const h = 2 + R() * 6, b = box(1.5 + R() * 2, h, 1.5 + R() * 2, ice, -24 + i * 3.4 + R() * 2, h / 2 - 0.2, -5 - R() * 10, scene); b.rotation.y = R(); }
-  for (let i = 0; i < 8; i++) { const m = box(36, 24 + i * 3, 26, 0xd0e8f8, -40 + i * 20, 12, -60, scene); m.rotation.y = 0.78; }
+  const scene = newScene(); scene.background = gradientSky([[0, '#3a7ac8'], [0.55, '#8ac0ec'], [1, '#d8eefc']]); scene.fog = new THREE.Fog(0xb8daf4, 70, 260);
+  scene.add(new THREE.HemisphereLight(0xd8ecff, 0x6a8ab0, 0.4)); sun(scene, 0xfff0d8, 1.6, V(-20, 40, 40), V(0, 0, 0), 50); ground(scene, 0x1a5a98, 300).position.y = -4;
+  groundSegs(scene, [[-30, 12], [16.4, 28], [32.4, 70]], 0xdfeaf4, 0x7ab8e0, 0, 10);
+  const R = rng(5); const ice = plastic(0x8ac8ec, { roughness: 0.15, emissive: 0x2a6898, emissiveIntensity: 0.15 });
+  for (let i = 0; i < 30; i++) { const h = 2 + R() * 6, b = box(1.5 + R() * 2, h, 1.5 + R() * 2, ice, -24 + i * 3.4 + R() * 2, h / 2 - 0.2, -9 - R() * 10, scene); b.rotation.y = R(); }
+  for (let i = 0; i < 8; i++) { const m = box(36, 24 + i * 3, 26, 0xb8d4ec, -40 + i * 20, 12, -60, scene); m.rotation.y = 0.78; }
   for (let i = 0; i < 20; i++) { const p = new THREE.Group(); p.position.set(-24 + i * 3.5, 0, -8 - R() * 8); scene.add(p); box(0.5, 1.2, 0.5, 0x5a3a22, 0, 0.6, 0, p); for (let k = 0; k < 4; k++) { box(2.8 - k * 0.6, 0.9, 2.8 - k * 0.6, 0x1f6a44, 0, 1.4 + k * 0.85, 0, p); box(2.6 - k * 0.6, 0.2, 2.6 - k * 0.6, 0xf8fcff, 0, 1.86 + k * 0.85, 0, p); } p.scale.setScalar(1.4 + R()); }
   const water_ = new THREE.MeshStandardMaterial({ color: 0x2a8ad8, roughness: 0.1, emissive: 0x1a5aa0, emissiveIntensity: 0.5 }); [[12, 16.4], [28, 32.4]].forEach(([a, b]) => box(b - a, 0.3, 10, water_, (a + b) / 2, -1.4, 0, scene));
-  const wal = [makeWalrus(), makeWalrus()]; wal.forEach((w, i) => { w.scale.setScalar(0.9); w.rotation.y = -Math.PI / 2; w.position.set(i ? 36 : 22, 0, 0); scene.add(w); });
-  const pens = []; for (let i = 0; i < 5; i++) { const p = makePenguin(); p.position.set(4 + i * 7, 0, -3 - (i % 2) * 2); p.scale.setScalar(1.3); scene.add(p); pens.push(p); }
+  const wal = [makeWalrus(), makeWalrus()]; wal.forEach((w, i) => { w.scale.setScalar(i ? 1.0 : 0.8); w.rotation.y = -Math.PI / 2; scene.add(w); });
+  const pens = []; for (let i = 0; i < 4; i++) { const p = makePenguin(); p.position.set(2 + i * 9, 0, -3.5 - (i % 2) * 1.5); p.scale.setScalar(1.1); p.rotation.y = -0.4; scene.add(p); pens.push(p); }
   const snow = particleField(scene, 17, 900, { x0: -10, x1: 50, y0: 0, y1: 22, z0: -12, z1: 12 }, 0xffffff, 0.2, { vy: -2, drift: 2, vx: 1.5, opacity: 0.95 }); tick(t => snow(t));
-  const run = runLevel(scene, { cast: [makeDK(), makeDiddy(), makeDixie()], jumps: [{ x: 14.2, len: 6.0, h: 3.4 }, { x: 30.2, len: 6.0, h: 3.4 }, { x: 5, len: 3.0, h: 2.0 }, { x: 22.6, len: 3.2, h: 2.4 }], kremlings: [], bananas: [2, 3, 8, 13, 14, 15, 20, 29, 30, 31, 36], gap: 2.8 });
-  return { scene, cam: run.cam, update(t, u) { const X = run.update(t, u, 20); wal.forEach((w, i) => { w.position.x = (i ? 36 : 22) - Math.max(0, t - 20) * 1.2; w.position.y = Math.abs(Math.sin(t * 5 + i)) * 0.25; }); pens.forEach((p, i) => { p.rotation.z = Math.sin(t * 8 + i) * 0.15; }); } };
+  const run = runLevel(scene, { cast: [makeDK(), makeDiddy(), makeDixie()], jumps: [{ x: 14.2, len: 6.0, h: 3.4 }, { x: 30.2, len: 6.0, h: 3.4 }, { x: 5, len: 3.0, h: 2.0 }, { x: 22.4, len: 3.4, h: 3.0 }], kremlings: [], bananas: [2, 3, 8, 13, 14, 15, 20, 29, 30, 31, 36], gap: 2.8, camZ: 22, camY: 5.0, lookY: 3.6 });
+  return { scene, cam: run.cam, update(t, u) { const X = run.update(t, u, 20); const lt = t - 20, wx = 27.0 - 1.2 * lt, hit = X > wx + 0.3; wal[0].position.set(wx, hit ? 0 : Math.abs(Math.sin(t * 5)) * 0.25, 0); wal[0].scale.y = hit ? Math.max(0.12, 0.8 - (X - wx - 0.3) * 4) : 0.8; wal[0].visible = X < wx + 2.0;
+    wal[1].position.set(40.5, Math.abs(Math.sin(t * 3)) * 0.2, 0); wal[1].rotation.z = Math.sin(t * 6) * 0.06;
+    pens.forEach((p, i) => { p.rotation.z = Math.sin(t * 8 + i) * 0.12; p.position.y = Math.abs(Math.sin(t * 6 + i)) * 0.2; }); } };
 });
 
 // ----- 6 (25-30) the whole crew + K-O-N-G, then the title -----
