@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Donkey Kong Country Memory Lane</title>
+<link rel="stylesheet" href="../engine/reel.css">
+<style>
+  :root { --accent: #ffd84a; }
+  #flash { background: #fff4c8; }
+  #caption span { background: none; font-size: 40px; font-weight: 800; letter-spacing: 1px; padding: 0; text-shadow: 0 3px 0 rgba(90,30,10,.95), 0 0 16px rgba(0,0,0,.7); }
+  #caption small { display: block; font-size: 28px; letter-spacing: 6px; color: #ffd84a; margin-bottom: 8px; }
+  #memory { position: absolute; inset: 0; pointer-events: none; z-index: 3; background: radial-gradient(ellipse at 50% 45%, rgba(255,200,120,0) 55%, rgba(50,25,5,.38) 100%); }
+  #title .t1 { font-family: "DejaVu Sans", sans-serif; font-weight: 800; font-size: 68px; letter-spacing: 2px; color: #ffd84a; line-height: 1.04;
+    -webkit-text-stroke: 3px #b82a14; text-shadow: 0 6px 0 #6a1408, 0 0 24px rgba(255,160,40,.7); }
+  #title .t1 em { font-style: normal; color: #7ae05a; -webkit-text-stroke: 3px #1a6a1a; text-shadow: 0 6px 0 #0a3a0a, 0 0 24px rgba(120,255,90,.55); }
+  #title .t2 { color: #ffe9a0; }
+  #endlogo span { border-color: #ffd84a; }
+  #brand i, #endlogo i { color: #ffd84a; }
+</style>
+</head>
+<body>
+<div id="ui"><button id="play">Play</button> <input id="scrub" type="range" min="0" max="30" step="0.01" value="0" style="width:260px"> <span id="tc">0.00</span></div>
+<div id="stage">
+  <div id="memory"></div>
+  <div id="title"><div class="t1">DONKEY KONG<br><em>COUNTRY</em></div><div class="t2">THE COMPLETE SAGA · 1994–2014</div></div>
+  <div id="endlogo"><span>RG <i>BrickVerse</i></span></div>
+  <div id="caption"></div>
+  <div id="brand">RG <i>BrickVerse</i></div>
+  <div id="flash"></div>
+  <div id="fade"></div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/three@0.149.0/build/three.min.js"></script>
+<script src="../engine/engine.js"></script>
+<script src="scenes.js"></script>
+<script>
+"use strict";
+const card = (small, big) => '<small>' + small + '</small>' + big;
+const CARDS = [
+  [0.5, 3.9, card('1994', 'Donkey Kong Country')],
+  [4.7, 8.1, card('1995', "Diddy's Kong Quest")],
+  [8.9, 12.3, card('1996', "Dixie Kong's Double Trouble")],
+  [13.1, 16.5, card('2010', 'Returns')],
+  [17.3, 20.7, card('2014', 'Tropical Freeze')],
+  [21.6, 25.6, card('THE COMPLETE SAGA', 'Five jungles. One legend.')],
+];
+const BOUNDS = [4.2, 8.4, 12.6, 16.8, 21.0];
+const G = { tint: [1.02, 1.0, 0.96], sat: 1.15, contrast: 1.08, bloom: 0.5, thr: 1.4, exposure: 0.72 };
+startReel({
+  duration: 30,
+  envIntensity: 0.3,
+  captions: CARDS,
+  grades: [0, 1, 2, 3, 4, 5].map(() => G),
+  gradeAll: { lift: [0.012, 0.006, 0.0] },
+  fade: t => { let f = t < 0.5 ? 1 - t / 0.5 : 0; BOUNDS.forEach(b => { f = Math.max(f, Math.max(0, 1 - Math.abs(t - b) / 0.18) * 0.8); });
+    if (t > 26.0) f = Math.max(f, clamp((t - 26.0) / 1.0, 0, 1) * 0.45); if (t > 29.6) f = Math.max(f, clamp((t - 29.6) / 0.35, 0, 1)); return f; },
+  flash: t => Math.max(t > 21.7 && t < 22.0 ? 0.25 * (1 - (t - 21.7) / 0.3) : 0),
+  shake: t => (t > 0 && t < 4.2 ? 0.03 : 0) + (t > 13.3 && t < 16.8 ? 0.02 * (Math.sin((t - 13.3) * 11) > 0.6 ? 1 : 0) : 0),
+  captionTop: () => '64%',
+  title: { in: 26.4, out: 29.95 },
+  endlogo: { in: 28.0, out: 29.95 },
+  brandOut: 26.2,
+});
+</script>
+</body>
+</html>
