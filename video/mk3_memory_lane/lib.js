@@ -76,6 +76,10 @@ function pose(name, ph = 0) {
     case 'kick': p.rt = 1.4; p.rk = -0.05; p.lt = -0.05; p.lk = 0; p.la = -0.9; p.le = 0.9; p.ra = 1.1; p.re = 1.8; p.lean = -0.15; break;
     case 'uppercut': p.ra = 2.7; p.re = 0.1; p.la = 0.8; p.le = 2.0; p.lean = 0.15; p.lt = -0.5; p.lk = 0.3; p.rt = 0.5; p.rk = -0.3; break;
     case 'hit': p.lean = -0.4; p.ht = -0.35; p.la = -1.4; p.le = 0.4; p.ra = 0.2; p.re = 0.8; p.lt = 0.3; p.lk = -0.4; p.rt = -0.3; p.rk = 0.0; break;
+    case 'fireball': p.lean = 0.18; p.la = 1.5; p.le = 0.15; p.ra = 1.55; p.re = 0.1; p.lt = -0.45; p.lk = 0.3; p.rt = 0.5; p.rk = -0.3; break;
+    case 'pedal': { const s3 = Math.sin(ph * 3); p.la = 0.6; p.le = 1.5; p.ra = -0.3; p.re = 1.3; p.lean = 0.0; p.lt = 0.6 + 0.9 * s3; p.rt = 0.6 - 0.9 * s3; p.lk = -0.8; p.rk = -0.8; break; }
+    case 'flykick': p.rt = 1.5; p.rk = -0.05; p.lt = 0.5; p.lk = -1.2; p.la = -0.9; p.le = 0.6; p.ra = 1.0; p.re = 1.5; p.lean = -0.2; break;
+    case 'slide': p.lt = 1.35; p.lk = -0.05; p.rt = 1.05; p.rk = -0.15; p.la = -0.5; p.le = 0.5; p.ra = 0.9; p.re = 1.0; p.lean = -0.25; break;
     case 'block': p.la = 1.7; p.le = 2.4; p.ra = 1.8; p.re = 2.3; p.lean = 0.05; p.lt = -0.2; p.rt = 0.2; break;
   }
   return p;
@@ -133,7 +137,7 @@ function stick(o) {
   if (o.qmark) txt('?', hx + hr * 0.5 * f, hy - hr * 2.4, hr * 1.6, o.qc || CREAM, { a: o.qmark });
   X.restore();
   if (o.label) label(o.label, o.x + (o.lx || 0), o.y - h * 1.05 + (o.ly || 0), o.la ?? 1, o.lc || col);
-  return { hx: o.x + hx, hy: o.y + yoff + hy };
+  { const ca = Math.cos(o.rot || 0), sa = Math.sin(o.rot || 0), lx = hx, ly = yoff + hy; return { hx: o.x + lx * ca - ly * sa, hy: o.y + lx * sa + ly * ca, rot: o.rot || 0 }; }
 }
 
 const EXP = { cower: 'fear', run: 'fear', headdown: 'sad', stomach: 'pain', cross: 'angry', push: 'angry', talk: 'talk', preach: 'talk', armsup: 'shout', fall: 'fear', point: 'firm', lever: 'shout', paint: 'calm', gun: 'firm', reach: 'calm' };
@@ -646,7 +650,7 @@ function jamesT(x, y, h, o = {}) { const f = o.f ?? -1, r = stick(Object.assign(
 const NIN = { yel: '#f2c230', blu: '#3a7fd8', red: '#d8322a', grn: '#3aa860', pur: '#8a4ad8', cya: '#3ac8d8', ora: '#f08a2a', gry: '#9aa0a8', wht: '#f2f2f2' };
 function ninja(x, y, h, col, o = {}) {
   const f = o.f ?? 1; const r = stick(Object.assign({ x, y, h, f, col: CREAM, shirt: col, pants: o.dark || '#232330', ex: 'angry', lw: h * 0.028 }, o)); const hr = 0.1 * h;
-  X.save(); X.translate(r.hx, r.hy); X.beginPath(); X.arc(0, 0, hr * 1.04, 0.05 * PI, 0.95 * PI); X.closePath(); inkFill(col, 4);
+  X.save(); X.translate(r.hx, r.hy); X.rotate(r.rot || 0); X.beginPath(); X.arc(0, 0, hr * 1.04, 0.05 * PI, 0.95 * PI); X.closePath(); inkFill(col, 4);
   X.strokeStyle = o.band || '#f4f4f4'; X.lineCap = 'round'; X.lineWidth = hr * 0.3; X.beginPath(); X.moveTo(-hr * 1.0, -hr * 0.62); X.lineTo(hr * 1.0, -hr * 0.62); X.stroke();
   X.lineWidth = hr * 0.22; X.beginPath(); X.moveTo(-hr * f * 1.0, -hr * 0.62); X.lineTo(-hr * f * 2.0, -hr * 0.3 + Math.sin((o.ph || 0) * 3) * hr * 0.25); X.stroke(); X.restore(); return r;
 }
@@ -686,7 +690,7 @@ function rainbow(x, y, r, a = 1) { X.save(); X.globalAlpha *= a; X.lineWidth = 2
 // ===== v2: closer-to-the-game look =====
 function liuKang(x, y, h, o = {}) {
   const f = o.f ?? 1, r = stick(Object.assign({ x, y, h, f, col: CREAM, pants: '#14141a', ex: 'angry', lw: h * 0.028 }, o)), hr = 0.1 * h;
-  X.save(); X.translate(r.hx, r.hy); X.beginPath(); X.arc(0, -hr * 0.12, hr * 1.06, PI * 1.02, PI * 1.98); X.closePath(); inkFill('#15101a', 4);
+  X.save(); X.translate(r.hx, r.hy); X.rotate(r.rot || 0); X.beginPath(); X.arc(0, -hr * 0.12, hr * 1.06, PI * 1.02, PI * 1.98); X.closePath(); inkFill('#15101a', 4);
   X.strokeStyle = '#e02b2b'; X.lineCap = 'round'; X.lineWidth = hr * 0.3; X.beginPath(); X.moveTo(-hr * 1.02, -hr * 0.45); X.lineTo(hr * 1.02, -hr * 0.45); X.stroke();
   X.lineWidth = hr * 0.22; X.beginPath(); X.moveTo(-hr * f * 1.0, -hr * 0.45); X.lineTo(-hr * f * 2.1, -hr * 0.1 + Math.sin((o.ph || 0) * 3) * hr * 0.25); X.stroke(); X.restore(); return r;
 }

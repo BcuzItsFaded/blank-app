@@ -39,13 +39,14 @@ function lightning(t, seed, x0, y0, x1, y1, c = '#fff') { const n = 9; const pts
 function speech(x, y, s, a = 1, size = 44) { if (a <= 0) return; X.save(); X.globalAlpha *= a; X.font = `900 ${size}px Inter`; const w = X.measureText(s).width + 60, h = size + 50; X.beginPath(); X.roundRect(x - w / 2, y - h / 2, w, h, 28); X.fillStyle = '#fff'; X.fill(); X.strokeStyle = INK; X.lineWidth = 6; X.stroke(); X.beginPath(); X.moveTo(x - 24, y + h / 2 - 3); X.lineTo(x - 56, y + h / 2 + 42); X.lineTo(x + 12, y + h / 2 - 3); X.closePath(); X.fillStyle = '#fff'; X.fill(); X.stroke(); X.beginPath(); X.moveTo(x - 20, y + h / 2 - 3); X.lineTo(x + 8, y + h / 2 - 3); X.strokeStyle = '#fff'; X.lineWidth = 8; X.stroke(); txt(s, x, y + 3, size, INK, { w: 900 }); X.restore(); }
 function star4(x, y, r, a = 1, rot = 0) { X.save(); X.translate(x, y); X.rotate(rot); X.globalAlpha *= a; X.globalCompositeOperation = 'lighter'; glow(0, 0, r * 2.2, 'rgba(255,255,255,0.9)'); X.beginPath(); for (let i = 0; i < 8; i++) { const rr = i % 2 ? r * 0.22 : r; const ang = i * PI / 4; X.lineTo(Math.cos(ang) * rr, Math.sin(ang) * rr); } X.closePath(); X.fillStyle = '#fff'; X.fill(); X.restore(); }
 
+function moveTag(t, x, y, col, a) { txt(t, x, y, 56, col, { w: 900, ls: 3, stroke: INK, sw: 14, a }); }
 function ninjaHead(cx, cy, r, col, a = 1) { X.save(); X.translate(cx, cy); X.globalAlpha *= a; circ(0, 0, r, '#14141c', CREAM, r * 0.1); X.beginPath(); X.arc(0, 0, r * 1.0, 0.05 * PI, 0.95 * PI); X.closePath(); X.fillStyle = col; X.fill(); X.strokeStyle = INK; X.lineWidth = r * 0.06; X.stroke(); X.strokeStyle = '#f4f4f4'; X.lineWidth = r * 0.28; X.beginPath(); X.moveTo(-r, -r * 0.6); X.lineTo(r, -r * 0.6); X.stroke(); circ(-r * 0.32, -r * 0.1, r * 0.1, '#fff'); circ(r * 0.32, -r * 0.1, r * 0.1, '#fff'); X.strokeStyle = '#fff'; X.lineWidth = r * 0.07; X.beginPath(); X.moveTo(-r * 0.55, -r * 0.3); X.lineTo(-r * 0.12, -r * 0.2); X.moveTo(r * 0.55, -r * 0.3); X.lineTo(r * 0.12, -r * 0.2); X.stroke(); X.restore(); }
 const G = 1350, KO = [NIN.yel, NIN.blu, NIN.red, NIN.grn, NIN.pur, NIN.cya, NIN.ora, NIN.gry, NIN.wht];
 const SHOTS = [
  // 0 title
  (lt, d) => { streetBG(lt); const a = prog(lt, 0.2, 0.8);
-   liuKang(200, G, 440, { pose: 'stance', f: 1, ph: lt }); subZero(880, G, 440, { pose: 'stance', f: -1, ph: lt });
-   const u = prog(lt, 0.5, 1.5); if (u > 0 && u < 1) { fireOrb(lerp(330, 520, u), 1060, 34, lt, 1); iceOrb(lerp(750, 560, u), 1060, 34, lt, -1); } else if (u >= 1) { burstFx(540, 1060, prog(lt, 1.5, 2.4), 0.6); }
+   const thr = lt > 0.45 ? 'fireball' : 'stance'; liuKang(200, G, 440, { pose: thr, f: 1, ph: lt }); subZero(880, G, 440, { pose: thr, f: -1, ph: lt });
+   const u = prog(lt, 0.55, 1.5); if (u > 0 && u < 1) { fireOrb(lerp(370, 530, u), 1010, 34, lt, 1); iceOrb(lerp(710, 550, u), 1010, 34, lt, -1); } else if (u >= 1) { burstFx(540, 1010, prog(lt, 1.5, 2.4), 0.6); }
    const k = 1 + 0.3 * (1 - eo(prog(lt, 0.2, 0.8)));
    X.save(); X.translate(540, 370); X.scale(k, k); txt('MORTAL', 0, 0, 125, '#ffcf40', { w: 900, ls: 6, stroke: INK, sw: 30, glow: 'rgba(255,60,40,0.9)', gb: 40, a }); txt('KOMBAT', 0, 120, 125, '#ffcf40', { w: 900, ls: 6, stroke: INK, sw: 30, glow: 'rgba(255,60,40,0.9)', gb: 40, a }); X.restore();
    const k3 = 1 + 0.5 * (1 - eo(prog(lt, 0.9, 1.4))); X.save(); X.translate(540, 700); X.scale(k3, k3); txt('3', 0, 0, 250, '#ff4a3a', { w: 900, stroke: INK, sw: 40, glow: 'rgba(255,90,60,0.9)', gb: 50, a: prog(lt, 0.9, 1.2) }); X.restore();
@@ -70,30 +71,39 @@ const SHOTS = [
    for (const [idx, col, tag] of [[s1[i1], '#ffd24a', 'P1'], [s2[i2], '#4a9aff', 'P2']]) { const cx = cxs[idx % 3] + (tag === 'P2' ? 6 : -6), cy = cys[Math.floor(idx / 3)]; X.save(); X.shadowColor = col; X.shadowBlur = 24; X.strokeStyle = col; X.lineWidth = lock ? 14 : 10; X.strokeRect(cx - 150, cy - 150, 300, 300); X.restore(); txt(tag, cx + (tag === 'P2' ? 100 : -100), cy - 118, 36, col, { w: 900, stroke: INK, sw: 10 }); }
    X.setTransform(1, 0, 0, 1, 0, 0); txt('CHOOSE YOUR FIGHTER', 540, 430, 58, '#ffd24a', { w: 900, ls: 5, stroke: INK, sw: 14, a: 1 - prog(lt, 1.2, 1.5) }); txt('EVERYONE HAD A MAIN', 540, 430, 58, '#fff', { w: 900, ls: 4, stroke: INK, sw: 14, a: prog(lt, 1.5, 1.8) });
    return { tint: '#a070ff', tintA: 0.1, flash: (prog(lt, 2.0, 2.05) - prog(lt, 2.05, 2.35)) * 0.5 }; },
- // 3 run button
- (lt, d) => { streetBG(lt); const run = prog(lt, 1.0, 2.4), ax = lerp(-160, 400, eo(run)), bx = lerp(1240, 680, eo(run)), clash = lt > 2.4;
-   shadow(ax, G, 120, 0.5); shadow(bx, G, 120, 0.5);
-   if (run > 0 && run < 1) for (let i = 0; i < 10; i++) { X.save(); X.globalAlpha = 0.35 * (1 - i / 10); line([ax - 80 - i * 34, 1060 + i * 26, ax - 240 - i * 34, 1060 + i * 26], '#fff', 5); line([bx + 80 + i * 34, 1060 + i * 26, bx + 240 + i * 34, 1060 + i * 26], '#fff', 5); X.restore(); }
-   liuKang(ax, G, 440, { pose: clash ? 'punch' : 'run', ph: lt * 11, f: 1 }); subZero(bx, G, 440, { pose: clash ? 'block' : 'run', ph: lt * 11 + 1, f: -1 });
-   if (clash) { burstFx(540, 1120, prog(lt, 2.4, 3.2)); sparks(540, 1120, lt, 22, '#fff4c0', 2); }
+ // 3 run button -> slide vs flying kick
+ (lt, d) => { streetBG(lt); const run = prog(lt, 1.0, 2.0), sl = prog(lt, 2.0, 2.5), fk = prog(lt, 2.1, 2.55), hitT = 2.55;
+   const ax0 = lerp(-160, 300, eo(run)), bx0 = lerp(1240, 800, eo(run));
+   const ax = lerp(ax0, 560, eo(fk)), ay = G - 330 * Math.sin(fk * PI * 0.95) * (fk < 1 ? 1 : 0), after = lt > hitT;
+   const bx = lt < 2.0 ? bx0 : lt < hitT ? lerp(800, 560, eo(sl)) : 560 + 130 * eo(prog(lt, hitT, hitT + 0.4));
+   shadow(Math.min(ax, 700), G, 120, fk > 0 && fk < 1 ? 0.25 : 0.5); shadow(bx, G, 120, 0.5);
+   if (run > 0 && run < 1) for (let i = 0; i < 10; i++) { X.save(); X.globalAlpha = 0.35 * (1 - i / 10); line([ax0 - 80 - i * 34, 1060 + i * 26, ax0 - 240 - i * 34, 1060 + i * 26], '#fff', 5); line([bx0 + 80 + i * 34, 1060 + i * 26, bx0 + 240 + i * 34, 1060 + i * 26], '#fff', 5); X.restore(); }
+   if (lt > 2.0 && lt < hitT + 0.2) { X.save(); for (let i = 0; i < 14; i++) { const q = (lt * 2 + i / 14) % 1; X.globalAlpha = 0.8 * (1 - q); circ(bx + 120 + q * 160 + R(i) * 40, G - 20 - R(i + 4) * 50, 6 + R(i + 2) * 10, '#cfeeff'); } X.restore(); }
+   if (fk > 0 && fk < 1) liuKang(ax, ay, 440, { pose: 'flykick', f: 1, ph: lt, rot: -0.95, shadow: false }); else liuKang(ax, G, 440, { pose: lt < 1.0 ? 'run' : (after ? 'stance' : 'run'), ph: lt * 11, f: 1 });
+   if (lt >= 2.0 && !after) subZero(bx, G - 30, 440, { pose: 'slide', f: -1, rot: 1.25, ph: lt, shadow: false }); else if (after) subZero(bx, G, 440, { pose: 'hit', f: -1, ph: lt }); else subZero(bx, G, 440, { pose: 'run', ph: lt * 11 + 1, f: -1 });
+   if (after) { burstFx(560, 1100, prog(lt, hitT, hitT + 0.8)); sparks(560, 1100, lt, 22, '#fff4c0', 2); }
    X.setTransform(1, 0, 0, 1, 0, 0); const rm = lt < 1.0 ? 1 : 1 - 0.85 * run; fightHUD2(1, 1, lt, 99, 'LIU KANG', 'SUB-ZERO', rm, rm);
    const pp = prog(lt, 0, 0.3) * (1 - prog(lt, 1.0, 1.35)); if (pp > 0) { X.save(); X.globalAlpha = pp; X.translate(540, 840); const kk = 0.85 + 0.15 * eo(prog(lt, 0, 0.3)); X.scale(kk, kk); X.beginPath(); X.roundRect(-400, -200, 800, 400, 40); X.fillStyle = 'rgba(14,12,32,0.94)'; X.fill(); X.strokeStyle = '#d8c8a0'; X.lineWidth = 6; X.stroke();
      for (const [nm, bx2, by2, c] of [['HP', -250, -70, '#e8402e'], ['BLOCK', 0, -70, '#3aa0e8'], ['HK', 250, -70, '#f2c230'], ['LP', -250, 100, '#e8402e'], ['RUN', 0, 100, '#3aa860'], ['LK', 250, 100, '#f2c230']]) { const isRun = nm === 'RUN', pls = isRun ? 1 + 0.14 * Math.sin(lt * 16) : 1; X.save(); X.translate(bx2, by2); X.scale(pls, pls); if (isRun) glow(0, 0, 190, 'rgba(255,255,160,0.7)'); circ(0, 0, isRun ? 80 : 60, c, INK, 8); txt(nm, 0, 2, isRun ? 46 : 30, '#fff', { w: 900, stroke: INK, sw: 10 }); X.restore(); } X.restore(); }
-   stamp('POW!', 540, 600, 130, '#ffe04a', prog(lt, 2.5, 2.8), -0.07);
-   return { tint: '#ff6a50', tintA: 0.1, flash: (prog(lt, 2.38, 2.44) - prog(lt, 2.44, 2.8)) * 0.8 }; },
- // 4 combo
+   moveTag('SLIDE!', 760, 560, '#7fd8ff', prog(lt, 2.0, 2.15) * (1 - prog(lt, 2.4, 2.55))); moveTag('FLYING KICK!', 380, 560, '#ffd24a', prog(lt, 2.1, 2.25) * (1 - prog(lt, 2.4, 2.55)));
+   stamp('POW!', 540, 640, 130, '#ffe04a', prog(lt, hitT + 0.05, hitT + 0.3), -0.07);
+   return { tint: '#ff6a50', tintA: 0.1, flash: (prog(lt, hitT - 0.04, hitT) - prog(lt, hitT, hitT + 0.35)) * 0.8 }; },
+ // 4 combo: jab jab kick uppercut + bicycle kick
  (lt, d) => { streetBG(lt);
-   const HT = [0.25, 0.6, 0.95, 1.35, 1.8, 2.25], n = HT.filter(h => lt >= h).length, last = HT[Math.max(0, n - 1)], since = lt - last;
-   const apose = lt < 0.2 ? 'stance' : lt < 0.55 ? 'punch' : lt < 0.9 ? 'punch' : lt < 1.3 ? 'kick' : lt < 1.75 ? 'uppercut' : lt < 2.2 ? 'kick' : lt < 2.6 ? 'punch' : 'armsup';
-   const jump = lt > 1.7 && lt < 2.3 ? Math.sin(prog(lt, 1.7, 2.3) * PI) * 220 : 0, ax = 380 + 50 * prog(lt, 0, 2.3);
-   const jug = prog(lt, 1.35, 2.25), by0 = jug > 0 && jug < 1 ? -430 * Math.sin(jug * PI) : 0, lying = lt > 2.3, bx = 650 + 22 * Math.min(3, n) + (lt > 1.35 ? 40 : 0);
-   shadow(ax, G, 120, 0.5); shadow(bx, G, 120, lying || by0 < -50 ? 0.25 : 0.5);
-   liuKang(ax, G - jump, 440, { pose: apose, ph: lt * 6, f: 1 });
-   if (lying) subZero(560, G - 40, 440, { pose: 'hit', f: -1, rot: PI / 2, shadow: false }); else subZero(bx, G + by0, 440, { pose: since < 0.25 || by0 < 0 ? 'hit' : 'stance', f: -1, rot: by0 < 0 ? -1.4 * jug : 0, ph: lt });
-   for (const h of HT) if (lt >= h && lt < h + 0.35) { const q = (lt - h) / 0.35; sparks(bx - 60, G - 240 + (h > 1.3 ? by0 * 0.5 : 0), lt, 14, '#fff4c0', 2); X.save(); X.globalAlpha = 1 - q; X.beginPath(); X.arc(bx - 60, G - 240 + (h > 1.3 ? by0 * 0.5 : 0), 40 + 100 * q, 0, 2 * PI); X.strokeStyle = '#ffe8a0'; X.lineWidth = 12; X.stroke(); X.restore(); }
-   X.setTransform(1, 0, 0, 1, 0, 0); fightHUD2(1, lerp(1, 0.35, eo(n / 6)), lt, 99, 'LIU KANG', 'SUB-ZERO', 0.55, 0.8);
-   if (n > 0) { X.save(); X.translate(40, 480); const pk = 1 + 0.35 * (1 - eo(prog(since, 0, 0.15))); X.scale(pk, pk); txt(String(n), 0, 0, 150, '#ffd24a', { w: 900, al: 'left', stroke: INK, sw: 26 }); txt(n === 1 ? 'HIT' : 'HITS', 120 + (n > 9 ? 60 : 0), 28, 60, '#fff', { w: 900, al: 'left', stroke: INK, sw: 16, ls: 3 }); X.restore(); }
-   stamp('COMBO!', 700, 640, 110, '#ff6a50', prog(lt, 2.3, 2.6), 0.07);
+   const HT = [0.25, 0.6, 0.95, 1.35, 1.85, 2.15], n = HT.filter(h => lt >= h).length, last = HT[Math.max(0, n - 1)], since = lt - last;
+   const up = prog(lt, 1.7, 2.5), bic = lt > 1.7 && lt < 2.5;
+   const jugF = t => { const j = prog(t, 1.35, 2.35); return j > 0 && j < 1 ? -430 * Math.sin(j * PI) : 0; };
+   const by0 = jugF(lt), lying = lt > 2.35, bx = 700 + (lt > 1.35 ? 40 : 0) + 14 * Math.min(3, n);
+   const lkx = lt < 1.7 ? 380 + 40 * prog(lt, 0, 1.3) : lerp(420, 640, eo(up)), lky = bic ? G - 300 * Math.sin(up * PI) : G;
+   const apose = lt < 0.2 ? 'stance' : lt < 0.55 ? 'punch' : lt < 0.9 ? 'punch' : lt < 1.3 ? 'kick' : lt < 1.7 ? 'uppercut' : lt < 2.5 ? 'pedal' : lt < 2.9 ? 'stance' : 'armsup';
+   shadow(bic ? lkx - 120 : lkx, G, 120, bic ? 0.3 : 0.5); shadow(lying ? 880 : bx, G, 120, by0 < -50 ? 0.25 : 0.5);
+   if (bic) liuKang(lkx + 40, lky, 440, { pose: 'pedal', ph: lt * 5, f: 1, rot: -1.45 * Math.min(1, prog(lt, 1.7, 1.95)) * (1 - prog(lt, 2.35, 2.5)), shadow: false }); else liuKang(lkx, G, 440, { pose: apose, ph: lt * 6, f: 1 });
+   if (lying) subZero(700, G - 40, 440, { pose: 'hit', f: -1, rot: PI / 2, shadow: false }); else subZero(bx, G + by0, 440, { pose: since < 0.25 || by0 < 0 ? 'hit' : 'stance', f: -1, rot: by0 < 0 ? -1.4 * prog(lt, 1.35, 2.35) : 0, ph: lt });
+   for (const h of HT) if (lt >= h && lt < h + 0.35) { const q = (lt - h) / 0.35, sy = G - 240 + jugF(h) * 0.9; sparks(bx - 70, sy, lt, 14, '#fff4c0', 2); X.save(); X.globalAlpha = 1 - q; X.beginPath(); X.arc(bx - 70, sy, 40 + 100 * q, 0, 2 * PI); X.strokeStyle = '#ffe8a0'; X.lineWidth = 12; X.stroke(); X.restore(); }
+   X.setTransform(1, 0, 0, 1, 0, 0); fightHUD2(1, lerp(1, 0.3, eo(n / 6)), lt, 99, 'LIU KANG', 'SUB-ZERO', 0.55, 0.8);
+   if (n > 0) { X.save(); X.translate(40, 480); const pk = 1 + 0.35 * (1 - eo(prog(since, 0, 0.15))); X.scale(pk, pk); txt(String(n), 0, 0, 150, '#ffd24a', { w: 900, al: 'left', stroke: INK, sw: 26 }); txt(n === 1 ? 'HIT' : 'HITS', 120, 28, 60, '#fff', { w: 900, al: 'left', stroke: INK, sw: 16, ls: 3 }); X.restore(); }
+   moveTag('UPPERCUT!', 640, 600, '#ffd24a', prog(lt, 1.35, 1.5) * (1 - prog(lt, 1.8, 1.95))); moveTag('BICYCLE KICK!', 600, 600, '#ff9a4a', prog(lt, 1.85, 2.0) * (1 - prog(lt, 2.45, 2.6)));
+   stamp('COMBO!', 700, 660, 110, '#ff6a50', prog(lt, 2.55, 2.85), 0.07);
    return { tint: '#ff6a50', tintA: 0.08, flash: n > 0 ? (prog(since, 0, 0.03) - prog(since, 0.03, 0.14)) * 0.35 : 0 }; },
  // 5 finish him / babality
  (lt, d) => { streetBG(lt); X.save(); X.globalAlpha = 0.4 * prog(lt, 0.6, 1.0) * (1 - prog(lt, 2.6, 3.0)); rect(0, 0, W, H, '#600'); X.restore();

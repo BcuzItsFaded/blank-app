@@ -105,11 +105,11 @@ for k in range(5): add(st(2) + k * 0.4, sblip(1000 + 150 * k), 0.6)
 add(st(2) + 2.0, impact(0.4), 0.5); add(st(2) + 2.0, sparkle(), 0.6)
 # 3 run
 add(st(3), whoosh_s(0.5), 0.5); add(st(3) + 0.0, riser(0.9), 0.4); add(st(3) + 0.9, fast_steps(1.5, 8), 0.6); add(st(3) + 0.9, whoosh_s(1.4), 0.4)
-add(st(3) + 2.4, smack(), 1.0); add(st(3) + 2.4, crack(), 0.5); add(st(3) + 2.5, slam(), 0.4)
+add(st(3) + 2.0, scrape(0.5), 0.6); add(st(3) + 2.0, whoosh_s(0.5), 0.5); add(st(3) + 2.1, whoosh_s(0.45), 0.6); add(st(3) + 2.55, smack(), 1.0); add(st(3) + 2.55, crack(), 0.5); add(st(3) + 2.6, slam(), 0.4)
 # 4 combo
-for k, h in enumerate([0.25, 0.6, 0.95, 1.35, 1.8, 2.25]):
+for k, h in enumerate([0.25, 0.6, 0.95, 1.35, 1.85, 2.15]):
     add(st(4) + h - 0.08, whoosh_s(0.2), 0.4); add(st(4) + h, smack(), 0.9); add(st(4) + h, sblip(int(midi(60 + 2 * k) * 2)), 0.5)
-add(st(4) + 0.2, crowdn(2.6), 0.5); add(st(4) + 2.3, slam(), 0.6); add(st(4) + 2.3, crack(), 0.45)
+add(st(4) + 0.2, crowdn(2.6), 0.5); add(st(4) + 2.4, slam(), 0.6); add(st(4) + 2.4, crack(), 0.45); add(st(4) + 1.75, whoosh_s(0.8), 0.5)
 # 5 finish him / friendship
 add(st(5) + 0.3, riser(0.7), 0.5); add(st(5) + 0.9, boom(), 1.0); add(st(5) + 0.9, impact(1.0), 0.8); add(st(5), heartbeat(2.0, 90), 0.5); BT = max(2.3, (S[6] - S[5]) - 1.15); add(st(5) + BT - 0.05, steam_jet(0.6), 0.6); add(st(5) + BT, impact(0.4), 0.5); add(st(5) + BT + 0.05, musicbox(), 0.9); add(st(5) + BT + 0.5, babycry(1.2), 0.8); add(st(5) + BT + 0.1, sparkle(), 0.5)
 # 6 end
