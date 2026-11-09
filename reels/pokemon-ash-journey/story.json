@@ -1,0 +1,81 @@
+{
+  "title": "Ash & Pikachu: The Journey",
+  "duration": 60,
+  "voice": "am_michael",
+  "vo": [
+    [
+      0.3,
+      7.0,
+      "In 1997, a boy from Pallet Town overslept on the most important day of his life."
+    ],
+    [
+      7.1,
+      14.0,
+      "The only Pokémon left at the lab was a Pikachu that refused its Poké Ball, and shocked its new trainer."
+    ],
+    [
+      14.1,
+      21.0,
+      "Then a flock of Spearow attacked. Ash shielded Pikachu with his own body, and Pikachu fought back."
+    ],
+    [
+      21.1,
+      28.0,
+      "As the storm cleared, a legendary rainbow bird flew overhead. A partnership was born."
+    ],
+    [
+      28.1,
+      36.0,
+      "For twenty-five years they crossed region after region, losing league after league, until Alola, where Ash finally won."
+    ],
+    [
+      36.1,
+      44.0,
+      "Then in 2022, Pikachu's thunderbolt toppled Champion Leon's Charizard, and Ash became World Champion."
+    ],
+    [
+      44.1,
+      52.0,
+      "But here's the twist: Ash decided he still wasn't a Pokémon Master. A true master must be friends with every Pokémon."
+    ],
+    [
+      52.1,
+      59.5,
+      "In 2023, new heroes took over the anime. But Ash and Pikachu's road never ends."
+    ]
+  ],
+  "captions": [
+    [
+      "In <b>1997</b>, a boy from Pallet Town",
+      "overslept on the most important day of his life."
+    ],
+    [
+      "The only Pokémon left was a <b>Pikachu</b> that refused its Poké Ball,",
+      "and shocked its new trainer."
+    ],
+    [
+      "Then a flock of <b>Spearow</b> attacked.",
+      "Ash shielded Pikachu with his own body, and Pikachu fought back."
+    ],
+    [
+      "As the storm cleared, a <b>legendary rainbow bird</b> flew overhead.",
+      "A partnership was born."
+    ],
+    [
+      "For <b>25 years</b> they crossed region after region, losing league after league,",
+      "until <b>Alola</b>, where Ash finally won."
+    ],
+    [
+      "Then in <b>2022</b>, Pikachu's thunderbolt toppled Champion Leon's Charizard,",
+      "and Ash became <b>World Champion</b>."
+    ],
+    [
+      "But here's the twist: Ash decided he <b>still wasn't a Pokémon Master</b>.",
+      "A true master must be friends with every Pokémon."
+    ],
+    [
+      "In 2023, <b>new heroes</b> took over the anime.",
+      "But Ash and Pikachu's <b>road never ends</b>."
+    ]
+  ]
+}
