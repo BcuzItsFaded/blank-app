@@ -18,38 +18,41 @@ function blueprintTex(seed) {
 }
 function glowMat(map, k = 1) { return new THREE.MeshBasicMaterial({ map, color: hdr(k, k, k), transparent: true, blending: THREE.AdditiveBlending, depthWrite: false, fog: false }); }
 function hidePatch(f) { f.userData.head.children.forEach(c => { if (c.material && c.material.color && c.material.color.getHex() === 0x9a9a9a) c.visible = false; }); }
-function glasses(h, x0 = 0, big = 1) {
-  for (const s of [-1, 1]) { box(0.46 * big, 0.38 * big, 0.06, plastic(0x0a0a0e), s * 0.24 * big + x0, 0.55, 0.43, h); box(0.34 * big, 0.26 * big, 0.07, plastic(0xa8e0f4, { emissive: 0x4a98c8, emissiveIntensity: 0.5, roughness: 0.1 }), s * 0.24 * big + x0, 0.55, 0.44, h);
-    box(0.08, 0.09, 0.04, plastic(0x0a0a0e), s * 0.22 * big + x0, 0.55, 0.47, h); }
-  box(0.14, 0.07, 0.06, plastic(0x0a0a0e), x0, 0.58, 0.43, h);
+function glasses(h, x0 = 0, big = 1, eyes = true) {
+  for (const sd of [-1, 1]) { const gx = sd * 0.25 * big + x0;
+    box(0.5 * big, 0.46 * big, 0.07, plastic(0x0a0a0e), gx, 0.56, 0.43, h); box(0.38 * big, 0.34 * big, 0.08, plastic(0x86d0f0, { emissive: 0x3a98c8, emissiveIntensity: 0.6, roughness: 0.1 }), gx, 0.56, 0.44, h);
+    if (eyes) { box(0.2 * big, 0.26 * big, 0.04, plastic(0xffffff), gx, 0.56, 0.49, h); box(0.09 * big, 0.12 * big, 0.04, plastic(0x0a0a0e), gx + sd * -0.02, 0.55, 0.52, h); } }
+  box(0.14, 0.08, 0.07, plastic(0x0a0a0e), x0, 0.6, 0.43, h);
 }
-
 // ---------- characters ----------
 function makeDexter() {
-  const f = figure({ shirt: 0xf8f8fc, coat: 0xf8f8fc, pants: 0x181820, skin: 0xf6e4dc, hair: 0xd8602a, hairStyle: 'bald', scale: 0.82 });
-  const h = f.userData.head; hidePatch(f); h.scale.setScalar(1.28);
-  box(0.96, 0.14, 0.96, plastic(0xe0642a), 0, 0.94, 0, h); box(0.5, 0.22, 0.5, plastic(0xe0642a), -0.12, 1.1, 0.14, h).rotation.z = 0.25; box(0.3, 0.18, 0.4, plastic(0xe0642a), -0.38, 1.08, 0.2, h).rotation.z = 0.7;
-  glasses(h); box(0.34, 0.06, 0.04, plastic(0x7a4a3a), 0, 0.24, 0.43, h);
-  box(0.12, 0.1, 0.06, plastic(0xf0c8b8), 0, 0.4, 0.46, h);
+  const f = figure({ shirt: 0xf8f8fc, coat: 0xf8f8fc, pants: 0x181820, skin: 0xf8e2d8, hair: 0xf06a1e, hairStyle: 'bald', scale: 0.74 });
+  const h = f.userData.head; hidePatch(f); h.scale.setScalar(1.5);
+  const O = plastic(0xf06a1e);                                                                    // swoopy orange hair: flush cap + forward quiff + side tuft
+  box(0.8, 0.16, 0.8, O, 0, 0.9, -0.02, h); box(0.54, 0.34, 0.5, O, 0.02, 1.12, 0.16, h).rotation.x = -0.32; box(0.34, 0.24, 0.3, O, -0.34, 1.12, 0.2, h).rotation.z = 0.6; box(0.2, 0.18, 0.2, O, -0.55, 1.2, 0.22, h).rotation.z = 0.9;
+  glasses(h); box(0.3, 0.06, 0.04, plastic(0x7a4a3a), 0, 0.2, 0.43, h); box(0.1, 0.14, 0.05, plastic(0xf0c8b8), 0, 0.38, 0.47, h);
   for (const a of [f.userData.armL, f.userData.armR]) { a.children[1].material = plastic(0x8a3ab8); a.children[1].scale.set(1.9, 1.3, 1.9); }
-  for (const leg of [f.userData.legL, f.userData.legR]) { leg.children[1].material = plastic(0x0e0e12); leg.children[1].scale.set(1.15, 1.8, 1.3); }
-  box(1.46, 0.2, 0.84, 0xf0f0f6, 0, 2.12, 0, f);
+  for (const leg of [f.userData.legL, f.userData.legR]) { leg.children[1].material = plastic(0x0e0e12); leg.children[1].scale.set(1.0, 1.2, 1.1); }
+  box(1.4, 1.0, 0.84, 0xf8f8fc, 0, 1.1, 0, f); box(1.5, 0.22, 0.86, 0xf0f0f6, 0, 2.12, 0, f);        // long lab coat + collar
   return f;
 }
 function makeDeeDee() {
-  const f = figure({ shirt: 0xf48ac0, pants: 0xfae6f0, skin: 0xf8d6c6, hair: 0xf2c230, hairStyle: 'bald', dress: true, scale: 1 });
-  f.scale.set(0.9, 1.18, 0.9); const h = f.userData.head; hidePatch(f);
-  box(0.98, 0.26, 0.98, plastic(0xf2c230), 0, 0.92, -0.02, h); box(0.9, 0.2, 0.2, plastic(0xf2c230), 0, 0.74, 0.4, h);
-  for (const s of [-1, 1]) { const t1 = box(0.34, 0.8, 0.34, plastic(0xf2c230), s * 0.72, 0.78, 0, h); t1.rotation.z = -s * 0.5; const t2 = box(0.3, 0.55, 0.3, plastic(0xf2c230), s * 1.0, 1.28, 0, h); t2.rotation.z = -s * 0.8;
-    box(0.22, 0.32, 0.03, plastic(0x4ab0f0), s * 0.17, 0.5, 0.425, h); box(0.09, 0.12, 0.03, plastic(0x0a0a0e), s * 0.17, 0.5, 0.45, h); box(0.1, 0.06, 0.02, plastic(0xf08090), s * 0.31, 0.32, 0.43, h); }
-  box(0.36, 0.14, 0.04, plastic(0xc83a4a), 0, 0.25, 0.43, h);
-  box(1.95, 0.14, 1.2, plastic(0xf8aad2), 0, 1.0, 0, f); for (const leg of [f.userData.legL, f.userData.legR]) { leg.children[1].material = plastic(0xf070a8); leg.children[1].scale.set(1, 1, 1.3); }
+  const SK = 0xfbd9cc, PK = 0xf48ac0, Y = 0xf6c828;
+  const f = figure({ shirt: PK, pants: 0xfdf2f6, skin: SK, hair: Y, hairStyle: 'bald', scale: 1 });
+  f.scale.set(0.9, 1.22, 0.9); const h = f.userData.head; hidePatch(f); h.scale.setScalar(1.12);
+  box(0.8, 0.2, 0.8, plastic(Y), 0, 0.92, -0.02, h); box(0.82, 0.22, 0.2, plastic(Y), 0, 0.78, 0.36, h);                    // flush cap + bangs
+  for (const sd of [-1, 1]) { [[0.62, 0.8, 0.34], [0.9, 0.96, 0.34], [1.16, 1.12, 0.3], [1.34, 1.3, 0.36]].forEach(([x, y, w], i) => box(w, w, 0.32, plastic(Y), sd * x, y, -0.02, h).rotation.z = sd * -0.25 * i);   // pigtails arcing out and up
+    box(0.28, 0.4, 0.04, plastic(0xffffff), sd * 0.17, 0.52, 0.425, h); box(0.2, 0.32, 0.04, plastic(0x4ab0f0), sd * 0.17, 0.52, 0.45, h); box(0.09, 0.14, 0.04, plastic(0x0a0a0e), sd * 0.17, 0.52, 0.48, h); box(0.1, 0.06, 0.03, plastic(0xf08090), sd * 0.34, 0.3, 0.43, h); }
+  box(0.46, 0.18, 0.05, plastic(0xc83a4a), 0, 0.24, 0.43, h); box(0.36, 0.06, 0.05, plastic(0xffffff), 0, 0.3, 0.46, h);                // wide open smile
+  f.userData.torso.scale.x = 0.72; for (const a of [f.userData.armL, f.userData.armR]) { a.children[0].material = plastic(SK); a.children[0].scale.set(0.55, 1.0, 0.6); }
+  for (const leg of [f.userData.legL, f.userData.legR]) { leg.children[0].scale.set(0.5, 1.0, 0.6); leg.children[1].material = plastic(0xf070a8); leg.children[1].scale.set(0.8, 1.0, 1.3); }
+  const tutu = new THREE.Mesh(new THREE.CylinderGeometry(1.1, 1.0, 0.16, 28), plastic(0xf8a8d2)); tutu.position.y = 1.2; tutu.castShadow = true; f.add(tutu); box(0.9, 0.36, 0.7, PK, 0, 1.4, 0, f);
   return f;
 }
 function makeMandark() {
   const f = figure({ shirt: 0xf8f8fc, coat: 0xf4f4f8, pants: 0x181820, skin: 0xf0d2be, hair: 0x15110d, hairStyle: 'bald', scale: 1 });
   f.scale.set(0.92, 1.08, 0.92); const h = f.userData.head; hidePatch(f);
-  box(0.96, 0.2, 0.96, plastic(0x15110d), 0, 0.94, 0, h); for (const [x, r] of [[-0.3, 0.5], [-0.08, 0.2], [0.14, -0.1], [0.34, -0.45]]) box(0.14, 0.5, 0.14, plastic(0x15110d), x, 1.18, 0.05, h).rotation.z = r;
+  box(0.8, 0.2, 0.8, plastic(0x15110d), 0, 0.92, 0, h); for (const [x, r] of [[-0.3, 0.5], [-0.08, 0.2], [0.14, -0.1], [0.34, -0.45]]) box(0.14, 0.5, 0.14, plastic(0x15110d), x, 1.18, 0.05, h).rotation.z = r;
   box(0.12, 0.34, 0.15, plastic(0xf4f4f4), -0.06, 1.2, 0.08, h).rotation.z = 0.2;
   glasses(h, 0, 0.9); box(0.6, 0.16, 0.04, plastic(0x7a2a2a), 0, 0.26, 0.43, h); box(0.5, 0.07, 0.03, plastic(0xffffff), 0, 0.31, 0.45, h);
   for (const a of [f.userData.armL, f.userData.armR]) { a.children[1].material = plastic(0x8a3ab8); a.children[1].scale.set(1.8, 1.3, 1.8); }
@@ -83,7 +86,7 @@ function makeRobot() {
 }
 function glowBubble(parent, r, tint = 0xaad8ff, op = 0.22) {
   const b = new THREE.Mesh(new THREE.SphereGeometry(r, 28, 20), new THREE.MeshStandardMaterial({ color: tint, transparent: true, opacity: op, roughness: 0.05, metalness: 0.1, emissive: tint, emissiveIntensity: 0.25, depthWrite: false }));
-  const halo = new THREE.Sprite(new THREE.SpriteMaterial({ map: flameTex, color: tint, transparent: true, blending: THREE.AdditiveBlending, depthWrite: false, opacity: 0.55 })); halo.scale.set(r * 3.4, r * 3.4, 1);
+  const halo = new THREE.Sprite(new THREE.SpriteMaterial({ map: flameTex, color: tint, transparent: true, blending: THREE.AdditiveBlending, depthWrite: false, opacity: op * 0.9 })); halo.scale.set(r * 3.0, r * 3.0, 1);
   parent.add(b, halo); return b;
 }
 
@@ -131,8 +134,8 @@ const HALL = (() => {
   const robot = makeRobot(); robot.position.set(8.6, 0, -9); robot.rotation.y = -0.35; scene.add(robot);
   const dust = particleField(scene, 77, 360, { x0: -10, x1: 10, y0: 0.5, y1: 16, z0: -40, z1: 14 }, 0xbfa8ff, 0.12, { vy: 0.15, drift: 1, additive: true, opacity: 0.8 }); tick(t => dust(t));
   // Mandark's memory bubble
-  const mb = new THREE.Group(); mb.position.set(0, 5.4, -13); scene.add(mb); glowBubble(mb, 5.2, 0xd890ff, 0.2);
-  const mandark = makeMandark(); mandark.scale.multiplyScalar(2.1); mandark.position.set(0, -4.6, 0); mb.add(mandark); const mbL = new THREE.PointLight(0xc060ff, 0, 40); mbL.position.set(0, 5.4, -9); scene.add(mbL);
+  const mb = new THREE.Group(); mb.position.set(0, 5.4, -13); scene.add(mb); glowBubble(mb, 5.2, 0xb878e8, 0.14);
+  const mandark = makeMandark(); mandark.scale.multiplyScalar(2.1); mandark.position.set(0, -4.6, 0); mb.add(mandark); const mbL = new THREE.PointLight(0xc060ff, 0, 40); mbL.position.set(0, 10, -17); scene.add(mbL);
   // omelette that pops out
   const omelette = new THREE.Group(); scene.add(omelette); box(1.4, 0.18, 1.0, 0xf2cf40, 0, 0, 0, omelette); box(0.9, 0.12, 0.7, 0xf8e070, 0, 0.14, 0, omelette); for (let i = 0; i < 4; i++) box(0.3, 0.14, 0.3, 0xf0a020, -0.3 + i * 0.2, 0.22, 0.1 * (i % 2), omelette);
   const steam = smokeField(scene, 41, 12, { x0: 5.4, x1: 5.9, z0: 2.6, z1: 3.4, y0: 3.2, y1: 3.6 }, 0xf0f0f0, { size: 1.2, rise: 1.2, opacity: 0.3, life: 2 });
@@ -152,15 +155,15 @@ defScene(0, 4.2, () => { const cam = cam0(); return { scene: HALL.scene, cam, up
   walkCycle(dexter, t, 7, 0.45); walkCycle(deedee, t + 0.5, 7, 0.55); dexter.userData.armR.rotation.x = 0.2; deedee.position.y = Math.abs(Math.sin(t * 7)) * 0.1; deedee.userData.armR.rotation.set(-0.4 + Math.sin(t * 7) * 0.5, 0, -0.9);
   robot.rotation.y = -0.35; robot.position.set(8.6, 0, -9); HALL.robot.userData.eye.emissiveIntensity = 2;
   const d = ease(u / 0.9), look = V(0, lerp(9.2, 2.6, d), lerp(4, z, d));
-  lookFrom(cam, V(lerp(0, 0.5, d), lerp(4.5, 3.6, d), lerp(46, 16, d)), look);
+  lookFrom(cam, V(lerp(0, 0.5, d), lerp(4.5, 3.6, d), lerp(46, 15.5, d)), look);
 } }; });
 
 // shot 2 (4.2-8): Dexter at his desk, glasses glint
 defScene(4.2, 8.0, () => { const cam = cam0(); return { scene: HALL.scene, cam, update(t, u) {
   const { dexter, deedee, mb, omelette } = HALL; mb.visible = false; omelette.position.set(0, -60, 0); HALL.mbL.intensity = 0; HALL.alarmL.intensity = 0; away(deedee);
-  dexter.position.set(-4.5, 0, 1.4); dexter.rotation.y = -Math.PI / 2 - 0.1; walkCycle(dexter, 0, 0, 0);
-  dexter.userData.armR.rotation.set(-1.5 + Math.sin(t * 9) * 0.25, 0, -0.2); dexter.userData.armL.rotation.set(-1.2, 0, 0.1); dexter.userData.head.rotation.x = 0.15; dexter.userData.head.rotation.y = Math.sin(t * 1.6) * 0.12;
-  const d = ease(u); lookFrom(cam, V(lerp(3.2, 0.6, d), lerp(3.4, 3.0, d), lerp(12, 8.4, d)), V(lerp(-4.2, -4.6, d), lerp(2.2, 2.5, d), 1.4));
+  dexter.position.set(-5.2, 0, 2.2); dexter.rotation.y = 0.35; walkCycle(dexter, 0, 0, 0);
+  dexter.userData.armL.rotation.set(-1.3 + Math.sin(t * 9) * 0.22, 0, 0.55); dexter.userData.armR.rotation.set(0.2, 0, -0.1); dexter.userData.head.rotation.x = 0.05; dexter.userData.head.rotation.y = -0.35 + Math.sin(t * 1.6) * 0.1;
+  const d = ease(u); lookFrom(cam, V(lerp(-0.6, -3.2, d), lerp(3.0, 2.5, d), lerp(12.5, 8.6, d)), V(lerp(-5.8, -5.6, d), lerp(2.2, 2.4, d), 1.8));
 } }; });
 
 // shot 3 (8-11.8): Dee Dee and the big red button
@@ -169,8 +172,8 @@ defScene(8.0, 11.8, () => { const cam = cam0(); return { scene: HALL.scene, cam,
   const lt = t - 8.0, press = lt > 1.5; dexter.position.set(-5.2, 0, -2.4); dexter.rotation.y = 0.9;
   walkCycle(dexter, 0, 0, 0); dexter.userData.armR.rotation.x = press ? -2.8 + Math.sin(t * 25) * 0.3 : -1.2; dexter.userData.armL.rotation.x = press ? -2.8 : 0; dexter.userData.head.rotation.x = press ? -0.2 : 0;
   const tw = lt < 1.5 ? t * 3 : 0; deedee.position.set(lerp(1.2, -1.0, ease(lt / 1.4)), 0, -2.2); deedee.rotation.y = lt < 1.5 ? tw : -1.9; if (lt >= 1.5) { deedee.userData.armR.rotation.set(-1.3, 0, 0); deedee.userData.armL.rotation.set(-0.3, 0, 0.8); } else { deedee.userData.armR.rotation.set(-0.3, 0, -1.3); deedee.userData.armL.rotation.set(-0.3, 0, 1.3); }
-  deedee.position.y = lt < 1.5 ? Math.abs(Math.sin(t * 6)) * 0.4 : 0; btn.position.y = press ? 1.65 : 1.78;
-  const al = press ? (Math.sin((lt - 1.5) * 14) > -0.2 ? 1 : 0.1) : 0; alarmL.intensity = al * 12; alarmB.material.emissiveIntensity = al * 3; btn.material.emissiveIntensity = press ? 2 : 0.6;
+  deedee.position.y = lt < 1.5 ? Math.abs(Math.sin(t * 6)) * 0.4 : 0; deedee.userData.head.rotation.y = lt < 1.5 ? 0 : 1.6; btn.position.y = press ? 1.65 : 1.78;
+  const al = press ? (Math.sin((lt - 1.5) * 14) > -0.2 ? 1 : 0.1) : 0; alarmL.intensity = al * 6; alarmB.material.emissiveIntensity = al * 3; btn.material.emissiveIntensity = press ? 2 : 0.6;
   const d = ease(u); lookFrom(cam, V(lerp(5.5, 3.2, d), lerp(4.0, 3.4, d), lerp(10.5, 8.0, d)), V(-3.0, 2.5, -3.2));
 } }; });
 
@@ -187,9 +190,9 @@ defScene(11.8, 15.4, () => { const cam = cam0(); return { scene: HALL.scene, cam
 
 // shot 5 (15.4-19): Mandark in a memory bubble
 defScene(15.4, 19.0, () => { const cam = cam0(); return { scene: HALL.scene, cam, update(t, u) {
-  const { dexter, deedee, mandark, mb, mbL, omelette } = HALL; away(deedee); omelette.position.set(0, -60, 0); HALL.alarmL.intensity = 0; mb.visible = true; mbL.intensity = 4 + Math.sin(t * 9);
+  const { dexter, deedee, mandark, mb, mbL, omelette } = HALL; away(deedee); omelette.position.set(0, -60, 0); HALL.alarmL.intensity = 0; mb.visible = true; mbL.intensity = 2.2 + 0.5 * Math.sin(t * 9);
   mb.position.set(0, 5.4 + Math.sin(t * 1.4) * 0.25, -11); mandark.position.set(0, -4.6, 0); mandark.rotation.y = Math.sin(t * 1.5) * 0.3;
-  const lt = t - 15.4, laugh = Math.sin(lt * 14) > 0; mandark.userData.armL.rotation.set(-2.6 + (laugh ? 0.3 : 0), 0, 0.4); mandark.userData.armR.rotation.set(-2.6 + (laugh ? 0 : 0.3), 0, -0.4); mandark.userData.head.rotation.x = -0.25 + (laugh ? 0.12 : 0); mandark.userData.torso.rotation.x = laugh ? 0.12 : -0.05;
+  const lt = t - 15.4, laugh = Math.sin(lt * 14) > 0; mandark.userData.armL.rotation.set(-0.9 + (laugh ? 0.3 : 0), 0, 1.15); mandark.userData.armR.rotation.set(-0.9 + (laugh ? 0 : 0.3), 0, -1.15); mandark.userData.head.rotation.x = -0.25 + (laugh ? 0.12 : 0); mandark.userData.torso.rotation.x = laugh ? 0.12 : -0.05;
   dexter.position.set(-2.2, 0, 1.6); dexter.rotation.y = Math.PI + 0.25; walkCycle(dexter, 0, 0, 0); dexter.userData.armR.rotation.set(-2.9, 0, -0.1); dexter.userData.armR.position.y = 1.2 + 1.35; dexter.userData.head.rotation.x = -0.1 + Math.sin(t * 18) * 0.03;
   const d = ease(u); lookFrom(cam, V(lerp(1.5, 0.4, d), lerp(3.2, 4.0, d), lerp(18, 12, d)), V(0, lerp(3.6, 5.0, d), -10));
 } }; });
