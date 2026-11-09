@@ -12,41 +12,43 @@ function flagTex() { return canvasTex(256, 192, (x, w, h) => { x.fillStyle = '#1
 
 // ---------- characters ----------
 function makeApe(o) {
-  o = Object.assign({ fur: 0x5a3418, belly: 0xc89a60, scale: 1, arm: 1, bulk: 1 }, o);
-  const g = new THREE.Group(), F = plastic(o.fur, { roughness: 0.9 }), T = plastic(o.belly), D = plastic(0x2a160a), W = plastic(0xffffff), K = plastic(0x0a0a0a), bw = o.bulk;
+  o = Object.assign({ fur: 0x6a3a1e, belly: 0xe0a878, scale: 1, arm: 1, bulk: 1, ear: 1, snout: 1 }, o);
+  const g = new THREE.Group(), F = plastic(o.fur, { roughness: 0.9 }), T = plastic(o.belly), D = plastic(new THREE.Color(o.fur).multiplyScalar(0.55).getHex()), W = plastic(0xffffff), K = plastic(0x0a0a0a), bw = o.bulk;
   const legs = [-1, 1].map(s => { const l = new THREE.Group(); l.position.set(s * 0.58 * bw, 1.15, 0); g.add(l); box(0.85 * bw, 1.15, 0.95, F, 0, -0.55, 0, l); box(1.0 * bw, 0.45, 1.35, T, 0, -1.0, 0.25, l); return l; });
   const torso = new THREE.Group(); torso.position.y = 1.15; g.add(torso);
-  box(2.0 * bw, 1.5, 1.25, F, 0, 0.75, 0, torso); box(2.6 * bw, 1.5, 1.45, F, 0, 2.0, 0, torso); box(1.6 * bw, 1.4, 0.14, T, 0, 1.65, 0.74, torso);
-  const head = new THREE.Group(); head.position.set(0, 3.75, 0.1); torso.add(head);
-  box(1.55, 1.35, 1.35, F, 0, 0, 0, head); box(1.25, 0.95, 0.16, T, 0, -0.12, 0.7, head); box(0.95, 0.58, 0.38, T, 0, -0.3, 0.82, head);
-  for (const s of [-1, 1]) { box(0.36, 0.4, 0.07, W, s * 0.3, 0.2, 0.75, head); box(0.15, 0.2, 0.07, K, s * 0.3 - s * 0.03, 0.18, 0.79, head); box(0.3, 0.5, 0.22, T, s * 0.86, 0.1, 0, head); box(0.2, 0.34, 0.1, F, s * 0.88, 0.1, 0.02, head); }
-  box(1.25, 0.17, 0.16, D, 0, 0.5, 0.74, head); box(0.4, 0.3, 0.08, D, 0, -0.1, 1.04, head);
-  box(0.68, 0.22, 0.1, plastic(0x7a1a1a), 0, -0.45, 1.02, head); box(0.52, 0.07, 0.05, W, 0, -0.38, 1.06, head);
-  const arms = [-1, 1].map(s => { const a = new THREE.Group(); a.position.set(s * 1.55 * bw, 2.85, 0); torso.add(a); box(0.72, 1.8 * o.arm, 0.72, F, 0, -0.9 * o.arm, 0, a); box(0.95, 0.8, 0.95, F, 0, -2.0 * o.arm, 0.1, a); return a; });
+  box(2.0 * bw, 1.5, 1.25, F, 0, 0.75, 0, torso); box(2.6 * bw, 1.5, 1.45, F, 0, 2.0, 0, torso); box(1.7 * bw, 1.5, 0.16, T, 0, 1.7, 0.76, torso);
+  const head = new THREE.Group(); head.position.set(0, 3.8, 0.2); torso.add(head);
+  box(1.6, 1.4, 1.4, F, 0, 0, 0, head); box(1.45, 0.3, 0.34, D, 0, 0.42, 0.62, head); box(1.3, 0.95, 0.16, T, 0, -0.05, 0.72, head); box(1.15 * o.snout, 0.8, 0.55, T, 0, -0.3, 0.95, head);
+  for (const s of [-1, 1]) { box(0.4, 0.42, 0.08, W, s * 0.32, 0.15, 0.8, head); box(0.17, 0.24, 0.08, K, s * 0.3 - s * 0.03, 0.14, 0.86, head);
+    box(0.38 * o.ear, 0.62 * o.ear, 0.26, F, s * 0.92, 0.1, 0, head); box(0.26 * o.ear, 0.44 * o.ear, 0.1, T, s * 0.96, 0.1, 0.1, head); box(0.1, 0.12, 0.06, D, s * 0.2, -0.12, 1.24, head); }
+  box(0.86, 0.38, 0.12, plastic(0x5a1010), 0, -0.52, 1.25, head); box(0.5, 0.15, 0.1, plastic(0xe0607a), 0, -0.62, 1.27, head); box(0.7, 0.08, 0.06, W, 0, -0.35, 1.28, head);
+  const arms = [-1, 1].map(s => { const a = new THREE.Group(); a.position.set(s * 1.55 * bw, 2.85, 0); torso.add(a); box(0.74, 1.8 * o.arm, 0.74, F, 0, -0.9 * o.arm, 0, a); box(0.98, 0.84, 0.98, F, 0, -2.0 * o.arm, 0.1, a); box(0.84, 0.34, 0.5, T, 0, -2.2 * o.arm, 0.5, a); return a; });
   g.scale.setScalar(o.scale); g.userData = { legs, torso, head, arms, F, T }; return g;
 }
 const RED = 0xe02a20, YEL = 0xffd830;
-function makeDK() { const a = makeApe({ fur: 0x5a3418, belly: 0xc89a60, scale: 1.0, arm: 1.15, bulk: 1.1 }); const t = a.userData.torso;
-  box(0.62, 1.5, 0.14, RED, 0, 1.75, 0.85, t); box(0.55, 0.42, 0.06, YEL, 0, 1.4, 0.94, t); box(1.5, 0.3, 0.2, RED, 0, 2.55, 0.78, t); a.userData.head.add((() => { const g = new THREE.Group(); box(0.5, 0.22, 0.3, plastic(0x3a200c), 0, 0.74, 0.1, g); return g; })()); return a; }
-function makeDiddy() { const a = makeApe({ fur: 0x8a5028, belly: 0xe8b878, scale: 0.6, arm: 0.95, bulk: 0.85 }); const t = a.userData.torso, h = a.userData.head;
+function makeDK() { const a = makeApe({ fur: 0x6a3a1e, belly: 0xe8b080, scale: 1.0, arm: 1.15, bulk: 1.12, snout: 1.1 }); const t = a.userData.torso;
+  box(1.5, 0.3, 0.34, RED, 0, 2.7, 0.8, t); const tie = new THREE.Group(); tie.position.set(-0.12, 2.5, 0.92); tie.rotation.z = 0.28; t.add(tie); box(0.54, 1.7, 0.1, RED, 0, -0.75, 0, tie); box(0.5, 0.46, 0.06, YEL, 0, -1.0, 0.07, tie); box(0.3, 0.3, 0.1, 0xb81a14, 0, 0.0, 0.02, tie); return a; }
+function makeDiddy() { const a = makeApe({ fur: 0x8a4a28, belly: 0xf0c088, scale: 0.6, arm: 0.95, bulk: 0.85, ear: 1.6, snout: 1.15 }); const t = a.userData.torso, h = a.userData.head;
   box(2.2, 1.5, 1.35, RED, 0, 1.95, 0.02, t); box(0.5, 0.5, 0.05, YEL, 0, 2.2, 0.76, t).rotation.z = Math.PI / 4;
-  box(1.7, 0.5, 1.6, RED, 0, 0.78, 0, h); box(1.25, 0.14, 0.7, RED, 0, 0.58, 0.95, h); box(0.36, 0.36, 0.05, YEL, 0, 0.84, 0.82, h).rotation.z = Math.PI / 4;
-  box(1.7, 0.2, 1.6, plastic(0xffffff), 0, 0.5, 0, h); return a; }
-function makeDixie() { const a = makeApe({ fur: 0xc8905a, belly: 0xf4d8a8, scale: 0.62, arm: 0.95, bulk: 0.8 }); const t = a.userData.torso, h = a.userData.head, P = 0xf06aa8;
-  box(2.1, 1.0, 1.3, P, 0, 2.2, 0.03, t); box(1.9, 0.28, 1.6, P, 0.1, 0.8, 0, h); box(1.0, 0.22, 1.0, P, 0.2, 1.0, 0, h).rotation.z = 0.15;
-  const pony = new THREE.Group(); pony.position.set(-0.35, 0.55, -0.7); h.add(pony); const segs = [];
-  for (let i = 0; i < 5; i++) { const sg = new THREE.Group(); sg.position.set(0, i ? -0.28 : 0, i ? -0.4 : 0); (segs.length ? segs[segs.length - 1] : pony).add(sg); box(0.5 - i * 0.04, 0.5, 0.5, plastic(0xf6d03a), 0, 0, -0.1, sg); segs.push(sg); }
+  box(1.75, 0.5, 1.65, RED, 0, 0.8, 0, h); box(1.4, 0.16, 0.9, RED, 0, 0.6, 1.0, h); box(0.36, 0.36, 0.05, YEL, 0, 0.86, 0.84, h).rotation.z = Math.PI / 4; box(1.75, 0.2, 1.65, plastic(0xffffff), 0, 0.5, 0, h);
+  const tail = new THREE.Group(); tail.position.set(0, 0.7, -0.7); t.add(tail); [[0, 0.3, -0.5], [0, 0.9, -0.8], [0, 1.5, -0.7], [0, 1.9, -0.3]].forEach(([x, y, z], i) => box(0.3, 0.5, 0.3, plastic(0x8a4a28), x, y, z, tail).rotation.x = 0.3 * i); return a; }
+function makeDixie() { const a = makeApe({ fur: 0x9a6238, belly: 0xf0c890, scale: 0.62, arm: 0.95, bulk: 0.8, ear: 1.3 }); const t = a.userData.torso, h = a.userData.head, P = 0xf06aa8;
+  box(2.1, 1.0, 1.3, P, 0, 2.2, 0.03, t); box(2.0, 0.3, 1.7, P, 0.15, 0.82, 0, h).rotation.z = 0.12; box(1.1, 0.26, 1.1, P, 0.25, 1.05, 0, h).rotation.z = 0.15; for (const s of [-1, 1]) box(0.2, 0.28, 0.06, plastic(0x30a8b0), s * 0.3, 0.14, 0.9, h);
+  const pony = new THREE.Group(); pony.position.set(-0.3, 0.55, -0.75); h.add(pony); const segs = []; let parent = pony; const W = [0.8, 0.95, 1.05, 0.95, 0.75];
+  for (let i = 0; i < 5; i++) { const sg = new THREE.Group(); sg.position.set(0, i ? 0.25 : 0, i ? -0.55 : 0); parent.add(sg); const bend = new THREE.Group(); bend.rotation.x = i ? -0.32 : 0.1; sg.add(bend); box(W[i], 0.7, W[i], plastic(0xf6d03a), 0, 0.1, -0.1, bend); segs.push(sg); parent = bend; }
   a.userData.pony = pony; a.userData.ponySegs = segs; return a; }
-function makeKiddy() { const a = makeApe({ fur: 0xb88858, belly: 0xf0d4a0, scale: 0.78, arm: 0.8, bulk: 1.25 }); a.userData.head.scale.setScalar(1.18); const t = a.userData.torso;
+function makeKiddy() { const a = makeApe({ fur: 0xb88858, belly: 0xf0d4a0, scale: 0.78, arm: 0.8, bulk: 1.25, ear: 1.2 }); a.userData.head.scale.setScalar(1.18); const t = a.userData.torso;
   box(2.9, 1.6, 1.6, 0x3a78d8, 0, 0.7, 0.0, t); box(0.5, 0.5, 0.08, YEL, 0, 1.0, 0.82, t); return a; }
-function makeCranky() { const a = makeApe({ fur: 0x9a9a9e, belly: 0xc8c8cc, scale: 0.78, arm: 0.9, bulk: 0.95 }); const h = a.userData.head;
-  box(1.3, 1.2, 0.5, plastic(0xf4f4f0), 0, -0.7, 0.72, h); box(1.0, 0.3, 0.3, plastic(0xf4f4f0), 0, -0.2, 1.05, h); box(1.5, 0.2, 0.2, plastic(0xf4f4f0), 0, 0.6, 0.78, h);
+function makeCranky() { const a = makeApe({ fur: 0x8a6a4a, belly: 0xc8a888, scale: 0.78, arm: 0.9, bulk: 0.95 }); const h = a.userData.head, WH = plastic(0xf6f6f2);
+  box(1.6, 1.7, 0.6, WH, 0, -0.85, 0.85, h); for (const s of [-1, 1]) { box(0.36, 1.1, 0.7, WH, s * 0.85, -0.2, 0.5, h); box(0.44, 0.6, 0.5, WH, s * 0.95, 0.5, 0.0, h); }
+  box(1.3, 0.34, 0.3, WH, 0, 0.45, 0.84, h); box(1.1, 0.3, 0.32, WH, 0, -0.2, 1.2, h); box(0.7, 0.26, 0.1, plastic(0x5a1010), 0, -0.55, 1.34, h);
+  for (const ar of a.userData.arms) box(1.0, 0.4, 1.0, plastic(0x6a6e80), 0, -1.6, 0.05, ar);
   const cane = new THREE.Group(); cane.position.set(0.1, -2.1, 0.5); a.userData.arms[1].add(cane); box(0.14, 3.2, 0.14, 0x6a4020, 0, 0.6, 0, cane); box(0.5, 0.2, 0.2, 0x6a4020, 0.2, 2.2, 0, cane);
   a.userData.torso.rotation.x = 0.18; return a; }
-function makeFunky() { const a = makeApe({ fur: 0x9a6a38, belly: 0xe0b078, scale: 0.9, arm: 1.0, bulk: 1.0 }); const h = a.userData.head, t = a.userData.torso;
-  box(1.5, 0.42, 0.26, plastic(0x0a0a0e, { roughness: 0.1 }), 0, 0.22, 0.76, h); box(1.6, 0.2, 1.5, RED, 0, 0.58, 0, h); box(0.6, 0.15, 0.5, RED, -0.9, 0.5, -0.3, h);
-  box(2.1, 1.2, 1.3, 0xe8a820, 0, 0.55, 0, a.userData.legs[0].parent.children[0] ? a : a).visible = false;
-  box(2.1, 0.7, 1.3, 0x2a9ad8, 0, 0.2, 0.0, t); const board = box(0.3, 4.4, 1.5, 0xf2f2ee, 0.2, 2.2, -0.9, t); box(0.32, 3.4, 0.5, 0xff6a2a, 0.2, 2.2, -0.9, t); board.rotation.z = 0.5; return a; }
+function makeFunky() { const a = makeApe({ fur: 0xa86a3a, belly: 0xe8b880, scale: 0.9, arm: 1.0, bulk: 1.0 }); const h = a.userData.head, t = a.userData.torso;
+  box(1.55, 0.42, 0.26, plastic(0x0a0a0e, { roughness: 0.1 }), 0, 0.2, 0.84, h); box(1.7, 0.36, 1.6, RED, 0, 0.62, 0, h); for (let i = -2; i <= 2; i++) box(0.14, 0.14, 0.06, plastic(0xffffff), i * 0.3, 0.64, 0.82, h); box(0.6, 0.18, 0.5, RED, -0.95, 0.5, -0.3, h);
+  box(2.3, 1.25, 1.35, 0xf4f4f0, 0, 2.15, 0.02, t); box(2.2, 0.85, 1.3, 0x4ab8c8, 0, 0.45, 0, t); box(2.25, 0.14, 1.32, 0x6a4a2a, 0, 0.95, 0, t);
+  const board = box(0.3, 4.4, 1.5, 0xf2f2ee, 0.2, 2.2, -0.95, t); box(0.32, 3.4, 0.5, 0xff6a2a, 0.2, 2.2, -0.95, t); board.rotation.z = 0.5; return a; }
 function makeKRool() {
   const g = new THREE.Group(), G = plastic(0x4a9a3a), G2 = plastic(0x2e7a2a), Y = plastic(0xe8d070), W = plastic(0xf4f0e0);
   box(3.4, 3.4, 2.8, G, 0, 2.8, 0, g); box(2.4, 2.6, 0.2, Y, 0, 2.6, 1.46, g); box(3.8, 2.0, 1.6, plastic(0xc8301e), 0, 3.4, -1.6, g);
@@ -169,7 +171,7 @@ defScene(8.4, 12.6, () => {
 // 4 (12.6-16.8): 2010 volcano sunset: DK pounds his chest beside Diddy
 defScene(12.6, 16.8, () => {
   const scene = newScene(); scene.background = gradientSky([[0, '#4a3a8a'], [0.4, '#e8705a'], [0.75, '#ffb060'], [1, '#ffe0a0']]); scene.fog = new THREE.Fog(0xf0a070, 60, 260);
-  scene.add(new THREE.HemisphereLight(0xffd8b0, 0x6a5040, 1.0)); sun(scene, 0xffa860, 2.4, V(30, 24, 40), V(0, 0, 0), 60); ground(scene, 0x5a6a38, 300);
+  scene.add(new THREE.HemisphereLight(0xffd8b0, 0x6a5040, 0.7)); sun(scene, 0xffa860, 2.4, V(30, 24, 40), V(0, 0, 0), 60); ground(scene, 0x5a6a38, 300);
   const volc = new THREE.Mesh(new THREE.CylinderGeometry(5, 34, 40, 20, 1), plastic(0x3a2a24, { roughness: 1 })); volc.position.set(18, 20, -60); scene.add(volc);
   const lava = new THREE.Mesh(new THREE.CylinderGeometry(5.4, 5, 2.4, 20), new THREE.MeshStandardMaterial({ color: 0xff5010, emissive: 0xff5010, emissiveIntensity: 2.2 })); lava.position.set(18, 40.6, -60); scene.add(lava);
   for (let i = 0; i < 5; i++) { const l = box(1.4, 18, 1.4, new THREE.MeshStandardMaterial({ color: 0xff6010, emissive: 0xff6010, emissiveIntensity: 1.6 }), 18 + Math.sin(i * 1.7) * 3, 30, -52 + i * 0.4); l.rotation.z = 0.15 * Math.sin(i * 3); }
@@ -179,7 +181,7 @@ defScene(12.6, 16.8, () => {
   function tiki(x, z, s) { const g = new THREE.Group(); g.position.set(x, 0, z); g.scale.setScalar(s); scene.add(g); [0x7a3a1a, 0x9a4a22, 0x6a3014].forEach((c, i) => { box(2, 2.2, 2, c, 0, 1.1 + i * 2.2, 0, g); box(0.6, 0.4, 0.1, plastic(0xffd840, { emissive: 0xffa020, emissiveIntensity: 1.2 }), -0.4, 1.4 + i * 2.2, 1.05, g); box(0.6, 0.4, 0.1, plastic(0xffd840, { emissive: 0xffa020, emissiveIntensity: 1.2 }), 0.4, 1.4 + i * 2.2, 1.05, g); box(1.0, 0.3, 0.1, 0x2a1008, 0, 0.7 + i * 2.2, 1.05, g); }); box(2.6, 0.6, 2.6, 0xd83a2a, 0, 7.0, 0, g); return g; }
   tiki(-9, -4, 1.3); tiki(10, -6, 1.5); tiki(-16, -14, 1.8);
   for (let i = 0; i < 14; i++) palm(scene, (i % 2 ? 1 : -1) * (14 + i * 3), -4 - i * 3.5, 1.2, (i % 2 ? -1 : 1) * 0.12);
-  const fill = new THREE.PointLight(0xffb070, 4, 60); fill.position.set(2, 8, 14); scene.add(fill); const rim4 = new THREE.PointLight(0xff7a30, 3, 40); rim4.position.set(0, 6, -8); scene.add(rim4);
+  const fill = new THREE.PointLight(0xffb070, 1.2, 60); fill.position.set(2, 8, 14); scene.add(fill); const rim4 = new THREE.PointLight(0xff7a30, 1.5, 40); rim4.position.set(0, 6, -8); scene.add(rim4);
   const dk = makeDK(), diddy = makeDiddy(); dk.position.set(-1.6, 1.6, 1); dk.scale.setScalar(1.2); diddy.position.set(3.4, 1.6, 1.4); scene.add(dk, diddy); dk.rotation.y = 0.15; diddy.rotation.y = -0.5;
   const cam = cam0();
   return { scene, cam, update(t, u) {
