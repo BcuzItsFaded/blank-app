@@ -821,3 +821,28 @@ function packFoil(x, y, w, tear, t) { const h = w * 1.6; X.save(); X.translate(x
   if (tear > 0) { X.save(); X.translate(w * 0.5 * tear, -h / 2 - 60 * tear); X.rotate(0.6 * tear); rect(-w / 2, -14, w, 28, '#d0d6e2'); X.restore(); } X.restore(); }
 function jarArt(x, y, s) { X.save(); X.translate(x, y); X.scale(s / 200, s / 200); X.beginPath(); X.moveTo(-40, -70); X.lineTo(40, -70); X.quadraticCurveTo(90, -20, 70, 50); X.quadraticCurveTo(0, 90, -70, 50); X.quadraticCurveTo(-90, -20, -40, -70); X.closePath(); inkFill('#3aa860', 5); rect(-48, -86, 96, 20, '#2a7a40'); txt('+2', 0, 6, 56, '#fff', { w: 900, stroke: INK, sw: 10 }); X.restore(); }
 function lightArt(x, y, s) { const g = X.createRadialGradient(x, y, 0, x, y, s * 0.6); g.addColorStop(0, '#ffffff'); g.addColorStop(0.4, '#d8f0ff'); g.addColorStop(1, '#3a5aa0'); X.fillStyle = g; X.fillRect(x - s, y - s, 2 * s, 2 * s); starPoly(x, y, s * 0.45, s * 0.08, 4, 0); X.fillStyle = '#fff'; X.fill(); }
+
+// ===== original duel monsters =====
+function gear(x, y, r, n, rot, col) { X.save(); X.translate(x, y); X.rotate(rot); X.beginPath(); for (let i = 0; i < n * 2; i++) { const a = i * PI / n, rr = i % 2 ? r * 0.78 : r; X.lineTo(Math.cos(a - PI / n / 2) * rr, Math.sin(a - PI / n / 2) * rr); X.lineTo(Math.cos(a + PI / n / 2) * rr, Math.sin(a + PI / n / 2) * rr); } X.closePath(); inkFill(col, Math.max(2, r * 0.08)); circ(0, 0, r * 0.32, '#3a2410', INK, Math.max(2, r * 0.06)); X.restore(); }
+function phoenix(x, y, s, t, o = {}) {
+  X.save(); X.translate(x, y); X.scale(s * (o.f || 1), s); if (o.rot) X.rotate(o.rot); X.globalAlpha *= (o.a ?? 1); const fl = Math.sin(t * 7) * 0.28;
+  glow(0, 0, 360, 'rgba(255,170,60,0.4)');
+  for (let k = 0; k < 3; k++) { X.beginPath(); X.moveTo(-30, 80); X.quadraticCurveTo(-120 - k * 40, 200 + k * 30, -200 - k * 50 + Math.sin(t * 4 + k) * 20, 330 + k * 40); X.quadraticCurveTo(-90 - k * 20, 230, 10, 90); X.closePath(); inkFill(k === 1 ? '#ff6a1a' : '#ffa030', 5); }
+  for (const sd of [-1, 1]) { X.save(); X.translate(sd * 20, -40); X.rotate(sd * (0.25 + fl)); X.beginPath(); X.moveTo(0, 0); X.quadraticCurveTo(sd * 140, -230, sd * 330, -250); for (let i = 0; i < 5; i++) { X.lineTo(sd * (300 - i * 55), -180 + i * 30); X.lineTo(sd * (280 - i * 55), -150 + i * 34); } X.lineTo(sd * 40, 40); X.closePath(); inkFill('#ffb030', 6); X.beginPath(); X.moveTo(0, 0); X.quadraticCurveTo(sd * 110, -170, sd * 230, -190); X.lineTo(sd * 50, 10); X.closePath(); X.fillStyle = '#ffe08a'; X.fill(); X.restore(); }
+  ell(0, 10, 72, 112, 0.1, '#ff9a2a', 6); ell(14, 30, 40, 70, 0.1, '#ffe08a', 4);
+  X.save(); X.translate(56, -120); for (const [dx, hh] of [[-30, 90], [-5, 120], [22, 95]]) { X.beginPath(); X.moveTo(dx - 14, -20); X.quadraticCurveTo(dx - 20, -hh * 0.6, dx - 10 + Math.sin(t * 9 + dx) * 6, -hh); X.quadraticCurveTo(dx + 14, -hh * 0.5, dx + 14, -20); X.closePath(); inkFill('#ff6a1a', 4); }
+  circ(0, 0, 50, '#ffb84a', INK, 6); X.beginPath(); X.moveTo(40, -10); X.lineTo(100, 10); X.lineTo(40, 22); X.closePath(); inkFill('#ffd24a', 5); circ(16, -10, 12, '#fff', INK, 4); circ(20, -9, 6, INK); line([0, -30, 34, -20], INK, 7); X.restore();
+  if (o.zap) for (const sd of [-1, 1]) zapArc(sd * 200, -180, sd * 330, -60 + (R(sd + 5) - 0.5) * 80, t, sd * 11, 6, '#bff0ff');
+  X.restore();
+}
+function golem(x, y, s, t, o = {}) {
+  const q = o.shatter || 0; X.save(); X.translate(x, y); X.scale(s * (o.f || 1), s); X.globalAlpha *= (o.a ?? 1);
+  if (q > 0) { X.globalAlpha *= 1 - q; for (let i = 0; i < 16; i++) { const a = R(i) * 2 * PI, v = 200 + R(i + 1) * 520; gear(Math.cos(a) * v * eo(q), -260 + Math.sin(a) * v * eo(q) + 600 * q * q, 22 + R(i + 2) * 30, 8, q * 10 + i, i % 2 ? '#c88a40' : '#a86a2a'); } X.restore(); return; }
+  const BR = '#b8783a', B2 = '#8a5426', sw = Math.sin(t * 2) * 4;
+  rect(-80, -170, 56, 170, B2); rect(24, -170, 56, 170, B2); X.strokeStyle = INK; X.lineWidth = 6; X.strokeRect(-80, -170, 56, 170); X.strokeRect(24, -170, 56, 170); rect(-96, -20, 88, 26, '#6a3a18'); rect(8, -20, 88, 26, '#6a3a18');
+  limb([-120, -380 + sw, -180, -270, -170, -180], 46, BR); limb([120, -380 - sw, 180, -270, 170, -180], 46, BR); circ(-172, -170, 40, B2, INK, 6); circ(172, -170, 40, B2, INK, 6);
+  X.beginPath(); X.roundRect(-140, -420, 280, 260, 30); inkFill(BR, 7); for (const [rx, ry] of [[-110, -390], [110, -390], [-110, -190], [110, -190]]) circ(rx, ry, 9, '#e8c080', INK, 3);
+  gear(0, -290, 70, 10, t * 1.5, '#d8a050');
+  X.beginPath(); X.roundRect(-75, -540, 150, 120, 26); inkFill(BR, 7); rect(-56, -500, 112, 26, '#0c1a1a'); rect(-50 + ((t * 60) % 80), -496, 30, 18, '#5af0e0'); glow(0, -487, 80, 'rgba(90,240,224,0.5)'); line([0, -540, 0, -580], INK, 6); circ(0, -586, 10, '#ff5a3a', INK, 3);
+  X.restore();
+}

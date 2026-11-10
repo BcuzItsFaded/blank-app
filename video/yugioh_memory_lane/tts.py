@@ -11,6 +11,8 @@ LINES = [
  "Everyone wanted the Blue-Eyes White Dragon. Three thousand attack points!",
  "And somebody always claimed they had all five pieces of Exodia.",
  "Eight thousand life points, one Pot of Greed, and it's time to duel!",
+ "Two tributes, and a three thousand attack monster burst right out of the card!",
+ "It attacked a twenty five hundred attack golem. Five hundred damage, straight to the life points!",
  "Who was your favorite duelist? Comment below, and follow R G Brick and Stick Verse for more memory lane.",
 ]
 LEAD, GAP, TAIL = 0.5, 0.3, 1.6

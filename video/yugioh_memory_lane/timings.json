@@ -1,5 +1,5 @@
 {
- "dur": 33.37,
+ "dur": 44.131,
  "sents": [
   {
    "text": "Yu-Gi-Oh! A quick trip down memory lane.",
@@ -32,9 +32,19 @@
    "end": 24.779
   },
   {
-   "text": "Who was your favorite duelist? Comment below, and follow R G Brick and Stick Verse for more memory lane.",
+   "text": "Two tributes, and a three thousand attack monster burst right out of the card!",
    "start": 25.079,
-   "end": 31.47
+   "end": 29.577
+  },
+  {
+   "text": "It attacked a twenty five hundred attack golem. Five hundred damage, straight to the life points!",
+   "start": 29.877,
+   "end": 35.541
+  },
+  {
+   "text": "Who was your favorite duelist? Comment below, and follow R G Brick and Stick Verse for more memory lane.",
+   "start": 35.84,
+   "end": 42.231
   }
  ]
 }

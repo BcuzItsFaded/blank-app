@@ -95,6 +95,33 @@ const SHOTS = [
    X.setTransform(1, 0, 0, 1, 0, 0); lpCounter(270, 400, lp, '#ff8a4a', lt); lpCounter(810, 400, lp, '#6ab0ff', lt);
    finishText("IT'S TIME TO DUEL!", 540, 640, 88, prog(lt, 3.0, 3.3), -0.04, ['#ffffff', '#ffd24a', '#c86a10'], '#ffb030');
    return { tint: '#ffb090', tintA: 0.08, flash: (prog(lt, 2.98, 3.02) - prog(lt, 3.02, 3.4)) * 0.7 }; },
+ // 6 tribute summon
+ (lt, d) => { courtBG(lt); X.save(); X.globalAlpha = 0.55; rect(0, 0, W, H, '#100818'); X.restore(); X.save(); X.globalAlpha = 0.6; X.beginPath(); X.ellipse(540, 1080, 460, 120, 0, 0, 2 * PI); X.fillStyle = '#2a1648'; X.fill(); X.strokeStyle = '#d8b050'; X.lineWidth = 6; X.stroke(); X.restore();
+   const trib = prog(lt, 0.4, 1.0); for (const [cx, k] of [[380, 0], [700, 1]]) { if (trib < 1) { card(cx, 1000 - 40 * trib, 150, 0, { frame: '#d8843a', artA: k ? '#a8e0a0' : '#a0c8ff', artB: '#2a3a5a', stats: k ? 'ATK/1200' : 'ATK/1400', a: 1 - trib }); if (trib > 0) glow(cx, 1000, 200, `rgba(255,255,255,${0.7 * (1 - trib)})`); } if (trib > 0 && trib < 1) { X.save(); for (let i = 0; i < 20; i++) { const q = (trib + R(i + k * 30) * 0.5) % 1; X.globalAlpha = 1 - q; circ(cx + (R(i) - 0.5) * 140, 1000 - q * 420, 5 + R(i + 3) * 6, '#fff6c8'); } X.restore(); } }
+   const slam = prog(lt, 1.1, 1.35), big = lt > 1.1; if (big) { card(540, lerp(500, 1000, eo(slam)), lerp(400, 230, eo(slam)), 0, { holo: true, t: lt, frame: '#d8843a', name: 'THUNDER PHOENIX', artA: '#ffe08a', artB: '#ff7a1a', art: (x, y, s2) => lightArt(x, y, s2), stats: 'ATK/3000' }); if (slam >= 1) burstFx(540, 1000, prog(lt, 1.35, 2.0), 0.7); }
+   const rise = eo(prog(lt, 1.7, 2.6)); if (rise > 0) { X.save(); X.globalCompositeOperation = 'lighter'; X.globalAlpha = 0.6 * (1 - prog(lt, 2.4, 3.2)); rect(470, 380, 140, 620, 'rgba(255,240,180,0.5)'); X.restore(); phoenix(540, lerp(1000, 700, rise) + Math.sin(lt * 3) * 10, 0.95 * rise, lt, { a: Math.min(1, rise * 1.5), zap: lt > 2.6 }); }
+   kid(200, 1890, 340, { pose: lt > 2.4 ? 'armsup' : 'point', ph: lt * 5, shirt: '#d8402a', cap: true, capc: '#2a9a5a', f: 1, ex: 'shout' }); kid(880, 1890, 340, { pose: lt > 2.4 ? 'cower' : 'cross', ph: lt, shirt: '#3a8ad8', hair: '#5a3a1a', glasses: true, f: -1, ex: lt > 2.4 ? 'fear' : 'firm' });
+   X.setTransform(1, 0, 0, 1, 0, 0); lpCounter(270, 220, 8000, '#ff8a4a', lt); lpCounter(810, 220, 8000, '#6ab0ff', lt);
+   moveTag('TRIBUTE x2', 540, 380, '#ffffff', prog(lt, 0.3, 0.5) * (1 - prog(lt, 1.0, 1.15))); moveTag('TRIBUTE SUMMON!', 540, 380, '#ffd24a', prog(lt, 1.2, 1.4) * (1 - prog(lt, 2.6, 2.8)));
+   if (lt > 2.7) { X.save(); X.globalAlpha = prog(lt, 2.7, 3.0); X.translate(540, 380); rect(-330, -50, 660, 100, 'rgba(10,6,20,0.85)'); X.strokeStyle = '#ffd24a'; X.lineWidth = 5; X.strokeRect(-330, -50, 660, 100); txt('LV 8  ·  ATK 3000', 0, 2, 54, '#ffd24a', { w: 900, ls: 3 }); X.restore(); }
+   return { tint: '#ffb070', tintA: 0.08, flash: (prog(lt, 1.32, 1.36) - prog(lt, 1.36, 1.7)) * 0.7 }; },
+ // 7 battle: 3000 vs 2500, 500 damage
+ (lt, d) => { courtBG(lt); X.save(); X.globalAlpha = 0.55; rect(0, 0, W, H, '#100818'); X.restore();
+   const dive = eo(prog(lt, 0.8, 1.5)), back = eo(prog(lt, 2.0, 2.8)), hitT = 1.5, hit = lt > hitT;
+   const px = lt < 2.0 ? lerp(300, 680, dive) : lerp(680, 300, back), py = lt < 2.0 ? lerp(700, 900, dive) : lerp(900, 700, back);
+   golem(770, 1180, 0.95, lt, { f: -1, shatter: hit ? prog(lt, hitT, hitT + 1.2) : 0 });
+   if (lt > 0.8 && lt < hitT) { X.save(); X.globalAlpha = 0.6; for (let k = 0; k < 6; k++) zapArc(px - 80 - k * 40, py - 40, px - 160 - k * 50, py - 120, lt, k + 30, 8, '#bff0ff'); X.restore(); }
+   phoenix(px, py + Math.sin(lt * 3) * 10, 0.75, lt, { rot: lt > 0.8 && lt < 2.0 ? 0.45 : 0, zap: true });
+   if (hit) { burstFx(760, 900, prog(lt, hitT, hitT + 0.9)); sparks(760, 900, lt, 26, '#fff4c0', 2); }
+   const dmg = prog(lt, 2.9, 3.6), lpB = lerp(8000, 7500, eo(prog(lt, 3.4, 4.2)));
+   kid(200, 1890, 340, { pose: lt > hitT ? 'armsup' : 'point', ph: lt * 5, shirt: '#d8402a', cap: true, capc: '#2a9a5a', f: 1, ex: 'shout' }); kid(880, 1890, 340, { pose: lt > hitT ? 'cower' : 'cross', ph: lt, shirt: '#3a8ad8', hair: '#5a3a1a', glasses: true, f: -1, ex: lt > hitT ? 'fear' : 'firm' });
+   X.setTransform(1, 0, 0, 1, 0, 0); lpCounter(270, 220, 8000, '#ff8a4a', lt); X.save(); if (lt > 3.4 && lt < 4.4 && Math.sin(lt * 20) > 0) X.globalAlpha = 0.5; lpCounter(810, 220, lpB, '#6ab0ff', lt); X.restore();
+   const cmp = prog(lt, 0.1, 0.4) * (1 - prog(lt, 1.4, 1.6)); if (cmp > 0) { X.save(); X.globalAlpha = cmp; X.translate(540, 430); rect(-420, -60, 840, 120, 'rgba(10,6,20,0.88)'); X.strokeStyle = '#fff'; X.lineWidth = 4; X.strokeRect(-420, -60, 840, 120); txt('3000', -230, 2, 72, '#ffb030', { w: 900, font: 'DejaVu Sans Mono' }); txt('VS', 0, 2, 52, '#fff', { w: 900 }); txt('2500', 230, 2, 72, '#d8a050', { w: 900, font: 'DejaVu Sans Mono' }); X.restore(); }
+   stamp('DESTROYED!', 540, 560, 100, '#ff6a50', prog(lt, hitT + 0.2, hitT + 0.5) * (1 - prog(lt, 2.8, 3.0)), -0.05);
+   if (dmg > 0 && dmg < 1.2) { const q = eo(dmg); txt('-500', lerp(760, 830, q), lerp(900, 330, q), lerp(110, 70, q), '#ff4a3a', { w: 900, stroke: INK, sw: 18, glow: '#ff4a3a', gb: 20, a: 1 - prog(lt, 3.6, 4.0) }); }
+   moveTag('BATTLE!', 540, 330, '#fff', prog(lt, 0.0, 0.2) * (1 - prog(lt, 0.1, 0.2)) * 0);
+   txt('3000 − 2500 = 500 DAMAGE', 540, 430, 50, '#fff', { w: 900, ls: 2, stroke: INK, sw: 12, a: prog(lt, 3.0, 3.4) });
+   return { tint: '#ffb070', tintA: 0.08, flash: (prog(lt, hitT - 0.04, hitT) - prog(lt, hitT, hitT + 0.35)) * 0.85 }; },
  // 6 end card
  (lt, d) => { fillBG('#1a0c2e', '#3a1650'); particles(lt, { n: 50, c: '#ffd88a', a: 0.7, up: true, sp: 40, r: 3, add: true });
    for (let i = 0; i < 7; i++) card(540 + (i - 3) * 120, 1260 + Math.abs(i - 3) * 22, 200, (i - 3) * 0.16, i === 3 ? { holo: true, t: lt, frame: '#d8843a', artA: '#ffe8a0', artB: '#ff8a3a', art: (x, y, s) => lightArt(x, y, s), stats: 'ATK/????' } : { back: true });

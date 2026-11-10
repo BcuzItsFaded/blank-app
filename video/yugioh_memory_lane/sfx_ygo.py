@@ -112,7 +112,11 @@ for i in range(4): add(st(4) + 0.3 + i * 0.4, flick(), 0.7); add(st(4) + 0.35 + 
 add(st(4) + 1.9, sadnotes(), 0.5)
 for i in range(12): add(st(5) + 0.1 + i * 0.1, sblip(1000 + 40 * i), 0.3)
 add(st(5) + 1.5, sparkle(), 0.6); add(st(5) + 2.2, flick(), 0.6); add(st(5) + 2.4, flick(), 0.6); add(st(5) + 2.85, riser(0.2), 0.4); add(st(5) + 3.0, boom(), 0.9); add(st(5) + 3.0, impact(0.8), 0.6)
-add(st(6) + 0.2, sparkle(), 0.5); add(st(6) + 1.6, chime(), 0.5); add(st(6) + 3.6, chime(), 0.6); add(st(6) + 3.7, sparkle(), 0.5)
+add(st(6) + 0.4, sparkle(), 0.6); add(st(6) + 0.4, riser(0.7), 0.4); add(st(6) + 1.1, flick(), 0.8); add(st(6) + 1.3, boom(), 0.9); add(st(6) + 1.3, impact(0.7), 0.6); add(st(6) + 1.7, choir(2.6, [110, 138.6, 164.8, 220]), 0.35); add(st(6) + 2.0, screech(0.9), 0.3); add(st(6) + 2.6, crackle(1.2), 0.4)
+add(st(7) + 0.1, sblip(1200), 0.5); add(st(7) + 0.8, whoosh_s(0.7), 0.6); add(st(7) + 0.9, riser(0.6), 0.4); add(st(7) + 1.5, crack(), 0.8); add(st(7) + 1.5, boom(), 1.0); add(st(7) + 1.5, impact(0.9), 0.7)
+for i in range(5): add(st(7) + 1.6 + i * 0.12, clank(), 0.5)
+add(st(7) + 3.4, blips(0.8, 1400, 400), 0.6); add(st(7) + 4.0, sadnotes(), 0.6)
+add(st(8) + 0.2, sparkle(), 0.5); add(st(8) + 1.6, chime(), 0.5); add(st(8) + 3.6, chime(), 0.6); add(st(8) + 3.7, sparkle(), 0.5)
 
 def place(buf, t, x, g, pan=0):
     i = int(max(0, t) * SR); x = x[: max(0, buf.shape[1] - i)]; l, r = np.sqrt((1 - pan) / 2), np.sqrt((1 + pan) / 2)
