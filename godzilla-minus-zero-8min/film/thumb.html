@@ -1,0 +1,15 @@
+<!doctype html><html><head><style>@font-face{font-family:Montserrat;src:url(Montserrat.ttf);font-weight:100 900}body{margin:0}</style></head><body><canvas id="c" width="1920" height="1080"></canvas>
+<script src="words.js"></script><script src="lib.js"></script><script src="kaiju.js"></script><script src="scenes.js"></script><script>
+ctx=document.getElementById('c').getContext('2d');
+document.fonts.load('800 40px Montserrat').then(()=>{ T=0.9;
+ rect(0,0,W,H,'#3d3a58'); ruinCity(53,'#4f4c6a',920); rect(0,920,W,160,'#2f2d44');
+ for(let i=0;i<10;i++) fireBlob(100+i*200,930,1.1,i);
+ godzilla({x:330,y:1120,s:1.25,face:1,mouth:1,glow:1,breath:1,breathL:560});
+ ghidorah({x:1600,y:1120,s:1.05,face:-1,heads:3,mutant:0,mouthAt:()=>0.9,beamAt:i=>i===0?1:0,beamL:520});
+ circ(980,650,170,'#ffe9c0'); circ(980,650,120,'#fff');
+ person({...CAST.noriko,x:980,y:1330,h:620,view:'front',mouth:'o',brow:-0.2,nod:0,faceExtra:(hx,hy,hr)=>gcells(hx,hy,hr,true)});
+ ctx.font='800 132px Montserrat'; ctx.textAlign='center'; ctx.textBaseline='alphabetic';
+ for(const [s,y,c] of [['GODZILLA MINUS ZERO',170,'#fff']]){ ctx.fillStyle='#1f2033'; ctx.fillText(s,970,y+10); ctx.fillStyle=c; ctx.fillText(s,960,y); }
+ rrect(420,205,1080,118,22,'#d62828'); ctx.font='800 76px Montserrat'; ctx.fillStyle='#fff'; ctx.fillText('FULL STORY EXPLAINED',960,292);
+ window.READY=true;});
+</script></body></html>
