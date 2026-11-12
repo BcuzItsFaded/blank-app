@@ -84,7 +84,7 @@ const BRROOM = (() => {
   const posters = [
     BRposter(scene, -4.4, 5.8, -5.9, 2.6, 3.4, { bg: '#4a9ad8', fig: '#2a6ad8', skin: '#f0c8a0', accent: '#d83a2a', title: 'MEGA MAN', sub: 'BLUE BOMBER' }),
     BRposter(scene, -0.8, 5.8, -5.9, 2.6, 3.4, { bg: '#7a5ab8', fig: '#e8e0d0', skin: '#e8c0a0', accent: '#3a2a4a', title: 'DR. WILY', sub: 'WHY?!' }),
-    BRposter(scene, 2.8, 5.8, -5.9, 2.6, 3.4, { bg: '#c84a2a', fig: '#d8d8e8', skin: '#f0c8a0', accent: '#2a2a40', title: 'ROBOT MASTERS', sub: 'BOSS RUSH' }),
+    BRposter(scene, 2.8, 5.8, -5.9, 2.6, 3.4, { bg: '#c84a2a', fig: '#d8d8e8', skin: '#f0c8a0', accent: '#2a2a40', title: 'BOSSES', sub: 'BOSS RUSH' }),
     BRposter(scene, 6.2, 6.4, -5.9, 1.4, 1.8, { bg: '#f2c020', fig: '#f2c020', skin: '#f2c020', accent: '#1a1a1a', title: 'MET', sub: '' }),
   ];
 
