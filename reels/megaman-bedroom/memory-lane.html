@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mega Man Bedroom Memory Lane</title>
+<link rel="stylesheet" href="../engine/reel.css">
+<style>
+  :root { --accent: #ffd84a; }
+  #flash { background: #fff4d0; }
+  #caption span { background: none; font-size: 40px; font-weight: 800; letter-spacing: 1px; padding: 0; text-shadow: 0 3px 0 rgba(40,20,10,.95), 0 0 16px rgba(0,0,0,.7); }
+  #caption small { display: block; font-size: 28px; letter-spacing: 6px; color: #ffd84a; margin-bottom: 8px; }
+  #memory { position: absolute; inset: 0; pointer-events: none; z-index: 3; background: radial-gradient(ellipse at 50% 45%, rgba(255,200,120,0) 55%, rgba(40,20,10,.45) 100%); }
+  #title .t1 { font-family: "DejaVu Sans", sans-serif; font-weight: 800; font-size: 60px; letter-spacing: 2px; color: #ffd84a; line-height: 1.05; -webkit-text-stroke: 3px #1a4aa8; text-shadow: 0 6px 0 #0a2a6a, 0 0 24px rgba(106,184,255,.7); }
+  #title .t1 em { font-style: normal; color: #6ae8ff; }
+  #title .t2 { color: #ffe9a0; }
+  #endlogo span { border-color: #ffd84a; }
+  #brand i, #endlogo i { color: #ffd84a; }
+</style>
+</head>
+<body>
+<div id="ui"><button id="play">Play</button> <input id="scrub" type="range" min="0" max="30" step="0.01" value="0" style="width:260px"> <span id="tc">0.00</span></div>
+<div id="stage">
+  <div id="memory"></div>
+  <div id="title"><div class="t1">MEGA MAN<br><em>BEDROOM</em></div><div class="t2">MEMORY LANE · 1987</div></div>
+  <div id="endlogo"><span>RG <i>BrickVerse</i></span></div>
+  <div id="caption"></div>
+  <div id="brand">RG <i>BrickVerse</i></div>
+  <div id="flash"></div>
+  <div id="fade"></div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/three@0.149.0/build/three.min.js"></script>
+<script src="../engine/engine.js"></script>
+<script src="scenes.js"></script>
+<script>
+"use strict";
+const card = (small, big) => '<small>' + small + '</small>' + big;
+const CARDS = [
+  [0.4, 4.6, card('AFTER SCHOOL', 'The bedroom floor')],
+  [5.4, 9.6, card('THE TV', 'Press Start')],
+  [10.4, 14.6, card('THE CONTROLLER', 'One more try')],
+  [15.4, 19.6, card('THE POSTERS', 'Dr. Wily was always there')],
+  [20.4, 24.6, card('THE BOOMBOX', 'Level music on repeat')],
+];
+const BOUNDS = [5, 10, 15, 20, 25];
+const G = { tint: [1.04, 1.0, 0.94], sat: 1.15, contrast: 1.08, bloom: 0.45, thr: 1.3, exposure: 0.72 };
+startReel({
+  duration: 30, envIntensity: 0.3, captions: CARDS, grades: [0, 1, 2, 3, 4, 5].map(() => G), gradeAll: { lift: [0.02, 0.012, 0.0] },
+  fade: t => { let f = t < 0.5 ? 1 - t / 0.5 : 0; BOUNDS.forEach(b => { f = Math.max(f, Math.max(0, 1 - Math.abs(t - b) / 0.18) * 0.8); });
+    if (t > 26.4) f = Math.max(f, clamp((t - 26.4) / 1.0, 0, 1) * 0.35); if (t > 29.6) f = Math.max(f, clamp((t - 29.6) / 0.35, 0, 1)); return f; },
+  flash: t => (t > 6.2 && t < 6.5 ? 0.3 * (1 - (t - 6.2) / 0.3) : 0),
+  shake: t => 0,
+  captionTop: () => '64%', title: { in: 26.6, out: 29.95 }, endlogo: { in: 28.2, out: 29.95 }, brandOut: 26.4,
+});
+</script>
+</body>
+</html>
