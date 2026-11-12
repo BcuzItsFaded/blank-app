@@ -2,7 +2,7 @@ const {chromium}=require('playwright'); const fs=require('fs'); const {spawn}=re
 (async()=>{ const [,,mode,a,b,out]=process.argv;
  const br=await chromium.launch({args:['--allow-file-access-from-files']}); const p=await br.newPage({viewport:{width:1920,height:1080}});
  p.on('pageerror',e=>console.log('PAGEERR',e.message));
- await p.goto('file:///root/media/aliens/film/index.html'); await p.waitForFunction('window.READY',null,{timeout:20000});
+ await p.goto('file://'+(process.env.FILM||'/root/media/aliens/film')+'/index.html'); await p.waitForFunction('window.READY',null,{timeout:20000});
  if(mode==='ev'){ fs.writeFileSync(out, JSON.stringify(await p.evaluate(()=>collect()))); await br.close(); return; }
  const fps=60, f0=+a, f1=+b;
  const ff=spawn('ffmpeg',['-loglevel','error','-y','-f','image2pipe','-framerate','60','-c:v','mjpeg','-i','-','-c:v','libx264','-crf','16','-preset','medium','-pix_fmt','yuv420p','-r','60',out],{stdio:['pipe','inherit','inherit']});

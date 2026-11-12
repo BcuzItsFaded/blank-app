@@ -1,5 +1,5 @@
 import numpy as np, soundfile as sf, json, librosa, subprocess
-SR=48000; DUR=91.5; N=int(SR*DUR)
+SR=48000; import os; DUR=float(os.environ.get('DUR','91.5')); N=int(SR*DUR)
 # ---- music: light curious documentary bed (D minor, 96 bpm), synthesized
 t=np.arange(N)/SR; mus=np.zeros(N)
 bpm=96; beat=60/bpm
@@ -54,7 +54,7 @@ for e in evs:
     ty=e['type']
     if ty=='type' and e['t']-last.get(ty,-9)<0.06: continue
     last[ty]=e['t']; n,g=lib[ty]; place(n,e['t'],g)
-for tm in [45.50,79.08]: 
+for tm in [float(x) for x in os.environ.get('BOOMS','45.50,79.08').split(',')]: 
     x,pk=load('explosion_1343'); x=x[:int(2.5*SR)]*np.minimum(1,(2.5-np.arange(min(len(x),int(2.5*SR)))/SR)/1.0); i0=int(tm*SR)-int(np.argmax(np.abs(x[:SR]))); sfx[i0:i0+len(x)]+=0.5*x
 sfx*= vr/ (rms(sfx[sfx!=0]) +1e-9) * 10**(-8/20)
 mix=voice+mus+sfx

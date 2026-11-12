@@ -1,0 +1,9 @@
+<!doctype html><html><body style="margin:0"><canvas id="c" width="1920" height="1080"></canvas>
+<script src="lib.js"></script><script src="kaiju.js"></script><script>
+ctx=document.getElementById('c').getContext('2d'); T=1.3;
+rect(0,0,W,H,'#8d9bb0'); ruinCity(3); rect(0,820,W,260,'#5d6470');
+godzilla({x:420,y:900,s:0.95,face:1,mouth:0.6,glow:1,breath:0.4,breathL:900});
+ghidorah({x:1450,y:900,s:0.85,face:-1,heads:3,mutant:2,mouth:0.6,beamAt:i=>i==0?0.5:0});
+ghidorah({x:1700,y:420,s:0.35,face:-1,heads:1,fly:true});
+blob(1000,1000,90,1.3);
+window.READY=true;</script></body></html>
