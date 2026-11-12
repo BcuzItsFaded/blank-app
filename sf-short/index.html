@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1080, height=1920" />
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.15.0/dist/gsap.min.js"></script>
+    <style>
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      html, body { margin: 0; width: 1080px; height: 1920px; overflow: hidden; background: #1b1a18; }
+      #root { position: relative; width: 100%; height: 100%; overflow: hidden; background: #1b1a18; }
+    </style>
+  </head>
+  <body>
+    <div id="root" data-composition-id="main" data-start="0" data-duration="57.52" data-width="1080" data-height="1920">
+      <div id="s1" data-composition-id="s1" data-composition-src="compositions/s1.html" data-start="0.00" data-duration="9.94" data-track-index="1" data-track-kind="graphics" data-width="1080" data-height="1920"></div>
+      <div id="s2" data-composition-id="s2" data-composition-src="compositions/s2.html" data-start="9.94" data-duration="8.98" data-track-index="1" data-track-kind="graphics" data-width="1080" data-height="1920"></div>
+      <div id="s3" data-composition-id="s3" data-composition-src="compositions/s3.html" data-start="18.92" data-duration="5.74" data-track-index="1" data-track-kind="graphics" data-width="1080" data-height="1920"></div>
+      <div id="s4" data-composition-id="s4" data-composition-src="compositions/s4.html" data-start="24.66" data-duration="6.81" data-track-index="1" data-track-kind="graphics" data-width="1080" data-height="1920"></div>
+      <div id="s5" data-composition-id="s5" data-composition-src="compositions/s5.html" data-start="31.47" data-duration="6.62" data-track-index="1" data-track-kind="graphics" data-width="1080" data-height="1920"></div>
+      <div id="s6" data-composition-id="s6" data-composition-src="compositions/s6.html" data-start="38.09" data-duration="6.68" data-track-index="1" data-track-kind="graphics" data-width="1080" data-height="1920"></div>
+      <div id="s7" data-composition-id="s7" data-composition-src="compositions/s7.html" data-start="44.77" data-duration="6.81" data-track-index="1" data-track-kind="graphics" data-width="1080" data-height="1920"></div>
+      <div id="s8" data-composition-id="s8" data-composition-src="compositions/s8.html" data-start="51.58" data-duration="5.94" data-track-index="1" data-track-kind="graphics" data-width="1080" data-height="1920"></div>
+      <audio id="vo-1" class="clip" src="assets/vo/l1.wav" data-start="0.20" data-duration="9.49" data-volume="1" data-track-index="31"></audio>
+      <audio id="vo-2" class="clip" src="assets/vo/l2.wav" data-start="10.14" data-duration="8.53" data-volume="1" data-track-index="30"></audio>
+      <audio id="vo-3" class="clip" src="assets/vo/l3.wav" data-start="19.12" data-duration="5.29" data-volume="1" data-track-index="31"></audio>
+      <audio id="vo-4" class="clip" src="assets/vo/l4.wav" data-start="24.86" data-duration="6.36" data-volume="1" data-track-index="30"></audio>
+      <audio id="vo-5" class="clip" src="assets/vo/l5.wav" data-start="31.67" data-duration="6.17" data-volume="1" data-track-index="31"></audio>
+      <audio id="vo-6" class="clip" src="assets/vo/l6.wav" data-start="38.29" data-duration="6.23" data-volume="1" data-track-index="30"></audio>
+      <audio id="vo-7" class="clip" src="assets/vo/l7.wav" data-start="44.97" data-duration="6.36" data-volume="1" data-track-index="31"></audio>
+      <audio id="vo-8" class="clip" src="assets/vo/l8.wav" data-start="51.78" data-duration="3.99" data-volume="1" data-track-index="30"></audio>
+      <audio id="a1" class="clip" src="assets/sfx/pop.mp3" data-start="0.28" data-duration="0.6" data-volume="0.25" data-track-index="40"></audio>
+      <audio id="a1b" class="clip" src="assets/sfx/impact-bass-2.mp3" data-start="1.414" data-duration="2.55" data-volume="0.3" data-track-index="41"></audio>
+      <audio id="a1c" class="clip" src="assets/sfx/impact-bass-1.mp3" data-start="4.4" data-duration="2.0" data-volume="0.3" data-track-index="42"></audio>
+      <audio id="a2" class="clip" src="assets/sfx/whoosh-short.mp3" data-start="9.82" data-duration="0.55" data-volume="0.3" data-track-index="43"></audio>
+      <audio id="a2b" class="clip" src="assets/sfx/pop.mp3" data-start="11.26" data-duration="0.6" data-volume="0.25" data-track-index="44"></audio>
+      <audio id="a3" class="clip" src="assets/sfx/impact-bass-1.mp3" data-start="19.77" data-duration="2.0" data-volume="0.3" data-track-index="45"></audio>
+      <audio id="a4" class="clip" src="assets/sfx/glitch-3.mp3" data-start="24.64" data-duration="1.2" data-volume="0.3" data-track-index="46"></audio>
+      <audio id="a4b" class="clip" src="assets/sfx/impact-bass-1.mp3" data-start="27.16" data-duration="2.0" data-volume="0.35" data-track-index="47"></audio>
+      <audio id="a4c" class="clip" src="assets/sfx/impact-bass-1.mp3" data-start="29.36" data-duration="2.0" data-volume="0.35" data-track-index="48"></audio>
+      <audio id="a5" class="clip" src="assets/sfx/pop.mp3" data-start="33.62" data-duration="0.6" data-volume="0.25" data-track-index="49"></audio>
+      <audio id="a5b" class="clip" src="assets/sfx/impact-bass-1.mp3" data-start="35.37" data-duration="2.0" data-volume="0.3" data-track-index="50"></audio>
+      <audio id="a6" class="clip" src="assets/sfx/impact-bass-2.mp3" data-start="38.204" data-duration="2.55" data-volume="0.35" data-track-index="51"></audio>
+      <audio id="a6b" class="clip" src="assets/sfx/whoosh.mp3" data-start="41.54" data-duration="0.55" data-volume="0.35" data-track-index="52"></audio>
+      <audio id="a6c" class="clip" src="assets/sfx/impact-bass-1.mp3" data-start="41.87" data-duration="2.0" data-volume="0.4" data-track-index="53"></audio>
+      <audio id="a7" class="clip" src="assets/sfx/whoosh.mp3" data-start="46.12" data-duration="0.55" data-volume="0.35" data-track-index="54"></audio>
+      <audio id="a7b" class="clip" src="assets/sfx/impact-bass-1.mp3" data-start="46.45" data-duration="2.0" data-volume="0.35" data-track-index="55"></audio>
+      <audio id="a7c" class="clip" src="assets/sfx/whoosh-short.mp3" data-start="50.07" data-duration="0.55" data-volume="0.3" data-track-index="56"></audio>
+      <audio id="a8r" class="clip" src="assets/sfx/riser.mp3" data-start="44.35" data-duration="10.0" data-volume="0.15" data-track-index="57"></audio>
+      <audio id="a8" class="clip" src="assets/sfx/impact-bass-1.mp3" data-start="54.36" data-duration="2.0" data-volume="0.4" data-track-index="58"></audio>
+    </div>
+    <script>
+      window.__timelines = window.__timelines || {};
+      window.__timelines["main"] = gsap.timeline({ paused: true });
+    </script>
+  </body>
+</html>
