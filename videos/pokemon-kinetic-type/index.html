@@ -48,6 +48,7 @@
       <div id="w3" class="clip word" data-start="5.2" data-duration="2.6" data-track-index="0">Battle</div>
       <div id="ball" class="clip" data-start="7.8" data-duration="2.2" data-track-index="1"></div>
       <div id="title" class="clip" data-start="7.8" data-duration="2.2" data-track-index="2">POKÉMON</div>
+      <img id="franklin" class="clip" src="assets/franklin.jpg" alt="" data-start="7.6" data-duration="2.4" data-track-index="9" style="position:absolute;inset:0;width:1920px;height:1080px;object-fit:contain;background:#000;opacity:0;" />
     </div>
     <script>
       const tl = gsap.timeline({ paused: true });
@@ -60,6 +61,7 @@
       // Poké Ball spins in, then the title lands.
       tl.fromTo("#ball", { opacity: 0, rotation: -540, scale: 0.4 }, { opacity: 1, rotation: 0, scale: 1, duration: 0.9, ease: "back.out(1.4)" }, 7.9)
         .fromTo("#title", { opacity: 0, y: 40 }, { opacity: 1, y: 0, duration: 0.4, ease: "power3.out" }, 8.4);
+      tl.fromTo("#franklin", { opacity: 0 }, { opacity: 1, duration: 0.5, ease: "power2.out" }, 7.6);
       window.__timelines["main"] = tl;
       tl.seek(0);
     </script>

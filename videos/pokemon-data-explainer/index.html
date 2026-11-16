@@ -53,6 +53,7 @@
         <div>ORDER BY 2 DESC;</div>
       </div>
       <div id="note" class="clip abs" data-start="7.5" data-duration="2.5" data-track-index="3">Source: regional Pokédex logs</div>
+      <img id="franklin" class="clip" src="assets/franklin.jpg" alt="" data-start="7.5" data-duration="2.5" data-track-index="9" style="position:absolute;inset:0;width:1920px;height:1080px;object-fit:contain;background:#000;opacity:0;" />
     </div>
     <script>
       const tl = gsap.timeline({ paused: true });
@@ -68,6 +69,7 @@
         .fromTo("#sub", { opacity: 0 }, { opacity: 1, duration: 0.5 }, 0.4)
         .fromTo("#code", { opacity: 0, x: 40 }, { opacity: 1, x: 0, duration: 0.5, ease: "power3.out" }, 5.2)
         .fromTo("#note", { opacity: 0 }, { opacity: 1, duration: 0.4 }, 7.5);
+      tl.fromTo("#franklin", { opacity: 0 }, { opacity: 1, duration: 0.5, ease: "power2.out" }, 7.5);
       window.__timelines["main"] = tl;
       tl.seek(0);
     </script>

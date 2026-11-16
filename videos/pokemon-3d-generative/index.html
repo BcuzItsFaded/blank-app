@@ -36,6 +36,7 @@
       <div id="field" class="clip" data-start="0" data-duration="10" data-track-index="0"><div id="grid"></div></div>
       <div id="orb" class="clip" data-start="1" data-duration="9" data-track-index="1"></div>
       <div id="title" class="clip" data-start="5.5" data-duration="4.5" data-track-index="2">Pokémon</div>
+      <img id="franklin" class="clip" src="assets/franklin.jpg" alt="" data-start="7" data-duration="3" data-track-index="9" style="position:absolute;inset:0;width:1920px;height:1080px;object-fit:contain;background:#000;opacity:0;" />
     </div>
     <script>
       // Deterministic field: a lattice of dots on a wave, no randomness, so every render matches.
@@ -70,6 +71,7 @@
         .fromTo("#orb", { opacity: 0, scale: 0.2 }, { opacity: 1, scale: 1, duration: 1.2, ease: "back.out(1.6)" }, 1)
         .to("#orb", { rotation: 360, duration: 8, ease: "none" }, 1)
         .fromTo("#title", { opacity: 0, y: 40, scale: 1.15 }, { opacity: 1, y: 0, scale: 1, duration: 1.2, ease: "power3.out" }, 5.5);
+      tl.fromTo("#franklin", { opacity: 0 }, { opacity: 1, duration: 0.5, ease: "power2.out" }, 7);
       window.__timelines["main"] = tl;
       tl.seek(0);
     </script>
