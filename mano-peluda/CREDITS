@@ -1,0 +1,19 @@
+LA MANO PELUDA — Episode 18
+PLOT TWIST WITH A&R
+
+A code-rendered short film in the paper-cut lightbox style.
+Vertical 9:16 · ~60.6s · 1080x1920 · 30 fps · −14 LUFS
+
+Style ....................... Paper-cut Lightbox (Lemo-Opuscar library)
+Written & directed .......... in code (film.js — a pure function of time)
+Narration voice ............. British male storyteller (Kokoro / edge-tts), +12% rate
+Music & sound design ........ synthesised in Python (mix.py): music-box, strings,
+                              timpani heartbeat, under-bed foley
+Subtitles ................... mano-peluda.en.srt (English)
+
+Source: Mexican folklore (La Mano Peluda). Origin legends (buried treasure; the
+Inquisition) and the sleep-paralysis parallel are folklore/documented phenomena,
+not asserted history — see FACTS.md.
+
+No photographs, stock footage, or AI-generated imagery. Every frame is drawn in
+code; all audio is synthesised.
