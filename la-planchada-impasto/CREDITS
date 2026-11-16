@@ -1,0 +1,8 @@
+LA PLANCHADA (impasto): third-party assets
+
+Picture: painted entirely in code (a Canvas 2D palette-knife renderer written for this film); no stock footage, no generated images or video. The legend is traditional folklore (see FACTS.md); the characters are original.
+Font (SIL OFL 1.1, Google Fonts): Cormorant Garamond.
+Voice: Kokoro-82M TTS via kokoro-onnx (voice bm_george), Apache-2.0. Speech check: faster-whisper (MIT).
+Music: original, played from sampled instruments:
+- Samples (CC0): VS Chamber Orchestra: Community Edition (Versilian Studios), Versilian Community Sample Library (Versilian Studios)
+Foley (knife scrapes, wet dabs, thuds, plucks): synthesised in mix.py.
