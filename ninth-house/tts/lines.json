@@ -1,0 +1,66 @@
+[
+ {
+  "id": "v01",
+  "text": "Marta Voss painted Mill Lane every morning for eleven years.",
+  "voice": "bm_george",
+  "speed": 0.9,
+  "asr": "Marta Vass painted Mill Lane every morning for 11 years."
+ },
+ {
+  "id": "v02",
+  "text": "Eight houses. One lamp. A pear tree that never bore a pear.",
+  "voice": "bm_george",
+  "speed": 0.9
+ },
+ {
+  "id": "v03",
+  "text": "She painted only what she could see. That was the rule.",
+  "voice": "bm_george",
+  "speed": 0.9
+ },
+ {
+  "id": "v04",
+  "text": "On a Wednesday, she found a ninth house in her journal. A red door, at the end of the lane. Her own brushwork. Not her memory.",
+  "voice": "bm_george",
+  "speed": 0.9
+ },
+ {
+  "id": "v05",
+  "text": "She walked outside. Eight houses. She laughed, and felt foolish.",
+  "voice": "bm_george",
+  "speed": 0.9,
+  "asr": "She walked outside, ate houses, she laughed and felt foolish."
+ },
+ {
+  "id": "v06",
+  "text": "On Thursday there were nine. The neighbours said it had always been there.",
+  "voice": "bm_george",
+  "speed": 0.9
+ },
+ {
+  "id": "v07",
+  "text": "Each morning, the page held something she had not painted. A light in the window. A table. A woman, bent over a sheet of paper.",
+  "voice": "bm_george",
+  "speed": 0.9
+ },
+ {
+  "id": "v08",
+  "text": "On Monday, the woman looked up.",
+  "voice": "bm_george",
+  "speed": 0.88
+ },
+ {
+  "id": "v09",
+  "text": "Marta crossed the lane. Behind her, her own house began to fade to paper.",
+  "voice": "bm_george",
+  "speed": 0.9,
+  "asr": "Mara crossed the lane. Behind her, her own house began to fade to papers."
+ },
+ {
+  "id": "v10",
+  "text": "In eleven years, she never once asked who was painting Marta Voss.",
+  "voice": "bm_george",
+  "speed": 0.88,
+  "asr": "In 11 years, she never once asked who was painting Mara Vass."
+ }
+]
