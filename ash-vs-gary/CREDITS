@@ -1,0 +1,10 @@
+ASH vs GARY, EP 1: third-party assets
+
+Picture: drawn entirely in code (Canvas 2D chalk renderer). No stock footage, no generated images or video.
+Characters, names and the Pokémon shown are the property of their owners (Nintendo, Game Freak, Creatures, TV Tokyo). The film's author states they hold the right to use them; that responsibility is theirs.
+Fonts (SIL OFL 1.1, Google Fonts): Gloria Hallelujah, Patrick Hand.
+Voice: Kokoro-82M TTS via kokoro-onnx (voice am_michael), Apache-2.0. Speech check: faster-whisper (MIT).
+Music: original, played from sampled instruments:
+- Drums: "MuldjordKit" by Lars Muldjord (drumgizmo.org), FreePats version, licensed under CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/)
+- Samples (CC0): FreePats project (freepats.zenvoid.org), VS Chamber Orchestra: Community Edition (Versilian Studios)
+Chalk and impact sounds: synthesised in mix.py.

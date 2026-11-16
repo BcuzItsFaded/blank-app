@@ -1,0 +1,58 @@
+[
+ {
+  "id": "v01",
+  "text": "Years of rivalry led to this moment! Ash versus Gary at the Joe-toe League!",
+  "voice": "am_michael",
+  "speed": 1.1,
+  "text0": "Years of rivalry led to this moment! Ash versus Gary at the Johto League!"
+ },
+ {
+  "id": "v02",
+  "text": "Gary's Nee-doh-queen defeats Tauros, but Ash's Heracross strikes back against Magmar!",
+  "voice": "am_michael",
+  "speed": 1.1,
+  "text0": "Gary's Nidoqueen defeats Tauros, but Ash's Heracross strikes back against Magmar!"
+ },
+ {
+  "id": "v03",
+  "text": "Then Blastoise enters! Its overwhelming power takes down both Heracross and Bayleef!",
+  "voice": "am_michael",
+  "speed": 1.1,
+  "text0": "Then Blastoise enters! Its overwhelming power takes down both Heracross and Bayleef!"
+ },
+ {
+  "id": "v04",
+  "text": "Snorlax defeats Arcanine and Nee-doh-queen, but Gary's Scizor turns the battle around!",
+  "voice": "am_michael",
+  "speed": 1.1,
+  "text0": "Snorlax defeats Arcanine and Nidoqueen, but Gary's Scizor turns the battle around!"
+ },
+ {
+  "id": "v05",
+  "text": "Ash's final Pokay-mon is Charizard! It defeats Scizor and Golem, leaving Gary one last challenger!",
+  "voice": "am_michael",
+  "speed": 1.1,
+  "text0": "Ash's final Pok\u00e9mon is Charizard! It defeats Scizor and Golem, leaving Gary one last challenger!"
+ },
+ {
+  "id": "v06",
+  "text": "Blastoise returns! Its powerful Hydro Pump gives Gary a massive type advantage!",
+  "voice": "am_michael",
+  "speed": 1.1,
+  "text0": "Blastoise returns! Its powerful Hydro Pump gives Gary a massive type advantage!"
+ },
+ {
+  "id": "v07",
+  "text": "Charizard scorches the battlefield! Blastoise cools the rocks, filling the arena with thick steam!",
+  "voice": "am_michael",
+  "speed": 1.1,
+  "text0": "Charizard scorches the battlefield! Blastoise cools the rocks, filling the arena with thick steam!"
+ },
+ {
+  "id": "v08",
+  "text": "Out of the steam, Charizard unleashes Seismic Toss! Blastoise falls! Ash finally defeats Gary!",
+  "voice": "am_michael",
+  "speed": 1.1,
+  "text0": "Out of the steam, Charizard unleashes Seismic Toss! Blastoise falls! Ash finally defeats Gary!"
+ }
+]
