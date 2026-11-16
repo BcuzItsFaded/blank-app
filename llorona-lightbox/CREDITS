@@ -1,0 +1,8 @@
+LA LLORONA (paper-cut lightbox): third-party assets
+
+Picture: drawn entirely in code (Canvas 2D paper-layer renderer); no stock footage, no generated images or video. La Llorona is traditional folklore (see FACTS.md); the figures are original.
+Fonts (SIL OFL 1.1, Google Fonts): Cormorant Garamond, IM Fell English SC.
+Voice: Kokoro-82M TTS via kokoro-onnx (voice bm_george), Apache-2.0. Speech check: faster-whisper (MIT).
+Music: original, played from sampled instruments:
+- Samples (CC0): VS Chamber Orchestra: Community Edition (Versilian Studios), Versilian Community Sample Library (Versilian Studios)
+River, drips, splashes, wind and the woman's wail: synthesised in mix.py.
