@@ -244,6 +244,7 @@ function cathedral(c, x, base, s) { c.fillRect(x - 130 * s, base - 560 * s, 260 
 function cathBack(c, x, base, s, col, a) { c.save(); c.fillStyle = rgba(col, a); c.beginPath(); c.arc(x, base - 360 * s, 54 * s, 0, TAU); c.fill(); for (const dx of [-90, 90]) { archPath(c, x + dx * s, base - 470 * s, 26 * s, 124 * s); c.fill(); } archPath(c, x - 82 * s, base - 760 * s, 24 * s, 114 * s); c.fill(); archPath(c, x, base - 140 * s, 72 * s, 144 * s); c.fill(); c.restore(); }
 function sunDisc(c, x, y, r, col, a = 1) { bloom(c, c2 => { c2.beginPath(); c2.arc(x, y, r * 1.25, 0, TAU); c2.fill(); }, col, .55 * a, 40); c.save(); c.globalAlpha = a; c.fillStyle = col; c.beginPath(); c.arc(x, y, r, 0, TAU); c.fill(); c.restore(); }
 const starPath = (c, cx, cy, r, n = 5) => { c.beginPath(); for (let i = 0; i <= n * 2; i++) { const a = -Math.PI / 2 + i * Math.PI / n, rr = i % 2 ? r * .42 : r; i ? c.lineTo(cx + Math.cos(a) * rr, cy + Math.sin(a) * rr) : c.moveTo(cx + Math.cos(a) * rr, cy + Math.sin(a) * rr); } c.closePath(); };
+const haze = (y0, y1, col, a) => Ly(c => { }, '#000', .85, { raw: true, front: c => { const g = c.createLinearGradient(0, y0, 0, y1); g.addColorStop(0, rgba(col, 0)); g.addColorStop(.55, rgba(col, a * .6)); g.addColorStop(1, rgba(col, a)); c.fillStyle = g; c.fillRect(-OFF, y0, W + 2 * OFF, y1 - y0); } });
 const night = (c, a) => { if (a <= 0) return; c.save(); c.setTransform(1, 0, 0, 1, 0, 0); c.fillStyle = `rgba(8,10,30,${a})`; c.fillRect(0, 0, W, H); c.restore(); };
 
 // ======================================================= SCENES =======================================================
@@ -252,10 +253,10 @@ addScene(0, 9.77, () => {
   const sky = Ly(SK('#3a0f12', '#f08a3a', [{ x: 540, y: 1040, r: 760, col: 'rgba(255,190,110,.6)' }]), '#000', 0, { raw: true, front: c => sunDisc(c, 540, 1060, 150, '#ffd890') });
   const far = Ly(c => { skylineFar(c, 1180, 18, 60, 160, false); cathedral(c, 540, 1180, .78); }, '#5a1f1c', .25, { glow: { x: 540, y: 1000, r: 600, col: '#ff9a5a', a: .3 } });
   far.back = (c, t) => cathBack(c, 540, 1180, .78, '#ffd08a', .95);
-  const rowA = townRow(5, 1330, -80, 1160, 330, 470), near = Ly(c => drawRow(c, rowA), '#2a0e0c', .55, { rimA: .4 });
+  const rowA = townRow(5, 1240, -80, 1160, 260, 380), near = Ly(c => drawRow(c, rowA), '#2a0e0c', .55, { rimA: .4 });
   near.back = (c, t) => rowBack(c, rowA, '#ffc070', .95, t);
   const crowd = Ly(c => { }, '#000', 1, { raw: true, front: (c, t) => { [[120, 1.05, 0, 0], [320, 1.2, 2.1, 1], [540, 1.3, 4.0, 0], [760, 1.18, 1.1, 1], [960, 1.05, 3.2, 0]].forEach(([x, k, ph, m], i) => dancer(c, x, 1470, k, t, { ph, man: !!m, flip: i % 2 ? -1 : 1, sp: .9 + .08 * i })); } });
-  return { layers: [sky, far, near, crowd, frontBand('#0a0504', 3)], cam: t => ({ x: 0, y: lerp(30, 0, ss(seg(t, 0, 9.77))), z: lerp(1.0, 1.1, ss(seg(t, 0, 9.77))) }),
+  return { layers: [sky, far, near, haze(1020, 1500, '#ffb468', .9), crowd, frontBand('#0a0504', 3)], cam: t => ({ x: 0, y: lerp(30, 0, ss(seg(t, 0, 9.77))), z: lerp(1.0, 1.1, ss(seg(t, 0, 9.77))) }),
     over: (c, t) => { strip(c, t, .1, .9, 'PLOT TWIST WITH A&R  ·  EPISODE 19', 540, 150, 30, { col: '#ffcf8a', font: 'Cormorant Garamond', t1: 9.6 }); strip(c, t, .5, 1.3, 'THE DANCING PLAGUE', 540, 300, 70, { col: '#ffd59a', t1: 9.6 }); strip(c, t, 2.4, 1.0, 'STRASBOURG · 1518', 540, 420, 46, { col: '#ffcf8a', t1: 9.6 }); } };
 });
 // 2 · THE FIRST WOMAN — one woman alone in a narrow lane, unable to stop
@@ -274,12 +275,12 @@ addScene(9.77, 16.73, () => {
 addScene(16.73, 24.1, () => {
   const sky = Ly(SK('#2a0c14', '#d8703a', [{ x: 300, y: 900, r: 600, col: 'rgba(255,170,100,.45)' }]), '#000', 0, { raw: true });
   const far = Ly(c => { skylineFar(c, 1050, 33, 80, 200, false); cathedral(c, 820, 1060, .7); }, '#4a1a1a', .25, { glow: { x: 300, y: 900, r: 600, col: '#ff9a5a', a: .25 } }); far.back = (c, t) => cathBack(c, 820, 1060, .7, '#ffd08a', .9);
-  const rowA = townRow(21, 1250, -80, 1160, 380, 560), houses = Ly(c => drawRow(c, rowA), '#260c0c', .5, { rimA: .35 });
+  const rowA = townRow(21, 1150, -80, 1160, 300, 440), houses = Ly(c => drawRow(c, rowA), '#260c0c', .5, { rimA: .35 });
   houses.back = (c, t) => rowBack(c, rowA, '#ffc070', .95, t, true);   // faces in the windows
   const crowd = Ly(c => { }, '#000', 1, { raw: true, front: (c, t) => { const tr = ss(seg(t, 20.4, 23.0));
     for (let i = 0; i < 8; i++) dancer(c, 80 + i * 132, 1330, .78, t, { ph: i * 1.7, man: i % 3 === 1, flip: i % 2 ? -1 : 1, col: '#1d0b09', tired: tr * .9, sp: .85 + (i % 3) * .1 });
     for (let i = 0; i < 6; i++) dancer(c, 60 + i * 192, 1470, 1.15, t, { ph: i * 2.3 + 1, man: i % 2 === 1, flip: i % 2 ? 1 : -1, tired: tr, sp: .95 + (i % 2) * .1 }); } });
-  return { layers: [sky, far, houses, crowd, frontBand('#0a0504', 11)], cam: t => ({ x: lerp(-24, 24, ss(seg(t, 16.73, 24.1))), y: 0, z: lerp(1.04, 1.1, ss(seg(t, 16.73, 24.1))) }),
+  return { layers: [sky, far, houses, haze(960, 1500, '#ffa860', .92), crowd, frontBand('#0a0504', 11)], cam: t => ({ x: lerp(-24, 24, ss(seg(t, 16.73, 24.1))), y: 0, z: lerp(1.04, 1.1, ss(seg(t, 16.73, 24.1))) }),
     over: (c, t) => strip(c, t, 17.6, .9, 'DOZENS JOIN HER', 540, 250, 46, { col: '#ffd59a', t1: 20.6 }) };
 });
 // 4 · THE DOCTORS — a blazing sun, a physician reading his flask; then night, and the stars
@@ -292,11 +293,11 @@ addScene(24.1, 31.55, () => {
   const far = Ly(c => { skylineFar(c, 1180, 41, 60, 170, false); cathedral(c, 240, 1180, .6); }, '#4a1c18', .3); far.back = (c, t) => cathBack(c, 240, 1180, .6, '#ffd08a', .85);
   const doc = Ly(c => { }, '#000', 1, { raw: true, front: (c, t) => {   // the physician: long robe, round cap, flask raised to the light
     c.save(); c.translate(340, 1470); c.scale(1.9, 1.9); c.fillStyle = '#0c0806'; c.strokeStyle = '#0c0806'; c.lineCap = 'round';
-    blob(c, [[-34, -200], [34, -200], [62, 0], [-62, 0]]); c.fillRect(-7, -214, 14, 16); c.beginPath(); c.ellipse(0, -234, 25, 29, 0, 0, TAU); c.fill(); blob(c, [[-22, -224], [24, -224], [16, -186], [0, -176], [-16, -186]]);
-    blob(c, [[-30, -250], [-24, -282], [0, -292], [24, -282], [30, -250]]); c.lineWidth = 13; c.beginPath(); c.moveTo(22, -190); c.lineTo(70, -232); c.lineTo(96, -290); c.stroke(); c.beginPath(); c.moveTo(-22, -190); c.lineTo(-34, -120); c.stroke(); c.restore();
+    poly0(c, [[-30, -206], [30, -206], [50, -186], [56, -120], [70, 0], [-70, 0], [-56, -120], [-50, -186]]); c.fill(); poly0(c, [[-50, -186], [-70, -110], [-48, -100], [-40, -150]]); c.fill(); c.fillRect(-7, -218, 14, 16); c.beginPath(); c.ellipse(0, -238, 23, 27, 0, 0, TAU); c.fill(); poly0(c, [[-20, -228], [20, -228], [14, -196], [0, -186], [-14, -196]]); c.fill();
+    c.beginPath(); c.ellipse(0, -262, 44, 11, 0, 0, TAU); c.fill(); c.fillRect(-28, -284, 56, 24); c.beginPath(); c.ellipse(0, -284, 28, 7, 0, 0, TAU); c.fill(); c.lineWidth = 22; c.beginPath(); c.moveTo(34, -190); c.lineTo(72, -232); c.stroke(); c.lineWidth = 12; c.beginPath(); c.moveTo(72, -232); c.lineTo(96, -290); c.stroke(); c.restore();
     const fx = 340 + 96 * 1.9, fy = 1470 - 318 * 1.9; c.save(); c.fillStyle = '#ffd27a'; c.shadowColor = '#ffb040'; c.shadowBlur = 30 * flick(t); c.beginPath(); c.ellipse(fx, fy, 34, 40, 0, 0, TAU); c.fill(); c.fillRect(fx - 10, fy - 70, 20, 36); c.restore();
     dancer(c, 860, 1470, .9, t, { ph: 2, flip: -1 }); } });
-  return { layers: [sky, far, doc, frontBand('#0a0504', 13)], cam: t => ({ x: 0, y: 0, z: lerp(1.0, 1.08, ss(seg(t, 24.1, 31.55))) }),
+  return { layers: [sky, far, haze(1100, 1500, '#ffb468', .55), doc, frontBand('#0a0504', 13)], cam: t => ({ x: 0, y: 0, z: lerp(1.0, 1.08, ss(seg(t, 24.1, 31.55))) }),
     over: (c, t) => { strip(c, t, 25.0, .8, 'THE SUMMER HEAT?', 540, 250, 44, { col: '#ffd59a', t1: 27.4 }); strip(c, t, 28.6, .8, 'THE STARS?', 540, 250, 44, { col: '#f2e2b0', t1: 31.4 }); } };
 });
 // 5 · THE CITY'S RESPONSE — the council's edict nailed up; the drums silenced
@@ -321,19 +322,19 @@ addScene(38.87, 47.18, () => {
   const sky = Ly(SK('#12060a', '#4a1416', [{ x: 540, y: 560, r: 620, col: 'rgba(220,80,60,.4)' }]), '#000', 0, { raw: true, front: c => sunDisc(c, 540, 560, 190, '#e0644a') });
   const far = Ly(c => { skylineFar(c, 1150, 52, 70, 190, false); cathedral(c, 180, 1150, .55); }, '#24090c', .3); far.back = (c, t) => cathBack(c, 180, 1150, .55, '#ff8a60', .7);
   const pair = Ly(c => { }, '#000', 1, { raw: true, front: (c, t) => { const f = ss(seg(t, 42.4, 43.6)); skel(c, 380, 1460, 1.9, t, .3); dancer(c, lerp(700, 760, f), 1460, 1.85, t, { ph: .3, flip: -1, fall: f, tired: f }); } });
-  return { layers: [sky, far, pair, frontBand('#060203', 19)], cam: t => ({ x: 0, y: 0, z: lerp(1.0, 1.1, ss(seg(t, 38.87, 47.18))) }),
+  return { layers: [sky, far, haze(980, 1500, '#e0563c', .7), pair, frontBand('#060203', 19)], cam: t => ({ x: 0, y: 0, z: lerp(1.0, 1.1, ss(seg(t, 38.87, 47.18))) }),
     over: (c, t) => { strip(c, t, 40.6, .8, 'HUNDREDS AFFECTED?', 540, 230, 44, { col: '#ffb8a0', t1: 44.6 }); strip(c, t, 44.9, .8, 'DEATHS · DISPUTED', 540, 230, 50, { col: '#ffd59a', t1: 47.0 }); } };
 });
 // 7 · THE CURSE OF SAINT VITUS — the sufferers carried up the hill to his shrine
 addScene(47.18, 54.09, () => {
-  const sky = Ly(SK('#0c1028', '#3a3a6a', [{ x: 780, y: 520, r: 560, col: 'rgba(255,220,160,.45)' }]), '#000', 0, { raw: true });
+  const sky = Ly(SK('#0c1028', '#5a5288', [{ x: 780, y: 520, r: 620, col: 'rgba(255,220,160,.5)' }, { x: 300, y: 1100, r: 520, col: 'rgba(200,170,230,.35)' }]), '#000', 0, { raw: true });
   const hills = Ly(c => cloudBand(c, 980, 61, 120), '#1a1a34', .25);
   const hill = Ly(c => { poly0(c, [[-OFF, 1600], [-OFF, 1300], [400, 1000], [780, 760], [W + OFF, 700], [W + OFF, 1600]]); c.fill(); c.fillRect(700, 520, 170, 260); poly0(c, [[690, 525], [785, 420], [880, 525]]); c.fill(); c.fillRect(781, 330, 8, 100); c.fillRect(760, 360, 50, 8);
     hole(c, c2 => { archPath(c2, 785, 640, 56, 140); c2.fill(); c2.beginPath(); c2.arc(785, 580, 16, 0, TAU); c2.fill(); }); }, '#0e0c1c', .55, { rimA: .3 });
   hill.back = (c, t) => { c.fillStyle = rgba('#ffd08a', .95 * flick(t)); archPath(c, 785, 640, 60, 144); c.fill(); c.beginPath(); c.arc(785, 580, 18, 0, TAU); c.fill(); };
   const rays = Ly(c => { }, '#000', 1, { raw: true, front: (c, t) => {
     c.save(); c.globalCompositeOperation = 'lighter'; for (let i = 0; i < 16; i++) { const a = -Math.PI + i / 15 * Math.PI, l = 300 + 60 * Math.sin(t * 2 + i); c.strokeStyle = `rgba(255,214,150,${.12 + .06 * Math.sin(t * 3 + i)})`; c.lineWidth = 10; c.beginPath(); c.moveTo(785 + Math.cos(a) * 140, 560 + Math.sin(a) * 140); c.lineTo(785 + Math.cos(a) * l, 560 + Math.sin(a) * l); c.stroke(); } c.restore();
-    for (let i = 0; i < 7; i++) { const u = clamp(((t - 47.18) * .045 + i * .12) % 1), x = lerp(60, 660, u), y = lerp(1310, 820, u) - 4, kk = lerp(.85, .45, u); dancer(c, x, y, kk, t, { man: i % 2 === 1, tired: i % 3 === 0 ? 0 : .85, ph: i * 1.9, lean: .25, shoes: i % 3 === 0 }); } } });
+    for (let i = 0; i < 7; i++) { const u = clamp(((t - 47.18) * .04 + i * .1) % 1), x = lerp(20, 640, u), y = (x < 400 ? lerp(1300, 1000, (x + OFF) / (400 + OFF)) : lerp(1000, 760, (x - 400) / 380)) + 6, kk = lerp(1.05, .6, u); dancer(c, x, y, kk, t, { man: i % 2 === 1, tired: i % 3 === 0 ? 0 : .85, ph: i * 1.9, lean: .25, shoes: i % 3 === 0 }); } } });
   return { layers: [sky, hills, hill, rays, frontBand('#05040c', 23)], cam: t => ({ x: lerp(-20, 20, ss(seg(t, 47.18, 54.09))), y: 0, z: lerp(1.0, 1.08, ss(seg(t, 47.18, 54.09))) }),
     over: (c, t) => strip(c, t, 48.0, .9, 'THE CURSE OF SAINT VITUS', 540, 230, 46, { col: '#ffe2a8', t1: 53.9 }) };
 });
