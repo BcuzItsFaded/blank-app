@@ -1,0 +1,8 @@
+LA PLANCHADA (paper pop-up book): third-party assets
+
+Picture: drawn entirely in code (Canvas 2D cut-paper cards); no stock footage, no generated images or video. The legend is traditional folklore (see FACTS.md); the characters are original.
+Fonts (SIL OFL 1.1, Google Fonts): Fredoka, Lilita One.
+Voice: Kokoro-82M TTS via kokoro-onnx (voice bm_george), Apache-2.0. Speech check: faster-whisper (MIT).
+Music: original, played from sampled instruments:
+- Samples (CC0): FreePats project (freepats.zenvoid.org), VS Chamber Orchestra: Community Edition (Versilian Studios), Versilian Community Sample Library (Versilian Studios)
+Foley (paper swishes, pop-up snaps, taps, thumps, plucks): synthesised in mix.py.
