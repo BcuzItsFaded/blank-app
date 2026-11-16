@@ -3,9 +3,9 @@ import { H, W, lerp, onTwos, pulse, rand, clamp, SceneData } from "./celLib";
 import { Stage, Layer, cameraAt, Ash, Boil, SoftGlow, flashAt } from "./celFx";
 import { Sky } from "./env";
 import { Profile, LOOKS } from "./characters";
-import { wordFrame, lineFrame } from "../timing";
+import { lineFrame } from "../timing";
 
-/* FAN-MADE VisionQuest post-credits scene (Don't Spoil It RG). Original designs, cel engine.
+/* VisionQuest post-credits scene, explained (Don't Spoil It RG). Original illustrations (not footage, not actor likenesses), cel engine.
    Camera keys: [sec, zoom, x, y, rot]. */
 
 type P = { f: number };
@@ -263,7 +263,7 @@ export const V8: React.FC<P> = ({ f }) => {
 export const V9: React.FC<P> = ({ f }) => {
   const s = cam(9, [[0, 1.04, 0, 0, 0], [5, 1.16, 60, 40, 0]]);
   const reach = lerp(f, 0, 1, 20, 60);
-  const rune = lerp(f, 0, 1, wordFrame(9, 9) - 6, wordFrame(9, 9) + 20);
+  const rune = lerp(f, 0, 1, 54, 80);
   return (
     <Stage cam={cameraAt(s, f)} bg="#0a0e16" defs={<Boil id="vb9" f={f} scale={2.2} />}>
       <Layer depth={0.2}><rect x={-400} y={-400} width={W + 800} height={H + 800} fill="#161c2a" /><SoftGlow cx={540} cy={800} rx={700} ry={500} color="#3a8a5a" opacity={0.25 + 0.35 * rune} /></Layer>
@@ -292,7 +292,7 @@ export const V10: React.FC<P> = ({ f }) => {
   const s = cam(10, [[0, 1.0, 0, 0, 0], [5, 1.12, -30, -50, 0]]);
   const open = f >= 6;
   const red = lerp(f, 0, 1, 4, 14);
-  const ask = lineFrame(10, 1);
+  const ask = lineFrame(8, 1);
   return (
     <Stage cam={cameraAt(s, f, f < 12 ? 10 : 0)} bg="#100608" defs={<Boil id="vb10" f={f} scale={2.2} />}>
       <Layer depth={0.2}><rect x={-400} y={-400} width={W + 800} height={H + 800} fill="#1a0e14" /><SoftGlow cx={540} cy={900} rx={700} ry={700} color="#a01a24" opacity={0.35 * red} /></Layer>
@@ -329,24 +329,21 @@ export const V11: React.FC<P> = ({ f }) => {
   );
 };
 
-/* 12 — far away, Vision opens his eyes (title slate in Main.tsx) */
+/* 12 — Doom on the ridge above Wundagore, a scarlet glow below (title slate in Main.tsx) */
 export const V12: React.FC<P> = ({ f }) => {
   const s = cam(12, [[0, 1.12, 0, 60, 0], [5, 1.0, 0, 0, 0]]);
-  const open = f >= wordFrame(12, 3);
   return (
     <Stage cam={cameraAt(s, f)} bg="#080a10" defs={<Boil id="vb12" f={f} scale={2} />}>
-      <Layer depth={0.2}><rect x={-400} y={-400} width={W + 800} height={H + 800} fill="#10141e" /><SoftGlow cx={300} cy={1300} rx={600} ry={500} color="#6a8ac0" opacity={0.25} /></Layer>
-      <Layer depth={0.85}>
-        <g filter="url(#vb12)">
-          <Profile id="vis12" look={{ ...LOOKS.vision, eyeColor: open ? "#9fd8ff" : "#120c0c" }} x={330} y={1420} scale={1.8} rim="#cfe0ff" rimStrength={0.9} light={0.7} blink={!open} tilt={open ? -4 : 2} breathe={Math.sin(onTwos(f) / 30)} />
-        </g>
-        {open && <SoftGlow cx={330 + 72 * 1.8} cy={1420 - 30 * 1.8} rx={50} ry={34} color="#9fd8ff" opacity={0.6} />}
-        {/* a single red spark drifting in the dark: she is alive */}
-        <SoftGlow cx={800 + Math.sin(f / 20) * 30} cy={1260 - f * 1.2} rx={60} ry={60} color="#ff2a3a" opacity={0.6 * pulse(f, 14)} />
-      </Layer>
-      <rect x={-500} y={-500} width={W + 1000} height={H + 1000} fill="#000" opacity={lerp(f, 0, 0.55, 66, 90)} />
+      <Layer depth={0.1}><Sky f={f} id="v12" top="#04060e" mid="#101828" bottom="#2a1a2a" clouds="#141c2e" seed={59} />
+        <circle cx={300} cy={420} r={90} fill="#e8eef8" /><SoftGlow cx={300} cy={420} rx={300} ry={300} color="#bcd0f0" opacity={0.35} /></Layer>
+      <Layer depth={0.5}><path d="M -400,1500 L 200,1250 L 520,1330 L 900,1180 L 1480,1500 L 1480,2400 L -400,2400 Z" fill="#0e121c" stroke="#05070c" strokeWidth={4} /></Layer>
+      <Layer depth={0.7}><g filter="url(#vb12)"><DoomFigure x={760} y={1250} s={0.9} f={f} /></g>
+        <SoftGlow cx={420} cy={1420} rx={260} ry={110} color="#ff2a3a" opacity={0.35 + 0.25 * pulse(f, 20)} /></Layer>
+      <Layer depth={1.2}><Snow f={f} n={70} seed={12} size={5} speed={1.2} o={0.7} /></Layer>
+      <rect x={-500} y={-500} width={W + 1000} height={H + 1000} fill="#000" opacity={lerp(f, 0, 0.6, 66, 90)} />
     </Stage>
   );
 };
 
-export const CEL_SCENES = [V1, V2, V3, V4, V5, V6, V7, V8, V9, V10, V11, V12];
+/* script order (scene 1…12) → illustration */
+export const CEL_SCENES = [V1, V2, V3, V5, V6, V8, V11, V10, V7, V9, V4, V12];

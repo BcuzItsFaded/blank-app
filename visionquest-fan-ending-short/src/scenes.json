@@ -1,73 +1,375 @@
 {
   "meta": {
     "brand": "DON'T SPOIL IT RG",
-    "title": "VisionQuest — Our Fan-Made Post-Credits Scene: Doctor Doom Saves the Scarlet Witch | Don't Spoil It RG",
+    "title": "VisionQuest Post-Credits Scene Explained: Doctor Doom Finds the Scarlet Witch | Don't Spoil It RG",
     "fps": 30,
     "width": 1080,
     "height": 1920,
     "duration": 60,
-    "notice": "FAN-MADE · NOT IN THE SHOW",
-    "source": "Original fan script by Claude for Don't Spoil It RG. Not a scene from VisionQuest. Canon labels only for facts from released MCU films/series and confirmed release dates.",
+    "notice": "SPOILERS · ILLUSTRATED, NOT FOOTAGE",
+    "source": "Recap of the real VisionQuest finale post-credits scene (Disney+, Nov 2026) as reported by Deadline, GamesRadar, TVLine, IBTimes. Quotes: 'Scarlet Witch, awaken.' / 'Your power will be mine.' Visuals are original illustrations.",
     "speakers": {
-      "narrator": { "voice": "voices/en_US-ryan-high.onnx", "color": "#ffd15a" },
-      "wanda": { "voice": "voices/en_US-lessac-high.onnx", "color": "#ff5a6a" },
-      "doom": { "voice": "voices/en_US-ryan-high.onnx", "color": "#7dff9a", "fx": "doom" }
+      "narrator": {
+        "voice": "voices/en_US-ryan-high.onnx",
+        "color": "#ffd15a"
+      },
+      "wanda": {
+        "voice": "voices/en_US-lessac-high.onnx",
+        "color": "#ff5a6a"
+      },
+      "doom": {
+        "voice": "voices/en_US-ryan-high.onnx",
+        "color": "#7dff9a",
+        "fx": "doom"
+      }
     }
   },
   "scenes": [
-    { "id": 1, "name": "After the credits", "start": 0, "dur": 5,
-      "lines": [{ "speaker": "narrator", "text": "VisionQuest just ended. But what if one more scene played after the credits?" }],
-      "spoken": ["Vision Quest just ended. But what if one more scene played after the credits?"],
-      "tag": "FAN-MADE ENDING", "note": "Our own post-credits idea — not in the show",
-      "transitionOut": "dissolve", "cues": [[0.0, "credits_drone"], [4.4, "whoosh"]] },
-    { "id": 2, "name": "Wundagore", "start": 5, "dur": 5,
-      "lines": [{ "speaker": "narrator", "text": "Mount Wundagore. Snow falls on the ruins where it all collapsed." }],
-      "spoken": ["Mount Woonda-gore. Snow falls on the ruins where it all collapsed."],
-      "tag": "CANON SETTING", "note": "Wundagore — Doctor Strange in the Multiverse of Madness (2022)",
-      "transitionOut": "dissolve", "cues": [[0.0, "wind"], [2.0, "snow_crunch_far"]] },
-    { "id": 3, "name": "The collapse", "start": 10, "dur": 5,
-      "lines": [{ "speaker": "narrator", "text": "Here, Wanda brought the mountain down on herself in Multiverse of Madness." }],
-      "tag": "CANON", "note": "Wanda destroyed the Darkhold and Wundagore collapsed on her (2022)",
-      "transitionOut": "flash", "cues": [[0.3, "rumble"], [1.2, "rock_fall"], [3.0, "rock_fall"], [4.6, "impact"]] },
-    { "id": 4, "name": "A scarlet glow", "start": 15, "dur": 5,
-      "lines": [{ "speaker": "narrator", "text": "But deep beneath the rubble, a scarlet glow is still flickering." }],
-      "tag": "FAN-MADE", "note": "Invented scene",
-      "transitionOut": "cut", "cues": [[0.0, "heartbeat"], [2.5, "magic_flicker"]] },
-    { "id": 5, "name": "Footsteps", "start": 20, "dur": 5,
-      "lines": [{ "speaker": "narrator", "text": "Footsteps crunch through the snow. A green cloak. An iron mask." }],
-      "tag": "FAN-MADE", "note": "Invented scene",
-      "transitionOut": "cut", "cues": [[0.2, "armored_step"], [1.0, "armored_step"], [1.8, "armored_step"], [2.6, "armored_step"], [3.6, "doom_sting"]] },
-    { "id": 6, "name": "Doom arrives", "start": 25, "dur": 5,
-      "lines": [{ "speaker": "narrator", "text": "Doctor Doom has come to Wundagore, and he did not come by accident." }],
-      "spoken": ["Doctor Doom has come to Woonda-gore, and he did not come by accident."],
-      "tag": "FAN-MADE", "note": "Doom's MCU debut is Avengers: Doomsday (Dec 18, 2026)",
-      "transitionOut": "dissolve", "cues": [[0.0, "choir_low"], [3.5, "cloak"]] },
-    { "id": 7, "name": "The lift", "start": 30, "dur": 5,
-      "lines": [{ "speaker": "narrator", "text": "With one raised hand, he lifts tons of stone into the air." }],
-      "tag": "FAN-MADE", "note": "Invented scene",
-      "transitionOut": "dissolve", "cues": [[0.6, "magic_charge"], [1.4, "stone_lift"], [3.6, "debris"]] },
-    { "id": 8, "name": "Wanda", "start": 35, "dur": 5,
-      "lines": [{ "speaker": "narrator", "text": "There she is. Wanda Maximoff, barely breathing, her power almost gone." }],
-      "tag": "FAN-MADE", "note": "Invented scene",
-      "transitionOut": "dissolve", "cues": [[0.0, "heartbeat_weak"], [2.0, "magic_flicker"]] },
-    { "id": 9, "name": "Green runes", "start": 40, "dur": 5,
-      "lines": [{ "speaker": "narrator", "text": "Doom kneels and presses his gauntlet to her forehead. Green runes pour in." }],
-      "tag": "FAN-MADE", "note": "Invented scene",
-      "transitionOut": "flash", "cues": [[0.6, "kneel"], [2.2, "magic_charge"], [3.0, "runes"]] },
-    { "id": 10, "name": "Why?", "start": 45, "dur": 5,
+    {
+      "id": 1,
+      "name": "Spoiler warning",
+      "start": 0,
+      "dur": 5,
       "lines": [
-        { "speaker": "narrator", "text": "Her eyes snap open, glowing red." },
-        { "speaker": "wanda", "text": "Why save me?" }
+        {
+          "speaker": "narrator",
+          "text": "Spoiler warning: VisionQuest's post-credits scene just set up Avengers: Doomsday."
+        }
       ],
-      "tag": "FAN-MADE", "note": "Invented dialogue",
-      "transitionOut": "cut", "cues": [[0.15, "gasp"], [0.3, "red_flare"]] },
-    { "id": 11, "name": "Doom's answer", "start": 50, "dur": 5,
-      "lines": [{ "speaker": "doom", "text": "Because the multiverse is ending, and I need the Scarlet Witch." }],
-      "tag": "FAN-MADE", "note": "Invented dialogue",
-      "transitionOut": "dissolve", "cues": [[0.0, "choir_swell"], [4.4, "boom"]] },
-    { "id": 12, "name": "Vision feels it", "start": 55, "dur": 5,
-      "lines": [{ "speaker": "narrator", "text": "Far away, Vision opens his eyes. He felt that. Wanda is alive." }],
-      "tag": "FAN-MADE", "note": "Invented scene · Doom arrives in Avengers: Doomsday, Dec 18, 2026",
-      "transitionOut": "none", "cues": [[0.0, "vision_hum"], [2.4, "title_hit"]] }
+      "tag": "CONFIRMED",
+      "note": "Finale post-credits scene, VisionQuest (Disney+)",
+      "transitionOut": "dissolve",
+      "cues": [
+        [
+          0.0,
+          "credits_drone"
+        ],
+        [
+          4.4,
+          "whoosh"
+        ]
+      ],
+      "spoken": [
+        "Spoiler warning: Vision Quest's post-credits scene just set up Avengers: Doomsday."
+      ]
+    },
+    {
+      "id": 2,
+      "name": "Wundagore",
+      "start": 5,
+      "dur": 5,
+      "lines": [
+        {
+          "speaker": "narrator",
+          "text": "It opens in the frozen ruins of Mount Wundagore."
+        }
+      ],
+      "tag": "CONFIRMED",
+      "note": "Setting: the ruins of Mount Wundagore",
+      "transitionOut": "dissolve",
+      "cues": [
+        [
+          0.0,
+          "wind"
+        ],
+        [
+          2.0,
+          "snow_crunch_far"
+        ]
+      ],
+      "spoken": [
+        "It opens in the frozen ruins of Mount Woonda-gore."
+      ]
+    },
+    {
+      "id": 3,
+      "name": "The collapse",
+      "start": 10,
+      "dur": 5,
+      "lines": [
+        {
+          "speaker": "narrator",
+          "text": "That's where Wanda brought the mountain down on herself in Multiverse of Madness."
+        }
+      ],
+      "tag": "CANON",
+      "note": "Doctor Strange in the Multiverse of Madness (2022)",
+      "transitionOut": "flash",
+      "cues": [
+        [
+          0.3,
+          "rumble"
+        ],
+        [
+          1.2,
+          "rock_fall"
+        ],
+        [
+          3.0,
+          "rock_fall"
+        ],
+        [
+          4.6,
+          "impact"
+        ]
+      ]
+    },
+    {
+      "id": 4,
+      "name": "The hooded figure",
+      "start": 15,
+      "dur": 5,
+      "lines": [
+        {
+          "speaker": "narrator",
+          "text": "A hooded figure walks through the snow and starts uncovering the rubble."
+        }
+      ],
+      "tag": "CONFIRMED",
+      "note": "A hooded figure digs through the ruins",
+      "transitionOut": "cut",
+      "cues": [
+        [
+          0.2,
+          "armored_step"
+        ],
+        [
+          1.0,
+          "armored_step"
+        ],
+        [
+          1.8,
+          "armored_step"
+        ],
+        [
+          2.6,
+          "armored_step"
+        ],
+        [
+          3.6,
+          "doom_sting"
+        ]
+      ]
+    },
+    {
+      "id": 5,
+      "name": "Doctor Doom",
+      "start": 20,
+      "dur": 5,
+      "lines": [
+        {
+          "speaker": "narrator",
+          "text": "It appears to be Robert Downey Junior's Doctor Doom."
+        }
+      ],
+      "tag": "CONFIRMED",
+      "note": "Reported as Robert Downey Jr.'s Doctor Doom",
+      "transitionOut": "dissolve",
+      "cues": [
+        [
+          0.0,
+          "choir_low"
+        ],
+        [
+          3.5,
+          "cloak"
+        ]
+      ]
+    },
+    {
+      "id": 6,
+      "name": "Wanda is alive",
+      "start": 25,
+      "dur": 5,
+      "lines": [
+        {
+          "speaker": "narrator",
+          "text": "Beneath the stone lies the Scarlet Witch. Wanda is alive."
+        }
+      ],
+      "tag": "CONFIRMED",
+      "note": "Wanda Maximoff is found alive",
+      "transitionOut": "dissolve",
+      "cues": [
+        [
+          0.0,
+          "heartbeat_weak"
+        ],
+        [
+          2.0,
+          "magic_flicker"
+        ]
+      ]
+    },
+    {
+      "id": 7,
+      "name": "Awaken",
+      "start": 30,
+      "dur": 5,
+      "lines": [
+        {
+          "speaker": "narrator",
+          "text": "Then he speaks."
+        },
+        {
+          "speaker": "doom",
+          "text": "Scarlet Witch, awaken."
+        }
+      ],
+      "tag": "CONFIRMED QUOTE",
+      "note": "“Scarlet Witch, awaken.”",
+      "transitionOut": "cut",
+      "cues": [
+        [
+          0.0,
+          "choir_swell"
+        ],
+        [
+          1.4,
+          "magic_charge"
+        ]
+      ]
+    },
+    {
+      "id": 8,
+      "name": "Your power",
+      "start": 35,
+      "dur": 5,
+      "lines": [
+        {
+          "speaker": "narrator",
+          "text": "Her eyes open."
+        },
+        {
+          "speaker": "doom",
+          "text": "Your power will be mine."
+        }
+      ],
+      "tag": "CONFIRMED QUOTE",
+      "note": "“Your power will be mine.” · eyes: illustration",
+      "transitionOut": "dissolve",
+      "cues": [
+        [
+          0.15,
+          "gasp"
+        ],
+        [
+          0.3,
+          "red_flare"
+        ],
+        [
+          4.4,
+          "boom"
+        ]
+      ]
+    },
+    {
+      "id": 9,
+      "name": "Recruit or steal?",
+      "start": 40,
+      "dur": 5,
+      "lines": [
+        {
+          "speaker": "narrator",
+          "text": "So is Doom recruiting Wanda, or planning to take her power for himself?"
+        }
+      ],
+      "tag": "OPEN QUESTION",
+      "note": "Recruit her, or take her power? Not yet answered",
+      "transitionOut": "dissolve",
+      "cues": [
+        [
+          0.6,
+          "magic_charge"
+        ],
+        [
+          1.4,
+          "stone_lift"
+        ],
+        [
+          3.6,
+          "debris"
+        ]
+      ]
+    },
+    {
+      "id": 10,
+      "name": "Unconfirmed",
+      "start": 45,
+      "dur": 5,
+      "lines": [
+        {
+          "speaker": "narrator",
+          "text": "Marvel hasn't said. The scene only hints at her role in Doomsday."
+        }
+      ],
+      "tag": "OPEN QUESTION",
+      "note": "Her role in Avengers: Doomsday is unconfirmed",
+      "transitionOut": "flash",
+      "cues": [
+        [
+          0.6,
+          "kneel"
+        ],
+        [
+          2.2,
+          "magic_charge"
+        ],
+        [
+          3.0,
+          "runes"
+        ]
+      ]
+    },
+    {
+      "id": 11,
+      "name": "She's back",
+      "start": 50,
+      "dur": 5,
+      "lines": [
+        {
+          "speaker": "narrator",
+          "text": "Either way, the Scarlet Witch is back, and Doom found her first."
+        }
+      ],
+      "tag": "CONFIRMED",
+      "note": "Wanda returns, set up for Avengers: Doomsday",
+      "transitionOut": "dissolve",
+      "cues": [
+        [
+          0.0,
+          "heartbeat"
+        ],
+        [
+          2.5,
+          "magic_flicker"
+        ]
+      ]
+    },
+    {
+      "id": 12,
+      "name": "Doomsday",
+      "start": 55,
+      "dur": 5,
+      "lines": [
+        {
+          "speaker": "narrator",
+          "text": "Avengers: Doomsday opens December eighteenth. Follow Don't Spoil It RG."
+        }
+      ],
+      "tag": "CONFIRMED",
+      "note": "Avengers: Doomsday · in theaters Dec 18, 2026",
+      "transitionOut": "none",
+      "cues": [
+        [
+          0.0,
+          "choir_low"
+        ],
+        [
+          2.4,
+          "title_hit"
+        ]
+      ]
+    }
   ]
 }

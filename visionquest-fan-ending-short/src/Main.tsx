@@ -62,7 +62,7 @@ export const BrandMark: React.FC<{ scale?: number; glow?: number }> = ({ scale =
 };
 
 /* ------------------------------------------------------------------ canon / fan-made labels */
-const tagColor = (t: string) => (t.startsWith("CANON") ? "#6fd39a" : "#f0b04a");
+const tagColor = (t: string) => (t.startsWith("CANON") || t.startsWith("CONFIRMED") ? "#6fd39a" : "#f0b04a");
 const FactTag: React.FC<{ i: number }> = ({ i }) => {
   const f = useCurrentFrame();
   const s = SCENES[i];
@@ -78,7 +78,7 @@ const FactTag: React.FC<{ i: number }> = ({ i }) => {
     </div>
   );
 };
-/* permanent disclaimer chip */
+/* permanent spoiler / illustration notice */
 const FanMadeChip: React.FC = () => (
   <div style={{ position: "absolute", right: 150, top: 80, fontFamily: "Oswald", fontWeight: 700, fontSize: 22, letterSpacing: 2, color: "#0b0b0e", background: "#f0b04a", padding: "5px 12px", borderRadius: 6, boxShadow: "0 2px 8px rgba(0,0,0,0.6)" }}>
     {META.notice}
@@ -138,9 +138,10 @@ const Slate: React.FC = () => {
     <AbsoluteFill style={{ opacity: a }}>
       <div style={{ position: "absolute", top: 380, left: 0, right: 0, textAlign: "center", transform: `scale(${s})` }}>
         <div style={{ fontFamily: "Cinzel", fontWeight: 900, fontSize: 118, color: "#eef2fa", letterSpacing: 4, textShadow: `0 0 ${30 * fl}px rgba(255,60,70,0.7), 0 6px 0 #000` }}>VISIONQUEST</div>
-        <div style={{ fontFamily: "Oswald", fontWeight: 700, fontSize: 46, letterSpacing: 6, color: "#f0b04a", marginTop: 12 }}>OUR FAN-MADE POST-CREDITS SCENE</div>
+        <div style={{ fontFamily: "Oswald", fontWeight: 700, fontSize: 40, letterSpacing: 4, color: "#cfe0d8", marginTop: 8 }}>DOCTOR DOOM FINDS THE SCARLET WITCH</div>
+        <div style={{ fontFamily: "Oswald", fontWeight: 700, fontSize: 46, letterSpacing: 6, color: "#f0b04a", marginTop: 12 }}>POST-CREDITS SCENE EXPLAINED</div>
         <div style={{ margin: "26px auto 0", width: 520, height: 3, background: "linear-gradient(90deg, transparent, #6aff9a, transparent)" }} />
-        <div style={{ fontFamily: "Oswald", fontSize: 32, letterSpacing: 2, color: "#cfe0d8", marginTop: 20 }}>Doctor Doom arrives in <b>Avengers: Doomsday</b> · Dec 18, 2026</div>
+        <div style={{ fontFamily: "Oswald", fontSize: 32, letterSpacing: 2, color: "#cfe0d8", marginTop: 20 }}><b>Avengers: Doomsday</b> · in theaters Dec 18, 2026</div>
       </div>
       <div style={{ position: "absolute", top: 1620, left: 0, right: 0, display: "flex", justifyContent: "center" }}><BrandMark scale={1.5} glow={0.6} /></div>
     </AbsoluteFill>

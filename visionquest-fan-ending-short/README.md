@@ -1,4 +1,4 @@
-# VisionQuest: fan-made post-credits Short, "Doctor Doom saves the Scarlet Witch" (Don't Spoil It RG)
+# VisionQuest post-credits scene explained: Doctor Doom finds the Scarlet Witch (Don't Spoil It RG)
 
 This is a **fan-made** 60-second, 9:16 Short: 12 scenes of 5 s each, 1080×1920, 30 fps. It is **not a scene from VisionQuest**.
 A permanent on-screen chip reads "FAN-MADE · NOT IN THE SHOW", and every scene carries a label:
