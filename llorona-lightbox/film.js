@@ -18,14 +18,14 @@ const rgba = (h, a) => { const c = hx(h); return `rgba(${c[0]},${c[1]},${c[2]},$
 
 // ---------- narration (id, start, duration, text); mix.py reads these rows ----------
 const VO = [
-  ['v01', 0.35, 6.122, "What if I told you La Llorona's legend is far older than the story of a mother drowning her children?"],
-  ['v02', 6.91, 6.014, 'Centuries ago, the people of ancient Mexico told of a mysterious woman crying through the darkness.'],
-  ['v03', 13.37, 6.511, 'Before the Spanish conquest, an omen described a woman wandering the streets, desperately crying out for her children.'],
-  ['v04', 20.32, 6.728, 'Some researchers connect those cries to Cihuacóatl, an ancient Aztec goddess associated with motherhood.'],
-  ['v05', 27.48, 7.48, 'Over time, another story emerged. A woman named María, betrayed by the man she loved, drowned her own children in a river.'],
-  ['v06', 35.41, 6.402, 'Consumed by guilt and sorrow, her spirit was said to wander the rivers forever, screaming, "¡Ay, mis hijos!"'],
-  ['v07', 42.25, 7.371, 'But historians have never confirmed that this tragedy happened. Different regions tell completely different versions of her story.'],
-  ['v08', 50.06, 8.54, 'Maybe La Llorona was never one woman. But for centuries, one terrifying warning has survived: Never follow the crying near the water.'],
+  ['v01', 0.35, 5.589, "What if I told you La Llorona's legend is far older than the story of a mother drowning her children?"],
+  ['v02', 6.91, 6.642, 'Centuries ago, the people of ancient Mexico told of a mysterious woman crying through the darkness.'],
+  ['v03', 13.37, 6.652, 'Before the Spanish conquest, an omen described a woman wandering the streets, desperately crying out for her children.'],
+  ['v04', 20.32, 6.367, 'Some researchers connect those cries to Cihuacóatl, an ancient Aztec goddess associated with motherhood.'],
+  ['v05', 27.48, 7.887, 'Over time, another story emerged. A woman named María, betrayed by the man she loved, drowned her own children in a river.'],
+  ['v06', 35.41, 6.908, 'Consumed by guilt and sorrow, her spirit was said to wander the rivers forever, screaming, "¡Ay, mis hijos!"'],
+  ['v07', 42.25, 6.776, 'But historians have never confirmed that this tragedy happened. Different regions tell completely different versions of her story.'],
+  ['v08', 50.06, 8.098, 'Maybe La Llorona was never one woman. But for centuries, one terrifying warning has survived: Never follow the crying near the water.'],
 ];
 
 // ---------- layer baking: a flat colour silhouette with fibre grain, warm top rim, dark bottom band, backlight translucency ----------
