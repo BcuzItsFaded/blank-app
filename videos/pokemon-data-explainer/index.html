@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="en" data-resolution="landscape">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1920, height=1080" />
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.15.0/dist/gsap.min.js"></script>
+    <style>
+      :root {
+        --ground: #0f1420;
+        --ink: #f2f4f8;
+        --muted: #8b95a8;
+        --bar: #ffcb05;
+        --font-display: "Helvetica Neue", Arial, sans-serif;
+        --font-mono: "Menlo", "Consolas", monospace;
+      }
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      html, body { width: 1920px; height: 1080px; overflow: hidden; background: var(--ground); }
+      #root { position: relative; width: 100%; height: 100%; font-family: var(--font-display); color: var(--ink); }
+      .abs { position: absolute; }
+      #title { left: 120px; top: 90px; font-size: 56px; font-weight: 700; letter-spacing: -0.02em; }
+      #sub { left: 120px; top: 170px; font-size: 28px; color: var(--muted); }
+      #chart { left: 120px; top: 300px; width: 1000px; height: 640px; }
+      .row { position: absolute; left: 0; width: 1000px; height: 120px; }
+      .label { position: absolute; left: 0; top: 40px; width: 220px; font-size: 32px; color: var(--ink); }
+      .track { position: absolute; left: 240px; top: 36px; width: 680px; height: 48px; background: #1c2436; border-radius: 6px; }
+      .fill { position: absolute; left: 0; top: 0; width: 100%; height: 48px; background: var(--bar); border-radius: 6px; transform-origin: left center; transform: scaleX(0); }
+      .value { position: absolute; left: 940px; top: 36px; font-size: 32px; font-weight: 700; opacity: 0; }
+      #code {
+        left: 1220px; top: 300px; width: 600px; padding: 36px; background: #0a0e18;
+        border: 1px solid #1f2840; border-radius: 14px; font-family: var(--font-mono); font-size: 26px; line-height: 1.6; opacity: 0;
+      }
+      .add { color: #5fd38d; }
+      .del { color: #ff7a7a; }
+      #note { left: 120px; bottom: 60px; font-size: 26px; color: var(--muted); opacity: 0; }
+    </style>
+  </head>
+  <body>
+    <div id="root" data-composition-id="main" data-start="0" data-duration="10" data-width="1920" data-height="1080">
+      <div id="title" class="clip abs" data-start="0" data-duration="10" data-track-index="0">Pokémon caught, by region</div>
+      <div id="sub" class="clip abs" data-start="0.4" data-duration="9.6" data-track-index="0">Catches logged this season</div>
+      <div id="chart" class="clip abs" data-start="0.6" data-duration="9.4" data-track-index="1">
+        <div class="row" style="top:0;"><span class="label">Kanto</span><div class="track"><div class="fill" data-v="412"></div></div><span class="value" data-target="412">412</span></div>
+        <div class="row" style="top:130px;"><span class="label">Hoenn</span><div class="track"><div class="fill" data-v="355"></div></div><span class="value" data-target="355">355</span></div>
+        <div class="row" style="top:260px;"><span class="label">Johto</span><div class="track"><div class="fill" data-v="298"></div></div><span class="value" data-target="298">298</span></div>
+        <div class="row" style="top:390px;"><span class="label">Sinnoh</span><div class="track"><div class="fill" data-v="210"></div></div><span class="value" data-target="210">210</span></div>
+      </div>
+      <div id="code" class="clip abs" data-start="5.2" data-duration="4.8" data-track-index="2">
+        <div>SELECT region, COUNT(*)</div>
+        <div>FROM catches</div>
+        <div class="del">- WHERE season = 'spring'</div>
+        <div class="add">+ WHERE season = 'all'</div>
+        <div>GROUP BY region</div>
+        <div>ORDER BY 2 DESC;</div>
+      </div>
+      <div id="note" class="clip abs" data-start="7.5" data-duration="2.5" data-track-index="3">Source: regional Pokédex logs</div>
+    </div>
+    <script>
+      const tl = gsap.timeline({ paused: true });
+      // Bars grow in sequence, values fade in at the end of each bar.
+      document.querySelectorAll(".fill").forEach((el, i) => {
+        const row = el.closest(".row");
+        const val = row.querySelector(".value");
+        const t = 0.8 + i * 0.35;
+        tl.to(el, { scaleX: Number(el.dataset.v) / 412, duration: 1.1, ease: "power3.out" }, t)
+          .to(val, { opacity: 1, duration: 0.3 }, t + 0.9);
+      });
+      tl.fromTo("#title", { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.5, ease: "power3.out" }, 0)
+        .fromTo("#sub", { opacity: 0 }, { opacity: 1, duration: 0.5 }, 0.4)
+        .fromTo("#code", { opacity: 0, x: 40 }, { opacity: 1, x: 0, duration: 0.5, ease: "power3.out" }, 5.2)
+        .fromTo("#note", { opacity: 0 }, { opacity: 1, duration: 0.4 }, 7.5);
+      window.__timelines["main"] = tl;
+      tl.seek(0);
+    </script>
+  </body>
+</html>
