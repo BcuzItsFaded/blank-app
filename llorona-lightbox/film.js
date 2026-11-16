@@ -154,17 +154,38 @@ function water(c, t, y0, seed, moon, woman) {
 }
 function llorona(c, x, y, k, a, pose, t) {
   const jx = Math.sin((t || 0) * 1.4 + x) * 3; c.save(); c.translate(x + jx, y); c.scale(k, k); c.globalAlpha = a;
-  c.save(); c.globalCompositeOperation = 'lighter'; c.globalAlpha = a * .22; c.filter = 'blur(26px)'; c.fillStyle = '#cfe6f2'; blob(c, [[-40, -300], [40, -300], [70, -80], [0, 20], [-70, -80]]); c.restore();
+  c.save(); c.globalCompositeOperation = 'lighter'; c.globalAlpha = a * .2; c.filter = 'blur(28px)'; c.fillStyle = '#cfe6f2'; blob(c, [[-48, -324], [48, -324], [88, -30], [0, 34], [-88, -30]]); c.restore();
   c.fillStyle = '#eef6f6';
-  blob(c, [[-34, -300], [34, -300], [26, -180], [78, -40], [40, 26], [0, -10], [-40, 26], [-78, -40], [-26, -180]]);
+  // long flaring gown to the ground, a suggested waist
+  blob(c, [[-20, -302], [20, -302], [15, -236], [24, -150], [56, -36], [88, 36], [40, 40], [0, 18], [-40, 40], [-88, 36], [-56, -36], [-24, -150], [-15, -236]]);
+  // rebozo over the shoulders
+  c.fillStyle = '#e4eff3'; blob(c, [[-36, -292], [36, -292], [50, -208], [22, -170], [0, -196], [-22, -170], [-50, -208]]);
+  // arms
   const up = pose === 'cry' ? 1 : pose === 'reach' ? .5 : 0;
-  for (const s of [-1, 1]) { const ex = s * (18 + up * 10), ey = -300 + up * -26 + (1 - up) * 90; c.save(); c.lineCap = 'round'; c.strokeStyle = '#eef6f6'; c.lineWidth = 20; c.beginPath(); c.moveTo(s * 30, -280); c.lineTo(ex, ey); c.stroke(); c.restore(); }
-  c.beginPath(); c.ellipse(0, -330, 30, 36, 0, 0, TAU); c.fill();
-  c.fillStyle = '#dcebf0'; blob(c, [[-40, -356], [-34, -300], [-20, -190], [-8, -300], [8, -300], [20, -190], [34, -300], [40, -356], [0, -374]]);
-  if (pose === 'cry') { c.globalAlpha = a; c.fillStyle = '#13314a'; c.beginPath(); c.ellipse(-11, -336, 5, 9, 0, 0, TAU); c.ellipse(11, -336, 5, 9, 0, 0, TAU); c.fill(); c.beginPath(); c.ellipse(0, -314, 7, 11, 0, 0, TAU); c.fill(); }
+  for (const s of [-1, 1]) { const ex = s * (16 + up * 12), ey = -292 + up * -30 + (1 - up) * 70; c.save(); c.lineCap = 'round'; c.strokeStyle = '#eef6f6'; c.lineWidth = 18; c.beginPath(); c.moveTo(s * 26, -286); c.lineTo(ex, ey); c.stroke(); c.restore(); c.fillStyle = '#f0f7f7'; c.beginPath(); c.arc(ex, ey + 2, 9, 0, TAU); c.fill(); }
+  // head
+  c.fillStyle = '#eef6f6'; c.beginPath(); c.ellipse(0, -336, 26, 32, 0, 0, TAU); c.fill();
+  // rebozo / veil over the head, falling long down both sides
+  c.fillStyle = '#dcebf0'; blob(c, [[-40, -362], [0, -382], [40, -362], [46, -320], [30, -150], [18, -322], [0, -332], [-18, -322], [-30, -150], [-46, -320]]);
+  // long hair strands
+  c.save(); c.strokeStyle = '#cfe0e8'; c.lineWidth = 4; c.lineCap = 'round'; for (const hx of [-13, 0, 13]) { c.beginPath(); c.moveTo(hx, -322); c.quadraticCurveTo(hx * 1.5, -240, hx * 1.2, -150); c.stroke(); } c.restore();
+  // sombre face (hollow voids when crying)
+  if (pose === 'cry') { c.fillStyle = '#13314a'; c.beginPath(); c.ellipse(-10, -340, 5, 9, 0, 0, TAU); c.ellipse(10, -340, 5, 9, 0, 0, TAU); c.fill(); c.beginPath(); c.ellipse(0, -318, 6, 10, 0, 0, TAU); c.fill(); }
+  else { c.fillStyle = '#8fb0c0'; c.beginPath(); c.ellipse(-10, -340, 3.6, 4.6, 0, 0, TAU); c.ellipse(10, -340, 3.6, 4.6, 0, 0, TAU); c.fill(); c.save(); c.strokeStyle = '#8fb0c0'; c.lineWidth = 2.4; c.lineCap = 'round'; c.beginPath(); c.arc(0, -312, 8, 1.15 * Math.PI, 1.85 * Math.PI); c.stroke(); c.restore(); }
   c.restore();
 }
-function child(c, x, y, k, a) { c.save(); c.translate(x, y); c.scale(k, k); c.globalAlpha = a; c.fillStyle = '#d7e8ef'; blob(c, [[-18, -120], [18, -120], [26, -14], [-26, -14]]); c.beginPath(); c.ellipse(0, -136, 17, 19, 0, 0, TAU); c.fill(); c.restore(); }
+function child(c, x, y, k, a) { c.save(); c.translate(x, y); c.scale(k, k); c.globalAlpha = a; c.fillStyle = '#d7e8ef';
+  blob(c, [[-22, -150], [22, -150], [32, -6], [-32, -6]]);
+  for (const s of [-1, 1]) { c.save(); c.lineCap = 'round'; c.strokeStyle = '#d7e8ef'; c.lineWidth = 12; c.beginPath(); c.moveTo(s * 18, -140); c.lineTo(s * 34, -188); c.stroke(); c.restore(); }
+  c.beginPath(); c.ellipse(0, -174, 18, 20, 0, 0, TAU); c.fill(); c.restore();
+}
+// ---- Mexican detail ----
+function agave(c, x, base, s) { c.save(); c.translate(x, base); for (let i = 0; i < 9; i++) { const a = -Math.PI + i / 8 * Math.PI, l = (60 + (i % 2) * 26) * s; c.beginPath(); c.moveTo(0, 0); c.quadraticCurveTo(Math.cos(a) * l * .5 - Math.sin(a) * 10 * s, -Math.abs(Math.sin(a)) * l * .5 + 6, Math.cos(a) * l, -Math.abs(Math.sin(a)) * l); c.quadraticCurveTo(Math.cos(a) * l * .5 + Math.sin(a) * 8 * s, -Math.abs(Math.sin(a)) * l * .5 - 4, 0, 0); c.closePath(); c.fill(); } c.restore(); }
+function bellTower(c, x, base, w, h) { c.fillRect(x - w / 2, base - h, w, h); poly0(c, [[x - w / 2 - 8, base - h], [x + w / 2 + 8, base - h], [x + w / 2 - 6, base - h - 30], [x - w / 2 + 6, base - h - 30]]); c.fill(); // belfry
+  const by = base - h - 30; c.fillRect(x - w / 2 + 2, by - w, w - 4, w); c.save(); c.globalCompositeOperation = 'destination-out'; c.beginPath(); c.moveTo(x - w * .22, by); c.lineTo(x - w * .22, by - w * .5); c.arc(x, by - w * .5, w * .22, Math.PI, 0); c.lineTo(x + w * .22, by); c.closePath(); c.fill(); c.restore();
+  poly0(c, [[x - w * .3, by - w], [x + w * .3, by - w], [x, by - w - 26]]); c.fill(); c.fillRect(x - 3, by - w - 52, 6, 26); c.fillRect(x - 13, by - w - 42, 26, 6); }
+function papel(c, y, x0, x1, seed) { const R = mulberry(seed), fw = 86, fh = 104; c.save(); c.lineWidth = 3; c.strokeStyle = c.fillStyle; c.beginPath(); c.moveTo(x0, y); for (let x = x0; x <= x1; x += 40) c.lineTo(x, y + 8 * Math.sin((x - x0) * .03)); c.stroke(); for (let x = x0 + 20; x < x1; x += fw + 16) { const yy = y + 8 * Math.sin((x - x0) * .03); c.fillRect(x, yy, fw, fh); c.save(); c.globalCompositeOperation = 'destination-out'; for (let r = 0; r < 3; r++) for (let q = 0; q < 3; q++) { if (R() > .55) continue; c.beginPath(); c.arc(x + 20 + q * 24, yy + 24 + r * 28, 6 + R() * 4, 0, TAU); c.fill(); } c.beginPath(); c.moveTo(x + fw / 2, yy + fh); c.lineTo(x + fw / 2 - 12, yy + fh - 20); c.lineTo(x + fw / 2 + 12, yy + fh - 20); c.closePath(); c.fill(); c.restore(); } c.restore(); }
+
 function reeds(c, y, x0, x1, hmax, seed) { const R = mulberry(seed); for (let x = x0; x < x1; x += 22) { const h = hmax * (.5 + R() * .7), bend = (R() - .5) * 30; c.save(); c.strokeStyle = c.fillStyle; c.lineWidth = 5 + R() * 4; c.lineCap = 'round'; c.beginPath(); c.moveTo(x, y); c.quadraticCurveTo(x + bend * .5, y - h * .6, x + bend, y - h); c.stroke(); c.restore(); } }
 function pyramid(c, cx, base, w, h, steps) { for (let i = 0; i < steps; i++) { const f = i / steps, f2 = (i + 1) / steps; poly0(c, [[cx - w / 2 * (1 - f), base - h * f], [cx + w / 2 * (1 - f), base - h * f], [cx + w / 2 * (1 - f) - w * .06, base - h * f2], [cx - w / 2 * (1 - f) + w * .06, base - h * f2]]); c.fill(); } poly0(c, [[cx - w * .12, base - h * .86], [cx + w * .12, base - h * .86], [cx + w * .1, base - h], [cx - w * .1, base - h]]); c.fill(); }
 function cryArc(c, x, y, t, t0, col) { for (let k = 0; k < 4; k++) { const u = ((t - t0 - k * .4) / 1.8); if (u < 0 || u > 1) continue; c.save(); c.globalAlpha = (1 - u) * .7; c.strokeStyle = col || '#cfe4ee'; c.lineWidth = 7 - 4 * u; c.beginPath(); c.arc(x, y, 50 + u * 360, Math.PI * .7, Math.PI * 1.3); c.stroke(); c.restore(); } }
@@ -177,7 +198,7 @@ addScene(0, 6.91, () => {
   const hills = Ly(c => { cloudBand(c, 760, 3, 90); }, '#1a2c45', .3, { glow: { x: moon.x, y: moon.y, r: 500, col: '#c9d4e8', a: .2 } });
   const far = Ly(c => skylineFar(c, 980, 12, 120, 230, false), '#15273e', .42);
   const wlay = Ly(c => { }, '#000', 1, { raw: true, front: (c, t) => { water(c, t, 1000, 5, { x: moon.x }, 300); llorona(c, 300, 980, .78, .9, 'idle', t); } });
-  const near = Ly(c => { c.fillStyle = '#070e18'; reeds(c, 1500, -40, 360, 420, 7); reeds(c, 1540, 760, W + 40, 360, 9); }, '#070e18', .85);
+  const near = Ly(c => { c.fillStyle = '#070e18'; reeds(c, 1500, -40, 300, 420, 7); agave(c, 180, 1470, 1.5); reeds(c, 1540, 820, W + 40, 360, 9); agave(c, 980, 1480, 1.7); }, '#070e18', .85);
   return { layers: [sky, hills, far, wlay, near], cam: t => ({ x: 6 * Math.sin(t * .5), y: 0, z: lerp(1.0, 1.1, ss(seg(t, 0, 6.91))) }), over: (c, t) => { strip(c, t, .1, .9, 'PLOT TWIST WITH A&R  ·  EPISODE 17', 540, 150, 30, { col: '#9fb8d0', font: 'Cormorant Garamond' }); strip(c, t, .4, 1.2, 'LA LLORONA', 540, 300, 86, { col: '#cfe6f2' }); strip(c, t, 2.6, 1.0, 'THE WEEPING WOMAN', 540, 420, 46, { col: '#9fc2d6', t1: 6.8 }); } };
 });
 addScene(6.91, 13.37, () => {
@@ -207,17 +228,17 @@ addScene(20.32, 27.48, () => {
 });
 addScene(27.48, 35.41, () => {
   const sky = Ly(SK('#1a1326', '#4a3652', [{ x: 820, y: 460, r: 420, col: 'rgba(230,220,180,.35)' }]), '#000', 0, { raw: true, front: c => { c.fillStyle = '#eadfbf'; c.beginPath(); c.arc(820, 420, 64, 0, TAU); c.fill(); } });
-  const town = Ly(c => { rowHouses(c, -40, W + 40, 820, 61, 180, 320); }, '#1c1430', .4, { glow: { x: 820, y: 460, r: 560, col: '#d8cdee', a: .16 } });
+  const town = Ly(c => { rowHouses(c, -40, W + 40, 820, 61, 170, 300); c.fillStyle = '#140d1e'; bellTower(c, 150, 900, 110, 360); bellTower(c, 940, 900, 96, 300); c.fillStyle = '#2a2040'; papel(c, 360, 40, 760, 7); }, '#1c1430', .4, { glow: { x: 820, y: 460, r: 560, col: '#d8cdee', a: .16 } });
   const bank = Ly(c => { c.fillStyle = '#0e0a18'; c.fillRect(-OFF, 980, W + 2 * OFF, 30); }, '#0e0a18', .6);
-  const river = Ly(c => { }, '#000', 1, { raw: true, front: (c, t) => { water(c, t, 1005, 27, { x: 820 }, null); const leave = ss(seg(t, 28.0, 30.0)); if (leave < 1) { c.save(); c.globalAlpha = 1 - leave; manSil2(c, lerp(560, 980, leave), 1005, .9); c.restore(); } llorona(c, 320, 1005, .9, .92, 'reach', t); const drown = ss(seg(t, 32.6, 34.4)); for (const dx of [70, 150]) { const yy = lerp(960, 1120, drown), aa = 1 - drown * .9; if (drown < 1) child(c, 320 + dx, yy, .7, aa); if (drown > .2) cryArc(c, 320 + dx, 1030, t, 32.6 + dx * .002, '#9fc2d6'); } } });
-  return { layers: [sky, town, bank, river, frontBand('#05040c', 41)], cam: t => ({ x: lerp(-10, 20, ss(seg(t, 27.48, 35.41))), y: 0, z: lerp(1.0, 1.08, ss(seg(t, 27.48, 35.41))) }), over: (c, t) => { strip(c, t, 28.4, .8, 'MARÍA', 320, 760, 46, { col: '#eadfbf', t1: 31.5 }); } };
+  const river = Ly(c => { }, '#000', 1, { raw: true, front: (c, t) => { water(c, t, 1005, 27, { x: 820 }, null); const leave = ss(seg(t, 28.0, 30.0)); if (leave < 1) { c.save(); c.globalAlpha = 1 - leave; manSil2(c, lerp(540, 980, leave), 1005, .9); c.restore(); } llorona(c, 300, 1005, .95, .92, 'reach', t); const drown = ss(seg(t, 32.4, 35.0)); for (const dx of [96, 196]) { const yy = lerp(946, 1104, drown), aa = 1 - drown * .82; if (drown < 1) { child(c, 300 + dx, yy, 1.05, aa); c.save(); c.globalAlpha = aa * .26; c.translate(300 + dx, 1010); c.scale(1, -.5); child(c, 0, -(1010 - yy), 1.05, 1); c.restore(); } if (drown > .12) cryArc(c, 300 + dx, 1016, t, 32.4 + dx * .003, '#9fc2d6'); } } });
+  return { layers: [sky, town, bank, river, frontBand('#05040c', 41)], cam: t => ({ x: lerp(-10, 20, ss(seg(t, 27.48, 35.41))), y: 0, z: lerp(1.0, 1.08, ss(seg(t, 27.48, 35.41))) }), over: (c, t) => { strip(c, t, 28.4, .8, 'MARÍA', 300, 760, 46, { col: '#eadfbf', t1: 31.5 }); } };
 });
 addScene(35.41, 42.25, () => {
   const moon = { x: 540, y: 420 };
   const sky = Ly(SK('#0c1830', '#223a5a', [{ x: moon.x, y: moon.y, r: 600, col: 'rgba(225,220,185,.5)' }]), '#000', 0, { raw: true, front: c => { bloom(c, c2 => { c2.beginPath(); c2.arc(moon.x, moon.y, 100, 0, TAU); c2.fill(); }, '#eadfbf', .8, 22); c.fillStyle = '#eadfbf'; c.beginPath(); c.arc(moon.x, moon.y, 94, 0, TAU); c.fill(); } });
   const hills = Ly(c => cloudBand(c, 820, 24, 90), '#13243e', .3);
   const river = Ly(c => { }, '#000', 1, { raw: true, front: (c, t) => { water(c, t, 820, 35, { x: moon.x }, 540); llorona(c, 540 + Math.sin(t * .6) * 40, 1120, 1.25, .9, 'cry', t); cryArc(c, 540, 700, t, 36.0); cryArc(c, 540, 700, t, 38.5); } });
-  const near = Ly(c => { c.fillStyle = '#050b16'; reeds(c, 1560, -40, 300, 420, 7); reeds(c, 1580, 820, W + 40, 420, 9); }, '#050b16', .86);
+  const near = Ly(c => { c.fillStyle = '#050b16'; reeds(c, 1560, -40, 260, 420, 7); agave(c, 150, 1540, 1.7); reeds(c, 1580, 860, W + 40, 420, 9); agave(c, 960, 1560, 1.9); }, '#050b16', .86);
   return { layers: [sky, hills, river, near], cam: t => ({ x: 0, y: 0, z: lerp(1.0, 1.1, ss(seg(t, 35.41, 42.25))) }), over: (c, t) => { strip(c, t, 38.6, 1.0, '«¡AY, MIS HIJOS!»', 540, 300, 48, { col: '#cfe4ee', t1: 42.1 }); } };
 });
 addScene(42.25, 50.06, () => {
@@ -229,10 +250,10 @@ addScene(42.25, 50.06, () => {
 addScene(50.06, 60.4, () => {
   const moon = { x: 780, y: 420 };
   const sky = Ly(SK('#0a1326', '#1c3150', [{ x: moon.x, y: moon.y, r: 560, col: 'rgba(220,215,180,.45)' }]), '#000', 0, { raw: true, front: c => { bloom(c, c2 => { c2.beginPath(); c2.arc(moon.x, moon.y, 94, 0, TAU); c2.fill(); }, '#e6dcbe', .7, 22); c.fillStyle = '#e6dcbe'; c.beginPath(); c.arc(moon.x, moon.y, 88, 0, TAU); c.fill(); } });
-  const hills = Ly(c => skylineFar(c, 960, 61, 120, 230, false), '#13243e', .4);
+  const hills = Ly(c => { skylineFar(c, 960, 61, 120, 230, false); c.fillStyle = c.fillStyle; bellTower(c, 820, 960, 70, 220); }, '#13243e', .4);
   const river = Ly(c => { }, '#000', 1, { raw: true, front: (c, t) => { water(c, t, 980, 55, { x: moon.x }, 360); const dis = ss(seg(t, 56.5, 59.6)); llorona(c, 360, 980, .8, .9 * (1 - dis), 'cry', t); } });
   const mist = Ly(c => cloudBand(c, 1300, 6, 100), '#3a4c66', .78, { noShadow: true }); mist.alpha = .36; mist.drift = 40;
-  const near = Ly(c => { c.fillStyle = '#050b16'; reeds(c, 1540, -40, 420, 440, 7); reeds(c, 1560, 700, W + 40, 440, 9); }, '#050b16', .88);
+  const near = Ly(c => { c.fillStyle = '#050b16'; reeds(c, 1540, -40, 360, 440, 7); agave(c, 220, 1530, 1.8); reeds(c, 1560, 760, W + 40, 440, 9); agave(c, 980, 1540, 2.0); }, '#050b16', .88);
   return { layers: [sky, hills, river, mist, near], cam: t => ({ x: 0, y: 0, z: lerp(1.0, 1.14, ss(seg(t, 50.06, 60.4))) }), over: (c, t) => { strip(c, t, 55.0, 1.0, 'NEVER FOLLOW THE CRYING', 540, 300, 46, { col: '#cfe4ee', t1: 60.2 }); strip(c, t, 56.0, 1.0, 'NEAR THE WATER.', 540, 400, 46, { col: '#cfe4ee', t1: 60.2 }); } };
 });
 
