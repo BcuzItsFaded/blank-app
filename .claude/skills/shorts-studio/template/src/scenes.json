@@ -1,0 +1,264 @@
+{
+  "meta": {
+    "brand": "Plot Twist with A&R",
+    "title": "La Llorona: The Weeping Woman — Plot Twist with A&R",
+    "fps": 30,
+    "width": 1080,
+    "height": 1920,
+    "duration": 60,
+    "source": "Most-told folk version of La Llorona (Mexico) + historical twist: Florentine Codex, Book 12 (Sahagún, 1500s) records a woman heard weeping at night for her children among the omens before the Spanish arrival.",
+    "speakers": {
+      "wife": {
+        "voice": "voices/en_US-lessac-high.onnx",
+        "color": "#ff8ad8"
+      },
+      "you": {
+        "voice": "voices/en_US-ryan-high.onnx",
+        "color": "#9fe0ff"
+      }
+    }
+  },
+  "scenes": [
+    {
+      "id": 1,
+      "name": "Hosts — the river at night",
+      "start": 0,
+      "dur": 7,
+      "lines": [
+        {
+          "speaker": "wife",
+          "text": "If you hear a woman crying by the river at night, walk away."
+        },
+        {
+          "speaker": "you",
+          "text": "It might be La Llorona."
+        }
+      ],
+      "spoken": [
+        "If you hear a woman crying by the river at night, walk away.",
+        "It might be La Yoh-roh-nah."
+      ],
+      "tag": "LEGEND",
+      "note": "La Llorona — “the Weeping Woman,” Mexican folklore",
+      "transitionOut": "dissolve",
+      "cues": [
+        [
+          0.0,
+          "river_bed"
+        ],
+        [
+          0.4,
+          "wail_far"
+        ],
+        [
+          5.2,
+          "sting"
+        ]
+      ]
+    },
+    {
+      "id": 2,
+      "name": "María",
+      "start": 7,
+      "dur": 8,
+      "lines": [
+        {
+          "speaker": "you",
+          "text": "The most told version begins with María, a young woman admired by everyone in her small village."
+        }
+      ],
+      "spoken": [
+        "The most told version begins with Maria, a young woman admired by everyone in her small village."
+      ],
+      "tag": "MOST-TOLD VERSION",
+      "note": "Names and details vary between tellings",
+      "transitionOut": "dissolve",
+      "cues": [
+        [
+          0.0,
+          "village"
+        ],
+        [
+          1.0,
+          "church_bell"
+        ]
+      ]
+    },
+    {
+      "id": 3,
+      "name": "Betrayed",
+      "start": 15,
+      "dur": 8,
+      "lines": [
+        {
+          "speaker": "wife",
+          "text": "She married a rich man and had two children. But in time, he ignored them and left for someone else."
+        }
+      ],
+      "tag": "LEGEND",
+      "note": "Folk story — not a historical person",
+      "transitionOut": "dissolve",
+      "cues": [
+        [
+          0.6,
+          "kids_laugh"
+        ],
+        [
+          4.2,
+          "hooves"
+        ],
+        [
+          5.6,
+          "door_close"
+        ]
+      ]
+    },
+    {
+      "id": 4,
+      "name": "The river",
+      "start": 23,
+      "dur": 7,
+      "lines": [
+        {
+          "speaker": "you",
+          "text": "Heartbroken and furious, she took her children to the river, and in a moment of madness, lost them."
+        }
+      ],
+      "tag": "LEGEND",
+      "note": "Folk story — not a historical event",
+      "transitionOut": "fade",
+      "cues": [
+        [
+          0.0,
+          "storm"
+        ],
+        [
+          2.0,
+          "thunder"
+        ],
+        [
+          5.4,
+          "water_surge"
+        ]
+      ]
+    },
+    {
+      "id": 5,
+      "name": "No rest",
+      "start": 30,
+      "dur": 8,
+      "lines": [
+        {
+          "speaker": "wife",
+          "text": "When she realized what she had done, she followed them into the water. But she was not allowed to rest."
+        }
+      ],
+      "tag": "LEGEND",
+      "note": "Folk story",
+      "transitionOut": "dissolve",
+      "cues": [
+        [
+          0.3,
+          "gasp"
+        ],
+        [
+          2.6,
+          "water_enter"
+        ],
+        [
+          5.6,
+          "ghost_rise"
+        ]
+      ]
+    },
+    {
+      "id": 6,
+      "name": "Ay, mis hijos",
+      "start": 38,
+      "dur": 7,
+      "lines": [
+        {
+          "speaker": "you",
+          "text": "Now she wanders the riverbanks in a white dress, crying, ¡Ay, mis hijos! Oh, my children."
+        }
+      ],
+      "spoken": [
+        "Now she wanders the riverbanks in a white dress, crying, eye, mees ee-hos! Oh, my children."
+      ],
+      "tag": "LEGEND",
+      "note": "“¡Ay, mis hijos!” — “Oh, my children!”",
+      "transitionOut": "dissolve",
+      "cues": [
+        [
+          0.0,
+          "river_bed"
+        ],
+        [
+          3.4,
+          "wail_near"
+        ]
+      ]
+    },
+    {
+      "id": 7,
+      "name": "Far means close",
+      "start": 45,
+      "dur": 7,
+      "lines": [
+        {
+          "speaker": "wife",
+          "text": "They say if her cry sounds far away, she is close. And if it sounds close, she is far."
+        }
+      ],
+      "tag": "FOLK BELIEF",
+      "note": "A warning parents tell children — not a verified claim",
+      "transitionOut": "twist",
+      "cues": [
+        [
+          0.6,
+          "wail_far"
+        ],
+        [
+          3.6,
+          "wail_near"
+        ],
+        [
+          5.0,
+          "heartbeat"
+        ]
+      ]
+    },
+    {
+      "id": 8,
+      "name": "The real twist",
+      "start": 52,
+      "dur": 8,
+      "lines": [
+        {
+          "speaker": "you",
+          "text": "The twist? A 1500s Aztec account describes a woman weeping for her children at night, as an omen before the Spanish arrived."
+        }
+      ],
+      "spoken": [
+        "The twist? A fifteen hundreds Aztec account describes a woman weeping for her children at night, as an omen before the Spanish arrived."
+      ],
+      "tag": "HISTORICAL RECORD",
+      "note": "Florentine Codex, Book 12 (Sahagún, 1500s) — omens before the conquest",
+      "transitionOut": "none",
+      "cues": [
+        [
+          0.0,
+          "twist_hit"
+        ],
+        [
+          3.0,
+          "wail_far"
+        ],
+        [
+          7.2,
+          "final"
+        ]
+      ]
+    }
+  ]
+}
