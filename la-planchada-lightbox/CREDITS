@@ -1,0 +1,8 @@
+LA PLANCHADA (paper-cut lightbox): third-party assets
+
+Picture: drawn entirely in code (Canvas 2D paper-layer renderer); no stock footage, no generated images or video. The legend is traditional folklore (see FACTS.md); the figures are original.
+Fonts (SIL OFL 1.1, Google Fonts): IM Fell English SC, Cormorant Garamond.
+Voice: Kokoro-82M TTS via kokoro-onnx (voice bm_george), Apache-2.0. Speech check: faster-whisper (MIT).
+Music: original, played from sampled instruments:
+- Samples (CC0): VS Chamber Orchestra: Community Edition (Versilian Studios), Versilian Community Sample Library (Versilian Studios)
+Foley (paper, clicks, shimmers, thumps, plucks): synthesised in mix.py.
