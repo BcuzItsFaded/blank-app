@@ -1,0 +1,8 @@
+LA PLANCHADA: third-party assets
+
+Picture: drawn entirely in code (Canvas 2D toon engine, rubber-hose rigs). No stock footage, no generated images or video. The legend is traditional folklore (see FACTS.md); the characters are original.
+Fonts (SIL OFL 1.1, Google Fonts): Shrikhand, Limelight, IM Fell English SC.
+Voice: Kokoro-82M TTS via kokoro-onnx (voice bm_george), Apache-2.0. Speech check: faster-whisper (MIT).
+Music: original, played from sampled instruments:
+- Samples (CC0): FreePats project (freepats.zenvoid.org), VS Chamber Orchestra: Community Edition (Versilian Studios), Versilian Community Sample Library (Versilian Studios)
+Drums: MuldjordKit (see the line above if listed). Foley (boings, slide whistles, hiss, thuds): synthesised in mix.py.
