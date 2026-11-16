@@ -1,0 +1,12 @@
+THE DANCING PLAGUE (1518) — Episode 19 · PLOT TWIST WITH A&R
+Code-rendered short film, paper-cut lightbox style · 1080x1920 · 30 fps · −14 LUFS
+
+Style ............ Paper-cut Lightbox (Lemo-Opuscar library)
+Picture .......... film.js (drawn in code, a pure function of time)
+Narration ........ Kokoro TTS, bm_george (British male storyteller), speed 1.21
+Music & sound .... mix.py: sampled recorder / oboe / frame drum / organ / bells
+                   (CC0 VCSL & VSCO libraries) + synthesised foley
+Subtitles ........ dancing-plague.en.srt
+History notes .... FACTS.md
+
+No photographs, stock footage or AI-generated imagery.
