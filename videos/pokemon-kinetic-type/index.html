@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="en" data-resolution="landscape">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1920, height=1080" />
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.15.0/dist/gsap.min.js"></script>
+    <style>
+      :root {
+        --ground: #0b0b10;
+        --ink: #ffffff;
+        --accent: #ffcb05;
+        --font-display: "Arial Black", "Helvetica Neue", Arial, sans-serif;
+      }
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      html, body { width: 1920px; height: 1080px; overflow: hidden; background: var(--ground); }
+      #root { position: relative; width: 100%; height: 100%; font-family: var(--font-display); }
+      .word {
+        position: absolute; inset: 0;
+        display: flex; align-items: center; justify-content: center;
+        font-size: 260px; line-height: 1; letter-spacing: -0.02em;
+        color: var(--ink); text-transform: uppercase;
+        text-shadow: -12px 0 #ff2e63, 12px 0 #08d9d6;
+        opacity: 0;
+      }
+      #ball {
+        position: absolute; left: 50%; top: 50%;
+        width: 360px; height: 360px; margin: -180px 0 0 -180px;
+        border-radius: 50%; border: 14px solid #111;
+        background: linear-gradient(180deg, #e3350d 0 49%, #111 49% 53%, #f4f4f4 53% 100%);
+        opacity: 0;
+      }
+      #ball::after {
+        content: ""; position: absolute; left: 50%; top: 50%;
+        width: 92px; height: 92px; margin: -46px 0 0 -46px;
+        border-radius: 50%; background: #fff; border: 14px solid #111;
+      }
+      #title {
+        position: absolute; left: 0; right: 0; bottom: 110px; text-align: center;
+        font-size: 120px; color: var(--accent); opacity: 0;
+        text-shadow: 0 8px 0 #000;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="root" data-composition-id="main" data-start="0" data-duration="10" data-width="1920" data-height="1080">
+      <div id="w1" class="clip word" data-start="0" data-duration="2.6" data-track-index="0">Catch</div>
+      <div id="w2" class="clip word" data-start="2.6" data-duration="2.6" data-track-index="0">Evolve</div>
+      <div id="w3" class="clip word" data-start="5.2" data-duration="2.6" data-track-index="0">Battle</div>
+      <div id="ball" class="clip" data-start="7.8" data-duration="2.2" data-track-index="1"></div>
+      <div id="title" class="clip" data-start="7.8" data-duration="2.2" data-track-index="2">POKÉMON</div>
+      <img id="franklin" class="clip" src="assets/franklin.jpg" alt="" data-start="7.6" data-duration="2.4" data-track-index="9" style="position:absolute;inset:0;width:1920px;height:1080px;object-fit:contain;background:#000;opacity:0;" />
+    </div>
+    <script>
+      const tl = gsap.timeline({ paused: true });
+      // Each word slams in on a beat, splits chromatically, then cuts out.
+      [["#w1", 0.1], ["#w2", 2.7], ["#w3", 5.3]].forEach(([id, t]) => {
+        tl.fromTo(id, { opacity: 0, scale: 1.7, skewX: -8 }, { opacity: 1, scale: 1, skewX: 0, duration: 0.22, ease: "expo.out" }, t)
+          .to(id, { textShadow: "-2px 0 #ff2e63, 2px 0 #08d9d6", duration: 0.2, ease: "power2.out" }, t + 0.22)
+          .to(id, { opacity: 0, scale: 0.92, duration: 0.12, ease: "power2.in" }, t + 2.2);
+      });
+      // Poké Ball spins in, then the title lands.
+      tl.fromTo("#ball", { opacity: 0, rotation: -540, scale: 0.4 }, { opacity: 1, rotation: 0, scale: 1, duration: 0.9, ease: "back.out(1.4)" }, 7.9)
+        .fromTo("#title", { opacity: 0, y: 40 }, { opacity: 1, y: 0, duration: 0.4, ease: "power3.out" }, 8.4);
+      tl.fromTo("#franklin", { opacity: 0 }, { opacity: 1, duration: 0.5, ease: "power2.out" }, 7.6);
+      window.__timelines["main"] = tl;
+      tl.seek(0);
+    </script>
+  </body>
+</html>

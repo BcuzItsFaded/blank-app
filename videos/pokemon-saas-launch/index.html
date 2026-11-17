@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="en" data-resolution="landscape">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1920, height=1080" />
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.15.0/dist/gsap.min.js"></script>
+    <style>
+      :root {
+        --ground: #f5f7fb;
+        --ink: #14161f;
+        --muted: #6b7280;
+        --brand: #3b5bdb;
+        --card: #ffffff;
+        --font-display: "Helvetica Neue", Arial, sans-serif;
+      }
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      html, body { width: 1920px; height: 1080px; overflow: hidden; background: var(--ground); }
+      #root { position: relative; width: 100%; height: 100%; font-family: var(--font-display); color: var(--ink); }
+      .abs { position: absolute; }
+      #device {
+        left: 560px; top: 150px; width: 800px; height: 520px;
+        border-radius: 24px; background: var(--card);
+        box-shadow: 0 30px 80px rgba(20, 22, 31, 0.18); overflow: hidden; opacity: 0;
+      }
+      #bar { height: 56px; background: #eef1f8; display: flex; align-items: center; gap: 10px; padding: 0 22px; }
+      .dot { width: 14px; height: 14px; border-radius: 50%; background: #cbd2e1; }
+      .tile {
+        position: absolute; width: 230px; height: 150px; border-radius: 16px;
+        background: #f1f4fb; padding: 22px; font-size: 22px; color: var(--muted);
+      }
+      .tile b { display: block; font-size: 52px; color: var(--ink); margin-top: 8px; }
+      #cursor {
+        position: absolute; left: 1060px; top: 560px; width: 0; height: 0;
+        border-left: 22px solid transparent; border-right: 0 solid transparent;
+        border-top: 0; opacity: 0;
+      }
+      #cursorShape {
+        width: 0; height: 0; border-left: 18px solid var(--ink);
+        border-top: 12px solid transparent; border-bottom: 12px solid transparent;
+        transform: rotate(-30deg);
+      }
+      #headline {
+        left: 120px; top: 230px; width: 380px; font-size: 64px; font-weight: 700; line-height: 1.05; letter-spacing: -0.02em; opacity: 0;
+      }
+      #sub { left: 120px; top: 520px; width: 380px; font-size: 28px; color: var(--muted); line-height: 1.35; opacity: 0; }
+      #lower {
+        left: 120px; bottom: 90px; padding: 22px 34px; background: var(--brand); color: #fff;
+        font-size: 30px; font-weight: 600; border-radius: 12px; opacity: 0;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="root" data-composition-id="main" data-start="0" data-duration="10" data-width="1920" data-height="1080">
+      <div id="headline" class="clip abs" data-start="0" data-duration="10" data-track-index="0">Find every creature, fast.</div>
+      <div id="sub" class="clip abs" data-start="0.6" data-duration="9.4" data-track-index="0">Pokédex search with type, region and evolution filters.</div>
+      <div id="device" class="clip abs" data-start="0.3" data-duration="9.7" data-track-index="1">
+        <div id="bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span></div>
+        <div class="tile" style="left:40px; top:90px;">Caught<b>412</b></div>
+        <div class="tile" style="left:290px; top:90px;">Seen<b>587</b></div>
+        <div class="tile" style="left:540px; top:90px;">Regions<b>4</b></div>
+        <div class="tile" style="left:40px; top:270px; width:730px; height:200px;">Search results<b>Pikachu · Eevee · Gengar</b></div>
+      </div>
+      <div id="cursor" class="clip" data-start="2.5" data-duration="5" data-track-index="2"><div id="cursorShape"></div></div>
+      <div id="lower" class="clip abs" data-start="6.5" data-duration="3.5" data-track-index="3">Filter by type in one click</div>
+      <img id="franklin" class="clip" src="assets/franklin.jpg" alt="" data-start="7" data-duration="3" data-track-index="9" style="position:absolute;inset:0;width:1920px;height:1080px;object-fit:contain;background:#000;opacity:0;" />
+    </div>
+    <script>
+      const tl = gsap.timeline({ paused: true });
+      tl.fromTo("#headline", { opacity: 0, y: 30 }, { opacity: 1, y: 0, duration: 0.6, ease: "power3.out" }, 0)
+        .fromTo("#sub", { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.6, ease: "power3.out" }, 0.6)
+        .fromTo("#device", { opacity: 0, y: 60, scale: 0.96 }, { opacity: 1, y: 0, scale: 1, duration: 0.9, ease: "power3.out" }, 0.3)
+        .fromTo("#cursor", { opacity: 0 }, { opacity: 1, duration: 0.2 }, 2.5)
+        .to("#cursor", { x: -340, y: -180, duration: 1.4, ease: "power2.inOut" }, 2.7)
+        .to("#cursorShape", { scale: 0.85, duration: 0.1 }, 4.2)
+        .to("#cursorShape", { scale: 1, duration: 0.1 }, 4.3)
+        .to("#cursor", { opacity: 0, duration: 0.3 }, 4.6)
+        .fromTo("#lower", { opacity: 0, x: -40 }, { opacity: 1, x: 0, duration: 0.5, ease: "power3.out" }, 6.5)
+        .to("#lower", { opacity: 0, duration: 0.3 }, 9.3);
+      tl.fromTo("#franklin", { opacity: 0 }, { opacity: 1, duration: 0.5, ease: "power2.out" }, 7);
+      window.__timelines["main"] = tl;
+      tl.seek(0);
+    </script>
+  </body>
+</html>

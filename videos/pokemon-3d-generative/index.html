@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en" data-resolution="landscape">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1920, height=1080" />
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.15.0/dist/gsap.min.js"></script>
+    <style>
+      :root {
+        --ground: #05060d;
+        --ink: #ffffff;
+        --a: #7c5cff;
+        --b: #ffcb05;
+        --font-display: "Helvetica Neue", Arial, sans-serif;
+      }
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      html, body { width: 1920px; height: 1080px; overflow: hidden; background: var(--ground); }
+      #root { position: relative; width: 100%; height: 100%; font-family: var(--font-display); color: var(--ink); overflow: hidden; }
+      #field { position: absolute; inset: 0; perspective: 1400px; }
+      #grid { position: absolute; left: 50%; top: 50%; width: 0; height: 0; transform-style: preserve-3d; }
+      .p { position: absolute; width: 14px; height: 14px; margin: -7px 0 0 -7px; border-radius: 50%; background: var(--a); }
+      #orb {
+        position: absolute; left: 50%; top: 50%; width: 320px; height: 320px; margin: -160px 0 0 -160px;
+        border-radius: 50%;
+        background: radial-gradient(circle at 35% 30%, #fff8c4 0%, var(--b) 35%, #7c5cff 85%);
+        box-shadow: 0 0 120px rgba(124, 92, 255, 0.6);
+        opacity: 0;
+      }
+      #title {
+        position: absolute; left: 0; right: 0; bottom: 120px; text-align: center;
+        font-size: 110px; font-weight: 700; letter-spacing: -0.02em; opacity: 0;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="root" data-composition-id="main" data-start="0" data-duration="10" data-width="1920" data-height="1080">
+      <div id="field" class="clip" data-start="0" data-duration="10" data-track-index="0"><div id="grid"></div></div>
+      <div id="orb" class="clip" data-start="1" data-duration="9" data-track-index="1"></div>
+      <div id="title" class="clip" data-start="5.5" data-duration="4.5" data-track-index="2">Pokémon</div>
+      <img id="franklin" class="clip" src="assets/franklin.jpg" alt="" data-start="7" data-duration="3" data-track-index="9" style="position:absolute;inset:0;width:1920px;height:1080px;object-fit:contain;background:#000;opacity:0;" />
+    </div>
+    <script>
+      // Deterministic field: a lattice of dots on a wave, no randomness, so every render matches.
+      const grid = document.getElementById("grid");
+      const dots = [];
+      for (let i = -9; i <= 9; i++) {
+        for (let j = -6; j <= 6; j++) {
+          const d = document.createElement("div");
+          d.className = "p";
+          const x = i * 110, z = j * 110;
+          d.style.transform = `translate3d(${x}px, 0px, ${z}px)`;
+          d.style.background = (i + j) % 3 === 0 ? "var(--b)" : "var(--a)";
+          grid.appendChild(d);
+          dots.push({ el: d, x, z, phase: (i * 0.4 + j * 0.3) });
+        }
+      }
+      const tl = gsap.timeline({ paused: true });
+      // Drive the wave from the timeline: each dot's height is a function of time only.
+      const wave = { t: 0 };
+      tl.to(wave, {
+        t: 9.9, duration: 9.9, ease: "none",
+        onUpdate: () => {
+          dots.forEach(({ el, x, z, phase }) => {
+            const y = Math.sin(wave.t * 1.6 + phase) * 90;
+            el.style.transform = `translate3d(${x}px, ${y}px, ${z}px)`;
+          });
+        }
+      }, 0);
+      // Camera tilt and reveal.
+      tl.fromTo("#grid", { rotationX: 70, rotationZ: 0 }, { rotationX: 55, rotationZ: 8, duration: 9.9, ease: "sine.inOut" }, 0)
+        .fromTo("#grid", { scale: 0.4 }, { scale: 1, duration: 2, ease: "power3.out" }, 0)
+        .fromTo("#orb", { opacity: 0, scale: 0.2 }, { opacity: 1, scale: 1, duration: 1.2, ease: "back.out(1.6)" }, 1)
+        .to("#orb", { rotation: 360, duration: 8, ease: "none" }, 1)
+        .fromTo("#title", { opacity: 0, y: 40, scale: 1.15 }, { opacity: 1, y: 0, scale: 1, duration: 1.2, ease: "power3.out" }, 5.5);
+      tl.fromTo("#franklin", { opacity: 0 }, { opacity: 1, duration: 0.5, ease: "power2.out" }, 7);
+      window.__timelines["main"] = tl;
+      tl.seek(0);
+    </script>
+  </body>
+</html>
