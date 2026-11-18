@@ -110,8 +110,8 @@ CROWD = svg("crowd", 0, 1300, 1080, 220, "0 0 1080 220",
             "".join('<rect x="%d" y="%d" width="90" height="220" rx="40" fill="#120c18"/>' % (x, 40 + (x * 13) % 40) for x in range(-20, 1100, 80)))
 CHECK = svg("check", 390, 380, 300, 260, "0 0 300 260",
             '<path d="M30 140 L120 230 L270 40" fill="none" stroke="#4f9a3a" stroke-width="34" stroke-linecap="round" stroke-linejoin="round"/>', "opacity:0")
-BALANCE = (box("left:530px;top:520px;width:20px;height:800px;background:#5a4a3e")
-           + box("left:200px;top:700px;width:680px;height:18px;background:#c9a227", "beam"))
+BALANCE = (box("left:530px;top:700px;width:20px;height:820px;background:#5a4a3e")
+           + box("left:430px;top:1500px;width:220px;height:30px;background:#5a4a3e"))
 WALLET = svg("wallet", 0, 0, 1080, 1920, "0 0 1080 1920", '<rect x="120" y="1000" width="110" height="70" rx="10" fill="#6a4a2a" stroke="%s" stroke-width="6"/>' % INK, "opacity:1")
 
 SC = []
@@ -134,7 +134,7 @@ scene("THE OPENING", ["fireballs", "demonic", "power", "supply"], "dip",
 ''')
 
 # 2 — backstory: master, two students part ways
-mas, jmas = ch("mas", "person", 540, 1000, 300, MAS)
+mas, jmas = ch("mas", "person", 540, 1440, 320, MAS)
 dis, jdis = ch("dis", "person", 320, 1440, 340, DIS)
 riv, jriv = ch("riv", "person", 760, 1440, 340, RIV)
 scene("BACKSTORY", ["gouken", "brothers", "spotlight", "celebrity"], "cut",
@@ -268,8 +268,13 @@ scene("THE RIVAL'S MOTIVE", ["beat", "honor", "enough", "motives"], "cut",
 
 # 12 — repeated flashbacks: a filmstrip
 dis12, jdis12 = ch("dis", "person", 540, 1440, 380, DIS)
-strip = "".join(box("left:%dpx;top:260px;width:220px;height:170px;background:%s;border:6px solid #0b0b12" % (60 + i * 250, c), "f%d" % i)
-                for i, c in enumerate(["#3a3a5a", "#5a3a4a", "#3a5a4a", "#5a4a3a"]))
+def _panel(i, c):
+    x = 60 + i * 250
+    inner = ('<div class="abs" style="left:85px;top:28px;width:50px;height:50px;border-radius:50%%;background:#c99a7a"></div>'
+             '<div class="abs" style="left:62px;top:84px;width:96px;height:72px;border-radius:22px;background:#1d2430"></div>')
+    return ('<div id="@f%d" class="abs" style="left:%dpx;top:260px;width:220px;height:170px;background:%s;border:6px solid #0b0b12">%s</div>'
+            % (i, x, c, inner))
+strip = "".join(_panel(i, c) for i, c in enumerate(["#3a3a5a", "#5a3a4a", "#3a5a4a", "#5a4a3a"]))
 scene("REPEATED FLASHBACKS", ["flashbacks", "animated", "interrupts", "momentum"], "flash",
       [bg("#1a1a2a"), strip, dis12],
       jdis12 + r'''
@@ -294,12 +299,20 @@ scene("SPECTACLE OVER SKILL", ["effects", "compete", "spectacle", "matter"], "fl
 # 14 — the verdict: the scale tips toward the roster
 scene("FINAL VERDICT", ["strongest", "ridiculous", "weakest", "enthusiasm", "storytelling"], "dip",
       [bg("#2a2430"), BALANCE,
-       tbox("left:90px;top:760px;font-family:'Archivo Black';font-size:46px;color:#f4ede0;-webkit-text-stroke:6px #1b1a18;paint-order:stroke fill", "CHARACTERS", "lbl1"),
-       tbox("left:700px;top:960px;font-family:'Archivo Black';font-size:46px;color:#f4ede0;-webkit-text-stroke:6px #1b1a18;paint-order:stroke fill", "STORY", "lbl2")],
+       svg("bal", 0, 0, 1080, 1920, "0 0 1080 1920",
+           '<g id="@beamg">'
+           '<rect x="200" y="692" width="680" height="16" fill="#c9a227" stroke="%s" stroke-width="4"/>'
+           '<path d="M200 700 L150 748 M200 700 L250 748 M880 700 L830 748 M880 700 L930 748" stroke="%s" stroke-width="5"/>'
+           '<rect x="110" y="748" width="180" height="110" rx="10" fill="#f4ede0" stroke="%s" stroke-width="6"/>'
+           '<rect x="790" y="748" width="180" height="110" rx="10" fill="#f4ede0" stroke="%s" stroke-width="6"/>'
+           '<text x="200" y="816" text-anchor="middle" font-family="Archivo Black" font-size="22" fill="%s">CHARACTERS</text>'
+           '<text x="880" y="816" text-anchor="middle" font-family="Archivo Black" font-size="26" fill="%s">STORY</text>'
+           '<circle cx="540" cy="700" r="18" fill="#c9a227" stroke="%s" stroke-width="5"/></g>'
+           % (INK, INK, INK, INK, INK, INK, INK)),
+      ],
       r'''
-  tl.fromTo("#@beam", { rotation: 0, transformOrigin: "50% 50%" }, { rotation: -9, duration: 1.4, ease: "back.out(1.2)" }, 0.6);
-  tl.fromTo("#@lbl1", { y: 0 }, { y: 24, duration: 1.4, ease: "back.out(1.2)" }, 0.6);
-  tl.fromTo("#@lbl2", { y: 0 }, { y: -24, duration: 1.4, ease: "back.out(1.2)" }, 0.6);
+  gsap.set("#@beamg", { svgOrigin: "540 700" });
+  tl.fromTo("#@beamg", { rotation: 0 }, { rotation: -9, duration: 1.4, ease: "back.out(1.2)" }, 0.6);
   tl.fromTo("#@world", { scale: 1 }, { scale: 1.05, duration: D, ease: "sine.inOut", transformOrigin: "50% 50%" }, 0);
 ''')
 
