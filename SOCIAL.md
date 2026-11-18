@@ -141,3 +141,19 @@ Mass hysteria, illness, or something else? 👇
 - Put the hook line (the caption's first sentence) on the Reel cover too. It's what shows before "…more".
 - Pin a comment asking the question from the caption to kick off replies.
 - For the La Planchada series, post the versions a day or two apart and say "Part 1/7, 2/7…" in the title.
+
+---
+
+## The 26 Deaths at Mazorra · Ep. 20 (Paper-cut Lightbox)
+**Title:** The 26 Deaths at Mazorra: The Horror Was Human 🕯️ | Ep. 20
+
+**Caption:**
+Havana, Cuba. January 2010. A rare cold front hits the island. 🥶
+Inside Mazorra, a psychiatric hospital, patients were left freezing: broken windows, no blankets, not enough food.
+26 people died. Investigators found the supplies meant for them had been stolen. 💔
+
+This isn't a legend. There was no monster. The horror was entirely human.
+🕯️ In memory of the 26.
+🎬 Plot Twist with A&R
+
+**Hashtags:** #Mazorra #Havana #Cuba #TrueStory #DarkHistory #TrueCrime #Documentary #HistoryFacts #RealHorror #Justice #MentalHealthAwareness #PaperCut #PlotTwistWithAR
