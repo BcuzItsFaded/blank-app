@@ -287,7 +287,7 @@ function monSVG(o) {
         c.words.forEach(function (tt, k) { tl.fromTo(ws[k], { opacity: 0.3 }, { opacity: 1, duration: 0.08 }, tt); });
         tl.to(el, { opacity: 0, duration: 0.06 }, c.t1 - 0.06);
       });
-rig("s9-han", "person", {"skin": "#b07c5a", "hair": "messy", "suit": "#8a6a3e", "brows": "flat", "mouth": "open", "beard": true});rig("s9-riv", "person", {"skin": "#e8b898", "hair": "buzz", "hairc": "#d9a53a", "suit": "#e8862a", "belt": "#1b1a18", "shades": true, "brows": "flat", "mouth": "smile"});
+rig("s9-han", "person", {"skin": "#b07c5a", "hair": "messy", "suit": "#8a6a3e", "brows": "flat", "mouth": "open", "beard": true});rig("s9-riv", "person", {"skin": "#e8b898", "hair": "buzz", "hairc": "#d9a53a", "suit": "#e8862a", "belt": "#1b1a18", "brows": "flat", "mouth": "smile"});
   walk(tl, "s9-han", 0.8, 2.6, 0.18);
   tl.fromTo("#s9-han", { x: 0 }, { x: 330, duration: 2.6, ease: "power1.inOut" }, 0.8);
   tl.fromTo("#s9-loyal", { opacity: 0, scale: 2 }, { opacity: 1, scale: 1, duration: 0.3, ease: "back.out(2)" }, 4.0);

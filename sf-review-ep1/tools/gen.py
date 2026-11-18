@@ -11,7 +11,7 @@ LINES = [l.strip() for l in open(os.path.join(HERE, "vo.txt"), encoding="utf-8")
 
 # original figures, cast by role (not the film's characters)
 DIS = dict(skin="#c99a7a", hair="buzz", hairc="#1b1a18", suit="#1d2430", belt="#c9a227", brows="flat", mouth="flat")
-RIV = dict(skin="#e8b898", hair="buzz", hairc="#d9a53a", suit="#e8862a", belt="#1b1a18", shades=True, brows="flat", mouth="smile")
+RIV = dict(skin="#e8b898", hair="buzz", hairc="#d9a53a", suit="#e8862a", belt="#1b1a18", brows="flat", mouth="smile")
 AGT = dict(skin="#d8a284", hair="long", hairc="#2a1e18", suit="#2f4a3a", chest="#c8262b", brows="flat", mouth="flat")
 HAN = dict(skin="#b07c5a", hair="messy", suit="#8a6a3e", brows="flat", mouth="open", beard=True)
 PRO = dict(skin="#e0c0a0", hair="buzz", hairc="#9aa3ab", suit="#2a2a3a", cape="#2a1420", belt="#e9c46a", brows="angry", mouth="smile")

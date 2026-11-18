@@ -285,7 +285,7 @@ function monSVG(o) {
         c.words.forEach(function (tt, k) { tl.fromTo(ws[k], { opacity: 0.3 }, { opacity: 1, duration: 0.08 }, tt); });
         tl.to(el, { opacity: 0, duration: 0.06 }, c.t1 - 0.06);
       });
-rig("s11-riv", "person", {"skin": "#e8b898", "hair": "buzz", "hairc": "#d9a53a", "suit": "#e8862a", "belt": "#1b1a18", "shades": true, "brows": "flat", "mouth": "smile"});
+rig("s11-riv", "person", {"skin": "#e8b898", "hair": "buzz", "hairc": "#d9a53a", "suit": "#e8862a", "belt": "#1b1a18", "brows": "flat", "mouth": "smile"});
   [0, 1, 2].forEach(function (i) { tl.fromTo("#s11-b" + i, { opacity: 0, scale: 0.5 }, { opacity: 1, scale: 1, duration: 0.35, ease: "back.out(2)" }, 1.5 + i * 2.2); });
   tl.to("#s11-riv .head", { rotation: -10, duration: 1.0, ease: "sine.inOut" }, 2.0);
   tl.fromTo("#s11-world", { scale: 1 }, { scale: 1.05, duration: D, ease: "sine.inOut", transformOrigin: "50% 50%" }, 0);

@@ -288,7 +288,7 @@ function monSVG(o) {
         c.words.forEach(function (tt, k) { tl.fromTo(ws[k], { opacity: 0.3 }, { opacity: 1, duration: 0.08 }, tt); });
         tl.to(el, { opacity: 0, duration: 0.06 }, c.t1 - 0.06);
       });
-rig("s3-dis", "person", {"skin": "#c99a7a", "hair": "buzz", "hairc": "#1b1a18", "suit": "#1d2430", "belt": "#c9a227", "brows": "flat", "mouth": "flat"});rig("s3-riv", "person", {"skin": "#e8b898", "hair": "buzz", "hairc": "#d9a53a", "suit": "#e8862a", "belt": "#1b1a18", "shades": true, "brows": "flat", "mouth": "smile"});
+rig("s3-dis", "person", {"skin": "#c99a7a", "hair": "buzz", "hairc": "#1b1a18", "suit": "#1d2430", "belt": "#c9a227", "brows": "flat", "mouth": "flat"});rig("s3-riv", "person", {"skin": "#e8b898", "hair": "buzz", "hairc": "#d9a53a", "suit": "#e8862a", "belt": "#1b1a18", "brows": "flat", "mouth": "smile"});
   tl.fromTo("#s3-riv .armR", { rotation: 0 }, { rotation: -150, duration: 0.6, ease: "back.out(2)" }, 1.0);
   tl.fromTo("#s3-root .abs", { y: 0 }, { y: 0 }, 0);
   tl.fromTo("#s3-world", { scale: 1.04 }, { scale: 1.0, duration: D, ease: "sine.inOut", transformOrigin: "50% 50%" }, 0);
