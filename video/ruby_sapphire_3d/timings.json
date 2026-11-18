@@ -1,45 +1,45 @@
 {
- "dur": 39.716,
+ "dur": 45.911,
  "sents": [
   {
-   "text": "Ruby and Sapphire. A quick trip down memory lane.",
+   "text": "Pok\u00e9mon Ruby and Sapphire. A quick trip down memory lane.",
    "start": 0.5,
-   "end": 3.654
+   "end": 4.366
   },
   {
-   "text": "Two thousand three. A brand new region called Hoenn, on the Game Boy Advance.",
-   "start": 3.954,
-   "end": 9.135
+   "text": "Two thousand three. You rode into Littleroot Town in the back of a moving truck. Welcome to Hoenn.",
+   "start": 4.666,
+   "end": 10.578
   },
   {
-   "text": "Your adventure started by saving the professor from a wild attack, and picking your very first partner.",
-   "start": 9.435,
-   "end": 15.179
+   "text": "On Route 101, Professor Birch was being chased by a wild Poochyena. You grabbed a ball from his bag, and picked Treecko, Torchic, or Mudkip.",
+   "start": 10.878,
+   "end": 20.539
   },
   {
-   "text": "Then you found your own secret base, and decorated it with mats and dolls.",
-   "start": 15.479,
-   "end": 19.892
+   "text": "Then Secret Power let you build your own secret base, and fill it with mats and dolls.",
+   "start": 20.839,
+   "end": 26.015
   },
   {
    "text": "Double battles arrived. Two against two, for the very first time.",
-   "start": 20.192,
-   "end": 23.979
+   "start": 26.315,
+   "end": 30.102
   },
   {
-   "text": "Then the legends of land and sea woke up, and the weather went wild.",
-   "start": 24.279,
-   "end": 28.055
+   "text": "Then Groudon and Kyogre woke up, and the weather went wild.",
+   "start": 30.402,
+   "end": 34.251
   },
   {
    "text": "And who could forget the water? So. Much. Water.",
-   "start": 28.355,
-   "end": 31.102
+   "start": 34.551,
+   "end": 37.298
   },
   {
    "text": "Ruby or Sapphire? Comment your version, and follow R G Brick and Stick Verse for more memory lane.",
-   "start": 31.402,
-   "end": 37.816
+   "start": 37.598,
+   "end": 44.011
   }
  ]
 }
