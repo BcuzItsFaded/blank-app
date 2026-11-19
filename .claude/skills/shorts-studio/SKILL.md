@@ -15,7 +15,7 @@ and cel versions), the VisionQuest post-credits explainer, and La Llorona.
 | **Channel** | **Plot Twist with A&R**: legends, mysteries, "plot twist" stories; two hosts, wife + "you"; logo `public/brand/logo.png`. **Don't Spoil It RG**: movie/TV breakdowns and explainers; single narrator; "DON'T SPOIL IT RG" wordmark. Never mix brands in one export. |
 | **Script** | If the user gave one, use it **verbatim**, with their timings. Otherwise write it: 8 segments (7–8 s) for Plot Twist, 12 × 5 s for Don't Spoil It. |
 | **Look** | **Cel** (code-drawn, default) or **plate** (the user's storyboard panels, animated). Ask if they sent art and it's unclear. |
-| **Voices** | Free local Piper TTS unless the user supplies recordings. ElevenLabs is optional; check credits first. |
+| **Voices** | **Kokoro** by default: free, local and natural-sounding. Set `"voice": "kokoro:am_michael"` for a male narrator or `"kokoro:af_heart"` for a female voice. Piper sounds robotic, so use it only as a fallback. The user's own recordings always win. ElevenLabs is optional; check credits first. |
 
 ## 1. Facts first (non-negotiable)
 
@@ -34,7 +34,11 @@ and cel versions), the VisionQuest post-credits explainer, and La Llorona.
 ```bash
 cp -r .claude/skills/shorts-studio/template <project-name>   # e.g. la-llorona-short
 cd <project-name> && npm ci          # or reuse another project's node_modules: cp -al ../x/node_modules .
-pip install piper-tts numpy scipy pyloudnorm fonttools
+pip install kokoro-onnx soundfile piper-tts numpy scipy pyloudnorm fonttools
+# Kokoro voice models (~350 MB) go in ../.kokoro, next to the projects:
+mkdir -p ../.kokoro && for f in kokoro-v1.0.onnx voices-v1.0.bin; do
+  curl -sSfL -o ../.kokoro/$f https://github.com/thewh1teagle/kokoro-onnx/releases/download/model-files-v1.0/$f; done
+# Piper fallback voices:
 mkdir -p voices && cd voices && for v in en_US/ryan/high/en_US-ryan-high en_US/lessac/high/en_US-lessac-high; do
   for e in onnx onnx.json; do curl -sSfLO "https://huggingface.co/rhasspy/piper-voices/resolve/v1.0.0/en/$v.$e"; done; done
 ```
@@ -70,7 +74,7 @@ if the art already contains it.
 
 ## 5. Audio: `npm run audio` (`scripts/make_audio.py` + `scripts/synth.py`)
 
-- **Narration:** Piper per line, fitted into `dur − 0.32 s` by iterating `length_scale`. Then `polish_voice`: HPF, presence EQ, de-mud, compressor, and every speaker normalised to −18 dB RMS. Word timings come from detected pauses plus syllables.
+- **Narration:** Kokoro (or Piper) per line, fitted into `dur − 0.32 s` by iterating `length_scale`. Then `polish_voice`: HPF, presence EQ, de-mud, compressor, and every speaker normalised to −18 dB RMS. Word timings come from detected pauses plus syllables.
 - **SFX:** write a `SFX` dict of synth functions keyed by the cue names. Put hits in `ACCENTS`, which are ducked less.
 - **Score:** original only. Guitar arpeggios, music box, strings, choir, taiko and piano helpers are in `synth.py`.
 - **Mix:** duck the score about 14 dB and ambience about 11 dB under the voice, then normalise to **−14 LUFS** with a look-ahead true-peak limiter at **−1.5 dBTP**. This writes `public/audio/mix.wav`, used by both the composition and the render.
