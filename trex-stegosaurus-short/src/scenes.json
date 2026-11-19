@@ -1,0 +1,236 @@
+{
+  "meta": {
+    "brand": "DAILY FACTS",
+    "day": "",
+    "title": "T. rex lived closer to YOU than to Stegosaurus?",
+    "fps": 30,
+    "width": 1080,
+    "height": 1920,
+    "duration": 43.4,
+    "source": "User script (verbatim). Stegosaurus ~155–145 Mya (Late Jurassic); T. rex ~68–66 Mya; gap ≥ ~77 My vs 66 My to today. Sources: Smithsonian, Gizmodo, Discovery, AMNH.",
+    "speakers": {
+      "narrator": {
+        "voice": "kokoro:am_michael",
+        "color": "#ffb84a"
+      },
+      "react": {
+        "voice": "kokoro:af_heart",
+        "color": "#ff6ad5"
+      }
+    }
+  },
+  "scenes": [
+    {
+      "id": 1,
+      "name": "Hook",
+      "start": 0.0,
+      "dur": 7.4,
+      "lines": [
+        {
+          "speaker": "narrator",
+          "text": "What if I told you T. rex lived closer to YOU than to Stegosaurus?"
+        },
+        {
+          "speaker": "narrator",
+          "text": "Sounds impossible, right?"
+        }
+      ],
+      "tag": "SOUNDS IMPOSSIBLE",
+      "note": "Let's check the timeline",
+      "transitionOut": "dissolve",
+      "cues": [
+        [
+          0.0,
+          "whoosh"
+        ],
+        [
+          3.6,
+          "sting"
+        ]
+      ],
+      "spoken": [
+        "What if I told you, Tee rex lived closer to you, than to Stegosaurus?",
+        "Sounds impossible, right?"
+      ]
+    },
+    {
+      "id": 2,
+      "name": "Stegosaurus",
+      "start": 7.4,
+      "dur": 5.7,
+      "lines": [
+        {
+          "speaker": "narrator",
+          "text": "Stegosaurus roamed Earth about 150 million years ago."
+        }
+      ],
+      "tag": "FACT",
+      "note": "Stegosaurus: Late Jurassic, ~155–145 million years ago",
+      "transitionOut": "dissolve",
+      "cues": [
+        [
+          0.2,
+          "stomp"
+        ],
+        [
+          2.0,
+          "roar_small"
+        ]
+      ]
+    },
+    {
+      "id": 3,
+      "name": "T. rex appears",
+      "start": 13.1,
+      "dur": 5.2,
+      "lines": [
+        {
+          "speaker": "narrator",
+          "text": "But T. rex didn’t appear until around 68 million years ago!"
+        }
+      ],
+      "tag": "FACT",
+      "note": "T. rex: Late Cretaceous, ~68–66 million years ago",
+      "transitionOut": "dissolve",
+      "cues": [
+        [
+          0.2,
+          "stomp"
+        ],
+        [
+          1.6,
+          "roar"
+        ]
+      ],
+      "spoken": [
+        "But Tee rex didn't appear until around sixty-eight million years ago!"
+      ]
+    },
+    {
+      "id": 4,
+      "name": "The gap",
+      "start": 18.3,
+      "dur": 6.0,
+      "lines": [
+        {
+          "speaker": "narrator",
+          "text": "That’s roughly 77 million years separating these two dinosaurs."
+        }
+      ],
+      "tag": "FACT",
+      "note": "~145 → ~68 million years ago = about 77 million years",
+      "transitionOut": "dissolve",
+      "cues": [
+        [
+          0.6,
+          "riser"
+        ],
+        [
+          3.2,
+          "hit"
+        ]
+      ],
+      "spoken": [
+        "That's roughly seventy-seven million years separating these two dinosaurs."
+      ]
+    },
+    {
+      "id": 5,
+      "name": "Extinction",
+      "start": 24.3,
+      "dur": 6.5,
+      "lines": [
+        {
+          "speaker": "narrator",
+          "text": "And here’s the crazy part."
+        },
+        {
+          "speaker": "narrator",
+          "text": "T. rex went extinct just 66 million years ago."
+        }
+      ],
+      "tag": "FACT",
+      "note": "Mass extinction ~66 million years ago",
+      "transitionOut": "dissolve",
+      "cues": [
+        [
+          1.6,
+          "asteroid"
+        ],
+        [
+          3.0,
+          "boom"
+        ]
+      ],
+      "spoken": [
+        "And here’s the crazy part.",
+        "Tee rex went extinct just sixty-six million years ago."
+      ]
+    },
+    {
+      "id": 6,
+      "name": "Closer to you",
+      "start": 30.8,
+      "dur": 6.4,
+      "lines": [
+        {
+          "speaker": "narrator",
+          "text": "That means you’re closer in time to T. rex than T. rex ever was to Stegosaurus!"
+        }
+      ],
+      "tag": "FACT",
+      "note": "66 million years (T. rex → you) < 77+ million (Stegosaurus → T. rex)",
+      "transitionOut": "dissolve",
+      "cues": [
+        [
+          0.4,
+          "pop"
+        ],
+        [
+          3.0,
+          "pop"
+        ],
+        [
+          4.2,
+          "hit"
+        ]
+      ],
+      "spoken": [
+        "That means you're closer in time to Tee rex, than Tee rex ever was to Stegosaurus!"
+      ]
+    },
+    {
+      "id": 7,
+      "name": "Not together",
+      "start": 37.2,
+      "dur": 6.2,
+      "lines": [
+        {
+          "speaker": "narrator",
+          "text": "Dinosaurs weren’t all living together!"
+        },
+        {
+          "speaker": "react",
+          "text": "WAIT RG… WHAT?! FACTS!"
+        }
+      ],
+      "tag": "FACT",
+      "note": "Dinosaurs lived across ~165 million years",
+      "transitionOut": "none",
+      "cues": [
+        [
+          2.4,
+          "record_scratch"
+        ],
+        [
+          3.6,
+          "stamp"
+        ]
+      ],
+      "spoken": [
+        "Dinosaurs weren’t all living together!",
+        "Wait, R G... what?! Facts!"
+      ]
+    }
+  ]
+}
