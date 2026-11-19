@@ -9,90 +9,131 @@ type P = { f: number };
 const cam = (id: number, keys: number[][]): SceneData => ({ id, camera: { keys } });
 const INK = "#1a120a";
 
-/** back-height of the Stegosaurus at x (highest over the hips) */
-const stegoBack = (x: number) => -350 + 0.0011 * (x + 60) * (x + 60) * (x > -60 ? 1.35 : 1);
+let dinoSeq = 0;
+const useId = (k: string) => React.useMemo(() => `${k}${dinoSeq++}`, [k]);
 
-/** Stegosaurus (side view, facing right). Origin at the feet; ~900 wide, ~470 tall. */
+/** scaly skin + countershading: body gradient (dark back → pale belly) and a scale pattern */
+const SkinDefs: React.FC<{ id: string; top: string; mid: string; belly: string; scale?: number }> = ({ id, top, mid, belly, scale = 1 }) => (
+  <defs>
+    <linearGradient id={`${id}g`} x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stopColor={top} /><stop offset="0.55" stopColor={mid} /><stop offset="1" stopColor={belly} />
+    </linearGradient>
+    <pattern id={`${id}p`} width={22 * scale} height={18 * scale} patternUnits="userSpaceOnUse">
+      <path d={`M 0,${9 * scale} q ${5.5 * scale},${-8 * scale} ${11 * scale},0 q ${5.5 * scale},${-8 * scale} ${11 * scale},0 M ${-5.5 * scale},${18 * scale} q ${5.5 * scale},${-8 * scale} ${11 * scale},0 q ${5.5 * scale},${-8 * scale} ${11 * scale},0 q ${5.5 * scale},${-8 * scale} ${11 * scale},0`} stroke="#000" strokeWidth={1.6} fill="none" opacity={0.28} />
+    </pattern>
+    <radialGradient id={`${id}sh`}><stop offset="0" stopColor="#000" stopOpacity={0.45} /><stop offset="1" stopColor="#000" stopOpacity={0} /></radialGradient>
+  </defs>
+);
+/** fill a shape with gradient, then scales, then a crisp outline */
+const Skin: React.FC<{ d: string; id: string; stroke?: string; sw?: number }> = ({ d, id, stroke = "#1a120a", sw = 5 }) => (
+  <g><path d={d} fill={`url(#${id}g)`} /><path d={d} fill={`url(#${id}p)`} /><path d={d} fill="none" stroke={stroke} strokeWidth={sw} strokeLinejoin="round" /></g>
+);
+
+/** Stegosaurus stenops (side view, facing right). Origin at the feet; ~1000 wide, ~520 tall. */
 const Stego: React.FC<{ x: number; y: number; s: number; f: number; walk?: number; flip?: boolean }> = ({ x, y, s, f, walk = 0, flip }) => {
-  const st = Math.sin(f / 7) * walk;
-  const BODY = "#5f8f5a", BODY_D = "#3f6a42", BELLY = "#c8c48a", PLATE = "#e0703a", PLATE_D = "#a8431e";
-  const leg = (lx: number, top: number, w: number, ph: number, far: boolean) => (
-    <g transform={`rotate(${st * ph * 9} ${lx} ${top})`}>
-      <path d={`M ${lx - w / 2},${top} C ${lx - w / 2 - 6},${top + 80} ${lx - w * 0.42},-60 ${lx - w * 0.45},-14 L ${lx - w * 0.6},0 L ${lx + w * 0.62},0 L ${lx + w * 0.45},-14 C ${lx + w * 0.42},-60 ${lx + w / 2 + 6},${top + 80} ${lx + w / 2},${top} Z`}
-        fill={far ? BODY_D : BODY} stroke={INK} strokeWidth={6} strokeLinejoin="round" />
-      {[-0.35, 0, 0.35].map((t) => <path key={t} d={`M ${lx + w * t - 8},0 q 8,-14 16,0`} stroke={INK} strokeWidth={4} fill="#e8e0c8" />)}
+  const id = useId("sg");
+  const st = Math.sin(f / 8) * walk;
+  const BODY = "M -660,-262 C -560,-276 -420,-330 -230,-372 C -100,-398 20,-392 120,-352 C 210,-316 268,-262 318,-212 C 342,-190 360,-178 378,-170 L 366,-132 C 318,-134 268,-128 222,-114 C 170,-90 120,-70 40,-66 C -80,-60 -200,-80 -300,-118 C -420,-162 -560,-222 -660,-246 Z";
+  const back = (x0: number) => -386 + 0.00095 * (x0 + 120) * (x0 + 120) * (x0 > -120 ? 1.5 : 1);
+  const plates = [-500, -430, -360, -288, -214, -140, -66, 8, 82, 152, 216];
+  const plate = (px: number, far: boolean, i: number) => {
+    const h = (far ? 72 : 84) + (far ? 72 : 88) * Math.sin(((px + 540) / 790) * Math.PI);
+    const by = back(px) + (far ? 18 : 26);
+    const d = `M ${px - h * 0.44},${by} Q ${px - h * 0.56},${by - h * 0.7} ${px + h * 0.02},${by - h * 1.2} Q ${px + h * 0.56},${by - h * 0.66} ${px + h * 0.44},${by} Z`;
+    return (
+      <g key={`${far ? "f" : "n"}${i}`}>
+        <path d={d} fill={far ? `url(#${id}pf)` : `url(#${id}pl)`} stroke="#2a140a" strokeWidth={far ? 4 : 5} strokeLinejoin="round" />
+        {!far && [-0.25, 0, 0.25].map((t) => <path key={t} d={`M ${px + h * t * 0.6},${by - 4} Q ${px + h * t},${by - h * 0.5} ${px + h * t * 0.2},${by - h * 0.95}`} stroke="#7a2a12" strokeWidth={2} fill="none" opacity={0.55} />)}
+      </g>
+    );
+  };
+  const leg = (lx: number, top: number, w: number, len: number, ph: number, far: boolean) => (
+    <g transform={`rotate(${st * ph * 8} ${lx} ${top})`} opacity={far ? 0.85 : 1}>
+      <Skin id={far ? `${id}f` : id} d={`M ${lx - w * 0.55},${top} C ${lx - w * 0.7},${top + len * 0.4} ${lx - w * 0.42},${-len * 0.25} ${lx - w * 0.46},-16 C ${lx - w * 0.62},-6 ${lx - w * 0.62},0 ${lx - w * 0.5},0 L ${lx + w * 0.58},0 C ${lx + w * 0.66},0 ${lx + w * 0.64},-8 ${lx + w * 0.46},-16 C ${lx + w * 0.42},${-len * 0.25} ${lx + w * 0.7},${top + len * 0.4} ${lx + w * 0.55},${top} Z`} sw={5} />
+      {[-0.3, 0.05, 0.38].map((t) => <path key={t} d={`M ${lx + w * t - 9},0 q 9,-12 18,0`} fill="#5a5040" stroke="#1a120a" strokeWidth={3} />)}
     </g>
   );
-  const plates = [-430, -360, -290, -215, -140, -65, 10, 85, 155, 220];
   return (
     <g transform={`translate(${x} ${y}) scale(${flip ? -s : s} ${s})`}>
-      {/* far legs */}
-      {leg(-120, -200, 96, -1, true)}{leg(190, -160, 66, 1, true)}
-      {/* far row of plates (offset, darker) */}
-      {plates.map((px, i) => { const h = 70 + 70 * Math.sin(((px + 470) / 720) * Math.PI); const by = stegoBack(px + 30) + 14;
-        return <path key={`b${i}`} d={`M ${px + 30 - h * 0.42},${by} Q ${px + 30 - h * 0.5},${by - h * 0.7} ${px + 30 + h * 0.05},${by - h * 1.15} Q ${px + 30 + h * 0.5},${by - h * 0.6} ${px + 30 + h * 0.42},${by} Z`} fill={PLATE_D} stroke={INK} strokeWidth={5} />; })}
-      {/* body + tail + neck */}
-      <path d="M -640,-250 C -540,-265 -380,-330 -150,-350 C 40,-362 190,-300 280,-215 C 312,-188 336,-170 356,-158 L 342,-122 C 270,-128 210,-124 150,-104 C 20,-72 -190,-88 -330,-128 C -450,-160 -560,-210 -640,-235 Z" fill={BODY} stroke={INK} strokeWidth={7} strokeLinejoin="round" />
-      <path d="M -330,-130 C -190,-92 20,-76 150,-106 C 200,-118 250,-126 300,-128" stroke={BELLY} strokeWidth={22} fill="none" strokeLinecap="round" opacity={0.9} />
-      {[-380, -250, -120, 10, 130].map((sx, i) => <path key={i} d={`M ${sx},${stegoBack(sx) + 34} q 18,40 4,86`} stroke={BODY_D} strokeWidth={9} fill="none" strokeLinecap="round" opacity={0.7} />)}
-      {/* tail spikes (thagomizer) */}
-      {[[-600, -246, -150], [-575, -252, -120], [-610, -240, 150], [-585, -244, 125]].map(([sx, sy, a], i) => {
-        const r = (a * Math.PI) / 180, L = 92;
-        return <path key={i} d={`M ${sx - 10},${sy} L ${sx + Math.cos(r) * L},${sy - Math.abs(Math.sin(r)) * L} L ${sx + 10},${sy} Z`} fill="#efe6cc" stroke={INK} strokeWidth={5} strokeLinejoin="round" />;
+      <SkinDefs id={id} top="#3e4a2c" mid="#6e7a46" belly="#c8bf8e" />
+      <SkinDefs id={`${id}f`} top="#2e3820" mid="#525c34" belly="#8e8a62" />
+      <defs>
+        <linearGradient id={`${id}pl`} x1="0" y1="1" x2="0" y2="0"><stop offset="0" stopColor="#8a6a3a" /><stop offset="0.5" stopColor="#c8582a" /><stop offset="1" stopColor="#e88a4a" /></linearGradient>
+        <linearGradient id={`${id}pf`} x1="0" y1="1" x2="0" y2="0"><stop offset="0" stopColor="#5a4428" /><stop offset="1" stopColor="#9a4220" /></linearGradient>
+      </defs>
+      <ellipse cx={-80} cy={6} rx={560} ry={34} fill={`url(#${id}sh)`} />
+      {leg(-150, -250, 128, 250, -1, true)}{leg(200, -170, 84, 170, 1, true)}
+      {plates.map((px, i) => plate(px + 34, true, i))}
+      <Skin id={id} d={BODY} sw={6} />
+      {/* muscle / skin folds */}
+      <path d="M -150,-300 C -120,-240 -130,-170 -170,-120 M 160,-260 C 190,-220 196,-170 180,-130 M 270,-210 q 14,14 26,30 M 290,-200 q 12,14 22,28" stroke="#2a2a18" strokeWidth={4} fill="none" opacity={0.45} strokeLinecap="round" />
+      {/* throat ossicles */}
+      {[0, 1, 2, 3, 4].map((k) => <circle key={k} cx={300 + k * 14} cy={-140 + k * 2} r={5} fill="#d8cc9a" stroke="#1a120a" strokeWidth={2} />)}
+      {/* thagomizer */}
+      {[[-626, -262, -152], [-596, -268, -128], [-632, -250, 150], [-602, -254, 128]].map(([sx, sy, a], i) => {
+        const r = (a * Math.PI) / 180, L = 108;
+        const tx = sx + Math.cos(r) * L, ty = sy - Math.abs(Math.sin(r)) * L;
+        return <g key={i}><path d={`M ${sx - 13},${sy} Q ${(sx + tx) / 2 - 6},${(sy + ty) / 2} ${tx},${ty} Q ${(sx + tx) / 2 + 8},${(sy + ty) / 2} ${sx + 13},${sy} Z`} fill="#d8ccaa" stroke="#1a120a" strokeWidth={4} /><path d={`M ${(sx * 2 + tx) / 3},${(sy * 2 + ty) / 3} L ${tx},${ty}`} stroke="#5a4a30" strokeWidth={4} /></g>;
       })}
-      {/* near row of plates */}
-      {plates.map((px, i) => { const h = 80 + 80 * Math.sin(((px + 470) / 720) * Math.PI); const by = stegoBack(px) + 20;
-        return (
-          <g key={`p${i}`}>
-            <path d={`M ${px - h * 0.42},${by} Q ${px - h * 0.52},${by - h * 0.72} ${px + h * 0.05},${by - h * 1.18} Q ${px + h * 0.52},${by - h * 0.62} ${px + h * 0.42},${by} Z`} fill={PLATE} stroke={INK} strokeWidth={6} strokeLinejoin="round" />
-            <path d={`M ${px},${by - 6} L ${px + h * 0.04},${by - h * 0.95}`} stroke={PLATE_D} strokeWidth={4} />
-          </g>);
-      })}
-      {/* head */}
-      <path d="M 336,-176 C 372,-196 424,-190 452,-162 C 462,-150 456,-136 440,-132 C 410,-126 372,-124 342,-126 Z" fill={BODY} stroke={INK} strokeWidth={6} strokeLinejoin="round" />
-      <path d="M 452,-150 L 388,-142" stroke={INK} strokeWidth={4} />
-      <circle cx={396} cy={-168} r={8} fill="#fff6e0" stroke={INK} strokeWidth={3} /><circle cx={398} cy={-168} r={4} fill={INK} />
-      {/* near legs */}
-      {leg(-110, -210, 104, 1, false)}{leg(205, -150, 70, -1, false)}
+      {plates.map((px, i) => plate(px, false, i))}
+      {/* head with beak */}
+      <Skin id={id} d="M 352,-188 C 384,-212 438,-212 470,-184 C 486,-170 488,-150 474,-142 C 450,-130 420,-126 392,-128 C 372,-130 356,-136 348,-146 Z" sw={5} />
+      <path d="M 470,-184 C 488,-170 490,-152 474,-142 L 462,-150 C 472,-158 472,-172 464,-180 Z" fill="#4a3a28" />
+      <path d="M 474,-150 C 440,-146 410,-146 384,-150" stroke="#1a120a" strokeWidth={3.5} fill="none" />
+      <circle cx={418} cy={-178} r={8} fill="#2a1e0e" /><circle cx={420} cy={-180} r={2.5} fill="#fff" />
+      <path d="M 404,-190 q 14,-8 28,0" stroke="#2a2a18" strokeWidth={4} fill="none" />
+      {leg(-140, -262, 136, 262, 1, false)}{leg(214, -158, 88, 158, -1, false)}
     </g>
   );
 };
 
-/** T. rex (side view, facing left), horizontal theropod posture. Origin at the feet; ~1350 long, ~560 tall. jaw 0..1 */
+/** Tyrannosaurus rex (side view, facing left), horizontal posture. Origin at the feet; ~1430 long, ~560 tall. jaw 0..1 */
 const TRex: React.FC<{ x: number; y: number; s: number; f: number; jaw?: number; walk?: number; look?: number }> = ({ x, y, s, f, jaw = 0, walk = 0, look = 0 }) => {
-  const st = Math.sin(f / 7) * walk;
-  const BODY = "#9a5a30", BODY_D = "#6a3a1e", BELLY = "#e0c090", STRIPE = "#5a2e16";
-  const leg = (ph: number, far: boolean) => (
-    <g transform={`rotate(${st * ph * 14} 70 -330)`}>
-      <path d="M -20,-400 C 40,-430 170,-410 180,-320 C 186,-250 150,-200 110,-190 C 60,-180 10,-210 -10,-260 C -30,-310 -50,-370 -20,-400 Z" fill={far ? BODY_D : BODY} stroke={INK} strokeWidth={6} strokeLinejoin="round" />
-      <path d="M 10,-360 C 50,-330 90,-300 140,-300" stroke={INK} strokeWidth={4} fill="none" opacity={0.4} />
-      <path d="M 30,-190 C 40,-140 70,-110 80,-70 L 100,-62 C 96,-110 110,-170 120,-210 Z" fill={far ? BODY_D : BODY} stroke={INK} strokeWidth={6} strokeLinejoin="round" />
-      <path d="M 70,-80 L 40,-20 L -60,-6 C -80,-2 -80,10 -60,10 L 80,10 C 100,10 110,0 104,-14 L 104,-70 Z" fill={far ? BODY_D : BODY} stroke={INK} strokeWidth={6} strokeLinejoin="round" />
-      {[-60, -24, 12].map((tx) => <path key={tx} d={`M ${tx},10 l -18,6 l 4,-14 Z`} fill="#efe6cc" stroke={INK} strokeWidth={3} />)}
-    </g>
-  );
+  const id = useId("tr");
+  const st = Math.sin(f / 8) * walk;
+  const BODY = "M -300,-470 C -230,-500 -150,-506 -60,-500 C 40,-496 120,-492 180,-480 C 360,-452 600,-402 820,-372 C 600,-352 380,-350 220,-345 C 160,-330 120,-300 80,-285 C 0,-262 -110,-262 -190,-300 C -240,-330 -280,-380 -300,-410 C -320,-430 -320,-455 -300,-470 Z";
+  const leg = (ph: number, far: boolean) => {
+    const k = far ? `${id}f` : id;
+    return (
+      <g transform={`rotate(${st * ph * 13} 80 -400)`} opacity={far ? 0.9 : 1}>
+        <Skin id={k} d="M 10,-448 C 150,-470 236,-388 214,-292 C 200,-232 146,-202 96,-206 C 34,-214 -8,-282 0,-356 C 2,-404 -6,-436 10,-448 Z" sw={6} />
+        <path d="M 40,-420 C 110,-400 160,-350 180,-290 M 30,-330 C 70,-300 110,-270 150,-262" stroke="#1a0e06" strokeWidth={4} fill="none" opacity={0.4} />
+        <Skin id={k} d="M 104,-228 C 124,-180 116,-132 96,-90 L 152,-80 C 168,-130 178,-190 172,-244 Z" sw={6} />
+        <Skin id={k} d="M 98,-94 L 62,-20 L -40,-10 C -64,-6 -62,10 -40,10 L 124,10 C 146,8 154,-4 152,-22 L 152,-84 Z" sw={6} />
+        {[-44, -6, 32].map((tx) => <path key={tx} d={`M ${tx},8 q -18,2 -26,12 q 14,-2 26,-4 Z`} fill="#2a2016" />)}
+      </g>
+    );
+  };
   return (
     <g transform={`translate(${x} ${y}) scale(${s})`}>
+      <SkinDefs id={id} top="#2e2418" mid="#5e4a30" belly="#c8aa80" />
+      <SkinDefs id={`${id}f`} top="#221a10" mid="#463622" belly="#8e7656" />
+      <ellipse cx={120} cy={8} rx={520} ry={34} fill={`url(#${id}sh)`} />
       {leg(-1, true)}
-      {/* body: neck → back → long tail → belly */}
-      <path d="M -250,-430 C -190,-480 -60,-496 80,-484 C 260,-470 430,-436 640,-398 C 740,-380 800,-370 830,-362 C 800,-350 730,-344 640,-344 C 450,-336 280,-306 170,-262 C 70,-222 -60,-222 -150,-262 C -210,-288 -250,-330 -270,-372 Z" fill={BODY} stroke={INK} strokeWidth={7} strokeLinejoin="round" />
-      <path d="M -150,-262 C -60,-226 70,-226 170,-264" stroke={BELLY} strokeWidth={26} fill="none" strokeLinecap="round" />
-      {[-120, -20, 90, 210, 340, 480].map((sx, i) => <path key={i} d={`M ${sx},${-486 + i * 9} q 14,34 2,66`} stroke={STRIPE} strokeWidth={12} fill="none" strokeLinecap="round" opacity={0.8} />)}
-      {/* tiny two-fingered arm */}
-      <path d="M -210,-320 C -240,-300 -262,-280 -268,-262 L -258,-256 L -252,-270 L -246,-254 L -236,-258 C -232,-284 -210,-300 -196,-308 Z" fill={BODY} stroke={INK} strokeWidth={5} strokeLinejoin="round" />
+      <Skin id={id} d={BODY} sw={7} />
+      {/* dorsal banding + muscle lines */}
+      {[-180, -80, 30, 150, 280, 420, 560].map((sx, i) => <path key={i} d={`M ${sx},${-498 + i * 12} q 18,32 4,70`} stroke="#1a120a" strokeWidth={10} fill="none" strokeLinecap="round" opacity={0.28} />)}
+      <path d="M -250,-440 C -210,-400 -200,-360 -210,-320 M -120,-470 C -80,-420 -70,-360 -90,-300" stroke="#1a120a" strokeWidth={4} fill="none" opacity={0.35} />
+      {/* small two-fingered forelimb */}
+      <Skin id={id} d="M -208,-332 C -238,-312 -260,-292 -266,-272 L -256,-266 L -250,-280 L -244,-264 L -234,-268 C -230,-294 -208,-310 -194,-318 Z" sw={4} />
       {leg(1, false)}
-      {/* head */}
-      <g transform={`rotate(${look * -18} -250 -430)`}>
-        <g transform={`rotate(${-jaw * 20} -290 -412)`}>
-          <path d="M -290,-412 L -560,-428 C -560,-400 -540,-384 -500,-382 C -420,-378 -340,-382 -296,-392 Z" fill={BODY_D} stroke={INK} strokeWidth={6} strokeLinejoin="round" />
-          {Array.from({ length: 7 }, (_, i) => <path key={i} d={`M ${-540 + i * 34},-424 l 8,-16 l 8,16 Z`} fill="#fff6e0" stroke={INK} strokeWidth={2} />)}
+      {/* skull */}
+      <g transform={`rotate(${look * -16} -300 -440)`}>
+        <g transform={`rotate(${-jaw * 18} -300 -418)`}>
+          <Skin id={id} d="M -300,-418 L -608,-440 C -606,-414 -584,-398 -540,-394 C -450,-390 -360,-394 -300,-404 Z" sw={5} />
+          {jaw > 0.15 && Array.from({ length: 8 }, (_, i) => <path key={i} d={`M ${-590 + i * 34},-436 l 7,-14 l 7,14 Z`} fill="#efe4c4" stroke="#1a120a" strokeWidth={1.5} />)}
         </g>
-        <path d="M -236,-452 C -266,-506 -360,-530 -480,-512 C -538,-504 -566,-482 -566,-456 L -566,-428 C -520,-426 -400,-420 -280,-408 C -250,-412 -230,-426 -236,-452 Z" fill={BODY} stroke={INK} strokeWidth={7} strokeLinejoin="round" />
-        {Array.from({ length: 8 }, (_, i) => <path key={i} d={`M ${-556 + i * 34},-428 l 8,16 l 8,-16 Z`} fill="#fff6e0" stroke={INK} strokeWidth={2} />)}
-        <path d="M -380,-498 C -350,-510 -320,-508 -296,-494" stroke={INK} strokeWidth={10} strokeLinecap="round" fill="none" />
-        <circle cx={-334} cy={-478} r={13} fill="#ffd84a" stroke={INK} strokeWidth={4} /><ellipse cx={-334} cy={-478} rx={4} ry={10} fill={INK} />
-        <circle cx={-536} cy={-470} r={6} fill={INK} />
-        <path d="M -470,-500 q 30,-14 60,-4" stroke={STRIPE} strokeWidth={6} fill="none" strokeLinecap="round" opacity={0.7} />
+        {jaw > 0.15 && <path d="M -320,-418 L -590,-436 L -570,-412 L -330,-404 Z" fill="#5a1a14" />}
+        <Skin id={id} d="M -290,-480 C -320,-522 -420,-538 -520,-522 C -580,-512 -612,-490 -614,-466 L -612,-440 C -560,-436 -420,-430 -300,-418 C -276,-426 -270,-456 -290,-480 Z" sw={6} />
+        {/* lips over the teeth (only tips show), fenestra, nostril, brow boss, eye */}
+        {Array.from({ length: 9 }, (_, i) => <path key={i} d={`M ${-600 + i * 32},-442 l 6,${jaw > 0.15 ? 16 : 7} l 6,${jaw > 0.15 ? -16 : -7} Z`} fill="#efe4c4" stroke="#1a120a" strokeWidth={1.5} />)}
+        <path d="M -612,-444 C -520,-438 -420,-432 -302,-420" stroke="#3a2416" strokeWidth={5} fill="none" />
+        <ellipse cx={-472} cy={-482} rx={44} ry={18} fill="#1e160c" opacity={0.55} />
+        <ellipse cx={-588} cy={-490} rx={10} ry={6} fill="#0e0a06" />
+        <path d="M -404,-512 C -380,-526 -346,-524 -330,-506" stroke="#1a120a" strokeWidth={10} strokeLinecap="round" fill="none" />
+        <circle cx={-370} cy={-494} r={11} fill="#d8a83a" stroke="#1a120a" strokeWidth={3} /><ellipse cx={-370} cy={-494} rx={3} ry={9} fill="#0e0a06" />
+        <path d="M -330,-470 C -320,-450 -320,-436 -330,-424 M -350,-462 q -6,18 -4,34" stroke="#1a120a" strokeWidth={3} fill="none" opacity={0.5} />
+        {[-560, -520, -480, -440].map((sx) => <circle key={sx} cx={sx} cy={-506 + (sx + 560) * 0.04} r={3.5} fill="#1a120a" opacity={0.4} />)}
       </g>
     </g>
   );
