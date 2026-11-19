@@ -1,0 +1,180 @@
+{
+  "meta": {
+    "brand": "DAILY FACTS",
+    "day": "",
+    "title": "Mexico's history sounds made up — but it's real",
+    "fps": 30,
+    "width": 1080,
+    "height": 1920,
+    "duration": 30,
+    "source": "User script (verbatim; citation markers removed). Sources: Guinness World Records (shortest presidency), Cornell Library 'When Money Grew on Trees', Wikipedia Great Pyramid of Cholula, NYT 1952, Mental Floss.",
+    "speakers": {
+      "narrator": {
+        "voice": "kokoro:am_michael",
+        "color": "#ffb84a"
+      }
+    }
+  },
+  "scenes": [
+    {
+      "id": 1,
+      "name": "Hook",
+      "start": 0,
+      "dur": 3.5,
+      "lines": [
+        {
+          "speaker": "narrator",
+          "text": "Mexico’s history sounds made up—but these facts are real."
+        }
+      ],
+      "spoken": [
+        "Mexico's history sounds made up, but these facts are real."
+      ],
+      "tag": "REAL HISTORY",
+      "note": "Three facts that sound made up",
+      "transitionOut": "dissolve",
+      "cues": [
+        [
+          0.0,
+          "whoosh"
+        ],
+        [
+          2.6,
+          "stamp"
+        ]
+      ]
+    },
+    {
+      "id": 2,
+      "name": "45-minute president",
+      "start": 3.5,
+      "dur": 7.2,
+      "lines": [
+        {
+          "speaker": "narrator",
+          "text": "One president, Pedro Lascuráin, held office for less than an hour in 1913. That’s shorter than your lunch break."
+        }
+      ],
+      "spoken": [
+        "One president, Pedro Lass-koo-rah-een, held office for less than an hour in nineteen thirteen. That's shorter than your lunch break."
+      ],
+      "tag": "FACT",
+      "note": "Pedro Lascuráin · Feb 19, 1913 · about 45 minutes",
+      "transitionOut": "dissolve",
+      "cues": [
+        [
+          0.3,
+          "tick"
+        ],
+        [
+          3.2,
+          "ding"
+        ],
+        [
+          5.0,
+          "pop"
+        ]
+      ]
+    },
+    {
+      "id": 3,
+      "name": "Cacao money",
+      "start": 10.7,
+      "dur": 5.0,
+      "lines": [
+        {
+          "speaker": "narrator",
+          "text": "The Aztecs used cacao beans as money. Imagine accidentally drinking your savings."
+        }
+      ],
+      "spoken": [
+        "The Aztecs used cacao beans as money. Imagine accidentally drinking your savings."
+      ],
+      "tag": "FACT",
+      "note": "Cacao beans were currency in Aztec markets",
+      "transitionOut": "dissolve",
+      "cues": [
+        [
+          0.3,
+          "pop"
+        ],
+        [
+          1.4,
+          "coins"
+        ],
+        [
+          3.6,
+          "slurp"
+        ]
+      ]
+    },
+    {
+      "id": 4,
+      "name": "Pyramid of Cholula",
+      "start": 15.7,
+      "dur": 7.4,
+      "lines": [
+        {
+          "speaker": "narrator",
+          "text": "And the world’s largest pyramid by volume? It’s not in Egypt—it’s in Cholula, Mexico. Today, a church sits on top."
+        }
+      ],
+      "spoken": [
+        "And the world's largest pyramid by volume? It's not in Egypt, it's in Cholula, Mexico. Today, a church sits on top."
+      ],
+      "tag": "FACT",
+      "note": "Great Pyramid of Cholula — largest by volume; church on top",
+      "transitionOut": "dissolve",
+      "cues": [
+        [
+          0.4,
+          "riser"
+        ],
+        [
+          3.2,
+          "hit"
+        ],
+        [
+          5.6,
+          "bell"
+        ]
+      ]
+    },
+    {
+      "id": 5,
+      "name": "Recap",
+      "start": 23.1,
+      "dur": 6.9,
+      "lines": [
+        {
+          "speaker": "narrator",
+          "text": "A speed-run presidency, edible money, and a pyramid hiding beneath a church. Mexico’s history does not disappoint."
+        }
+      ],
+      "spoken": [
+        "A speed-run presidency, edible money, and a pyramid hiding beneath a church. Mexico's history does not disappoint."
+      ],
+      "tag": "FACT",
+      "note": "All three are documented history",
+      "transitionOut": "none",
+      "cues": [
+        [
+          0.3,
+          "pop"
+        ],
+        [
+          1.6,
+          "pop"
+        ],
+        [
+          2.9,
+          "pop"
+        ],
+        [
+          5.2,
+          "hit"
+        ]
+      ]
+    }
+  ]
+}
