@@ -1,0 +1,177 @@
+{
+  "meta": {
+    "brand": "DAILY FACTS",
+    "day": "DAY 1 · #2",
+    "title": "DAY 1 #2 — What if you fell into a black hole?",
+    "fps": 30,
+    "width": 1080,
+    "height": 1920,
+    "duration": 30,
+    "source": "User script (verbatim). Physics: event horizon traps light; tidal stretching ('spaghettification') depends on black-hole mass; no signal escapes from inside the horizon.",
+    "speakers": {
+      "narrator": {
+        "voice": "voices/en_US-ryan-high.onnx",
+        "color": "#ffb84a"
+      },
+      "react": {
+        "voice": "voices/en_US-lessac-high.onnx",
+        "color": "#ff6ad5"
+      }
+    }
+  },
+  "scenes": [
+    {
+      "id": 1,
+      "name": "What if?",
+      "start": 0,
+      "dur": 5.2,
+      "lines": [
+        {
+          "speaker": "narrator",
+          "text": "What if you fell into a black hole?"
+        },
+        {
+          "speaker": "react",
+          "text": "WAIT RG… WHAT?!"
+        }
+      ],
+      "tag": "WHAT IF?",
+      "note": "A thought experiment",
+      "transitionOut": "dissolve",
+      "cues": [
+        [
+          0.0,
+          "whoosh"
+        ],
+        [
+          2.6,
+          "record_scratch"
+        ]
+      ],
+      "spoken": [
+        "What if you fell into a black hole?",
+        "Wait, R G... what?!"
+      ]
+    },
+    {
+      "id": 2,
+      "name": "Event horizon",
+      "start": 5.2,
+      "dur": 6.5,
+      "lines": [
+        {
+          "speaker": "narrator",
+          "text": "A black hole's gravity is so powerful that once you cross its event horizon, even light can't escape."
+        }
+      ],
+      "tag": "FACT",
+      "note": "Event horizon: the point of no return, even for light",
+      "transitionOut": "dissolve",
+      "cues": [
+        [
+          0.3,
+          "deep_hum"
+        ],
+        [
+          4.6,
+          "light_bend"
+        ]
+      ]
+    },
+    {
+      "id": 3,
+      "name": "Spaghetti",
+      "start": 11.7,
+      "dur": 6.0,
+      "lines": [
+        {
+          "speaker": "narrator",
+          "text": "Depending on its size, tidal forces could stretch your body like spaghetti!"
+        }
+      ],
+      "tag": "FACT",
+      "note": "Smaller black holes stretch you sooner; huge ones, after the horizon",
+      "transitionOut": "dissolve",
+      "cues": [
+        [
+          2.6,
+          "stretch"
+        ]
+      ]
+    },
+    {
+      "id": 4,
+      "name": "Spaghettification",
+      "start": 17.7,
+      "dur": 4.0,
+      "lines": [
+        {
+          "speaker": "narrator",
+          "text": "Scientists actually call this spaghettification."
+        }
+      ],
+      "tag": "REAL TERM",
+      "note": "“Spaghettification” is the actual scientific nickname",
+      "transitionOut": "dissolve",
+      "cues": [
+        [
+          0.2,
+          "boing"
+        ]
+      ],
+      "spoken": [
+        "Scientists actually call this spa-getty-fih-cation."
+      ]
+    },
+    {
+      "id": 5,
+      "name": "No signal",
+      "start": 21.7,
+      "dur": 6.3,
+      "lines": [
+        {
+          "speaker": "narrator",
+          "text": "And here's the creepy part: nobody outside could receive a signal from you after you crossed that boundary."
+        }
+      ],
+      "tag": "FACT",
+      "note": "No signal escapes from inside the event horizon",
+      "transitionOut": "cut",
+      "cues": [
+        [
+          0.4,
+          "radio_static"
+        ],
+        [
+          3.4,
+          "beeps"
+        ],
+        [
+          5.4,
+          "flatline"
+        ]
+      ]
+    },
+    {
+      "id": 6,
+      "name": "Terrifying",
+      "start": 28.0,
+      "dur": 2.0,
+      "lines": [
+        {
+          "speaker": "narrator",
+          "text": "Space is terrifying!"
+        }
+      ],
+      "tag": "DAY 1 · #2",
+      "note": "Follow for more",
+      "transitionOut": "none",
+      "cues": [
+        [
+          0.0,
+          "hit"
+        ]
+      ]
+    }
+  ]
+}
