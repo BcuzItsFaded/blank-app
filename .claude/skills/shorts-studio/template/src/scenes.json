@@ -9,11 +9,11 @@
     "source": "Most-told folk version of La Llorona (Mexico) + historical twist: Florentine Codex, Book 12 (Sahagún, 1500s) records a woman heard weeping at night for her children among the omens before the Spanish arrival.",
     "speakers": {
       "wife": {
-        "voice": "voices/en_US-lessac-high.onnx",
+        "voice": "kokoro:af_heart",
         "color": "#ff8ad8"
       },
       "you": {
-        "voice": "voices/en_US-ryan-high.onnx",
+        "voice": "kokoro:am_michael",
         "color": "#9fe0ff"
       }
     }

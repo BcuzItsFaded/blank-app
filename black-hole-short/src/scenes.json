@@ -10,11 +10,11 @@
     "source": "User script (verbatim). Physics: event horizon traps light; tidal stretching ('spaghettification') depends on black-hole mass; no signal escapes from inside the horizon.",
     "speakers": {
       "narrator": {
-        "voice": "voices/en_US-ryan-high.onnx",
+        "voice": "kokoro:am_michael",
         "color": "#ffb84a"
       },
       "react": {
-        "voice": "voices/en_US-lessac-high.onnx",
+        "voice": "kokoro:af_heart",
         "color": "#ff6ad5"
       }
     }
@@ -118,9 +118,6 @@
           0.2,
           "boing"
         ]
-      ],
-      "spoken": [
-        "Scientists actually call this spa-getty-fih-cation."
       ]
     },
     {

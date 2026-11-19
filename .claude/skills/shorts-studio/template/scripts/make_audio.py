@@ -20,6 +20,19 @@ rng = np.random.default_rng(1950)
 LEAD, TAIL, GAP = 0.12, 0.2, 0.28   # narration starts 0.2 s into a scene, ends ≥0.35 s before the next
 
 
+
+# ---------------------------------------------------------------- Kokoro TTS (natural free voices; voice = "kokoro:<name>")
+_KOKORO = None
+KOKORO_DIR = os.environ.get("KOKORO_DIR", os.path.join(os.path.dirname(ROOT), ".kokoro"))
+def kokoro_tts(text, voice, length_scale=1.0):
+    global _KOKORO
+    from kokoro_onnx import Kokoro
+    if _KOKORO is None:
+        _KOKORO = Kokoro(os.path.join(KOKORO_DIR, "kokoro-v1.0.onnx"), os.path.join(KOKORO_DIR, "voices-v1.0.bin"))
+    a, sr = _KOKORO.create(text, voice=voice, speed=float(np.clip(1.0 / length_scale, 0.6, 1.6)), lang="en-us")
+    x = signal.resample_poly(np.asarray(a, dtype=np.float64), SR, sr)
+    return x
+
 # ---------------------------------------------------------------- voice processing
 VOICE_RMS_DB = -18.0
 
@@ -61,8 +74,11 @@ def build_narration(meta, scenes):
                 if os.path.exists(custom):
                     clips.append((trim(read_wav(custom)), "custom"))
                 else:
-                    voice = os.path.join(ROOT, meta["speakers"][l["speaker"]]["voice"])
-                    clips.append((trim(piper(spoken[k], voice, ls)), "piper"))
+                    v = meta["speakers"][l["speaker"]]["voice"]
+                    if v.startswith("kokoro:"):
+                        clips.append((trim(kokoro_tts(spoken[k], v.split(":", 1)[1], ls), thr=0.008), "kokoro"))
+                    else:
+                        clips.append((trim(piper(spoken[k], os.path.join(ROOT, v), ls)), "piper"))
             return clips
         clips = synth_all(1.0)
         tot = sum(len(c) for c, _ in clips) / SR
