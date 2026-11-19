@@ -173,3 +173,18 @@ Do you know where your ancestors are buried? 👇
 🎬 Plot Twist with A&R
 
 **Hashtags:** #CementerioLindo #Phoenix #Arizona #PhoenixHistory #ForgottenHistory #HauntedArizona #Cemetery #GhostStories #ScaryStories #DarkHistory #Latino #DiaDeMuertos #PlotTwistWithAR
+
+---
+
+## The Tomb in Havana (La Milagrosa) · Ep. 22 (Paper-cut Lightbox · 30s)
+**Title:** The Tomb in Havana: La Milagrosa 🌹 | Ep. 22
+
+**Caption:**
+Havana's Colón Cemetery. Amelia Goyri died in 1901, and her baby was buried at her feet. 🕯️
+Her grieving husband knocked on her tomb every day… as if he could wake her.
+Years later, they say the tomb was opened. Her body was untouched… and the baby was in her arms. 😱
+
+A mother's love beyond death, or a story the living couldn't let go? 👇
+🎬 Plot Twist with A&R
+
+**Hashtags:** #LaMilagrosa #AmeliaGoyri #Havana #Cuba #CementerioDeColon #CubanLegends #LeyendasCubanas #GhostStories #ScaryStories #Legend #MothersLove #PaperCut #PlotTwistWithAR
