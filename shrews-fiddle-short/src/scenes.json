@@ -1,0 +1,123 @@
+{
+  "meta": {
+    "brand": "DAILY FACTS",
+    "day": "DAY 1 · #3",
+    "title": "DAY 1 #3 — The shrew's fiddle",
+    "fps": 30,
+    "width": 1080,
+    "height": 1920,
+    "duration": 30,
+    "source": "User script (verbatim). Shrew's fiddle / Halsgeige ('neck violin'): wooden neck-and-wrist restraint used in Germany & Austria to punish women for bickering; a double version held two people face to face (Wikipedia citing Rublack, The Crimes of Women in Early Modern Germany; Britannica).",
+    "speakers": {
+      "narrator": {
+        "voice": "kokoro:am_michael",
+        "color": "#ffc35a"
+      }
+    }
+  },
+  "scenes": [
+    {
+      "id": 1,
+      "name": "Shrew's fiddle",
+      "start": 0,
+      "dur": 8,
+      "lines": [
+        {
+          "speaker": "narrator",
+          "text": "In the middle ages, the “shrew's fiddle” was used to punish women who were caught bickering."
+        }
+      ],
+      "tag": "HISTORY",
+      "note": "“Halsgeige” (neck violin) · medieval–early modern Germany & Austria",
+      "transitionOut": "dissolve",
+      "cues": [
+        [
+          0.0,
+          "crowd"
+        ],
+        [
+          0.4,
+          "bicker"
+        ],
+        [
+          4.6,
+          "clack"
+        ]
+      ]
+    },
+    {
+      "id": 2,
+      "name": "Double fiddle",
+      "start": 8,
+      "dur": 8,
+      "lines": [
+        {
+          "speaker": "narrator",
+          "text": "The “double fiddle” attached two people together face-to-face, forcing them to talk to each other."
+        }
+      ],
+      "tag": "HISTORY",
+      "note": "A two-person version held them face to face",
+      "transitionOut": "dissolve",
+      "cues": [
+        [
+          0.6,
+          "clack"
+        ],
+        [
+          2.6,
+          "crowd_laugh"
+        ],
+        [
+          4.8,
+          "grumble"
+        ]
+      ]
+    },
+    {
+      "id": 3,
+      "name": "Resolved",
+      "start": 16,
+      "dur": 8,
+      "lines": [
+        {
+          "speaker": "narrator",
+          "text": "They were not released until the argument had been resolved."
+        }
+      ],
+      "tag": "REPORTED",
+      "note": "“Released when resolved” — told in secondary sources",
+      "transitionOut": "dissolve",
+      "cues": [
+        [
+          3.8,
+          "chime"
+        ],
+        [
+          5.2,
+          "unlock"
+        ]
+      ]
+    },
+    {
+      "id": 4,
+      "name": "End",
+      "start": 24,
+      "dur": 6,
+      "lines": [],
+      "tag": "DAY 1 · #3",
+      "note": "Follow for more strange history",
+      "transitionOut": "none",
+      "cues": [
+        [
+          0.2,
+          "pop"
+        ],
+        [
+          3.4,
+          "ding"
+        ]
+      ]
+    }
+  ]
+}
