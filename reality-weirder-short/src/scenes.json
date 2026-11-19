@@ -1,0 +1,158 @@
+{
+  "meta": {
+    "brand": "DAILY FACTS",
+    "day": "",
+    "title": "Reality is weirder than science fiction",
+    "fps": 30,
+    "width": 1080,
+    "height": 1920,
+    "duration": 30,
+    "source": "User script (verbatim). GPS relativity ~38 µs/day (Ashby, Living Reviews in Relativity); Venus sidereal day 243.02 d vs year 224.7 d (NASA/Astronomy.com); birds are avian dinosaurs (AMNH).",
+    "speakers": {
+      "narrator": {
+        "voice": "kokoro:am_michael",
+        "color": "#7ae8ff"
+      }
+    }
+  },
+  "scenes": [
+    {
+      "id": 1,
+      "name": "Hook",
+      "start": 0,
+      "dur": 3.8,
+      "lines": [
+        {
+          "speaker": "narrator",
+          "text": "Reality is weirder than science fiction—and I can prove it."
+        }
+      ],
+      "tag": "REALITY CHECK",
+      "note": "Three real facts",
+      "transitionOut": "dissolve",
+      "cues": [
+        [
+          0.0,
+          "whoosh"
+        ],
+        [
+          2.4,
+          "hit"
+        ]
+      ],
+      "spoken": [
+        "Reality is weirder than science fiction, and I can prove it."
+      ]
+    },
+    {
+      "id": 2,
+      "name": "Time & GPS",
+      "start": 3.8,
+      "dur": 9.0,
+      "lines": [
+        {
+          "speaker": "narrator",
+          "text": "Time doesn’t tick at the same speed everywhere. Gravity changes it. GPS satellites need corrections just to keep your directions accurate."
+        }
+      ],
+      "tag": "FACT",
+      "note": "GPS clocks gain ~38 µs/day: gravity +45, speed −7 — corrected",
+      "transitionOut": "dissolve",
+      "cues": [
+        [
+          0.3,
+          "tick"
+        ],
+        [
+          3.4,
+          "riser"
+        ],
+        [
+          6.2,
+          "ding"
+        ]
+      ],
+      "spoken": [
+        "Time doesn't tick at the same speed everywhere. Gravity changes it. G P S satellites need corrections just to keep your directions accurate."
+      ]
+    },
+    {
+      "id": 3,
+      "name": "Venus",
+      "start": 12.8,
+      "dur": 4.3,
+      "lines": [
+        {
+          "speaker": "narrator",
+          "text": "On Venus, a year ends before the planet finishes spinning once."
+        }
+      ],
+      "tag": "FACT",
+      "note": "Venus spins once in ~243 Earth days; its year is ~225",
+      "transitionOut": "dissolve",
+      "cues": [
+        [
+          0.3,
+          "riser"
+        ],
+        [
+          2.8,
+          "hit"
+        ]
+      ]
+    },
+    {
+      "id": 4,
+      "name": "Birds are dinosaurs",
+      "start": 17.1,
+      "dur": 10.3,
+      "lines": [
+        {
+          "speaker": "narrator",
+          "text": "And dinosaurs? They never completely disappeared. Birds are living dinosaurs—which means a pigeon stealing your fries is technically a dinosaur encounter."
+        }
+      ],
+      "tag": "FACT",
+      "note": "Birds descend from theropod dinosaurs — living dinosaurs",
+      "transitionOut": "dissolve",
+      "cues": [
+        [
+          0.4,
+          "stomp"
+        ],
+        [
+          3.4,
+          "pop"
+        ],
+        [
+          6.4,
+          "coo"
+        ]
+      ],
+      "spoken": [
+        "And dinosaurs? They never completely disappeared. Birds are living dinosaurs, which means a pigeon stealing your fries is technically a dinosaur encounter."
+      ]
+    },
+    {
+      "id": 5,
+      "name": "Reality",
+      "start": 27.4,
+      "dur": 2.6,
+      "lines": [
+        {
+          "speaker": "narrator",
+          "text": "Sounds fake. That’s just reality."
+        }
+      ],
+      "tag": "FACT",
+      "note": "All verified science",
+      "transitionOut": "none",
+      "cues": [
+        [
+          0.2,
+          "hit"
+        ]
+      ]
+    }
+  ]
+}
