@@ -1,0 +1,11 @@
+CEMENTERIO LINDO: THE FORGOTTEN DEAD — Episode 21 · PLOT TWIST WITH A&R
+Code-rendered short film, paper-cut lightbox style · 1080x1920 · 30 fps · −14 LUFS
+
+Picture .......... film.js (drawn in code, a pure function of time)
+Narration ........ Kokoro TTS, bm_george (British male storyteller), speed 1.24
+Ghost whispers ... Kokoro voices (tts/whispers.json), noise-vocoded into whispers in mix.py
+Music & sound .... mix.py: sampled vibraphone / glass / strings / nylon guitar (CC0) + synthesised foley
+Subtitles ........ cementerio-lindo.en.srt
+History notes .... FACTS.md (real history vs. fictionalized haunting)
+
+No photographs, stock footage or AI-generated imagery.

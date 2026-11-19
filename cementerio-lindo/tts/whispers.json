@@ -1,0 +1,92 @@
+[
+ {
+  "id": "w01",
+  "text": "Remember me...",
+  "voice": "af_nicole",
+  "speed": 0.85
+ },
+ {
+  "id": "w02",
+  "text": "Remember me...",
+  "voice": "bf_emma",
+  "speed": 0.85
+ },
+ {
+  "id": "w03",
+  "text": "Remember me...",
+  "voice": "am_michael",
+  "speed": 0.85
+ },
+ {
+  "id": "w04",
+  "text": "María...",
+  "voice": "af_bella",
+  "speed": 0.85
+ },
+ {
+  "id": "w05",
+  "text": "José...",
+  "voice": "am_adam",
+  "speed": 0.85
+ },
+ {
+  "id": "w06",
+  "text": "Guadalupe...",
+  "voice": "af_sarah",
+  "speed": 0.85
+ },
+ {
+  "id": "w07",
+  "text": "Francisco...",
+  "voice": "bm_lewis",
+  "speed": 0.85
+ },
+ {
+  "id": "w08",
+  "text": "Rosa...",
+  "voice": "bf_isabella",
+  "speed": 0.85
+ },
+ {
+  "id": "w09",
+  "text": "Manuel...",
+  "voice": "am_michael",
+  "speed": 0.85
+ },
+ {
+  "id": "w10",
+  "text": "Carmen...",
+  "voice": "af_nicole",
+  "speed": 0.85
+ },
+ {
+  "id": "w11",
+  "text": "Antonio...",
+  "voice": "am_adam",
+  "speed": 0.85
+ },
+ {
+  "id": "w12",
+  "text": "Dolores...",
+  "voice": "bf_emma",
+  "speed": 0.85
+ },
+ {
+  "id": "w13",
+  "text": "Don't forget us again.",
+  "voice": "af_nicole",
+  "speed": 0.85
+ },
+ {
+  "id": "w14",
+  "text": "Don't forget us again.",
+  "voice": "am_michael",
+  "speed": 0.85
+ },
+ {
+  "id": "w15",
+  "text": "Don't forget us...",
+  "voice": "bf_isabella",
+  "speed": 0.85
+ }
+]

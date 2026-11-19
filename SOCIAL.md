@@ -157,3 +157,19 @@ This isn't a legend. There was no monster. The horror was entirely human.
 🎬 Plot Twist with A&R
 
 **Hashtags:** #Mazorra #Havana #Cuba #TrueStory #DarkHistory #TrueCrime #Documentary #HistoryFacts #RealHorror #Justice #MentalHealthAwareness #PaperCut #PlotTwistWithAR
+
+---
+
+## Cementerio Lindo: The Forgotten Dead · Ep. 21 (Paper-cut Lightbox)
+**Title:** Cementerio Lindo: The Forgotten Dead 🕯️ | Ep. 21
+
+**Caption:**
+Phoenix, Arizona. A real cemetery, established in 1890. 🌵🌙
+Thousands were buried there, many too poor for anywhere else. Over time the markers vanished and the names were lost.
+Now imagine walking it after sunset… footsteps behind you… and a whisper: "Remember me…" 👻
+
+The ghosts are fiction. The forgotten graves are real. 💔
+Do you know where your ancestors are buried? 👇
+🎬 Plot Twist with A&R
+
+**Hashtags:** #CementerioLindo #Phoenix #Arizona #PhoenixHistory #ForgottenHistory #HauntedArizona #Cemetery #GhostStories #ScaryStories #DarkHistory #Latino #DiaDeMuertos #PlotTwistWithAR
