@@ -1,0 +1,163 @@
+{
+  "meta": {
+    "brand": "DAILY FACTS",
+    "day": "DAY 1 · #4",
+    "title": "DAY 1 #4 — Dark matter",
+    "fps": 30,
+    "width": 1080,
+    "height": 1920,
+    "duration": 30,
+    "source": "User script (verbatim, user timings). Dark matter ≈ 85% of all matter (≈27% of total mass-energy); inferred from gravity (galaxy rotation, lensing); its nature is unknown. Sources: Space.com/LiveScience, NASA Hubble, DOE, Berkeley Lab.",
+    "speakers": {
+      "narrator": {
+        "voice": "kokoro:am_michael",
+        "color": "#b48aff"
+      },
+      "react": {
+        "voice": "kokoro:af_heart",
+        "color": "#ff6ad5"
+      }
+    }
+  },
+  "scenes": [
+    {
+      "id": 1,
+      "name": "Hook",
+      "start": 0,
+      "dur": 5,
+      "lines": [
+        {
+          "speaker": "narrator",
+          "text": "What if I told you scientists have no idea what most of the universe’s matter actually is?"
+        }
+      ],
+      "tag": "WHAT IF?",
+      "note": "Today’s mystery",
+      "transitionOut": "dissolve",
+      "cues": [
+        [
+          0.0,
+          "whoosh"
+        ],
+        [
+          3.6,
+          "sting"
+        ]
+      ]
+    },
+    {
+      "id": 2,
+      "name": "Ordinary matter",
+      "start": 5,
+      "dur": 8,
+      "lines": [
+        {
+          "speaker": "narrator",
+          "text": "Everything you see—stars, planets, even YOU—is made of ordinary matter."
+        }
+      ],
+      "tag": "FACT",
+      "note": "Ordinary matter: atoms — about 5% of the cosmos",
+      "transitionOut": "dissolve",
+      "cues": [
+        [
+          0.6,
+          "pop"
+        ],
+        [
+          2.0,
+          "pop"
+        ],
+        [
+          3.4,
+          "pop"
+        ]
+      ],
+      "spoken": [
+        "Everything you see, stars, planets, even you, is made of ordinary matter."
+      ]
+    },
+    {
+      "id": 3,
+      "name": "85% dark",
+      "start": 13,
+      "dur": 9,
+      "lines": [
+        {
+          "speaker": "narrator",
+          "text": "But about 85% of all matter is something mysterious called DARK MATTER!"
+        }
+      ],
+      "tag": "FACT",
+      "note": "≈85% of matter (≈27% of total mass-energy)",
+      "transitionOut": "dissolve",
+      "cues": [
+        [
+          0.4,
+          "riser"
+        ],
+        [
+          4.2,
+          "hit"
+        ]
+      ],
+      "spoken": [
+        "But about eighty-five percent of all matter is something mysterious called dark matter!"
+      ]
+    },
+    {
+      "id": 4,
+      "name": "Gravity",
+      "start": 22,
+      "dur": 5,
+      "lines": [
+        {
+          "speaker": "narrator",
+          "text": "We can’t see it, but scientists know it’s there because of how its gravity affects galaxies."
+        }
+      ],
+      "tag": "FACT",
+      "note": "Inferred from galaxy rotation & gravitational lensing",
+      "transitionOut": "cut",
+      "cues": [
+        [
+          0.0,
+          "deep_hum"
+        ]
+      ]
+    },
+    {
+      "id": 5,
+      "name": "Nobody knows",
+      "start": 27,
+      "dur": 3,
+      "lines": [
+        {
+          "speaker": "narrator",
+          "text": "So what IS dark matter? Nobody knows!"
+        },
+        {
+          "speaker": "react",
+          "text": "WAIT RG… WHAT?!"
+        }
+      ],
+      "tag": "OPEN QUESTION",
+      "note": "What dark matter is made of is still unknown",
+      "transitionOut": "none",
+      "cues": [
+        [
+          1.7,
+          "record_scratch"
+        ],
+        [
+          2.4,
+          "hit"
+        ]
+      ],
+      "spoken": [
+        "So what is dark matter? Nobody knows!",
+        "Wait, R G... what?!"
+      ]
+    }
+  ]
+}
