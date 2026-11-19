@@ -9,46 +9,90 @@ type P = { f: number };
 const cam = (id: number, keys: number[][]): SceneData => ({ id, camera: { keys } });
 const INK = "#1a120a";
 
-/** Stegosaurus (side view, facing right). Origin at the feet. */
+/** back-height of the Stegosaurus at x (highest over the hips) */
+const stegoBack = (x: number) => -350 + 0.0011 * (x + 60) * (x + 60) * (x > -60 ? 1.35 : 1);
+
+/** Stegosaurus (side view, facing right). Origin at the feet; ~900 wide, ~470 tall. */
 const Stego: React.FC<{ x: number; y: number; s: number; f: number; walk?: number; flip?: boolean }> = ({ x, y, s, f, walk = 0, flip }) => {
-  const st = Math.sin(f / 6) * walk;
+  const st = Math.sin(f / 7) * walk;
+  const BODY = "#5f8f5a", BODY_D = "#3f6a42", BELLY = "#c8c48a", PLATE = "#e0703a", PLATE_D = "#a8431e";
+  const leg = (lx: number, top: number, w: number, ph: number, far: boolean) => (
+    <g transform={`rotate(${st * ph * 9} ${lx} ${top})`}>
+      <path d={`M ${lx - w / 2},${top} C ${lx - w / 2 - 6},${top + 80} ${lx - w * 0.42},-60 ${lx - w * 0.45},-14 L ${lx - w * 0.6},0 L ${lx + w * 0.62},0 L ${lx + w * 0.45},-14 C ${lx + w * 0.42},-60 ${lx + w / 2 + 6},${top + 80} ${lx + w / 2},${top} Z`}
+        fill={far ? BODY_D : BODY} stroke={INK} strokeWidth={6} strokeLinejoin="round" />
+      {[-0.35, 0, 0.35].map((t) => <path key={t} d={`M ${lx + w * t - 8},0 q 8,-14 16,0`} stroke={INK} strokeWidth={4} fill="#e8e0c8" />)}
+    </g>
+  );
+  const plates = [-430, -360, -290, -215, -140, -65, 10, 85, 155, 220];
   return (
     <g transform={`translate(${x} ${y}) scale(${flip ? -s : s} ${s})`}>
-      {[[-120, 1], [-40, -1], [70, 1], [140, -1]].map(([lx, ph], i) => <rect key={i} x={lx - 22} y={-120} width={44} height={120} rx={18} fill={i % 2 ? "#5a7a3a" : "#6a8a42"} stroke={INK} strokeWidth={5} transform={`rotate(${st * ph * 10} ${lx} -110)`} />)}
-      {/* plates */}
-      {[-150, -95, -40, 15, 70, 120].map((px, i) => (
-        <path key={i} d={`M ${px - 32},${-230 - Math.sin((i / 5) * Math.PI) * 60} L ${px},${-330 - Math.sin((i / 5) * Math.PI) * 90} L ${px + 32},${-230 - Math.sin((i / 5) * Math.PI) * 60} Z`} fill={i % 2 ? "#e8823a" : "#d8622a"} stroke={INK} strokeWidth={5} />
-      ))}
-      <path d="M -260,-140 C -240,-300 120,-320 200,-170 C 230,-120 220,-100 200,-90 L -200,-90 C -260,-90 -280,-110 -260,-140 Z" fill="#7a9a4a" stroke={INK} strokeWidth={6} />
-      <path d="M -250,-130 C -320,-130 -400,-150 -440,-200" stroke="#7a9a4a" strokeWidth={56} strokeLinecap="round" fill="none" />
-      <path d="M -250,-130 C -320,-130 -400,-150 -440,-200" stroke={INK} strokeWidth={62} strokeLinecap="round" fill="none" opacity={0.0} />
-      {[[-400, -190, -40], [-430, -205, -60], [-380, -175, 30], [-410, -185, 50]].map(([sx, sy, a], i) => <path key={i} d={`M ${sx},${sy} l ${Math.cos((a * Math.PI) / 180) * 70},${-Math.sin(((a + 90) * Math.PI) / 180) * 70 - 10}`} stroke="#e8d8b0" strokeWidth={14} strokeLinecap="round" />)}
-      <path d="M 190,-150 C 250,-140 300,-110 320,-80 C 300,-60 250,-70 210,-90 Z" fill="#7a9a4a" stroke={INK} strokeWidth={5} />
-      <circle cx={292} cy={-96} r={6} fill={INK} />
+      {/* far legs */}
+      {leg(-120, -200, 96, -1, true)}{leg(190, -160, 66, 1, true)}
+      {/* far row of plates (offset, darker) */}
+      {plates.map((px, i) => { const h = 70 + 70 * Math.sin(((px + 470) / 720) * Math.PI); const by = stegoBack(px + 30) + 14;
+        return <path key={`b${i}`} d={`M ${px + 30 - h * 0.42},${by} Q ${px + 30 - h * 0.5},${by - h * 0.7} ${px + 30 + h * 0.05},${by - h * 1.15} Q ${px + 30 + h * 0.5},${by - h * 0.6} ${px + 30 + h * 0.42},${by} Z`} fill={PLATE_D} stroke={INK} strokeWidth={5} />; })}
+      {/* body + tail + neck */}
+      <path d="M -640,-250 C -540,-265 -380,-330 -150,-350 C 40,-362 190,-300 280,-215 C 312,-188 336,-170 356,-158 L 342,-122 C 270,-128 210,-124 150,-104 C 20,-72 -190,-88 -330,-128 C -450,-160 -560,-210 -640,-235 Z" fill={BODY} stroke={INK} strokeWidth={7} strokeLinejoin="round" />
+      <path d="M -330,-130 C -190,-92 20,-76 150,-106 C 200,-118 250,-126 300,-128" stroke={BELLY} strokeWidth={22} fill="none" strokeLinecap="round" opacity={0.9} />
+      {[-380, -250, -120, 10, 130].map((sx, i) => <path key={i} d={`M ${sx},${stegoBack(sx) + 34} q 18,40 4,86`} stroke={BODY_D} strokeWidth={9} fill="none" strokeLinecap="round" opacity={0.7} />)}
+      {/* tail spikes (thagomizer) */}
+      {[[-600, -246, -150], [-575, -252, -120], [-610, -240, 150], [-585, -244, 125]].map(([sx, sy, a], i) => {
+        const r = (a * Math.PI) / 180, L = 92;
+        return <path key={i} d={`M ${sx - 10},${sy} L ${sx + Math.cos(r) * L},${sy - Math.abs(Math.sin(r)) * L} L ${sx + 10},${sy} Z`} fill="#efe6cc" stroke={INK} strokeWidth={5} strokeLinejoin="round" />;
+      })}
+      {/* near row of plates */}
+      {plates.map((px, i) => { const h = 80 + 80 * Math.sin(((px + 470) / 720) * Math.PI); const by = stegoBack(px) + 20;
+        return (
+          <g key={`p${i}`}>
+            <path d={`M ${px - h * 0.42},${by} Q ${px - h * 0.52},${by - h * 0.72} ${px + h * 0.05},${by - h * 1.18} Q ${px + h * 0.52},${by - h * 0.62} ${px + h * 0.42},${by} Z`} fill={PLATE} stroke={INK} strokeWidth={6} strokeLinejoin="round" />
+            <path d={`M ${px},${by - 6} L ${px + h * 0.04},${by - h * 0.95}`} stroke={PLATE_D} strokeWidth={4} />
+          </g>);
+      })}
+      {/* head */}
+      <path d="M 336,-176 C 372,-196 424,-190 452,-162 C 462,-150 456,-136 440,-132 C 410,-126 372,-124 342,-126 Z" fill={BODY} stroke={INK} strokeWidth={6} strokeLinejoin="round" />
+      <path d="M 452,-150 L 388,-142" stroke={INK} strokeWidth={4} />
+      <circle cx={396} cy={-168} r={8} fill="#fff6e0" stroke={INK} strokeWidth={3} /><circle cx={398} cy={-168} r={4} fill={INK} />
+      {/* near legs */}
+      {leg(-110, -210, 104, 1, false)}{leg(205, -150, 70, -1, false)}
     </g>
   );
 };
 
-/** T. rex (side view, facing left). Origin at the feet. jaw 0..1 */
+/** T. rex (side view, facing left), horizontal theropod posture. Origin at the feet; ~1350 long, ~560 tall. jaw 0..1 */
 const TRex: React.FC<{ x: number; y: number; s: number; f: number; jaw?: number; walk?: number; look?: number }> = ({ x, y, s, f, jaw = 0, walk = 0, look = 0 }) => {
   const st = Math.sin(f / 7) * walk;
+  const BODY = "#9a5a30", BODY_D = "#6a3a1e", BELLY = "#e0c090", STRIPE = "#5a2e16";
+  const leg = (ph: number, far: boolean) => (
+    <g transform={`rotate(${st * ph * 14} 70 -330)`}>
+      <path d="M -20,-400 C 40,-430 170,-410 180,-320 C 186,-250 150,-200 110,-190 C 60,-180 10,-210 -10,-260 C -30,-310 -50,-370 -20,-400 Z" fill={far ? BODY_D : BODY} stroke={INK} strokeWidth={6} strokeLinejoin="round" />
+      <path d="M 10,-360 C 50,-330 90,-300 140,-300" stroke={INK} strokeWidth={4} fill="none" opacity={0.4} />
+      <path d="M 30,-190 C 40,-140 70,-110 80,-70 L 100,-62 C 96,-110 110,-170 120,-210 Z" fill={far ? BODY_D : BODY} stroke={INK} strokeWidth={6} strokeLinejoin="round" />
+      <path d="M 70,-80 L 40,-20 L -60,-6 C -80,-2 -80,10 -60,10 L 80,10 C 100,10 110,0 104,-14 L 104,-70 Z" fill={far ? BODY_D : BODY} stroke={INK} strokeWidth={6} strokeLinejoin="round" />
+      {[-60, -24, 12].map((tx) => <path key={tx} d={`M ${tx},10 l -18,6 l 4,-14 Z`} fill="#efe6cc" stroke={INK} strokeWidth={3} />)}
+    </g>
+  );
   return (
     <g transform={`translate(${x} ${y}) scale(${s})`}>
-      <path d="M 60,-300 C 200,-300 340,-320 460,-380" stroke="#a8502a" strokeWidth={90} strokeLinecap="round" fill="none" />
-      <rect x={20} y={-260} width={70} height={260} rx={30} fill="#8a3a20" stroke={INK} strokeWidth={6} transform={`rotate(${-st * 12} 55 -250)`} />
-      <rect x={110} y={-260} width={70} height={260} rx={30} fill="#9a4224" stroke={INK} strokeWidth={6} transform={`rotate(${st * 12} 145 -250)`} />
-      <path d="M -60,-420 C -40,-520 160,-500 220,-380 C 250,-300 200,-230 120,-220 C 40,-215 -40,-260 -60,-330 Z" fill="#b8582e" stroke={INK} strokeWidth={6} />
-      <path d="M -10,-340 l -40,30 M -20,-320 l -30,26" stroke="#b8582e" strokeWidth={16} strokeLinecap="round" />
+      {leg(-1, true)}
+      {/* body: neck → back → long tail → belly */}
+      <path d="M -250,-430 C -190,-480 -60,-496 80,-484 C 260,-470 430,-436 640,-398 C 740,-380 800,-370 830,-362 C 800,-350 730,-344 640,-344 C 450,-336 280,-306 170,-262 C 70,-222 -60,-222 -150,-262 C -210,-288 -250,-330 -270,-372 Z" fill={BODY} stroke={INK} strokeWidth={7} strokeLinejoin="round" />
+      <path d="M -150,-262 C -60,-226 70,-226 170,-264" stroke={BELLY} strokeWidth={26} fill="none" strokeLinecap="round" />
+      {[-120, -20, 90, 210, 340, 480].map((sx, i) => <path key={i} d={`M ${sx},${-486 + i * 9} q 14,34 2,66`} stroke={STRIPE} strokeWidth={12} fill="none" strokeLinecap="round" opacity={0.8} />)}
+      {/* tiny two-fingered arm */}
+      <path d="M -210,-320 C -240,-300 -262,-280 -268,-262 L -258,-256 L -252,-270 L -246,-254 L -236,-258 C -232,-284 -210,-300 -196,-308 Z" fill={BODY} stroke={INK} strokeWidth={5} strokeLinejoin="round" />
+      {leg(1, false)}
       {/* head */}
-      <g transform={`rotate(${look * -20} -40 -480)`}>
-        <path d="M -40,-430 C -60,-560 -160,-600 -300,-560 C -330,-540 -330,-500 -300,-490 L -60,-470 Z" fill="#b8582e" stroke={INK} strokeWidth={6} />
-        <g transform={`rotate(${jaw * 22} -60 -470)`}>
-          <path d="M -60,-470 L -300,-490 C -300,-460 -280,-440 -240,-440 L -60,-430 Z" fill="#9a4224" stroke={INK} strokeWidth={6} />
-          {Array.from({ length: 6 }, (_, i) => <path key={i} d={`M ${-270 + i * 36},-488 l 8,-16 l 8,16 Z`} fill="#fff6e0" />)}
+      <g transform={`rotate(${look * -18} -250 -430)`}>
+        <g transform={`rotate(${-jaw * 20} -290 -412)`}>
+          <path d="M -290,-412 L -560,-428 C -560,-400 -540,-384 -500,-382 C -420,-378 -340,-382 -296,-392 Z" fill={BODY_D} stroke={INK} strokeWidth={6} strokeLinejoin="round" />
+          {Array.from({ length: 7 }, (_, i) => <path key={i} d={`M ${-540 + i * 34},-424 l 8,-16 l 8,16 Z`} fill="#fff6e0" stroke={INK} strokeWidth={2} />)}
         </g>
-        {Array.from({ length: 6 }, (_, i) => <path key={i} d={`M ${-280 + i * 36},-490 l 8,16 l 8,-16 Z`} fill="#fff6e0" />)}
-        <circle cx={-170} cy={-536} r={14} fill="#fff6e0" stroke={INK} strokeWidth={4} /><circle cx={-174} cy={-536} r={7} fill={INK} />
-        <path d="M -200,-560 L -140,-552" stroke={INK} strokeWidth={8} strokeLinecap="round" />
+        <path d="M -236,-452 C -266,-506 -360,-530 -480,-512 C -538,-504 -566,-482 -566,-456 L -566,-428 C -520,-426 -400,-420 -280,-408 C -250,-412 -230,-426 -236,-452 Z" fill={BODY} stroke={INK} strokeWidth={7} strokeLinejoin="round" />
+        {Array.from({ length: 8 }, (_, i) => <path key={i} d={`M ${-556 + i * 34},-428 l 8,16 l 8,-16 Z`} fill="#fff6e0" stroke={INK} strokeWidth={2} />)}
+        <path d="M -380,-498 C -350,-510 -320,-508 -296,-494" stroke={INK} strokeWidth={10} strokeLinecap="round" fill="none" />
+        <circle cx={-334} cy={-478} r={13} fill="#ffd84a" stroke={INK} strokeWidth={4} /><ellipse cx={-334} cy={-478} rx={4} ry={10} fill={INK} />
+        <circle cx={-536} cy={-470} r={6} fill={INK} />
+        <path d="M -470,-500 q 30,-14 60,-4" stroke={STRIPE} strokeWidth={6} fill="none" strokeLinecap="round" opacity={0.7} />
       </g>
     </g>
   );
@@ -122,9 +166,9 @@ export const T1: React.FC<P> = ({ f }) => {
       <Land f={f} era="plain" />
       <Layer depth={0.85}>
         <g filter="url(#tb1)">
-          <Pop f={f} at={wordFrame(1, 6)} x={0} y={0}><TRex x={330} y={1240} s={0.62} f={f} jaw={0.3 * pulse(f, 20)} /></Pop>
-          <Pop f={f} at={wordFrame(1, 9)} x={0} y={0}><Kid x={560} y={1260} s={1.1} f={f} wave={1} /></Pop>
-          <Pop f={f} at={wordFrame(1, 12)} x={0} y={0}><Stego x={860} y={1240} s={0.5} f={f} flip /></Pop>
+          <Pop f={f} at={wordFrame(1, 6)} x={0} y={0}><TRex x={330} y={1240} s={0.38} f={f} jaw={0.3 * pulse(f, 20)} /></Pop>
+          <Pop f={f} at={wordFrame(1, 9)} x={0} y={0}><Kid x={590} y={1250} s={0.95} f={f} wave={1} /></Pop>
+          <Pop f={f} at={wordFrame(1, 12)} x={0} y={0}><Stego x={850} y={1240} s={0.34} f={f} flip /></Pop>
         </g>
         <Pop f={f} at={q} x={540} y={520}><Big t="IMPOSSIBLE?" size={130} color="#ffd15a" /></Pop>
       </Layer>
@@ -138,7 +182,7 @@ export const T2: React.FC<P> = ({ f }) => {
   return (
     <Stage cam={cameraAt(s, f)} bg="#f4c87a" defs={<Boil id="tb2" f={f} scale={1.6} />}>
       <Land f={f} era="jurassic" />
-      <Layer depth={0.85}><g filter="url(#tb2)"><Stego x={lerp(f, 380, 640, 0, 170, (x) => x)} y={1330} s={1.0} f={f} walk={1} /></g>
+      <Layer depth={0.85}><g filter="url(#tb2)"><Stego x={lerp(f, 440, 600, 0, 170, (x) => x)} y={1250} s={0.72} f={f} walk={1} /></g>
         <Pop f={f} at={wordFrame(2, 4)} x={540} y={470}><Big t="150 MILLION" size={120} /><Big t="YEARS AGO" size={80} y={100} color="#ffd15a" /></Pop>
       </Layer>
     </Stage>
@@ -152,7 +196,7 @@ export const T3: React.FC<P> = ({ f }) => {
   return (
     <Stage cam={cameraAt(s, f, f < 12 ? 10 : 0)} bg="#9ad0e8" defs={<Boil id="tb3" f={f} scale={1.6} />}>
       <Land f={f} era="cretaceous" />
-      <Layer depth={0.85}><g filter="url(#tb3)"><TRex x={lerp(f, 900, 640, 0, 40)} y={1400} s={1.05} f={f} jaw={roar} walk={f < 40 ? 1 : 0} /></g>
+      <Layer depth={0.85}><g filter="url(#tb3)"><TRex x={lerp(f, 860, 600, 0, 40)} y={1250} s={0.6} f={f} jaw={roar} walk={f < 40 ? 1 : 0} /></g>
         <Pop f={f} at={wordFrame(3, 6)} x={540} y={440}><Big t="68 MILLION" size={120} /><Big t="YEARS AGO" size={80} y={100} color="#ffd15a" /></Pop>
       </Layer>
     </Stage>
@@ -168,8 +212,8 @@ export const T4: React.FC<P> = ({ f }) => {
       <Layer depth={0.1}><rect x={-400} y={-400} width={W + 800} height={H + 800} fill="#1a2a3a" /></Layer>
       <Layer depth={0.8}>
         <Timeline show={lerp(f, 0, 1, 0, 12)} />
-        <Stego x={860} y={MYA_Y(150) - 10} s={0.22} f={f} flip />
-        <TRex x={930} y={MYA_Y(68) + 110} s={0.24} f={f} />
+        <Stego x={890} y={MYA_Y(150) + 40} s={0.18} f={f} flip />
+        <TRex x={880} y={MYA_Y(68) + 70} s={0.17} f={f} />
         <Bracket y0={MYA_Y(145)} y1={MYA_Y(68)} p={p} label="≈77 MILLION YRS" color="#ffd15a" />
       </Layer>
     </Stage>
@@ -186,7 +230,7 @@ export const T5: React.FC<P> = ({ f }) => {
     <Stage cam={cameraAt(s, f, f > hit && f < hit + 20 ? 16 : 0)} bg="#9ad0e8" defs={<Boil id="tb5" f={f} scale={1.6} />}>
       <Land f={f} era="cretaceous" />
       <Layer depth={0.5}>{f > 48 && f <= hit && <g><SoftGlow cx={1200 - ast * 700} cy={-100 + ast * 900} rx={120} ry={120} color="#ffb84a" opacity={0.9} /><line x1={1400 - ast * 700} y1={-300 + ast * 900} x2={1200 - ast * 700} y2={-100 + ast * 900} stroke="#ff8a2a" strokeWidth={30} strokeLinecap="round" opacity={0.7} /></g>}</Layer>
-      <Layer depth={0.85}><g filter="url(#tb5)"><TRex x={640} y={1400} s={1.0} f={f} look={lerp(f, 0, 1, 30, 50)} jaw={0.4} /></g>
+      <Layer depth={0.85}><g filter="url(#tb5)"><TRex x={600} y={1250} s={0.6} f={f} look={lerp(f, 0, 1, 30, 50)} jaw={0.4} /></g>
         <Pop f={f} at={wordFrame(5, 9)} x={540} y={440}><Big t="66 MILLION" size={120} /><Big t="YEARS AGO" size={80} y={100} color="#ff6a4a" /></Pop>
       </Layer>
       <rect x={-500} y={-500} width={W + 1000} height={H + 1000} fill="#fff4d0" opacity={fl * 0.85} />
@@ -203,8 +247,8 @@ export const T6: React.FC<P> = ({ f }) => {
       <Layer depth={0.1}><rect x={-400} y={-400} width={W + 800} height={H + 800} fill="#1a2a3a" /></Layer>
       <Layer depth={0.8}>
         <Timeline show={1} />
-        <Stego x={860} y={MYA_Y(150) - 10} s={0.22} f={f} flip />
-        <TRex x={930} y={MYA_Y(66) + 110} s={0.24} f={f} />
+        <Stego x={890} y={MYA_Y(150) + 40} s={0.18} f={f} flip />
+        <TRex x={880} y={MYA_Y(66) + 70} s={0.17} f={f} />
         <Kid x={900} y={MYA_Y(0) + 60} s={0.42} f={f} wave={1} />
         <Bracket y0={MYA_Y(145)} y1={MYA_Y(68)} p={a} label="77+ MILLION" color="#ffd15a" />
         <Bracket y0={MYA_Y(66)} y1={MYA_Y(0)} p={b} label="66 MILLION" color="#7ae8ff" />
@@ -224,7 +268,7 @@ export const T7: React.FC<P> = ({ f }) => {
     <Stage cam={cameraAt(s, f, frozen && f < react + 6 ? 14 : 0)} bg="#9ad0e8" defs={<Boil id="tb7" f={f} scale={1.6} />}>
       <Land f={t} era="plain" />
       <Layer depth={0.85}>
-        <g filter="url(#tb7)"><Stego x={300} y={1260} s={0.5} f={t} /><TRex x={800} y={1260} s={0.6} f={t} /></g>
+        <g filter="url(#tb7)"><Stego x={270} y={1250} s={0.3} f={t} /><TRex x={820} y={1250} s={0.34} f={t} /></g>
         <Pop f={f} at={8} x={540} y={1000}><Big t="≠" size={260} color="#ff6a4a" /></Pop>
         <Pop f={f} at={20} x={540} y={470}><Big t="NOT TOGETHER!" size={110} /></Pop>
         {frozen && <Pop f={f} at={react + 30} x={540} y={760}><g transform="rotate(-10)"><rect x={-260} y={-90} width={520} height={150} rx={16} fill="none" stroke="#ff3a4a" strokeWidth={14} /><Big t="FACTS!" size={130} color="#ff3a4a" y={30} /></g></Pop>}
