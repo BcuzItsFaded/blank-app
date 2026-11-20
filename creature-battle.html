@@ -1,0 +1,578 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Sproutle Evolves</title>
+<style>
+  :root{ --bg:#0f1b33; --panel:#1b2b4d; --ink:#f4fbff; --muted:#b8cbe8; --accent:#2ec4b6; --accent2:#ffd23f; }
+  *{box-sizing:border-box}
+  html,body{margin:0;background:var(--bg);color:var(--ink);font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+  main{max-width:1180px;margin:0 auto;padding:16px}
+  h1{font-size:clamp(1.1rem,2.4vw,1.6rem);margin:4px 0 12px}
+  h1 small{font-weight:500;color:var(--muted);font-size:.6em;margin-left:.5em}
+  .stage{width:100%;aspect-ratio:16/9;border-radius:14px;overflow:hidden;background:#000;box-shadow:0 10px 40px rgba(0,0,0,.5);border:3px solid #2d4a7a}
+  canvas{display:block;width:100%;height:100%}
+  .controls{display:flex;flex-wrap:wrap;align-items:center;gap:10px 14px;margin-top:12px;padding:10px 12px;background:var(--panel);border-radius:12px}
+  button{font:inherit;font-weight:700;color:#10233f;background:var(--accent2);border:0;border-radius:999px;padding:8px 18px;cursor:pointer;box-shadow:0 3px 0 #b88f00}
+  button:active{transform:translateY(2px);box-shadow:0 1px 0 #b88f00}
+  button:focus-visible,input:focus-visible{outline:3px solid #fff;outline-offset:2px}
+  #restart{background:var(--accent);color:#06302c;box-shadow:0 3px 0 #13857a}
+  label{display:flex;align-items:center;gap:6px;color:var(--muted);font-size:.92rem}
+  #scrub{flex:1 1 200px;min-width:140px;accent-color:var(--accent)}
+  .note{color:var(--muted);font-size:.8rem;line-height:1.45;margin:12px 2px 0}
+</style>
+</head>
+<body>
+<main>
+  <h1>Sproutle Evolves <small>an original creature-battle animation</small></h1>
+  <div class="stage"><canvas id="c" role="img" aria-label="Animated creature battle: a trainer throws a seed capsule, the leaf creature Sproutle battles the floating rain creature Drizzlet, evolves into Verdallion, and wins with a flower beam."></canvas></div>
+  <div class="controls">
+    <button id="play" type="button" aria-pressed="false">Pause</button>
+    <button id="restart" type="button">Restart</button>
+    <label><input type="checkbox" id="rm"> Reduced motion</label>
+    <input id="scrub" type="range" min="0" max="1000" value="0" aria-label="Position in the 24 second loop">
+  </div>
+  <p class="note">Space = pause/play &middot; R = restart. All creatures (Sproutle, Verdallion, Drizzlet), the trainer and the seed capsule are original designs drawn in code.</p>
+</main>
+<script>
+(() => {
+'use strict';
+/* ================= helpers ================= */
+const W = 1280, H = 720, T = 24, TAU = Math.PI * 2, OUT = '#16233f';
+const clamp = (x, a, b) => Math.min(b, Math.max(a, x));
+const lerp = (a, b, t) => a + (b - a) * t;
+const mod = (a, n) => ((a % n) + n) % n;
+const smooth = (a, b, x) => { const t = clamp((x - a) / (b - a), 0, 1); return t * t * (3 - 2 * t); };
+const easeOut = t => 1 - Math.pow(1 - clamp(t, 0, 1), 3);
+const easeBack = t => { t = clamp(t, 0, 1); const c = 1.70158; return 1 + (c + 1) * Math.pow(t - 1, 3) + c * Math.pow(t - 1, 2); };
+const hash = (a, b = 0) => { const x = Math.sin(a * 127.1 + b * 311.7) * 43758.5453; return x - Math.floor(x); };
+const FONT = 'system-ui,-apple-system,"Segoe UI",Roboto,sans-serif';
+
+const canvas = document.getElementById('c'), mainCtx = canvas.getContext('2d');
+let ctx = mainCtx, sc = 1;                     // ctx is swapped while drawing silhouettes
+const oc = document.createElement('canvas'), octx = oc.getContext('2d');
+
+function blob(fill, lw = 3.5) { ctx.fillStyle = fill; ctx.fill(); if (lw > 0) { ctx.lineWidth = lw; ctx.strokeStyle = OUT; ctx.lineJoin = 'round'; ctx.stroke(); } }
+function ell(x, y, rx, ry, rot, fill, lw) { ctx.beginPath(); ctx.ellipse(x, y, Math.max(0.1, rx), Math.max(0.1, ry), rot || 0, 0, TAU); blob(fill, lw === undefined ? 3.5 : lw); }
+function circ(x, y, r, fill, lw) { ell(x, y, r, r, 0, fill, lw); }
+function rr(x, y, w, h, r) { ctx.beginPath(); ctx.moveTo(x + r, y); ctx.arcTo(x + w, y, x + w, y + h, r); ctx.arcTo(x + w, y + h, x, y + h, r); ctx.arcTo(x, y + h, x, y, r); ctx.arcTo(x, y, x + w, y, r); ctx.closePath(); }
+function limb(pts, w, color, outline = true) {
+  ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+  const p = () => { ctx.beginPath(); ctx.moveTo(pts[0][0], pts[0][1]); for (let i = 1; i < pts.length; i++) ctx.lineTo(pts[i][0], pts[i][1]); };
+  if (outline) { p(); ctx.strokeStyle = OUT; ctx.lineWidth = w + 6; ctx.stroke(); }
+  p(); ctx.strokeStyle = color; ctx.lineWidth = w; ctx.stroke();
+}
+function ik(x0, y0, tx, ty, l1, l2, dir) {
+  let dx = tx - x0, dy = ty - y0, d = Math.hypot(dx, dy); const m = l1 + l2 - 0.01;
+  if (d > m) { dx *= m / d; dy *= m / d; d = m; tx = x0 + dx; ty = y0 + dy; }
+  d = Math.max(d, 0.001);
+  const a = (l1 * l1 - l2 * l2 + d * d) / (2 * d), h = Math.sqrt(Math.max(0, l1 * l1 - a * a));
+  const mx = x0 + dx * a / d, my = y0 + dy * a / d;
+  return { kx: mx + dir * (-dy / d) * h, ky: my + dir * (dx / d) * h, ex: tx, ey: ty };
+}
+function txt(s, x, y, size, fill, align = 'left', weight = 800, outline = true) {
+  ctx.font = `${weight} ${size}px ${FONT}`; ctx.textAlign = align; ctx.textBaseline = 'middle';
+  if (outline) { ctx.lineJoin = 'round'; ctx.lineWidth = Math.max(3, size * 0.16); ctx.strokeStyle = OUT; ctx.strokeText(s, x, y); }
+  ctx.fillStyle = fill; ctx.fillText(s, x, y);
+}
+function sparkle(x, y, s, col = '#fff') {
+  ctx.fillStyle = col; ctx.beginPath();
+  ctx.moveTo(x, y - s); ctx.quadraticCurveTo(x, y, x + s, y); ctx.quadraticCurveTo(x, y, x, y + s);
+  ctx.quadraticCurveTo(x, y, x - s, y); ctx.quadraticCurveTo(x, y, x, y - s); ctx.fill();
+}
+function leafShape(bx, by, tx, ty, w, fill, vein) {
+  const mx = (bx + tx) / 2, my = (by + ty) / 2, nx = -(ty - by), ny = tx - bx, nl = Math.hypot(nx, ny) || 1;
+  ctx.beginPath(); ctx.moveTo(bx, by);
+  ctx.quadraticCurveTo(mx + nx / nl * w, my + ny / nl * w, tx, ty);
+  ctx.quadraticCurveTo(mx - nx / nl * w, my - ny / nl * w, bx, by); ctx.closePath(); blob(fill, w < 8 ? 2 : 3.5);
+  if (vein) limb([[bx, by], [lerp(bx, tx, 0.8), lerp(by, ty, 0.8)]], 2.5, vein, false);
+}
+// draw something as a solid-colour glowing silhouette (used for the capsule release and evolution)
+function silhouette(fn, color, alpha, glow) {
+  if (oc.width !== canvas.width || oc.height !== canvas.height) { oc.width = canvas.width; oc.height = canvas.height; }
+  const m = mainCtx.getTransform();
+  octx.setTransform(1, 0, 0, 1, 0, 0); octx.globalCompositeOperation = 'source-over'; octx.globalAlpha = 1; octx.clearRect(0, 0, oc.width, oc.height);
+  octx.setTransform(m);
+  const saved = ctx; ctx = octx; fn(); ctx = saved;
+  octx.setTransform(1, 0, 0, 1, 0, 0); octx.globalAlpha = 1; octx.globalCompositeOperation = 'source-in';
+  octx.fillStyle = color; octx.fillRect(0, 0, oc.width, oc.height); octx.globalCompositeOperation = 'source-over';
+  mainCtx.save(); mainCtx.setTransform(1, 0, 0, 1, 0, 0); mainCtx.globalAlpha = alpha;
+  if (glow) { mainCtx.shadowColor = color; mainCtx.shadowBlur = glow * sc; }
+  mainCtx.drawImage(oc, 0, 0); mainCtx.restore();
+}
+
+/* ================= layout & timeline ================= */
+const PL = { x: 400, y: 520 }, OP = { x: 910, y: 290 };
+const MSG = [
+  [0.4, 'A wild DRIZZLET drifted in on a rain cloud!'],
+  [2.2, 'Go, SPROUTLE!'],
+  [4.0, 'Pick a move for SPROUTLE.'],
+  [6.5, 'SPROUTLE used LEAF ORB!'],
+  [8.1, 'Grass soaks up water — a big hit!'],
+  [9.2, 'DRIZZLET used RAIN LASH!'],
+  [12.0, 'Whoa... SPROUTLE is starting to glow!'],
+  [15.2, 'SPROUTLE grew into VERDALLION!'],
+  [16.4, 'VERDALLION used BLOOM BURST!'],
+  [18.7, 'DRIZZLET is out of the fight!'],
+  [20.3, 'VERDALLION grew stronger! +128 XP']
+];
+const EVO_START = 12.4, EVO_FLASH = 14.8;
+const oppHP = t => clamp(1 - 0.45 * smooth(8.0, 8.9, t) - 0.55 * smooth(18.0, 19.0, t), 0, 1);
+const plHP = t => clamp(1 - 0.62 * smooth(10.9, 11.8, t) + 0.25 * smooth(15.0, 15.8, t), 0, 1);
+const evolved = t => t >= EVO_FLASH;
+const blinkVis = (t, a, b, R) => (t < a || t > b) ? 1 : (R ? 0.6 : (Math.floor(t * 16) % 2 ? 0.15 : 1));
+
+/* ================= backgrounds ================= */
+function drawWorld(t, R) {
+  const g = ctx.createLinearGradient(0, 0, 0, 420); g.addColorStop(0, '#6cc4ff'); g.addColorStop(1, '#d9f4ff');
+  ctx.fillStyle = g; ctx.fillRect(-200, -200, W + 400, H + 400);
+  const sun = ctx.createRadialGradient(1080, 110, 10, 1080, 110, 160); sun.addColorStop(0, 'rgba(255,250,200,1)'); sun.addColorStop(0.3, 'rgba(255,240,170,.8)'); sun.addColorStop(1, 'rgba(255,240,170,0)');
+  ctx.fillStyle = sun; ctx.beginPath(); ctx.arc(1080, 110, 160, 0, TAU); ctx.fill();
+  const drift = R ? 0 : t * 14;
+  for (let i = 0; i < 5; i++) {
+    const x = mod(i * 330 + drift, W + 400) - 200, y = 70 + (i % 3) * 45, s = 0.7 + (i % 2) * 0.35;
+    ctx.fillStyle = 'rgba(255,255,255,.95)'; ctx.beginPath();
+    [[0, 0, 30], [34, -12, 38], [74, 0, 30], [102, 6, 22], [-26, 8, 22]].forEach(([cx, cy, r]) => { ctx.moveTo(x + (cx + r) * s, y + cy * s); ctx.arc(x + cx * s, y + cy * s, r * s, 0, TAU); });
+    ctx.fill();
+  }
+  // mountains & hills
+  const hills = [['#a6d8c6', 300, 120, 0.004], ['#7fc79a', 340, 70, 0.007], ['#69b984', 380, 40, 0.011]];
+  hills.forEach(([c, base, amp, f], k) => {
+    ctx.fillStyle = c; ctx.beginPath(); ctx.moveTo(-200, H + 200);
+    for (let x = -200; x <= W + 200; x += 20) ctx.lineTo(x, base - amp * Math.abs(Math.sin(x * f + k * 1.7)) - amp * 0.3 * Math.sin(x * f * 3.1));
+    ctx.lineTo(W + 200, H + 200); ctx.closePath(); ctx.fill();
+  });
+  const fg = ctx.createLinearGradient(0, 380, 0, H); fg.addColorStop(0, '#8fdc6b'); fg.addColorStop(1, '#4fae45');
+  ctx.fillStyle = fg; ctx.fillRect(-200, 380, W + 400, H + 200);
+  // mowed stripes
+  ctx.fillStyle = 'rgba(255,255,255,.07)';
+  for (let i = 0; i < 8; i++) { ctx.beginPath(); ctx.moveTo(-200 + i * 220, H + 200); ctx.lineTo(400 + i * 120, 380); ctx.lineTo(460 + i * 120, 380); ctx.lineTo(-90 + i * 220, H + 200); ctx.closePath(); ctx.fill(); }
+  // battle pads
+  for (const [p, rx, ry] of [[OP, 175, 42], [PL, 240, 58]]) {
+    ell(p.x, p.y + 8, rx, ry, 0, '#3f9a3c', 0);
+    ell(p.x, p.y, rx, ry, 0, '#d9c58f', 4);
+    ell(p.x, p.y - 4, rx * 0.82, ry * 0.7, 0, '#e8d8a8', 0);
+  }
+}
+function grassTufts(t, R, y0, y1, count, seed) {
+  for (let i = 0; i < count; i++) {
+    const x = hash(i, seed) * (W + 100) - 50, y = lerp(y0, y1, hash(i, seed + 1)), h = 18 + hash(i, seed + 2) * 22;
+    const sway = R ? 0 : Math.sin(t * 2.4 + x * 0.02) * 5;
+    ctx.fillStyle = i % 2 ? '#3f9a3c' : '#5fbf4f';
+    ctx.beginPath(); ctx.moveTo(x - 10, y); ctx.quadraticCurveTo(x - 6 + sway * 0.5, y - h * 0.6, x - 2 + sway, y - h); ctx.quadraticCurveTo(x, y - h * 0.4, x + 2, y);
+    ctx.quadraticCurveTo(x + 4, y - h * 0.5, x + 9 + sway, y - h * 0.8); ctx.quadraticCurveTo(x + 6, y - h * 0.3, x + 10, y); ctx.closePath(); ctx.fill();
+  }
+}
+
+/* ================= creatures (original designs) ================= */
+const PAL = { body: '#3cc9c0', dark: '#249a92', belly: '#d9fff6', ear: '#5fd068', vein: '#2f8a3a', gem: '#ffd23f', pupil: '#1d1440' };
+function gem(x, y, col, glow, k = 1) {
+  if (glow > 0) { ctx.save(); ctx.shadowColor = col; ctx.shadowBlur = 28 * glow; }
+  ctx.beginPath(); ctx.moveTo(x, y - 11 * k); ctx.lineTo(x + 9 * k, y); ctx.lineTo(x, y + 11 * k); ctx.lineTo(x - 9 * k, y); ctx.closePath(); blob(col, 3);
+  if (glow > 0) ctx.restore();
+}
+function frame(x, y, s, flip, o) {
+  ctx.save(); ctx.translate(x, y); ctx.scale(flip ? -s : s, s);
+  if (o.alpha !== undefined) ctx.globalAlpha *= o.alpha;
+  if (o.lean) ctx.rotate(o.lean);
+  const sq = o.squash || 0; ctx.scale(1 + sq * 0.5, 1 - sq);
+}
+// Sproutle: small leaf-eared grass creature (origin at feet, faces right)
+function drawSproutle(x, y, s, o = {}) {
+  const t = o.t || 0, mood = o.mood || 'normal';
+  frame(x, y, s, false, o);
+  ctx.save(); ctx.translate(-50, -40); ctx.rotate(-0.9 + Math.sin(t * 9) * 0.15); leafShape(0, 0, 0, -60, 20, PAL.ear, PAL.vein); ctx.restore();
+  ell(-22, -5, 17, 9, 0, PAL.dark); ell(26, -5, 17, 9, 0, PAL.dark);
+  leafShape(-24, -96, -72, -152, 20, PAL.ear, PAL.vein);
+  ell(0, -55, 58, 52, 0, PAL.body); ell(6, -40, 36, 28, 0, PAL.belly, 0);
+  leafShape(20, -100, 52, -164, 20, PAL.ear, PAL.vein);
+  gem(10, -106, PAL.gem, o.glow || 0);
+  ell(40 + (o.reach || 0), -38, 11, 9, 0, PAL.body, 3);
+  for (const ex of [-8, 26]) {
+    if (mood === 'hurt') { limb([[ex - 8, -72], [ex + 8, -64]], 4, OUT, false); limb([[ex - 8, -64], [ex + 8, -72]], 4, OUT, false); continue; }
+    ell(ex, -66, 10, 13, 0, '#fff', 3); circ(ex + 3, -64, 6, PAL.pupil, 0); circ(ex + 5, -67, 2, '#fff', 0);
+    if (mood === 'angry') limb([[ex - 11, ex < 0 ? -88 : -82], [ex + 11, ex < 0 ? -82 : -88]], 4.5, OUT, false);
+  }
+  ell(-14, -48, 8, 5, 0, 'rgba(255,120,150,.5)', 0); ell(36, -48, 7, 5, 0, 'rgba(255,120,150,.5)', 0);
+  ctx.beginPath();
+  if (mood === 'angry' || mood === 'hurt') { ctx.moveTo(3, -42); ctx.lineTo(19, -45); } else { ctx.moveTo(2, -46); ctx.quadraticCurveTo(7, -40, 11, -45); ctx.quadraticCurveTo(15, -40, 20, -46); }
+  ctx.lineWidth = 3.5; ctx.strokeStyle = OUT; ctx.lineCap = 'round'; ctx.stroke();
+  ctx.restore();
+}
+// Verdallion: Sproutle's evolved form, a leaf-maned guardian (origin at feet, faces right)
+function drawVerdallion(x, y, s, o = {}) {
+  const t = o.t || 0, roar = o.roar || 0, rust = o.R ? 0 : 1;
+  frame(x, y, s, false, o);
+  // tail blades
+  ctx.save(); ctx.translate(-40, -80); ctx.rotate(Math.sin(t * 3) * 0.08 * rust);
+  leafShape(0, 0, -120, -90, 30, '#3fae4f', '#2f8a3a'); leafShape(-10, 10, -110, -20, 20, '#5fd068', '#2f8a3a'); ctx.restore();
+  // back arm & leg
+  limb([[-22, -72], [-34, -36], [-30, 0]], 26, '#1f8079'); ell(-30, -4, 24, 11, 0, '#1f8079');
+  const ba = ik(-10, -150, 30 + roar * 10, -112 - roar * 30, 34, 34, 1);
+  limb([[-10, -150], [ba.kx, ba.ky], [ba.ex, ba.ey]], 18, '#1f8079');
+  // torso
+  ell(0, -110, 54, 64, 0, PAL.body); ell(14, -96, 30, 42, 0, PAL.belly, 0);
+  // front leg
+  limb([[22, -70], [34, -34], [34, 0]], 28, PAL.dark); ell(40, -5, 26, 12, 0, PAL.dark);
+  // head group (tilts up when roaring)
+  ctx.save(); ctx.translate(14, -190); ctx.rotate(-0.22 * roar);
+  for (let i = 0; i < 11; i++) {                    // leaf mane
+    const a = -Math.PI * 0.95 + i * (Math.PI * 1.55 / 10) + Math.sin(t * 4 + i) * 0.05 * rust, len = 70 + (i % 2) * 14;
+    leafShape(Math.cos(a) * 26, Math.sin(a) * 26, Math.cos(a) * len, Math.sin(a) * len, 16, i % 2 ? '#3fae4f' : '#5fd068', '#2f8a3a');
+  }
+  circ(0, 0, 40, PAL.body, 3.5);
+  ell(26, 12, 24, 16, 0, PAL.belly, 3); ell(44, 6, 6, 4.5, 0, OUT, 0);
+  gem(2, -36, PAL.gem, (o.glow || 0) + 0.3, 1.4);
+  for (const ex of [-4, 24]) {
+    ctx.beginPath(); ctx.moveTo(ex - 11, ex < 0 ? -16 : -10); ctx.lineTo(ex + 11, ex < 0 ? -10 : -16); ctx.quadraticCurveTo(ex + 8, 4, ex - 4, 2); ctx.closePath(); blob('#fff', 3);
+    circ(ex + 3, -4, 4.5, PAL.pupil, 0);
+  }
+  if (roar > 0.05) { ctx.beginPath(); ctx.ellipse(28, 26, 14, 4 + 12 * roar, 0, 0, TAU); blob('#5a1030', 3); }
+  else { ctx.beginPath(); ctx.moveTo(18, 24); ctx.quadraticCurveTo(28, 28, 40, 22); ctx.lineWidth = 3.5; ctx.strokeStyle = OUT; ctx.stroke(); }
+  ctx.restore();
+  // front arm with forearm leaf blade
+  const fa = ik(26, -146, 70 + roar * 16, -108 - roar * 50, 34, 34, 1);
+  limb([[26, -146], [fa.kx, fa.ky], [fa.ex, fa.ey]], 20, PAL.body);
+  leafShape(fa.kx, fa.ky, fa.kx + (fa.kx - 26) * 0.6 - 10, fa.ky - 34, 12, '#5fd068', '#2f8a3a');
+  circ(fa.ex, fa.ey, 12, PAL.body, 3.5);
+  ctx.restore();
+}
+// Drizzlet: a floating raindrop creature wearing its own little rain cloud (origin at hover point, faces left)
+function drawDrizzlet(x, y, s, o = {}) {
+  const t = o.t || 0, mood = o.mood || 'normal', R = o.R;
+  ctx.save(); ctx.translate(x, y); ctx.scale(s, s);
+  if (o.alpha !== undefined) ctx.globalAlpha *= o.alpha;
+  if (o.lean) ctx.rotate(o.lean);
+  for (let i = 0; i < 4; i++) {                     // trailing water streams
+    const bx = -30 + i * 20, pts = [];
+    for (let k = 0; k <= 6; k++) { const yy = -44 + k * 9; pts.push([bx + Math.sin((R ? 0 : t) * 3 + i * 1.3 + k * 0.7) * k * 1.8, yy]); }
+    limb(pts, 9 - i % 2 * 2, '#45a8ff');
+  }
+  for (const sd of [-1, 1]) { ctx.beginPath(); ctx.moveTo(sd * 50, -80); ctx.quadraticCurveTo(sd * 84, -96 + Math.sin((R ? 0 : t) * 5) * 6, sd * 78, -60); ctx.quadraticCurveTo(sd * 66, -70, sd * 50, -64); ctx.closePath(); blob('#8fdcff', 3); }
+  ctx.beginPath(); ctx.moveTo(0, -150); ctx.bezierCurveTo(30, -122, 62, -98, 58, -66); ctx.bezierCurveTo(54, -30, -54, -30, -58, -66); ctx.bezierCurveTo(-62, -98, -30, -122, 0, -150); ctx.closePath();
+  const bg = ctx.createLinearGradient(0, -150, 0, -34); bg.addColorStop(0, '#9fe2ff'); bg.addColorStop(1, '#2b8fe0'); blob(bg, 3.5);
+  ell(-24, -96, 10, 18, 0.4, 'rgba(255,255,255,.55)', 0);
+  // cloud cap
+  [[-34, -136, 20], [-8, -156, 26], [24, -146, 22], [44, -128, 16], [6, -134, 22]].forEach(([cx, cy, r]) => circ(cx, cy, r, '#f4fbff', 3));
+  ell(4, -122, 52, 8, 0, 'rgba(120,150,190,.35)', 0);
+  // face (looking left)
+  for (const ex of [-30, -2]) {
+    if (mood === 'faint') { limb([[ex - 7, -82], [ex + 7, -72]], 4, OUT, false); limb([[ex - 7, -72], [ex + 7, -82]], 4, OUT, false); continue; }
+    ell(ex, -78, 9, 12, 0, '#fff', 3); circ(ex - 3, -76, 5.5, '#123060', 0); circ(ex - 5, -79, 1.8, '#fff', 0);
+    if (mood === 'angry') limb([[ex - 10, ex < -10 ? -96 : -100], [ex + 10, ex < -10 ? -100 : -96]], 4, OUT, false);
+  }
+  ctx.beginPath();
+  if (mood === 'faint') { ctx.arc(-16, -52, 7, Math.PI * 1.1, Math.PI * 1.9); } else if (mood === 'angry') { ctx.moveTo(-26, -56); ctx.lineTo(-8, -58); } else { ctx.moveTo(-26, -58); ctx.quadraticCurveTo(-16, -50, -6, -58); }
+  ctx.lineWidth = 3.5; ctx.strokeStyle = OUT; ctx.lineCap = 'round'; ctx.stroke();
+  ctx.restore();
+}
+// seed capsule (original catch/carry device)
+function drawCapsule(x, y, r, rot, open) {
+  ctx.save(); ctx.translate(x, y); ctx.rotate(rot);
+  if (open > 0) { ctx.save(); ctx.shadowColor = '#fff6a8'; ctx.shadowBlur = 30; ctx.fillStyle = `rgba(255,250,200,${open})`; ctx.fillRect(-r, -open * 16, r * 2, open * 32); ctx.restore(); }
+  ctx.beginPath(); ctx.arc(0, open * 16, r, 0, Math.PI); ctx.closePath(); blob('#f3e3c3', 3);
+  ctx.beginPath(); ctx.arc(0, -open * 16, r * 1.06, Math.PI, TAU); ctx.closePath(); blob('#4caf50', 3);
+  for (let i = 0; i < 4; i++) circ(-r * 0.6 + i * r * 0.4, -open * 16 - r * 0.5, r * 0.09, '#2f8a3a', 0);
+  leafShape(0, -open * 16 - r * 1.06, r * 0.7, -open * 16 - r * 1.06 - r * 0.6, r * 0.25, '#8be36b', null);
+  ctx.fillStyle = '#ffd23f'; ctx.fillRect(-r, -2, r * 2, 4);
+  ctx.restore();
+}
+/* ================= trainer (seen from behind) ================= */
+function drawTrainer(t, R) {
+  const cheer = smooth(19.6, 20.0, t);
+  const jump = (!R && cheer > 0) ? Math.abs(Math.sin((t - 19.6) * Math.PI * 2.2)) * 26 * cheer : 0;
+  ctx.save(); ctx.translate(170, 742 - jump);
+  // throwing arm angle: rest -> wind-up -> release
+  let ang = Math.PI / 2 + 0.25;
+  if (t > 1.9 && t < 3.2) {
+    const wind = smooth(1.9, 2.3, t), rel = smooth(2.3, 2.55, t), back = smooth(2.7, 3.2, t);
+    ang = lerp(lerp(Math.PI / 2 + 0.25, Math.PI / 2 + 1.3, wind), -Math.PI / 2 + 0.55, rel);
+    ang = lerp(ang, Math.PI / 2 + 0.25, back);
+  }
+  const armR = lerp(ang, -Math.PI / 2 + 0.3, cheer), armL = lerp(Math.PI / 2 - 0.25, -Math.PI / 2 - 0.3, cheer);
+  rr(-96, -252, 192, 290, 64); blob('#2ec4b6', 4);                     // jacket
+  ctx.fillStyle = 'rgba(0,0,0,.12)'; ctx.fillRect(-4, -240, 8, 270);
+  for (const [sd, a] of [[-1, armL], [1, armR]]) {
+    const sh = [sd * 84, -214], hx = sh[0] + Math.cos(a) * 118, hy = sh[1] + Math.sin(a) * 118;
+    const j = ik(sh[0], sh[1], hx, hy, 62, 62, sd);
+    limb([sh, [j.kx, j.ky], [j.ex, j.ey]], 34, '#24a99c');
+    circ(j.ex, j.ey, 19, '#f6c49a', 3.5);
+    if (sd === 1 && t < 2.5 && t > 0.5) drawCapsule(j.ex, j.ey - 14, 15, 0, 0);
+  }
+  rr(-64, -236, 128, 156, 24); blob('#ffd23f', 4);                    // backpack
+  rr(-42, -150, 84, 52, 12); blob('#ffb703', 3);
+  limb([[-50, -234], [-74, -244]], 8, '#c98a00'); limb([[50, -234], [74, -244]], 8, '#c98a00');
+  drawCapsule(0, -86, 12, Math.sin(t * 3) * (R ? 0 : 0.3), 0);       // keychain capsule
+  ell(-60, -292, 12, 16, 0, '#f6c49a'); ell(60, -292, 12, 16, 0, '#f6c49a');
+  circ(0, -296, 62, '#5a3016', 4);                                    // back of head
+  ctx.fillStyle = '#5a3016';
+  for (let i = -3; i <= 3; i++) { ctx.beginPath(); ctx.moveTo(i * 16 - 10, -246); ctx.lineTo(i * 16, -228); ctx.lineTo(i * 16 + 10, -246); ctx.closePath(); ctx.fill(); }
+  ctx.beginPath(); ctx.arc(0, -306, 66, Math.PI, TAU); ctx.closePath(); blob('#ff7a3d', 4);  // cap
+  rr(-66, -312, 132, 14, 6); blob('#ffffff', 3);
+  rr(-16, -336, 32, 20, 6); blob('#ffd23f', 3);
+  ctx.restore();
+}
+
+/* ================= move effects ================= */
+function leafOrb(x, y, r, t) {
+  ctx.save(); ctx.shadowColor = '#9dff6a'; ctx.shadowBlur = 30;
+  const g = ctx.createRadialGradient(x, y, 2, x, y, r); g.addColorStop(0, '#ffffff'); g.addColorStop(0.5, '#c8ffb0'); g.addColorStop(1, '#3cc96a');
+  ctx.fillStyle = g; ctx.beginPath(); ctx.arc(x, y, r, 0, TAU); ctx.fill(); ctx.restore();
+  for (let i = 0; i < 4; i++) { const a = t * 6 + i * TAU / 4, d = r + 12, lx = x + Math.cos(a) * d, ly = y + Math.sin(a) * d * 0.6; leafShape(lx, ly, lx + Math.cos(a + 1.6) * 16, ly + Math.sin(a + 1.6) * 10, 6, '#5fd068', null); }
+}
+function impact(x, y, p, col) {
+  if (p <= 0 || p >= 1) return;
+  ctx.save(); ctx.globalAlpha = 1 - p;
+  ctx.translate(x, y); ctx.rotate(p * 0.6);
+  ctx.beginPath(); for (let i = 0; i < 16; i++) { const a = i * TAU / 16, r = (i % 2 ? 30 : 70) * (0.6 + p); ctx.lineTo(Math.cos(a) * r, Math.sin(a) * r); } ctx.closePath();
+  ctx.fillStyle = col; ctx.fill(); ctx.lineWidth = 4; ctx.strokeStyle = '#fff'; ctx.stroke();
+  ctx.restore();
+}
+function petal(x, y, s, rot, col) { ctx.save(); ctx.translate(x, y); ctx.rotate(rot); ell(0, -10 * s, 7 * s, 13 * s, 0, col, 2); ctx.restore(); }
+
+/* ================= scene ================= */
+function drawScene(t, R) {
+  drawWorld(t, R);
+  grassTufts(t, R, 400, 470, 40, 3);
+  // ---- opponent: Drizzlet ----
+  const enter = easeOut((t - 0.3) / 1.4), faint = smooth(18.6, 19.4, t);
+  if (faint < 1) {
+    const hit1 = t > 7.8 && t < 8.5, hit2 = t > 17.6 && t < 18.5;
+    const shake = R ? 0 : (hit1 || hit2 ? Math.sin(t * 90) * 8 : 0);
+    const hover = R ? 0 : Math.sin(t * 2.2) * 8;
+    const ox = lerp(W + 200, OP.x, enter) + shake, oy = OP.y - 46 + hover + faint * 60;
+    ctx.fillStyle = 'rgba(0,0,0,.18)'; ctx.beginPath(); ctx.ellipse(OP.x, OP.y, 64 - hover, 12, 0, 0, TAU); ctx.fill();
+    const lash = t > 9.6 && t < 11.0;
+    const mood = faint > 0 ? 'faint' : (t > 7.8 && t < 9.0) || hit2 ? 'faint' : lash ? 'angry' : 'normal';
+    ctx.save(); ctx.globalAlpha = blinkVis(t, 7.8, 8.4, R) * blinkVis(t, 17.6, 18.4, R) * (1 - faint);
+    drawDrizzlet(ox, oy, 1.25, { t, mood, R, lean: lash ? -0.15 : 0 });
+    ctx.restore();
+  }
+  // ---- player creature ----
+  const release = 3.1;
+  const knock = t > 10.9 && t < 12 ? Math.sin(Math.PI * clamp((t - 10.9) / 0.5, 0, 1)) * -40 : 0;
+  const shakeP = !R && t > 10.9 && t < 11.4 ? Math.sin(t * 90) * 6 : 0;
+  const px = PL.x + knock + shakeP, py = PL.y;
+  if (t > release) {
+    ctx.fillStyle = 'rgba(0,0,0,.2)'; ctx.beginPath(); ctx.ellipse(PL.x, PL.y + 2, 120, 22, 0, 0, TAU); ctx.fill();
+    const pop = easeBack((t - release) / 0.45);
+    const crouch = t > 6.5 && t < 7.0 ? 0.18 * smooth(6.5, 6.95, t) : t >= 7.0 && t < 7.2 ? -0.12 : 0;
+    const vis = blinkVis(t, 10.9, 11.5, R);
+    const sMood = t > 10.9 && t < 12 ? 'hurt' : t > 6.4 && t < 9.2 ? 'angry' : 'normal';
+    const evoT = t - EVO_START;
+    if (!evolved(t)) {
+      const breathe = R ? 0 : Math.sin(t * 3) * 0.02;
+      const draw = () => drawSproutle(px, py, 1.5 * pop, { t, mood: sMood, squash: crouch + breathe, glow: t > 6.5 && t < 7.2 ? 1 : 0, reach: t > 6.9 && t < 7.3 ? 14 : 0 });
+      if (evoT > 0) {
+        // evolution: silhouette alternates between forms faster and faster
+        const ph = R ? 0 : Math.pow(evoT, 2.2) * 2.2, showEvo = Math.floor(ph) % 2 === 1;
+        const sil = smooth(0, 0.5, evoT);
+        if (sil < 1) draw();
+        silhouette(showEvo ? () => drawVerdallion(PL.x, PL.y, 1.02, { t, R }) : draw, '#ffffff', sil, 40);
+      } else {
+        ctx.save(); ctx.globalAlpha = vis; draw(); ctx.restore();
+        if (t < release + 0.5) silhouette(draw, '#fffbd0', 1 - smooth(release, release + 0.5, t), 30);
+      }
+    } else {
+      const reveal = smooth(EVO_FLASH, EVO_FLASH + 0.7, t);
+      const roar = Math.max(smooth(16.4, 16.8, t) * (1 - smooth(17.8, 18.2, t)), smooth(19.5, 19.9, t) * (1 - smooth(21.6, 22.0, t)));
+      const v = () => drawVerdallion(PL.x, PL.y, 1.02, { t, R, roar, glow: roar });
+      v();
+      if (reveal < 1) silhouette(v, '#ffffff', 1 - reveal, 40);
+    }
+  }
+  // capsule flight & opening
+  if (t > 2.45 && t < release + 0.6) {
+    const p = clamp((t - 2.45) / (release - 2.45), 0, 1);
+    const cx = lerp(250, PL.x, p), cy = lerp(470, PL.y - 60, p) - Math.sin(Math.PI * p) * 230;
+    const open = smooth(release, release + 0.25, t);
+    ctx.save(); ctx.globalAlpha = 1 - smooth(release + 0.3, release + 0.6, t);
+    drawCapsule(cx, cy, 22, R ? 0 : p * 12, open);
+    ctx.restore();
+    if (open > 0 && !R) { for (let i = 0; i < 10; i++) { const a = i * TAU / 10, d = 30 + open * 110; sparkle(cx + Math.cos(a) * d, cy + Math.sin(a) * d, 10 * (1 - open * 0.6), '#fff6a8'); } }
+  }
+  // ---- LEAF ORB ----
+  if (t > 7.0 && t < 7.85) {
+    const p = (t - 7.0) / 0.8, sx = PL.x + 90, sy = PL.y - 90, ex = OP.x, ey = OP.y - 120;
+    const x = lerp(sx, ex, easeOut(p)), y = lerp(sy, ey, easeOut(p)) - Math.sin(Math.PI * p) * 80;
+    for (let k = 1; k <= 4; k++) { const q = clamp(p - k * 0.05, 0, 1); ctx.globalAlpha = 0.25; leafOrb(lerp(sx, ex, easeOut(q)), lerp(sy, ey, easeOut(q)) - Math.sin(Math.PI * q) * 80, 18 - k * 3, t); }
+    ctx.globalAlpha = 1; leafOrb(x, y, 24, t);
+  }
+  impact(OP.x, OP.y - 120, (t - 7.8) / 0.5, '#b5ff8a');
+  // ---- RAIN LASH ----
+  const cloudA = smooth(9.6, 10.1, t) * (1 - smooth(11.2, 11.6, t));
+  if (cloudA > 0) {
+    ctx.save(); ctx.globalAlpha = cloudA;
+    ctx.strokeStyle = 'rgba(120,190,255,.8)'; ctx.lineWidth = 3;
+    for (let i = 0; i < 26; i++) { const x = PL.x - 140 + hash(i, 2) * 280, y = PL.y - 300 + mod((R ? 0.3 : t) * 700 + hash(i, 5) * 300, 300); ctx.beginPath(); ctx.moveTo(x, y); ctx.lineTo(x - 6, y + 22); ctx.stroke(); }
+    [[-110, 0, 46], [-50, -24, 60], [20, -14, 56], [90, 4, 44], [-10, 16, 50]].forEach(([dx, dy, r]) => circ(PL.x + dx, PL.y - 330 + dy, r, '#8b9bb8', 0));
+    ell(PL.x - 10, PL.y - 300, 150, 18, 0, '#6d7d9c', 0);
+    ctx.restore();
+  }
+  if (t > 10.3 && t < 11.1) {
+    const p = smooth(10.3, 10.85, t), fade = 1 - smooth(10.9, 11.1, t);
+    const pts = [], sx = OP.x - 40, sy = OP.y - 60, ex = PL.x + 40, ey = PL.y - 80;
+    const n = Math.max(2, Math.floor(30 * p));
+    for (let k = 0; k <= n; k++) { const q = k / 30; pts.push([lerp(sx, ex, q) + Math.sin(q * 9 + t * 10) * 18 * (1 - q), lerp(sy, ey, q) - Math.sin(Math.PI * q) * 160]); }
+    ctx.globalAlpha = fade; limb(pts, 20, '#45a8ff'); limb(pts, 6, '#d6f0ff', false); ctx.globalAlpha = 1;
+  }
+  impact(PL.x + 30, PL.y - 90, (t - 10.9) / 0.5, '#9fd8ff');
+  // ---- BLOOM BURST ----
+  const bloom = smooth(16.8, 17.3, t) * (1 - smooth(18.2, 18.6, t));
+  if (bloom > 0) {
+    const fx = PL.x + 170, fy = PL.y - 200, spin = R ? 0 : t * 3;
+    if (t > 17.3 && t < 18.4) {
+      const bp = smooth(17.3, 17.6, t) * (1 - smooth(18.1, 18.4, t));
+      ctx.save(); ctx.globalAlpha = 0.85 * bp;
+      const ang = Math.atan2(OP.y - 120 - fy, OP.x - fx), len = Math.hypot(OP.x - fx, OP.y - 120 - fy);
+      ctx.translate(fx, fy); ctx.rotate(ang);
+      const bg = ctx.createLinearGradient(0, -40, 0, 40); bg.addColorStop(0, 'rgba(255,200,230,0)'); bg.addColorStop(0.5, 'rgba(255,250,220,1)'); bg.addColorStop(1, 'rgba(255,200,230,0)');
+      ctx.fillStyle = bg; ctx.fillRect(0, -40 * bp, len, 80 * bp);
+      for (let i = 0; i < 18; i++) { const q = mod((R ? 0.5 : t * 1.8) + i / 18, 1); petal(q * len, Math.sin(i * 2.1 + q * 8) * 34, 1, q * 10 + i, i % 2 ? '#ff9ec7' : '#ffd6e8'); }
+      ctx.restore();
+    }
+    ctx.save(); ctx.translate(fx, fy); ctx.scale(easeBack(bloom), easeBack(bloom)); ctx.rotate(spin);
+    for (let i = 0; i < 8; i++) { ctx.save(); ctx.rotate(i * TAU / 8); ell(0, -44, 20, 36, 0, i % 2 ? '#ff8fbf' : '#ffb3d4', 3); ctx.restore(); }
+    circ(0, 0, 24, '#ffd23f', 3.5); circ(0, 0, 12, '#ffb703', 0);
+    ctx.restore();
+  }
+  impact(OP.x, OP.y - 110, (t - 17.6) / 0.6, '#ffc2dc');
+  // ---- victory leaves ----
+  if (t > 19.5 && t < 23.5 && !R) {
+    for (let i = 0; i < 30; i++) {
+      const p = (t - 19.5) * 0.35 + hash(i, 1), y = -40 + mod(p, 1) * 820, x = hash(i, 2) * W + Math.sin(t * 2 + i) * 30;
+      leafShape(x, y, x + 14 * Math.cos(t * 3 + i), y + 14 * Math.sin(t * 3 + i), 6, i % 3 ? '#5fd068' : '#ffd23f', null);
+    }
+  }
+  drawTrainer(t, R);
+}
+
+/* ================= HUD ================= */
+function hpColor(h) { return h > 0.5 ? '#3ddc84' : h > 0.2 ? '#ffd23f' : '#ff4d6d'; }
+function hpCard(x, y, w, name, lv, hp, type, tcol, nums) {
+  rr(x, y, w, nums ? 118 : 96, 18); blob('rgba(250,252,255,.96)', 4);
+  txt(name, x + 22, y + 30, 28, '#16233f', 'left', 900, false);
+  txt(lv, x + w - 22, y + 30, 22, '#16233f', 'right', 800, false);
+  rr(x + 22, y + 52, 70, 24, 12); ctx.fillStyle = tcol; ctx.fill();
+  txt(type, x + 57, y + 64, 14, '#ffffff', 'center', 900, false);
+  rr(x + 104, y + 54, w - 128, 20, 10); ctx.fillStyle = '#2b3a5a'; ctx.fill();
+  if (hp > 0.005) { rr(x + 108, y + 58, (w - 136) * hp, 12, 6); ctx.fillStyle = hpColor(hp); ctx.fill(); }
+  if (nums) txt(nums, x + w - 22, y + 96, 20, '#16233f', 'right', 800, false);
+}
+function drawHUD(t, R) {
+  // opponent card slides in from the left
+  const oc = easeOut((t - 1.0) / 0.5);
+  if (oc > 0) { ctx.save(); ctx.globalAlpha = 1 - smooth(18.8, 19.4, t); hpCard(lerp(-460, 40, oc), 40, 420, 'DRIZZLET', 'Lv 12', oppHP(t), 'WATER', '#3a8dde'); ctx.restore(); }
+  const pc = easeOut((t - 3.4) / 0.5);
+  if (pc > 0) {
+    const hp = plHP(t), max = evolved(t) ? 72 : 60;
+    hpCard(lerp(W + 40, 810, pc), 404, 430, evolved(t) ? 'VERDALLION' : 'SPROUTLE', t > 20.3 ? 'Lv 17' : 'Lv 16', hp, 'GRASS', '#3fae4f', `${Math.round(hp * max)} / ${max}`);
+  }
+  // text box with typewriter text
+  const menu = smooth(4.0, 4.3, t) * (1 - smooth(6.3, 6.5, t));
+  const boxW = lerp(1220, 640, menu);
+  rr(30, 588, boxW, 112, 18); blob('#1b2b4d', 5);
+  rr(40, 598, boxW - 20, 92, 12); ctx.lineWidth = 2; ctx.strokeStyle = 'rgba(255,255,255,.35)'; ctx.stroke();
+  let cur = null; for (const m of MSG) if (t >= m[0]) cur = m;
+  if (cur) {
+    const n = Math.floor((t - cur[0]) * 40), s = cur[1].slice(0, n);
+    txt(s, 70, 644, 30, '#ffffff', 'left', 700, false);
+    if (n >= cur[1].length && (R || Math.floor(t * 3) % 2)) { ctx.fillStyle = '#ffd23f'; ctx.beginPath(); ctx.moveTo(boxW, 668); ctx.lineTo(boxW + 16, 668); ctx.lineTo(boxW + 8, 678); ctx.closePath(); ctx.fill(); }
+  }
+  if (menu > 0.01) {
+    ctx.save(); ctx.globalAlpha = menu;
+    const mx = 690, moves = [['LEAF ORB', '#3fae4f'], ['VINE SNAP', '#3fae4f'], ['SUN SPARK', '#ff9f43'], ['GUARD SPROUT', '#8a8fb0']];
+    rr(mx, 588, 560, 112, 18); blob('#f4f8ff', 5);
+    const sel = t < 5.0 ? 1 : 0, pressed = t > 6.0 && t < 6.3;
+    moves.forEach(([name, col], i) => {
+      const x = mx + 40 + (i % 2) * 260, y = 620 + Math.floor(i / 2) * 46;
+      if (i === sel) { rr(x - 28, y - 19, 250, 38, 10); ctx.fillStyle = pressed ? '#ffd23f' : '#dfe8ff'; ctx.fill(); ctx.fillStyle = OUT; ctx.beginPath(); ctx.moveTo(x - 20, y - 8); ctx.lineTo(x - 8, y); ctx.lineTo(x - 20, y + 8); ctx.closePath(); ctx.fill(); }
+      circ(x + 6, y, 8, col, 2);
+      txt(name, x + 22, y, 22, '#16233f', 'left', 800, false);
+    });
+    ctx.restore();
+  }
+}
+
+/* ================= camera & frame ================= */
+const CAMK = [[0, [1.3, 900, 300]], [1.2, [1, 640, 360]], [6.5, [1.08, 600, 380]], [7.5, [1.12, 860, 320]], [9.2, [1, 640, 360]],
+              [10.4, [1.12, 460, 420]], [12.0, [1.28, 420, 400]], [15.6, [1, 640, 360]], [17.2, [1.1, 760, 330]], [19.5, [1, 640, 360]]];
+function camAt(t) {
+  let k = 0; for (let i = 0; i < CAMK.length; i++) if (t >= CAMK[i][0]) k = i;
+  const a = CAMK[Math.max(0, k - 1)][1], c = CAMK[k][1], w = smooth(0, 0.7, t - CAMK[k][0]);
+  return [lerp(a[0], c[0], w), lerp(a[1], c[1], w), lerp(a[2], c[2], w)];
+}
+function render(t, R) {
+  ctx = mainCtx;
+  ctx.setTransform(sc, 0, 0, sc, 0, 0); ctx.clearRect(0, 0, W, H);
+  let [z, fx, fy] = camAt(t);
+  if (R) { z = 1; fx = 640; fy = 360; }
+  fx = clamp(fx, W / (2 * z), W - W / (2 * z)); fy = clamp(fy, H / (2 * z), H - H / (2 * z));
+  let shx = 0, shy = 0;
+  if (!R) {
+    const A = 10 * (Math.exp(-Math.max(0, t - 7.8) * 6) * (t > 7.8 ? 1 : 0) + Math.exp(-Math.max(0, t - 10.9) * 6) * (t > 10.9 ? 1 : 0) + 1.6 * Math.exp(-Math.max(0, t - 17.6) * 4) * (t > 17.6 ? 1 : 0));
+    const k = Math.floor(t * 40); shx = (hash(k, 1) - 0.5) * A; shy = (hash(k, 2) - 0.5) * A;
+  }
+  ctx.save(); ctx.translate(W / 2 + shx, H / 2 + shy); ctx.scale(z, z); ctx.translate(-fx, -fy);
+  drawScene(t, R);
+  ctx.restore();
+  // evolution backdrop dim + rays (drawn over the world, under the glowing creature would be ideal; kept subtle)
+  const evo = smooth(12.2, 12.8, t) * (1 - smooth(15.2, 15.8, t));
+  if (evo > 0) {
+    ctx.save(); ctx.globalCompositeOperation = 'multiply'; ctx.fillStyle = `rgba(40,50,120,${0.55 * evo})`; ctx.fillRect(0, 0, W, H); ctx.restore();
+    ctx.save(); ctx.globalAlpha = 0.35 * evo; ctx.translate(PL.x, PL.y - 130); ctx.rotate(R ? 0 : t * 0.6);
+    for (let i = 0; i < 12; i++) { ctx.rotate(TAU / 12); ctx.fillStyle = i % 2 ? '#bfe7ff' : '#fff6c8'; ctx.beginPath(); ctx.moveTo(0, 0); ctx.lineTo(-40, -900); ctx.lineTo(40, -900); ctx.closePath(); ctx.fill(); }
+    ctx.restore();
+    // re-draw the glowing form on top of the dim layer so it stays bright
+    ctx.save(); ctx.translate(W / 2 + shx, H / 2 + shy); ctx.scale(R ? 1 : z, R ? 1 : z); ctx.translate(-fx, -fy);
+    const evoT = t - EVO_START;
+    if (evoT > 0 && t < EVO_FLASH) {
+      const ph = R ? 0 : Math.pow(evoT, 2.2) * 2.2, showEvo = Math.floor(ph) % 2 === 1;
+      silhouette(showEvo ? () => drawVerdallion(PL.x, PL.y, 1.02, { t, R }) : () => drawSproutle(PL.x, PL.y, 1.5, { t }), '#ffffff', smooth(0, 0.5, evoT), 40);
+      for (let i = 0; i < 14 && !R; i++) { const a = i * TAU / 14 + t, d = 160 - mod(t * 120 + i * 20, 140); sparkle(PL.x + Math.cos(a) * d, PL.y - 130 + Math.sin(a) * d, 8, '#fff6a8'); }
+    }
+    ctx.restore();
+  }
+  const flash = Math.exp(-Math.abs(t - EVO_FLASH) * 7) * (t > EVO_FLASH - 0.3 ? 1 : 0);
+  if (flash > 0.02) { ctx.fillStyle = `rgba(255,255,255,${(R ? 0.3 : 0.95) * flash})`; ctx.fillRect(0, 0, W, H); }
+  drawHUD(t, R);
+  const fade = Math.max(smooth(22.8, 23.6, t), 1 - smooth(0, 0.6, t));
+  if (fade > 0.001) { ctx.fillStyle = `rgba(255,255,255,${fade})`; ctx.fillRect(0, 0, W, H); }
+}
+
+function resize() {
+  const r = canvas.getBoundingClientRect(), dpr = window.devicePixelRatio || 1;
+  canvas.width = Math.max(1, Math.round(r.width * dpr)); canvas.height = Math.max(1, Math.round(r.width * dpr * H / W)); sc = canvas.width / W;
+}
+new ResizeObserver(resize).observe(canvas); window.addEventListener('resize', resize); resize();
+
+/* ================= controls & loop ================= */
+const playBtn = document.getElementById('play'), restartBtn = document.getElementById('restart');
+const rm = document.getElementById('rm'), scrub = document.getElementById('scrub');
+const STATIC_T = 20.6;
+let t = 0, playing = true, last = performance.now();
+function setPlaying(p) { playing = p; playBtn.textContent = p ? 'Pause' : 'Play'; playBtn.setAttribute('aria-pressed', String(!p)); }
+if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) { rm.checked = true; t = STATIC_T; setPlaying(false); }
+playBtn.addEventListener('click', () => setPlaying(!playing));
+restartBtn.addEventListener('click', () => { t = 0; setPlaying(true); });
+rm.addEventListener('change', () => { if (rm.checked) { t = STATIC_T; setPlaying(false); } else setPlaying(true); });
+scrub.addEventListener('input', () => { setPlaying(false); t = scrub.value / 1000 * T; });
+window.addEventListener('keydown', e => {
+  if (e.target && e.target.type === 'range') return;
+  if (e.code === 'Space') { e.preventDefault(); setPlaying(!playing); }
+  else if (e.key === 'r' || e.key === 'R') { t = 0; setPlaying(true); }
+});
+function tick(now) {
+  const dt = Math.min(0.05, (now - last) / 1000); last = now;
+  if (playing) t = mod(t + dt, T);
+  render(t, rm.checked);
+  if (document.activeElement !== scrub) scrub.value = Math.round(t / T * 1000);
+  requestAnimationFrame(tick);
+}
+requestAnimationFrame(tick);
+window.Battle = { render: (tt, r) => render(mod(tt, T), !!r), setTime: tt => { t = mod(tt, T); }, setPlaying };
+})();
+</script>
+</body>
+</html>
