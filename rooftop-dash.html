@@ -1,0 +1,577 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Rooftop Dash - Unofficial Fan Art</title>
+<style>
+  :root{
+    --bg:#140b2b; --panel:#22123f; --ink:#fff4fb; --muted:#c9b6e8; --accent:#ff5d8f; --accent2:#ffd23f;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;background:var(--bg);color:var(--ink);font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+  main{max-width:1180px;margin:0 auto;padding:16px}
+  h1{font-size:clamp(1.1rem,2.4vw,1.6rem);margin:4px 0 12px;letter-spacing:.02em}
+  h1 small{font-weight:500;color:var(--muted);font-size:.6em;margin-left:.5em}
+  .stage{width:100%;aspect-ratio:16/9;border-radius:14px;overflow:hidden;background:#000;
+         box-shadow:0 10px 40px rgba(0,0,0,.5);border:3px solid #3b2470}
+  canvas{display:block;width:100%;height:100%}
+  .controls{display:flex;flex-wrap:wrap;align-items:center;gap:10px 14px;margin-top:12px;padding:10px 12px;
+            background:var(--panel);border-radius:12px}
+  button{font:inherit;font-weight:700;color:#2a1740;background:var(--accent2);border:0;border-radius:999px;
+         padding:8px 18px;cursor:pointer;box-shadow:0 3px 0 #b88f00}
+  button:active{transform:translateY(2px);box-shadow:0 1px 0 #b88f00}
+  button:focus-visible,input:focus-visible{outline:3px solid #fff;outline-offset:2px}
+  #restart{background:var(--accent);color:#fff;box-shadow:0 3px 0 #b02a58}
+  label{display:flex;align-items:center;gap:6px;color:var(--muted);font-size:.92rem}
+  #scrub{flex:1 1 200px;min-width:140px;accent-color:var(--accent)}
+  .note{color:var(--muted);font-size:.8rem;line-height:1.45;margin:12px 2px 0}
+</style>
+</head>
+<body>
+<main>
+  <h1>Rooftop Dash <small>unofficial fan art: Mario &amp; Spider-Man</small></h1>
+  <div class="stage">
+    <canvas id="c" role="img" aria-label="Cartoon animation: Mario runs and jumps across city rooftops at sunset while Spider-Man swings on webs overhead."></canvas>
+  </div>
+  <div class="controls">
+    <button id="play" type="button" aria-pressed="false">Pause</button>
+    <button id="restart" type="button">Restart</button>
+    <label><input type="checkbox" id="rm"> Reduced motion</label>
+    <input id="scrub" type="range" min="0" max="1000" value="0" aria-label="Position in the 8 second loop">
+  </div>
+  <p class="note">Space = pause/play &middot; R = restart. Unofficial fan art drawn entirely in code. Mario is a character of
+  Nintendo and Spider-Man is a character of Marvel; this project is not affiliated with, licensed by, or endorsed by either company.</p>
+</main>
+
+<script>
+(() => {
+'use strict';
+
+/* ---------- constants & helpers ---------- */
+const W = 1280, H = 720, T = 8;               // logical canvas size, loop length (s)
+const TAU = Math.PI * 2;
+const OUT = '#2a1740';                        // cartoon outline colour
+const clamp = (x, a, b) => Math.min(b, Math.max(a, x));
+const lerp = (a, b, t) => a + (b - a) * t;
+const mod = (a, n) => ((a % n) + n) % n;
+const smooth = (a, b, x) => { const t = clamp((x - a) / (b - a), 0, 1); return t * t * (3 - 2 * t); };
+const easeOut = t => 1 - Math.pow(1 - t, 3);
+const hash = (a, b = 0, c = 0) => { const x = Math.sin(a * 127.1 + b * 311.7 + c * 74.7) * 43758.5453; return x - Math.floor(x); };
+
+const canvas = document.getElementById('c');
+const ctx = canvas.getContext('2d');
+let sc = 1;
+
+/* ---------- drawing primitives ---------- */
+function limb(pts, w, color, outline = true) {
+  ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+  const path = () => { ctx.beginPath(); ctx.moveTo(pts[0][0], pts[0][1]); for (let i = 1; i < pts.length; i++) ctx.lineTo(pts[i][0], pts[i][1]); };
+  if (outline) { path(); ctx.strokeStyle = OUT; ctx.lineWidth = w + 6; ctx.stroke(); }
+  path(); ctx.strokeStyle = color; ctx.lineWidth = w; ctx.stroke();
+}
+function blob(fill, lw = 3.5) {
+  ctx.fillStyle = fill; ctx.fill();
+  if (lw > 0) { ctx.lineWidth = lw; ctx.strokeStyle = OUT; ctx.lineJoin = 'round'; ctx.stroke(); }
+}
+function ell(cx, cy, rx, ry, rot, fill, lw) {
+  ctx.beginPath(); ctx.ellipse(cx, cy, rx, ry, rot || 0, 0, TAU); blob(fill, lw === undefined ? 3.5 : lw);
+}
+function circ(cx, cy, r, fill, lw) { ell(cx, cy, r, r, 0, fill, lw); }
+function rr(x, y, w, h, r) {
+  ctx.beginPath(); ctx.moveTo(x + r, y);
+  ctx.arcTo(x + w, y, x + w, y + h, r); ctx.arcTo(x + w, y + h, x, y + h, r);
+  ctx.arcTo(x, y + h, x, y, r); ctx.arcTo(x, y, x + w, y, r); ctx.closePath();
+}
+// two-bone inverse kinematics; dir picks the bend side
+function ik(x0, y0, tx, ty, l1, l2, dir) {
+  let dx = tx - x0, dy = ty - y0, d = Math.hypot(dx, dy);
+  const maxd = l1 + l2 - 0.01;
+  if (d > maxd) { dx *= maxd / d; dy *= maxd / d; d = maxd; tx = x0 + dx; ty = y0 + dy; }
+  if (d < 0.001) d = 0.001;
+  const a = (l1 * l1 - l2 * l2 + d * d) / (2 * d);
+  const h = Math.sqrt(Math.max(0, l1 * l1 - a * a));
+  const mx = x0 + dx * a / d, my = y0 + dy * a / d;
+  return { kx: mx + dir * (-dy / d) * h, ky: my + dir * (dx / d) * h, ex: tx, ey: ty };
+}
+
+/* ---------- scene layout (world units, 2560px per loop) ---------- */
+const V = 320;                       // world scroll speed, px/s  (2560 px per 8 s loop)
+const PITCH = 640, ROOFW = 460;      // building spacing & roof width
+const ROOF = [520, 478, 538, 498];   // roof surface heights (repeat every 4 buildings)
+const PAL = [['#ff6f91', '#d94a74'], ['#2ec4b6', '#1a9a8f'], ['#9b6bff', '#6f45d6'], ['#ffb703', '#e08a00']];
+const MX = 420;                      // Mario's fixed screen x
+const JH = 140;                      // jump arc height
+const roofAt = i => ROOF[mod(i, 4)];
+
+function makeSkyline(Wt, seed, minW, maxW, minH, maxH) {
+  const arr = []; let x = 0, n = 0;
+  while (x < Wt) {
+    let w = minW + hash(seed, n, 1) * (maxW - minW);
+    if (Wt - (x + w) < minW) w = Wt - x;
+    arr.push({ x, w, h: minH + hash(seed, n, 2) * (maxH - minH), ant: hash(seed, n, 3) > 0.7, id: n });
+    x += w; n++;
+  }
+  return arr;
+}
+const FAR = makeSkyline(1280, 7, 70, 150, 280, 470);
+const MID = makeSkyline(1920, 3, 90, 190, 200, 380);
+
+/* ---------- background layers ---------- */
+function drawSky() {
+  const g = ctx.createLinearGradient(0, 0, 0, H);
+  g.addColorStop(0, '#3d4cc9'); g.addColorStop(0.35, '#a05bd6'); g.addColorStop(0.62, '#ff7fb0');
+  g.addColorStop(0.85, '#ffb36b'); g.addColorStop(1, '#ffd98a');
+  ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
+}
+function drawSun() {
+  const cx = 930, cy = 330, r = 120;
+  const glow = ctx.createRadialGradient(cx, cy, r * 0.6, cx, cy, r * 2.6);
+  glow.addColorStop(0, 'rgba(255,240,150,.7)'); glow.addColorStop(1, 'rgba(255,240,150,0)');
+  ctx.fillStyle = glow; ctx.beginPath(); ctx.arc(cx, cy, r * 2.6, 0, TAU); ctx.fill();
+  const sg = ctx.createLinearGradient(0, cy - r, 0, cy + r);
+  sg.addColorStop(0, '#fff6a8'); sg.addColorStop(1, '#ff8f5a');
+  ctx.fillStyle = sg; ctx.beginPath(); ctx.arc(cx, cy, r, 0, TAU); ctx.fill();
+  ctx.save(); ctx.beginPath(); ctx.arc(cx, cy, r, 0, TAU); ctx.clip();
+  ctx.fillStyle = 'rgba(255,127,176,.9)';
+  for (let j = 0; j < 6; j++) ctx.fillRect(cx - r, cy + 8 + j * 19, r * 2, 3 + j * 2.4);
+  ctx.restore();
+}
+function cloud(x, y, s) {
+  ctx.save(); ctx.translate(x, y); ctx.scale(s, s);
+  ctx.fillStyle = 'rgba(255,255,255,.93)'; ctx.beginPath();
+  [[0, 0, 34], [38, -14, 42], [84, -2, 36], [118, 6, 28], [-30, 8, 26]].forEach(([cx, cy, r]) => { ctx.moveTo(cx + r, cy); ctx.arc(cx, cy, r, 0, TAU); });
+  ctx.fill();
+  ctx.fillStyle = 'rgba(255,160,215,.35)'; ctx.beginPath(); ctx.ellipse(45, 22, 78, 11, 0, 0, TAU); ctx.fill();
+  ctx.restore();
+}
+function drawClouds(cam) {
+  const off = mod(cam * 0.25, 640);                   // 640 px per loop == tile width -> seamless
+  for (let k = -1; k < 3; k++) {
+    const ox = k * 640 - off;
+    cloud(ox + 40, 120, 1.0); cloud(ox + 300, 215, 0.7); cloud(ox + 470, 80, 0.85);
+  }
+}
+function drawSkyline(arr, Wt, shift, c1, c2, windows) {
+  const g = ctx.createLinearGradient(0, 220, 0, H);
+  g.addColorStop(0, c1); g.addColorStop(1, c2);
+  const off = -mod(shift, Wt);
+  for (let k = 0; k <= Math.ceil(W / Wt) + 1; k++) {
+    const ox = off + k * Wt;
+    if (ox > W) break;
+    for (const b of arr) {
+      const x = ox + b.x;
+      if (x > W || x + b.w < 0) continue;
+      const top = H - b.h;
+      ctx.fillStyle = g; ctx.fillRect(x, top, b.w + 1, b.h);
+      ctx.fillStyle = 'rgba(255,255,255,.12)'; ctx.fillRect(x, top, b.w + 1, 5);
+      if (b.ant) { ctx.fillStyle = c1; ctx.fillRect(x + b.w / 2 - 2, top - 40, 4, 40); ctx.fillRect(x + b.w / 2 - 9, top - 30, 18, 3); }
+      if (windows) {
+        for (let wy = top + 16, r = 0; wy < H - 120; wy += 22, r++) {
+          for (let wx = x + 10, c = 0; wx < x + b.w - 14; wx += 19, c++) {
+            if (hash(b.id, r, c) > 0.6) { ctx.fillStyle = 'rgba(255,226,122,.85)'; ctx.fillRect(wx, wy, 8, 11); }
+          }
+        }
+      }
+    }
+  }
+}
+
+/* ---------- rooftops (foreground-ish building layer) ---------- */
+function propTank(x, y) {
+  limb([[x + 8, y], [x + 12, y - 32]], 5, '#6b4a3a'); limb([[x + 52, y], [x + 48, y - 32]], 5, '#6b4a3a');
+  rr(x, y - 84, 60, 54, 12); blob('#c47a3a');
+  ctx.strokeStyle = '#7a4a1e'; ctx.lineWidth = 4;
+  ctx.beginPath(); ctx.moveTo(x + 2, y - 70); ctx.lineTo(x + 58, y - 70); ctx.moveTo(x + 2, y - 46); ctx.lineTo(x + 58, y - 46); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(x - 4, y - 82); ctx.lineTo(x + 30, y - 106); ctx.lineTo(x + 64, y - 82); ctx.closePath(); blob('#8a4b22');
+}
+function propAC(x, y) {
+  rr(x, y - 38, 72, 38, 6); blob('#ded9f5');
+  for (const fx of [20, 52]) { circ(x + fx, y - 19, 12, '#b9b1de', 3); limb([[x + fx - 8, y - 19], [x + fx + 8, y - 19]], 2, OUT, false); limb([[x + fx, y - 27], [x + fx, y - 11]], 2, OUT, false); }
+  rr(x + 78, y - 60, 14, 60, 4); blob('#9d93cf');
+}
+function propAntenna(x, y, t) {
+  limb([[x, y], [x, y - 140]], 5, '#4b3a6b');
+  limb([[x - 26, y - 112], [x + 26, y - 112]], 4, '#4b3a6b'); limb([[x - 18, y - 92], [x + 18, y - 92]], 4, '#4b3a6b');
+  limb([[x, y - 60], [x - 30, y]], 3, '#4b3a6b'); limb([[x, y - 60], [x + 30, y]], 3, '#4b3a6b');
+  const on = 0.5 + 0.5 * Math.sin(TAU * 8 * t / T * 1.0);
+  ctx.fillStyle = `rgba(255,60,80,${0.35 + 0.65 * on})`; ctx.beginPath(); ctx.arc(x, y - 146, 6, 0, TAU); ctx.fill();
+  ctx.fillStyle = `rgba(255,60,80,${0.2 * on})`; ctx.beginPath(); ctx.arc(x, y - 146, 16, 0, TAU); ctx.fill();
+}
+function propBillboard(x, y) {
+  limb([[x + 24, y], [x + 24, y - 60]], 7, '#5a4a7a'); limb([[x + 124, y], [x + 124, y - 60]], 7, '#5a4a7a');
+  rr(x, y - 132, 148, 76, 9);
+  const g = ctx.createLinearGradient(x, y - 132, x + 148, y - 56); g.addColorStop(0, '#ff5d8f'); g.addColorStop(1, '#ffb703'); blob(g, 4);
+  ctx.beginPath();
+  for (let i = 0; i < 10; i++) { const a = -Math.PI / 2 + i * Math.PI / 5, r = i % 2 ? 11 : 26; const px = x + 74 + Math.cos(a) * r, py = y - 94 + Math.sin(a) * r; i ? ctx.lineTo(px, py) : ctx.moveTo(px, py); }
+  ctx.closePath(); blob('#fff3a8', 3);
+}
+function propChimney(x, y) {
+  rr(x, y - 70, 34, 70, 3); blob('#b04a3a');
+  ctx.strokeStyle = '#7d2f25'; ctx.lineWidth = 2; for (let i = 1; i < 6; i++) { ctx.beginPath(); ctx.moveTo(x, y - i * 12); ctx.lineTo(x + 34, y - i * 12); ctx.stroke(); }
+  rr(x - 5, y - 82, 44, 14, 3); blob('#8c3a2e');
+}
+function propHut(x, y) {
+  rr(x, y - 56, 76, 56, 3); blob('#e9e2ff');
+  rr(x + 8, y - 40, 24, 40, 2); blob('#6f45d6');
+  rr(x + 44, y - 42, 22, 18, 2); blob('#9be7ff', 3);
+  rr(x - 5, y - 66, 86, 12, 3); blob('#b9b1de');
+}
+function drawRoofs(cam, t) {
+  const j0 = Math.floor(cam / PITCH) - 1, j1 = Math.floor((cam + W) / PITCH) + 1;
+  for (let j = j0; j <= j1; j++) {
+    const bx = j * PITCH - cam, m = mod(j, 4), ry = roofAt(j), pal = PAL[m];
+    // wall
+    const wall = ctx.createLinearGradient(0, ry, 0, H);
+    wall.addColorStop(0, pal[0]); wall.addColorStop(1, pal[1]);
+    ctx.fillStyle = wall; ctx.fillRect(bx, ry + 14, ROOFW, H - ry);
+    ctx.fillStyle = 'rgba(30,10,60,.18)'; ctx.fillRect(bx + ROOFW - 30, ry + 14, 30, H - ry);
+    ctx.lineWidth = 4; ctx.strokeStyle = OUT; ctx.strokeRect(bx, ry + 14, ROOFW, H - ry + 10);
+    // windows
+    for (let r = 0, wy = ry + 46; wy < H - 10; wy += 74, r++) {
+      for (let c = 0; c < 7; c++) {
+        const wx = bx + 28 + c * 64, lit = hash(m, r, c) > 0.45;
+        rr(wx, wy, 36, 46, 5); blob(lit ? '#fff3a8' : '#3a2b66', 3);
+        if (lit) { ctx.fillStyle = 'rgba(255,255,255,.55)'; ctx.fillRect(wx + 5, wy + 5, 10, 18); }
+        else { ctx.fillStyle = 'rgba(155,235,255,.25)'; ctx.fillRect(wx + 5, wy + 5, 10, 18); }
+      }
+    }
+    // roof props (stand behind Mario)
+    const px = bx;
+    if (m === 0) { propAC(px + 90, ry); propTank(px + 330, ry); }
+    else if (m === 1) { propBillboard(px + 150, ry); propChimney(px + 390, ry); }
+    else if (m === 2) { propAntenna(px + 90, ry, t); propHut(px + 300, ry); }
+    else { propAC(px + 50, ry); propChimney(px + 200, ry); propTank(px + 340, ry); }
+    // roof ledge (the surface Mario stands on)
+    rr(bx - 10, ry - 2, ROOFW + 20, 18, 6);
+    const ledge = ctx.createLinearGradient(0, ry, 0, ry + 16); ledge.addColorStop(0, '#fff2fa'); ledge.addColorStop(1, '#d8c6f5'); blob(ledge, 4);
+  }
+}
+
+/* ---------- Mario ---------- */
+function marioState(t) {
+  const cam = V * t, wx = cam + MX;
+  const q = mod(wx - 60, PITCH), i = Math.floor((wx - 60) / PITCH);
+  const r0 = roofAt(i), r1 = roofAt(i + 1);
+  const st = { x: MX, y: r0, q, s: 0, air: 0, crouch: 0, land: 0, stretch: 0, bounce: 0, grounded: true };
+  if (q < 340) {
+    st.crouch = smooth(300, 340, q);
+    if (q < 160) { const tau = q / V; st.land = Math.exp(-9 * tau) * Math.cos(18 * tau); }
+  } else {
+    const s = (q - 340) / 300;
+    st.s = s; st.grounded = false;
+    st.y = lerp(r0, r1, s) - JH * 4 * s * (1 - s);
+    st.air = smooth(0, 0.12, s) * (1 - smooth(0.86, 1, s));
+    st.crouch = 1 - smooth(0, 0.12, s);
+    st.stretch = Math.sin(Math.PI * clamp(s / 0.25, 0, 1)) * 0.12;
+  }
+  return st;
+}
+
+function drawMario(P) {
+  ctx.save();
+  ctx.translate(P.x, P.y);
+  ctx.rotate(P.rot);
+  ctx.scale(P.sx * 1.15, P.sy * 1.15);
+  const oy = P.crouch * 10 - P.bounce;           // upper-body offset (crouch / run bounce)
+  const SH = [3, -60];                           // shoulder in upper-body frame
+
+  const armPose = k => {
+    const phA = P.ph + Math.PI * (1 - k);
+    let tx = SH[0] + 20 * Math.sin(phA) + 4, ty = SH[1] + 24 - 8 * Math.max(0, Math.cos(phA));
+    const jx = k === 0 ? SH[0] + 18 : SH[0] - 20, jy = k === 0 ? SH[1] - 30 : SH[1] + 4;
+    tx = lerp(tx, jx, P.air); ty = lerp(ty, jy, P.air);
+    const cw = P.crouch * (1 - P.air);
+    tx = lerp(tx, SH[0] - 14, cw); ty = lerp(ty, SH[1] + 16, cw);
+    return ik(SH[0], SH[1], tx, ty, 16, 16, 1);
+  };
+  const drawArm = k => {
+    const a = armPose(k), col = k === 0 ? '#e52521' : '#b3151a';
+    limb([[SH[0], SH[1]], [a.kx, a.ky], [a.ex, a.ey]], 14, col);
+    circ(a.ex, a.ey, k === 0 && P.air > 0.5 ? 10 : 9, '#ffffff', 3.5);
+  };
+
+  // back arm
+  ctx.save(); ctx.translate(0, oy); drawArm(1); ctx.restore();
+
+  // legs (back leg first)
+  for (const k of [1, 0]) {
+    const phi = P.ph + k * Math.PI;
+    let tx = 30 * Math.sin(phi), ty = -20 * Math.max(0, Math.cos(phi));
+    const jx = k === 0 ? 26 : -22, jy = k === 0 ? -30 : -16;
+    tx = lerp(tx, jx, P.air); ty = lerp(ty, jy, P.air);
+    const cw = P.crouch * (1 - P.air);
+    tx = lerp(tx, k === 0 ? 12 : -10, cw); ty = lerp(ty, 0, cw);
+    const hy = -38 + oy;
+    const j = ik(0, hy, tx, ty, 24, 24, -1);
+    limb([[0, hy], [j.kx, j.ky], [j.ex, j.ey]], 17, k === 0 ? '#2f5fe0' : '#2447b0');
+    ctx.save(); ctx.translate(j.ex, j.ey - 4); ctx.rotate(k === 0 ? 0.35 * P.air : -0.2 * P.air);
+    ell(7, 0, 14, 8, 0, k === 0 ? '#7a4524' : '#59301a', 3.5);
+    ctx.restore();
+  }
+
+  ctx.save(); ctx.translate(0, oy);
+  // torso: red shirt, blue overalls, straps, buttons
+  ell(0, -56, 18, 22, 0, '#e52521', 3.5);
+  ell(0, -40, 18, 15, 0, '#2f5fe0', 3.5);
+  limb([[-9, -50], [-8, -72]], 6, '#2f5fe0'); limb([[9, -50], [10, -72]], 6, '#2f5fe0');
+  circ(-9, -50, 3.5, '#ffd93b', 2); circ(9, -50, 3.5, '#ffd93b', 2);
+
+  // head
+  ell(-12, -86, 10, 12, 0, '#5a3016', 3.5);        // hair at back
+  ell(-9, -86, 6, 8, 0, '#ffc79a', 3);             // ear
+  circ(5, -86, 22, '#ffcd9d', 3.5);                // face
+  ell(-4, -78, 5, 9, 0.1, '#5a3016', 2.5);         // sideburn
+  ell(15, -74, 6, 4, 0, 'rgba(255,120,120,.45)', 0); // blush
+  if (P.mouth) ell(23, -65, 7, 5, 0, '#7a1020', 2.5);
+  circ(26, -78, 9, '#ffb98e', 3.5);                // nose
+  ell(17, -71, 11, 5, 0.2, '#5a3016', 3); ell(32, -72, 9, 4.5, -0.15, '#5a3016', 3); // mustache
+  ell(14, -84, 5.5, 8, 0, '#ffffff', 3);           // eye
+  circ(16, -83, 3.5, '#1a1a40', 0); circ(17.2, -85, 1.3, '#ffffff', 0);
+  limb([[8, -96], [21, -93]], 4, '#5a3016', false); // eyebrow
+  // cap
+  ctx.beginPath(); ctx.arc(4, -96, 24, Math.PI, TAU); ctx.closePath(); blob('#e52521', 3.5);
+  ell(12, -107, 8, 9, 0.1, '#ffffff', 2.5);
+  ctx.strokeStyle = '#e52521'; ctx.lineWidth = 2.6; ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+  ctx.beginPath(); ctx.moveTo(8, -103); ctx.lineTo(8, -111); ctx.lineTo(12, -106.5); ctx.lineTo(16, -111); ctx.lineTo(16, -103); ctx.stroke(); // "M" emblem path
+  ell(24, -96, 18, 6.5, 0.05, '#c01812', 3.5);     // brim
+
+  // front arm
+  drawArm(0);
+  ctx.restore();
+  ctx.restore();
+}
+
+/* ---------- Spider-Man ---------- */
+const SWINGS = 3, SL = T / SWINGS, SA = 0.5887, SLEN = 600, SAY = -444, SX0 = -360;
+const SHALF = SLEN * Math.sin(SA), SSPAN = 2 * SHALF, SSCALE = 1.1;
+const HAND = [14, -64];
+
+function spideyState(t, reduced) {
+  const k = Math.min(SWINGS - 1, Math.floor(t / SL));
+  const s = clamp((t - k * SL) / SL, 0, 1);
+  const th = SA * Math.sin(2.4 * (s - 0.5)) / Math.sin(1.2);
+  const ax = SX0 + SHALF + k * SSPAN;
+  const x = ax + SLEN * Math.sin(th), y = SAY + SLEN * Math.cos(th);
+  const base = -0.8 * th + 0.3, next = 0.8 * SA + 0.3;
+  const w = smooth(0.78, 1, s);
+  const rot = lerp(base, next, w) + (reduced ? 0 : TAU * w);
+  const f = Math.min(easeOut(clamp(s / 0.12, 0, 1)), 1 - smooth(0.8, 0.93, s));
+  const c = Math.cos(rot), sn = Math.sin(rot);
+  const hx = HAND[0] * SSCALE, hy = HAND[1] * SSCALE;
+  return { x, y, rot, s, w, f, ax, ay: SAY, ph: TAU * 12 * t / T, tuck: reduced ? 0 : 4 * w * (1 - w),
+           hand: [x + hx * c - hy * sn, y + hx * sn + hy * c] };
+}
+
+function drawWeb(S) {
+  if (S.f < 0.01) return;
+  const tip = [lerp(S.hand[0], S.ax, S.f), lerp(S.hand[1], S.ay, S.f)];
+  ctx.lineCap = 'round';
+  ctx.beginPath(); ctx.moveTo(S.hand[0], S.hand[1]); ctx.lineTo(tip[0], tip[1]);
+  ctx.strokeStyle = 'rgba(40,20,80,.35)'; ctx.lineWidth = 5; ctx.stroke();
+  ctx.strokeStyle = '#ffffff'; ctx.lineWidth = 2.6; ctx.stroke();
+}
+
+function drawSpidey(S) {
+  const RED = '#e8232f', BLUE = '#2457d6', WEB = 'rgba(27,16,48,.75)';
+  ctx.save(); ctx.translate(S.x, S.y); ctx.rotate(S.rot); ctx.scale(SSCALE, SSCALE);
+  // trailing arm
+  const a = ik(-10, -22, -26 + 6 * Math.sin(S.ph) - S.tuck * 6, -2 + 6 * Math.cos(S.ph) + S.tuck * 14, 15, 15, 1);
+  limb([[-10, -22], [a.kx, a.ky], [a.ex, a.ey]], 10, RED); circ(a.ex, a.ey, 6, RED, 3);
+  // legs
+  const legs = [
+    [-14 + 8 * Math.sin(S.ph) + S.tuck * 18, 42 + 4 * Math.cos(S.ph) - S.tuck * 22],
+    [-2 + 8 * Math.sin(S.ph + 2) + S.tuck * 20, 48 + 4 * Math.cos(S.ph + 2) - S.tuck * 26]];
+  legs.forEach(([fx, fy], n) => {
+    const j = ik(n ? 3 : -3, 14, fx, fy, 22, 22, -1);
+    limb([[n ? 3 : -3, 14], [j.kx, j.ky], [j.ex, j.ey]], 14, BLUE);
+    ctx.save(); ctx.translate(j.ex, j.ey); ctx.rotate(0.5); ell(2, 3, 11, 7, 0, RED, 3.5); ctx.restore();
+  });
+  // hips + torso
+  ell(0, 14, 13, 9, 0, BLUE, 3.5);
+  const torso = () => { ctx.beginPath(); ctx.moveTo(-16, -26); ctx.quadraticCurveTo(0, -32, 18, -26); ctx.lineTo(11, 14); ctx.quadraticCurveTo(0, 19, -11, 14); ctx.closePath(); };
+  torso(); blob(RED, 3.5);
+  ctx.save(); torso(); ctx.clip();
+  ctx.fillStyle = BLUE;
+  ctx.beginPath(); ctx.moveTo(-17, -26); ctx.lineTo(-9, -22); ctx.lineTo(-6, 16); ctx.lineTo(-13, 16); ctx.closePath(); ctx.fill();
+  ctx.beginPath(); ctx.moveTo(19, -26); ctx.lineTo(11, -22); ctx.lineTo(7, 16); ctx.lineTo(13, 16); ctx.closePath(); ctx.fill();
+  ctx.strokeStyle = WEB; ctx.lineWidth = 1.2;
+  for (const yy of [-16, -6, 4, 12]) { ctx.beginPath(); ctx.moveTo(-18, yy); ctx.quadraticCurveTo(0, yy + 7, 20, yy); ctx.stroke(); }
+  ctx.beginPath(); ctx.moveTo(1, -30); ctx.lineTo(1, 18); ctx.moveTo(-8, -26); ctx.lineTo(-4, 16); ctx.moveTo(10, -26); ctx.lineTo(7, 16); ctx.stroke();
+  ctx.restore();
+  torso(); ctx.lineWidth = 3.5; ctx.strokeStyle = OUT; ctx.stroke();
+  // spider emblem
+  ctx.fillStyle = '#17102b'; ctx.strokeStyle = '#17102b'; ctx.lineWidth = 1.8; ctx.lineCap = 'round';
+  ctx.beginPath(); ctx.ellipse(1, -10, 3.2, 6.5, 0, 0, TAU); ctx.fill();
+  ctx.beginPath();
+  [[-1, -14], [-1, -10], [-1, -7], [-1, -4]].forEach(([ox, oy], n) => { ctx.moveTo(1, -12 + n * 2.5); ctx.lineTo(-10, oy + (n < 2 ? -6 : 6)); });
+  [[1, -14], [1, -10], [1, -7], [1, -4]].forEach(([ox, oy], n) => { ctx.moveTo(1, -12 + n * 2.5); ctx.lineTo(12, oy + (n < 2 ? -6 : 6)); });
+  ctx.stroke();
+  // web-shooting arm, reaching up beside the head (drawn behind the mask)
+  limb([[10, -22], [27, -38], [HAND[0], HAND[1] + 2]], 11, RED);
+  circ(HAND[0], HAND[1], 7, RED, 3);
+  // head
+  const hc = [4, -40];
+  ctx.beginPath(); ctx.arc(hc[0], hc[1], 17, 0, TAU); blob(RED, 3.5);
+  ctx.save(); ctx.beginPath(); ctx.arc(hc[0], hc[1], 17, 0, TAU); ctx.clip();
+  ctx.strokeStyle = WEB; ctx.lineWidth = 1.2;
+  for (let i = 0; i < 10; i++) { const an = i * TAU / 10; ctx.beginPath(); ctx.moveTo(8, -38); ctx.lineTo(8 + Math.cos(an) * 24, -38 + Math.sin(an) * 24); ctx.stroke(); }
+  for (const r of [7, 13]) { ctx.beginPath(); ctx.arc(8, -38, r, 0, TAU); ctx.stroke(); }
+  ctx.restore();
+  const eye = (ax, ay, m) => {
+    ctx.beginPath(); ctx.moveTo(ax - 7 * m, ay + 3); ctx.quadraticCurveTo(ax - 1 * m, ay - 8, ax + 9 * m, ay - 5);
+    ctx.quadraticCurveTo(ax + 4 * m, ay + 4, ax - 7 * m, ay + 3); ctx.closePath(); blob('#ffffff', 2.6);
+  };
+  eye(17, -40, 1); eye(-1, -40, -1);
+  ctx.restore();
+}
+
+/* ---------- character-layer effects ---------- */
+const COIN_S = [0.28, 0.5, 0.72];
+function drawCoin(x, y, spin) {
+  const cw = Math.abs(Math.cos(spin)), rx = Math.max(1.5, 11 * cw);
+  ell(x, y, rx, 14, 0, '#ffd23f', 3);
+  if (cw > 0.35) ell(x, y, rx * 0.5, 8, 0, '#ffb703', 0);
+}
+function drawCoins(t, cam) {
+  for (let i = 0; i < 4; i++) for (let n = 0; n < 3; n++) {
+    const s = COIN_S[n], wx = 60 + i * PITCH + 340 + 300 * s;
+    const sx = mod(wx - cam + 300, 4 * PITCH) - 300;
+    const y = lerp(ROOF[i], ROOF[(i + 1) % 4], s) - JH * 4 * s * (1 - s) - 64;
+    if (sx > W + 30) continue;
+    const gate = MX - 8;
+    if (sx > gate) drawCoin(sx, y, TAU * 8 * t / T + i * 1.3 + n * 0.8);
+    else if (sx > gate - 120) {
+      const p = (gate - sx) / 120;
+      ctx.strokeStyle = `rgba(255,243,168,${1 - p})`; ctx.lineWidth = 4 * (1 - p) + 1;
+      ctx.beginPath(); ctx.arc(sx, y - 20 * p, 12 + 30 * p, 0, TAU); ctx.stroke();
+      for (let r = 0; r < 4; r++) {
+        const an = r * TAU / 4 + 0.6, d = 14 + 36 * p;
+        limb([[sx + Math.cos(an) * d, y - 20 * p + Math.sin(an) * d], [sx + Math.cos(an) * (d + 7), y - 20 * p + Math.sin(an) * (d + 7)]], 3, `rgba(255,255,255,${1 - p})`, false);
+      }
+    }
+  }
+}
+function drawDust(M) {
+  if (!M.grounded || M.q >= 150) return;
+  const tau = M.q / V, p = clamp(tau / 0.45, 0, 1);
+  if (p >= 1) return;
+  const dirs = [-1, -0.45, 0.4, 1];
+  dirs.forEach((d, n) => {
+    const e = easeOut(p);
+    const x = MX - V * tau + d * 44 * e, y = M.y - 8 - (14 + n * 5) * e;
+    ctx.fillStyle = `rgba(255,246,230,${0.7 * (1 - p)})`;
+    ctx.beginPath(); ctx.arc(x, y, 6 + 11 * e, 0, TAU); ctx.fill();
+  });
+}
+
+/* ---------- foreground layer (poles and wires) ---------- */
+function drawForeground(cam) {
+  const shift = mod(cam * 1.5, 1920);            // 3840 px per loop == 2 pole spacings -> seamless
+  ctx.lineCap = 'round';
+  for (let k = -1; k <= 1; k++) {
+    const px = 700 - shift + k * 1920;
+    // wires to next pole
+    ctx.strokeStyle = 'rgba(35,17,58,.85)'; ctx.lineWidth = 2.2;
+    for (const dx of [-34, 0, 34]) {
+      ctx.beginPath(); ctx.moveTo(px + dx, 150); ctx.quadraticCurveTo(px + 960 + dx, 150 + 150, px + 1920 + dx, 150); ctx.stroke();
+    }
+    if (px > -80 && px < W + 80) {
+      ctx.fillStyle = '#23113a'; ctx.fillRect(px - 7, 150, 14, H);
+      rr(px - 50, 140, 100, 12, 4); ctx.fill();
+      ctx.fillStyle = '#9be7ff';
+      for (const dx of [-34, 0, 34]) { ctx.beginPath(); ctx.arc(px + dx, 142, 4, 0, TAU); ctx.fill(); }
+    }
+  }
+}
+function drawVignette() {
+  const g = ctx.createRadialGradient(W / 2, H / 2, H * 0.55, W / 2, H / 2, H * 1.05);
+  g.addColorStop(0, 'rgba(20,5,40,0)'); g.addColorStop(1, 'rgba(20,5,40,.38)');
+  ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
+}
+
+/* ---------- frame composition ---------- */
+function render(t, reduced) {
+  const cam = V * t;
+  ctx.setTransform(sc, 0, 0, sc, 0, 0);
+  ctx.clearRect(0, 0, W, H);
+  // background
+  drawSky(); drawSun(); drawClouds(cam);
+  drawSkyline(FAR, 1280, cam * 0.5, '#8f63d9', '#c27ad0', false);
+  drawSkyline(MID, 1920, cam * 0.75, '#5b3fb5', '#a54fc0', true);
+  drawRoofs(cam, t);
+  // characters
+  const S = spideyState(t, reduced);
+  drawWeb(S); drawSpidey(S);
+  const M = marioState(t);
+  drawCoins(t, cam);
+  drawDust(M);
+  if (M.grounded) {
+    ctx.fillStyle = 'rgba(30,10,60,.28)'; ctx.beginPath(); ctx.ellipse(MX, M.y + 2, 34, 6, 0, 0, TAU); ctx.fill();
+  }
+  const ph = TAU * 3 * t;                         // 3 stride cycles / s -> 24 per loop (seamless)
+  const bounce = M.grounded ? Math.abs(Math.sin(ph)) * 4 * (1 - M.crouch) : 0;
+  drawMario({
+    x: M.x, y: M.y - 0, ph, air: M.air, crouch: M.crouch, bounce,
+    sx: 1 + 0.18 * M.land - M.stretch * 0.5 + 0.06 * M.crouch,
+    sy: 1 - 0.18 * M.land + M.stretch - 0.1 * M.crouch,
+    rot: 0.06 + M.air * 0.25 * (M.s - 0.5),
+    mouth: M.air > 0.4
+  });
+  // foreground
+  drawForeground(cam);
+  drawVignette();
+}
+
+/* ---------- canvas sizing ---------- */
+function resize() {
+  const r = canvas.getBoundingClientRect();
+  const dpr = window.devicePixelRatio || 1;
+  canvas.width = Math.max(1, Math.round(r.width * dpr));
+  canvas.height = Math.max(1, Math.round(r.width * dpr * H / W));
+  sc = canvas.width / W;
+}
+new ResizeObserver(resize).observe(canvas);
+window.addEventListener('resize', resize);
+resize();
+
+/* ---------- controls & main loop ---------- */
+const playBtn = document.getElementById('play');
+const restartBtn = document.getElementById('restart');
+const rm = document.getElementById('rm');
+const scrub = document.getElementById('scrub');
+const STATIC_T = 4.41;                            // Mario mid-jump, Spider-Man in view
+const mq = window.matchMedia('(prefers-reduced-motion: reduce)');
+let t = 0, playing = true, last = performance.now();
+
+function setPlaying(p) {
+  playing = p;
+  playBtn.textContent = p ? 'Pause' : 'Play';
+  playBtn.setAttribute('aria-pressed', String(!p));
+}
+if (mq.matches) { rm.checked = true; t = STATIC_T; setPlaying(false); }
+
+playBtn.addEventListener('click', () => setPlaying(!playing));
+restartBtn.addEventListener('click', () => { t = 0; setPlaying(true); });
+rm.addEventListener('change', () => { if (rm.checked) { t = STATIC_T; setPlaying(false); } else { setPlaying(true); } });
+scrub.addEventListener('input', () => { setPlaying(false); t = (scrub.value / 1000) * T; });
+window.addEventListener('keydown', e => {
+  if (e.target && e.target.tagName === 'INPUT' && e.target.type === 'range') return;
+  if (e.code === 'Space') { e.preventDefault(); setPlaying(!playing); }
+  else if (e.key === 'r' || e.key === 'R') { t = 0; setPlaying(true); }
+});
+
+function frame(now) {
+  const dt = Math.min(0.05, (now - last) / 1000); last = now;
+  if (playing) t = mod(t + dt * (rm.checked ? 0.4 : 1), T);
+  render(t, rm.checked);
+  if (document.activeElement !== scrub) scrub.value = Math.round(t / T * 1000);
+  requestAnimationFrame(frame);
+}
+requestAnimationFrame(frame);
+
+window.RooftopDash = { render: (tt, reduced) => render(mod(tt, T), !!reduced), setTime: tt => { t = mod(tt, T); }, setPlaying };
+})();
+</script>
+</body>
+</html>
