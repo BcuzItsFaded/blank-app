@@ -1,0 +1,55 @@
+[
+ {
+  "id": "v01",
+  "text": "What if the ships simply stopped coming… and the only man left on your island became the monster?",
+  "voice": "bm_george",
+  "speed": 1.27
+ },
+ {
+  "id": "v02",
+  "text": "Clipperton: a speck of coral more than a thousand kilometers from Acapulco. In the early nineteen hundreds, Mexican soldiers and their families lived there, under Captain Rah-mohn Ar-no.",
+  "voice": "bm_george",
+  "speed": 1.27,
+  "text0": "Clipperton: a speck of coral more than a thousand kilometers from Acapulco. In the early 1900s, Mexican soldiers and their families lived there, under Captain Ramón Arnaud."
+ },
+ {
+  "id": "v03",
+  "text": "They depended on supply ships. Then, as revolution tore through Mexico, the ships stopped coming. Food ran out. Scurvy spread.",
+  "voice": "bm_george",
+  "speed": 1.27
+ },
+ {
+  "id": "v04",
+  "text": "When a ship appeared on the horizon, Ar-no and the last soldiers rowed out to reach it. They never came back.",
+  "voice": "bm_george",
+  "speed": 1.27,
+  "text0": "When a ship appeared on the horizon, Arnaud and the last soldiers rowed out to reach it. They never came back."
+ },
+ {
+  "id": "v05",
+  "text": "Only one grown man was left among the women and children: the lighthouse keeper, Victoriano Al-vah-rez. He declared himself king of Clipperton.",
+  "voice": "bm_george",
+  "speed": 1.27,
+  "text0": "Only one grown man was left among the women and children: the lighthouse keeper, Victoriano Álvarez. He declared himself king of Clipperton."
+ },
+ {
+  "id": "v06",
+  "text": "Survivors described rape, beatings, and murder. There was nowhere to run. Beyond the beach, there was only ocean.",
+  "voice": "bm_george",
+  "speed": 1.27
+ },
+ {
+  "id": "v07",
+  "text": "On July eighteenth, nineteen seventeen, Alicia Ar-no and Teer-sah Ren-dohn killed him.",
+  "voice": "bm_george",
+  "speed": 1.27,
+  "text0": "On July 18, 1917, Alicia Arnaud and Tirza Rendón killed him."
+ },
+ {
+  "id": "v08",
+  "text": "That same day, the U. S. S. Yorktown appeared on a wartime patrol. It hadn't come for them. Eleven survivors went home. Help arrived the very day they stopped waiting for it. This is Plot Twist, with A. and R.",
+  "voice": "bm_george",
+  "speed": 1.27,
+  "text0": "That same day, the USS Yorktown appeared on a wartime patrol. It hadn't come for them. Eleven survivors went home. Help arrived the very day they stopped waiting for it. This is Plot Twist with A&R."
+ }
+]

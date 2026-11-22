@@ -204,3 +204,21 @@ No ghost. Only a rumor, and a crowd that believed it. 💔
 🎬 Plot Twist with A&R
 
 **Hashtags:** #SanMiguelCanoa #Canoa1968 #Puebla #Mexico #MexicanHistory #HistoriaDeMexico #TrueStory #DarkHistory #RealHorror #TrueCrime #Misinformation #PaperCut #PlotTwistWithAR
+
+---
+
+## Clipperton, 1917 · Ep. 24 (Paper-cut Lightbox)
+**Title:** Clipperton: The Island Where the Last Man Became the Monster 🏝️ | Ep. 24
+*(Spanish title: Clipperton: la isla donde el último hombre se convirtió en una amenaza)*
+
+**Caption:**
+A speck of coral in the Pacific, more than 1,000 km from Acapulco. 🇲🇽🌊
+A small Mexican colony lived there, until the supply ships stopped coming. Food ran out. The captain and his men drowned rowing toward a passing ship.
+Only one man was left: the lighthouse keeper. He declared himself "king of Clipperton"… and terrorized the women and children. 🗼
+
+On July 18, 1917, two women, Alicia Arnaud and Tirza Rendón, ended it.
+That same day, a US warship appeared on the horizon. It hadn't come for them. 😳
+Help arrived the very day they stopped waiting. 👇
+🎬 Plot Twist with A&R
+
+**Hashtags:** #Clipperton #ClippertonIsland #IslaClipperton #Mexico #HistoriaDeMexico #MexicanHistory #TrueStory #DarkHistory #RealHorror #Survival #Lighthouse #PaperCut #PlotTwistWithAR
