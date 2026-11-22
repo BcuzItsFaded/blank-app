@@ -21,10 +21,9 @@
           <ellipse cx="420" cy="410" rx="70" ry="18" /><ellipse cx="420" cy="390" rx="70" ry="18" />
           <ellipse cx="420" cy="370" rx="70" ry="18" />
         </g>
-        <g id="setup-coin" style="fill: var(--candle); stroke: #8a5d1e; stroke-width: 4">
+        <g id="setup-coin" style="fill: var(--candle); stroke: #8a5d1e; stroke-width: 4; opacity: 0">
           <ellipse cx="420" cy="200" rx="70" ry="18" />
         </g>
-        <path d="M120 280 Q160 180 250 200 L330 260 L300 280 L240 250 Q190 250 170 300 Z" style="fill: var(--night-2)" />
       </svg>
       <p class="setup-label">A bitter <em>miser</em></p>
     </div>
@@ -62,7 +61,7 @@
     const tl = gsap.timeline({ paused: true });
     // beat 1 on "bitter" (1.45), beat 2 on "three" (2.38), beat 3 on "one last" (3.34)
     tl.fromTo("#setup-b1", { opacity: 0 }, { opacity: 1, duration: 0.2, ease: "power2.out" }, 0);
-    tl.fromTo("#setup-coin", { y: -80 }, { y: 190, duration: 0.5, ease: "bounce.out" }, 1.4);
+    tl.fromTo("#setup-coin", { y: -80, opacity: 0 }, { y: 150, opacity: 1, duration: 0.5, ease: "bounce.out" }, 1.4);
     tl.to("#setup-b1", { opacity: 0, duration: 0.12, ease: "power2.in" }, 2.3);
     tl.fromTo("#setup-b2", { opacity: 0 }, { opacity: 1, duration: 0.18, ease: "power2.out" }, 2.36);
     tl.fromTo(".setup-ghost", { y: 60, opacity: 0 }, { y: 0, opacity: 0.9, duration: 0.45, ease: "power3.out", stagger: 0.12 }, 2.38);
