@@ -1,0 +1,247 @@
+[
+ {
+  "i": 0,
+  "sec": "hook",
+  "text": "In 1816, it snowed in June.",
+  "start": 0.8,
+  "dur": 4.219
+ },
+ {
+  "i": 1,
+  "sec": "hook",
+  "text": "Crops died across Europe and North America, and people starved.",
+  "start": 5.399,
+  "dur": 3.998
+ },
+ {
+  "i": 2,
+  "sec": "hook",
+  "text": "The cause was a mountain that exploded more than a year earlier, on the other side of the planet.",
+  "start": 9.777,
+  "dur": 6.0
+ },
+ {
+  "i": 3,
+  "sec": "p1",
+  "text": "April 1815.",
+  "start": 16.877,
+  "dur": 3.167
+ },
+ {
+  "i": 4,
+  "sec": "p1",
+  "text": "On the island of Sumbawa, in what is now Indonesia, Mount Tambora erupted.",
+  "start": 20.424,
+  "dur": 5.432
+ },
+ {
+  "i": 5,
+  "sec": "p1",
+  "text": "It was the largest eruption in recorded history.",
+  "start": 26.236,
+  "dur": 3.353
+ },
+ {
+  "i": 6,
+  "sec": "p1",
+  "text": "The blast was heard on islands more than a thousand miles away.",
+  "start": 29.969,
+  "dur": 4.266
+ },
+ {
+  "i": 7,
+  "sec": "p1",
+  "text": "Ash turned day into night,",
+  "start": 34.615,
+  "dur": 1.764
+ },
+ {
+  "i": 8,
+  "sec": "p1",
+  "text": "and the explosion hurled roughly 150 cubic kilometers of material into the sky.",
+  "start": 36.759,
+  "dur": 6.223
+ },
+ {
+  "i": 9,
+  "sec": "p2",
+  "text": "Thousands died in the blast, the tsunamis and the falling ash.",
+  "start": 44.082,
+  "dur": 4.166
+ },
+ {
+  "i": 10,
+  "sec": "p2",
+  "text": "Famine and disease killed tens of thousands more.",
+  "start": 48.628,
+  "dur": 3.451
+ },
+ {
+  "i": 11,
+  "sec": "p2",
+  "text": "But the most powerful damage was invisible.",
+  "start": 52.459,
+  "dur": 2.869
+ },
+ {
+  "i": 12,
+  "sec": "p2",
+  "text": "Tambora pushed sulfur dioxide high into the stratosphere.",
+  "start": 55.708,
+  "dur": 4.035
+ },
+ {
+  "i": 13,
+  "sec": "p2",
+  "text": "There it turned into tiny sulfate droplets, which spread around the globe.",
+  "start": 60.123,
+  "dur": 4.471
+ },
+ {
+  "i": 14,
+  "sec": "p2",
+  "text": "They formed a veil that reflected sunlight back into space.",
+  "start": 64.974,
+  "dur": 3.957
+ },
+ {
+  "i": 15,
+  "sec": "p2",
+  "text": "The sun was still shining.",
+  "start": 69.311,
+  "dur": 1.902
+ },
+ {
+  "i": 16,
+  "sec": "p2",
+  "text": "But less of its heat was reaching the ground.",
+  "start": 71.593,
+  "dur": 2.747
+ },
+ {
+  "i": 17,
+  "sec": "p3",
+  "text": "Global temperatures dropped by about half a degree Celsius.",
+  "start": 75.44,
+  "dur": 4.184
+ },
+ {
+  "i": 18,
+  "sec": "p3",
+  "text": "That was enough to wreck the seasons.",
+  "start": 80.004,
+  "dur": 2.192
+ },
+ {
+  "i": 19,
+  "sec": "p3",
+  "text": "In New England, snow fell in June.",
+  "start": 82.576,
+  "dur": 2.557
+ },
+ {
+  "i": 20,
+  "sec": "p3",
+  "text": "Frost killed crops in July and August.",
+  "start": 85.983,
+  "dur": 2.75
+ },
+ {
+  "i": 21,
+  "sec": "p3",
+  "text": "In Europe, grain prices soared and bread became unaffordable.",
+  "start": 89.113,
+  "dur": 4.333
+ },
+ {
+  "i": 22,
+  "sec": "p3",
+  "text": "Food riots broke out in cities from France to Switzerland.",
+  "start": 93.826,
+  "dur": 3.914
+ },
+ {
+  "i": 23,
+  "sec": "p3",
+  "text": "In Ireland, typhus spread as starving people wandered the countryside looking for food.",
+  "start": 98.12,
+  "dur": 5.626
+ },
+ {
+  "i": 24,
+  "sec": "p3",
+  "text": "Historians now call it the Year Without a Summer.",
+  "start": 104.126,
+  "dur": 3.278
+ },
+ {
+  "i": 25,
+  "sec": "p4",
+  "text": "Trapped indoors by endless rain, a group of friends gathered at a villa on Lake Geneva.",
+  "start": 108.504,
+  "dur": 5.724
+ },
+ {
+  "i": 26,
+  "sec": "p4",
+  "text": "There was the poet Lord Byron, the poet Percy Shelley, Percy's partner Mary, and their doctor, John Polidori.",
+  "start": 114.608,
+  "dur": 7.309
+ },
+ {
+  "i": 27,
+  "sec": "p4",
+  "text": "To pass the stormy nights, Byron challenged each of them to write a ghost story.",
+  "start": 122.297,
+  "dur": 5.213
+ },
+ {
+  "i": 28,
+  "sec": "p4",
+  "text": "Mary was just eighteen. She couldn't stop thinking about the challenge.",
+  "start": 127.89,
+  "dur": 4.168
+ },
+ {
+  "i": 29,
+  "sec": "p4",
+  "text": "From that gloomy summer came Frankenstein,",
+  "start": 132.438,
+  "dur": 2.817
+ },
+ {
+  "i": 30,
+  "sec": "p4",
+  "text": "a story about a creature brought to life",
+  "start": 135.635,
+  "dur": 2.737
+ },
+ {
+  "i": 31,
+  "sec": "p4",
+  "text": "by a science nobody yet understood.",
+  "start": 139.222,
+  "dur": 2.809
+ },
+ {
+  "i": 32,
+  "sec": "close",
+  "text": "A volcano on the other side of the world changed the weather, the food and the books we still read today.",
+  "start": 143.131,
+  "dur": 6.58
+ },
+ {
+  "i": 33,
+  "sec": "close",
+  "text": "Nature's biggest shocks rarely arrive where you expect them.",
+  "start": 150.091,
+  "dur": 3.775
+ },
+ {
+  "i": 34,
+  "sec": "close",
+  "text": "Follow for more stories where history and science collide.",
+  "start": 154.246,
+  "dur": 3.763
+ }
+]
