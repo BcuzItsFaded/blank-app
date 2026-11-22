@@ -1,0 +1,50 @@
+<template>
+  <style>
+    #root { position: absolute; inset: 0; background: #D9DFE1; overflow: hidden; color: #121416; font-family: "League Gothic"; }
+    .s2-full { position: absolute; inset: 0; width: 100%; height: 100%; }
+    #s2-bill { position: absolute; left: 112px; right: 184px; top: 300px; bottom: 860px; border: 3px solid #121416; outline: 2px solid #121416; outline-offset: 10px; text-align: center; }
+    .s2-sm { font-family: "EB Garamond"; font-weight: 500; font-size: 40px; letter-spacing: 0.18em; text-transform: uppercase; }
+    #s2-name { font-size: 196px; line-height: 0.9; letter-spacing: 0.03em; text-transform: uppercase; margin-top: 26px; }
+    #s2-starring { margin-top: 14px; }
+    #s2-depp { font-size: 120px; line-height: 0.95; text-transform: uppercase; }
+    #s2-as { margin-top: 4px; }
+    #s2-ruleA { width: 70%; margin: 28px auto 22px; border-top: 2px solid #121416; }
+    #s2-west { font-size: 96px; line-height: 1; text-transform: uppercase; }
+    #s2-dickens { margin: 22px 40px 0; font-size: 34px; line-height: 1.3; }
+    #s2-stamp { position: absolute; left: 470px; top: 512px; padding: 12px 22px; opacity: 0; border: 6px double #A3171E; color: #A3171E; font-size: 64px; line-height: 1; text-transform: uppercase; letter-spacing: 0.04em; }
+  </style>
+  <div id="root" data-composition-id="s2" data-width="1080" data-height="1920">
+    <svg class="s2-full" viewBox="0 0 1080 1920" preserveAspectRatio="none" data-layout-ignore>
+      <filter id="s2-paper"><feTurbulence type="fractalNoise" baseFrequency="0.85" numOctaves="2" seed="11" /><feColorMatrix values="0 0 0 0 0.07  0 0 0 0 0.08  0 0 0 0 0.09  0 0 0 0.22 0" /></filter>
+      <rect width="1080" height="1920" filter="url(#s2-paper)" />
+    </svg>
+    <div id="s2-bill">
+      <div id="s2-name">Ebenezer</div>
+      <div id="s2-starring" class="s2-sm">Starring</div>
+      <div id="s2-depp">Johnny Depp</div>
+      <div id="s2-as" class="s2-sm">as Scrooge</div>
+      <div id="s2-ruleA"></div>
+      <div id="s2-dir" class="s2-sm">Directed by</div>
+      <div id="s2-west">Ti West</div>
+      <div id="s2-dickens" class="s2-sm">After the classic by Charles Dickens</div>
+    </div>
+    <div id="s2-stamp" data-layout-allow-overlap>A Ghost Story</div>
+  </div>
+  <script>
+    const tl = gsap.timeline({ paused: true });
+    const print = (sel, t) => tl.fromTo(sel, { opacity: 0, clipPath: "inset(0% 0% 100% 0%)" }, { opacity: 1, clipPath: "inset(0% 0% 0% 0%)", duration: 0.22, ease: "power4.out" }, t);
+    tl.fromTo("#s2-bill", { opacity: 0 }, { opacity: 1, duration: 0.12, ease: "none" }, 0);
+    print("#s2-name", 0.05);
+    print("#s2-starring", 0.85);
+    print("#s2-depp", 0.98);
+    print("#s2-as", 1.9);
+    print("#s2-ruleA", 2.9);
+    print("#s2-dir", 3.1);
+    print("#s2-west", 3.62);
+    print("#s2-dickens", 6.1);
+    tl.set("#s2-stamp", { rotation: -6 }, 0);
+    tl.set("#s2-stamp", { opacity: 1 }, 5.05);
+    tl.fromTo("#s2-stamp", { scale: 1.3, rotation: -6 }, { scale: 1, rotation: -6, duration: 0.17, ease: "power4.out" }, 5.05);
+    window.__timelines["s2"] = tl;
+  </script>
+</template>

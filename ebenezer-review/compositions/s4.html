@@ -1,0 +1,87 @@
+<template>
+  <style>
+    #root { position: absolute; inset: 0; background: #D9DFE1; overflow: hidden; color: #121416; font-family: "League Gothic"; }
+    .s4-full { position: absolute; inset: 0; width: 100%; height: 100%; }
+    #s4-ink { position: absolute; inset: 0; background: #18212A; }
+    .s4-beat { position: absolute; left: 120px; right: 192px; top: 300px; }
+    .s4-sm { font-family: "EB Garamond"; font-weight: 500; font-size: 46px; letter-spacing: 0.18em; text-transform: uppercase; }
+    .s4-big { font-size: 190px; line-height: 0.86; text-transform: uppercase; letter-spacing: 0.01em; }
+    .s4-mid { font-size: 128px; line-height: 0.9; text-transform: uppercase; }
+    #s4-neq { font-size: 200px; opacity: 0; line-height: 0.8; color: #A3171E; margin: 10px 0 6px; }
+    #s4-watch { position: absolute; left: 120px; right: 192px; top: 300px; display: flex; justify-content: center; }
+    #s4-c3 .s4-beat { top: 760px; right: 300px; } #s4-longer { font-size: 150px; }
+    #s4-split { position: relative; height: 200px; margin: 30px 0 0 30px; }
+    .s4-half { position: absolute; left: 0; top: 0; font-size: 190px; line-height: 1; text-transform: uppercase; letter-spacing: 0.01em; }
+    #s4-top { clip-path: inset(0% 0% 46% 0%); }
+    #s4-bot { clip-path: inset(54% 0% 0% 0%); }
+    #s4-warmth { color: #A3171E; }
+  </style>
+  <div id="root" data-composition-id="s4" data-width="1080" data-height="1920">
+    <svg class="s4-full" viewBox="0 0 1080 1920" preserveAspectRatio="none" data-layout-ignore>
+      <filter id="s4-paper"><feTurbulence type="fractalNoise" baseFrequency="0.85" numOctaves="2" seed="17" /><feColorMatrix values="0 0 0 0 0.07  0 0 0 0 0.08  0 0 0 0 0.09  0 0 0 0.22 0" /></filter>
+      <rect width="1080" height="1920" filter="url(#s4-paper)" />
+    </svg>
+    <div id="s4-ink" data-layout-ignore></div>
+
+    <div id="s4-c1" class="s4-beat clip" data-start="0.3" data-duration="3.45">
+      <div class="s4-sm">But looking</div><div id="s4-spec" class="s4-mid">Spectacular</div>
+      <div id="s4-neq">&ne;</div>
+      <div class="s4-sm">isn't the same as</div><div id="s4-fresh" class="s4-mid">Feeling fresh</div>
+    </div>
+    <div id="s4-c2" class="s4-beat clip" data-start="3.75" data-duration="3.2">
+      <div class="s4-sm">A familiar story.</div><div id="s4-few" class="s4-big">Few<br />surprises</div>
+    </div>
+    <div id="s4-c3" class="clip" data-start="6.95" data-duration="4.7" style="position:absolute;inset:0">
+      <div id="s4-watch"><svg width="400" height="446" viewBox="0 0 240 268">
+        <rect x="108" y="0" width="24" height="18" rx="4" fill="#121416" />
+        <circle cx="120" cy="22" r="12" fill="none" stroke="#121416" stroke-width="6" />
+        <circle cx="120" cy="148" r="112" fill="#121416" />
+        <circle cx="120" cy="148" r="98" fill="#EEF3F5" />
+        <g stroke="#121416" stroke-width="5" stroke-linecap="round">
+          <line x1="120" y1="60" x2="120" y2="78" /><line x1="208" y1="148" x2="190" y2="148" /><line x1="120" y1="236" x2="120" y2="218" /><line x1="32" y1="148" x2="50" y2="148" />
+          <line x1="164" y1="72" x2="159" y2="81" /><line x1="196" y1="104" x2="187" y2="109" /><line x1="196" y1="192" x2="187" y2="187" /><line x1="164" y1="224" x2="159" y2="215" />
+          <line x1="76" y1="224" x2="81" y2="215" /><line x1="44" y1="192" x2="53" y2="187" /><line x1="44" y1="104" x2="53" y2="109" /><line x1="76" y1="72" x2="81" y2="81" />
+        </g>
+        <line id="s4-hr" x1="120" y1="148" x2="120" y2="98" stroke="#121416" stroke-width="9" stroke-linecap="round" />
+        <line id="s4-mn" x1="120" y1="148" x2="120" y2="70" stroke="#A3171E" stroke-width="5" stroke-linecap="round" />
+        <circle cx="120" cy="148" r="7" fill="#121416" />
+      </svg></div>
+      <div class="s4-beat"><div class="s4-sm">Slower stretches</div><div id="s4-longer" class="s4-big">Feel longer</div></div>
+    </div>
+    <div id="s4-c4" class="s4-beat clip" data-start="11.65" data-duration="4.5">
+      <div class="s4-sm">Depp's performance is</div>
+      <div id="s4-split" data-layout-allow-overlap>
+        <div id="s4-top" class="s4-half">Divisive</div>
+        <div id="s4-bot" class="s4-half">Divisive</div>
+      </div>
+    </div>
+    <div id="s4-c5" class="s4-beat clip" data-start="16.15" data-duration="1.75">
+      <div class="s4-sm">When the film needs</div><div class="s4-big">Genuine<br /><span id="s4-warmth">warmth</span></div>
+    </div>
+  </div>
+  <script>
+    const tl = gsap.timeline({ paused: true });
+    tl.fromTo("#s4-ink", { clipPath: "inset(0% 0% 0% 0%)" }, { clipPath: "inset(0% 0% 100% 0%)", duration: 0.45, ease: "power2.inOut" }, 0);
+    const enter = (sel, t, from) => tl.fromTo(sel, from, { opacity: 1, x: 0, y: 0, duration: 0.24, ease: "power4.out" }, t);
+    enter("#s4-c1 > :nth-child(1)", 0.3, { opacity: 0, y: 30 });
+    enter("#s4-spec", 0.75, { opacity: 0, y: 50 });
+    tl.set("#s4-neq", { opacity: 1 }, 1.42);
+    tl.fromTo("#s4-neq", { scale: 1.4 }, { scale: 1, duration: 0.17, ease: "power4.out", transformOrigin: "0% 50%" }, 1.42);
+    enter("#s4-c1 > :nth-child(4)", 1.55, { opacity: 0, y: 30 });
+    enter("#s4-fresh", 2.45, { opacity: 0, y: 50 });
+    enter("#s4-c2 .s4-sm", 3.75, { opacity: 0, y: 30 });
+    enter("#s4-few", 5.3, { opacity: 0, x: -60 });
+    enter("#s4-watch", 6.95, { opacity: 0, y: -60 });
+    tl.fromTo("#s4-mn", { rotation: 0, svgOrigin: "120 148" }, { rotation: 300, svgOrigin: "120 148", duration: 4.6, ease: "power1.in" }, 7.0);
+    tl.fromTo("#s4-hr", { rotation: 60, svgOrigin: "120 148" }, { rotation: 85, svgOrigin: "120 148", duration: 4.6, ease: "none" }, 7.0);
+    enter("#s4-c3 .s4-sm", 7.0, { opacity: 0, y: 30 });
+    enter("#s4-longer", 9.88, { opacity: 0, x: -60 });
+    enter("#s4-c4 .s4-sm", 11.65, { opacity: 0, y: 30 });
+    enter("#s4-split", 13.35, { opacity: 0, y: 50 });
+    tl.fromTo("#s4-top", { x: 0, y: 0 }, { x: -18, y: 0, duration: 0.5, ease: "power2.inOut" }, 13.75);
+    tl.fromTo("#s4-bot", { x: 0, y: 0 }, { x: 18, y: 0, duration: 0.5, ease: "power2.inOut" }, 13.75);
+    enter("#s4-c5 .s4-sm", 16.15, { opacity: 0, y: 30 });
+    enter("#s4-c5 .s4-big", 16.5, { opacity: 0, y: 50 });
+    window.__timelines["s4"] = tl;
+  </script>
+</template>

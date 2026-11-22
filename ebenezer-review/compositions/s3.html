@@ -1,0 +1,75 @@
+<template>
+  <style>
+    #root { position: absolute; inset: 0; background: #18212A; overflow: hidden; color: #EEF3F5; font-family: "League Gothic"; }
+    .s3-full { position: absolute; inset: 0; width: 100%; height: 100%; }
+    #s3-world { position: absolute; inset: 0; }
+    .s3-fog { position: absolute; left: -400px; width: 1880px; border-radius: 50%; background: #9FB0BA; filter: blur(60px); }
+    #s3-fogA { top: 1500px; height: 260px; opacity: 0.18; }
+    #s3-fogB { top: 1230px; height: 200px; opacity: 0.12; }
+    #s3-paper { position: absolute; inset: 0; background: #D9DFE1; }
+    .s3-beat { position: absolute; left: 120px; right: 192px; top: 330px; }
+    .s3-sm { font-family: "EB Garamond"; font-weight: 500; font-size: 46px; letter-spacing: 0.18em; text-transform: uppercase; color: #C9D3D8; }
+    .s3-big { font-size: 200px; line-height: 0.86; text-transform: uppercase; letter-spacing: 0.01em; }
+    .s3-mid { font-size: 140px; line-height: 0.9; text-transform: uppercase; }
+    #s3-cozy { position: relative; display: inline-block; color: #C9D3D8; }
+    #s3-strike { position: absolute; left: -12px; right: -12px; top: 48%; height: 18px; background: #A3171E; }
+    #s3-draw { color: #E8B55A; }
+  </style>
+  <div id="root" data-composition-id="s3" data-width="1080" data-height="1920">
+    <div id="s3-world">
+      <svg class="s3-full" viewBox="0 0 1080 1920" preserveAspectRatio="none" data-layout-ignore>
+        <defs><linearGradient id="s3-sky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#121A21" /><stop offset="1" stop-color="#22303A" /></linearGradient></defs>
+        <rect width="1080" height="1920" fill="url(#s3-sky)" />
+        <g transform="translate(0 330)">
+        <circle cx="840" cy="-110" r="62" fill="#C9D3D8" opacity="0.5" />
+        <!-- far row -->
+        <path fill="#141C23" d="M-40 1920 V980 h120 v-60 h30 v60 h90 V900 l70 -60 l70 60 V1010 h110 v-150 h40 v-50 h30 v50 h40 V1000 h150 V880 l90 -70 l90 70 V960 h200 V1920 Z" />
+        <!-- near row -->
+        <path id="s3-near" fill="#0C1116" d="M-60 1920 V1120 h80 v-90 h40 v90 h150 V1000 l110 -110 l110 110 V1160 h60 v-120 h36 v-60 h26 v60 h36 V1080 h170 V960 h30 v-70 h40 v70 h40 V1100 h220 V1920 Z" />
+        <g fill="#E8B55A">
+          <rect x="235" y="1060" width="34" height="56" /><rect x="300" y="1060" width="34" height="56" opacity="0.55" />
+          <rect x="235" y="1160" width="34" height="56" opacity="0.4" /><rect x="652" y="1130" width="30" height="50" />
+          <rect x="700" y="1130" width="30" height="50" opacity="0.5" /><rect x="895" y="1150" width="34" height="56" opacity="0.7" />
+        </g>
+        <!-- gas lamp -->
+        <g fill="#0C1116"><rect x="512" y="1150" width="12" height="400" /><path d="M496 1110 h44 l-8 46 h-28 Z" /></g>
+        <rect x="506" y="1118" width="24" height="30" fill="#E8B55A" />
+        </g>
+      </svg>
+      <div id="s3-fogB" class="s3-fog" data-layout-ignore></div>
+      <div id="s3-fogA" class="s3-fog" data-layout-ignore></div>
+    </div>
+    <div id="s3-paper" data-layout-ignore></div>
+
+    <div id="s3-b1" class="s3-beat clip" data-start="0.15" data-duration="1.35"><div class="s3-sm">The biggest</div><div class="s3-mid">Selling<br />point?</div></div>
+    <div id="s3-b2" class="s3-beat clip" data-start="1.5" data-duration="1.3"><div class="s3-sm">The</div><div class="s3-big">Atmos&shy;phere</div></div>
+    <div id="s3-b3" class="s3-beat clip" data-start="2.8" data-duration="1.75"><div class="s3-big">Shadowy<br />streets</div></div>
+    <div id="s3-b4" class="s3-beat clip" data-start="4.55" data-duration="1.5"><div class="s3-big">Lavish<br />costumes</div></div>
+    <div id="s3-b5" class="s3-beat clip" data-start="6.05" data-duration="2.85"><div class="s3-big">Eerie<br />imagery</div></div>
+    <div id="s3-b6" class="s3-beat clip" data-start="8.9" data-duration="1.95"><div class="s3-sm">More</div><div class="s3-big">Haunted</div><div class="s3-sm">than</div><div class="s3-big"><span id="s3-cozy">Cozy<span id="s3-strike"></span></span></div></div>
+    <div id="s3-b7" class="s3-beat clip" data-start="10.85" data-duration="3.2"><div class="s3-sm">Festive fun with</div><div class="s3-big">A little<br />darkness?</div></div>
+    <div id="s3-b8" class="s3-beat clip" data-start="14.05" data-duration="1.05"><div class="s3-sm">That's</div><div id="s3-draw" class="s3-big">The draw</div></div>
+  </div>
+  <script>
+    const tl = gsap.timeline({ paused: true });
+    // ink floods the paper: paper shrinks to nothing from the centre
+    tl.fromTo("#s3-paper", { clipPath: "circle(120% at 50% 50%)" }, { clipPath: "circle(0% at 50% 50%)", duration: 0.5, ease: "power2.in" }, 0);
+    tl.fromTo("#s3-world", { scale: 1.0 }, { scale: 1.08, duration: 15.1, ease: "none", transformOrigin: "50% 70%" }, 0);
+    tl.fromTo("#s3-fogA", { x: 0 }, { x: -260, duration: 15.1, ease: "none" }, 0);
+    tl.fromTo("#s3-fogB", { x: -200 }, { x: 40, duration: 15.1, ease: "none" }, 0);
+    const enter = (sel, t, from) => tl.fromTo(sel, from, { opacity: 1, x: 0, y: 0, duration: 0.24, ease: "power4.out" }, t);
+    enter("#s3-b1 > *", 0.2, { opacity: 0, y: 50 });
+    enter("#s3-b2 .s3-sm", 1.5, { opacity: 0, y: 30 });
+    enter("#s3-b2 .s3-big", 1.72, { opacity: 0, y: 60 });
+    enter("#s3-b3 .s3-big", 2.8, { opacity: 0, x: -60 });
+    enter("#s3-b4 .s3-big", 4.55, { opacity: 0, x: -60 });
+    enter("#s3-b5 .s3-big", 6.05, { opacity: 0, x: -60 });
+    enter("#s3-b6 > :nth-child(-n+2)", 8.95, { opacity: 0, y: 40 });
+    enter("#s3-b6 > :nth-child(n+3)", 9.45, { opacity: 0, y: 40 });
+    tl.fromTo("#s3-strike", { scaleX: 0, transformOrigin: "0% 50%" }, { scaleX: 1, duration: 0.2, ease: "power4.out" }, 10.0);
+    enter("#s3-b7 .s3-sm", 10.85, { opacity: 0, y: 30 });
+    enter("#s3-b7 .s3-big", 12.95, { opacity: 0, y: 60 });
+    enter("#s3-b8 > *", 14.05, { opacity: 0, y: 40 });
+    window.__timelines["s3"] = tl;
+  </script>
+</template>
