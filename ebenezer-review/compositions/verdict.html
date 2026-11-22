@@ -1,0 +1,42 @@
+<template>
+  <style>
+    #root { position: absolute; inset: 0; overflow: hidden;
+      background: radial-gradient(ellipse 70% 45% at 50% 40%, #241c14 0%, var(--night) 72%); }
+    #verdict-paper { position: absolute; left: 100px; top: 280px; width: 780px; height: 740px;
+      background: var(--parchment); border-radius: 4px; }
+    #verdict-head { position: absolute; left: 120px; right: 120px; top: 330px; text-align: center;
+      font-family: var(--font-display); font-size: 104px; font-weight: 700; color: var(--night); line-height: 1; }
+    .verdict-line { position: absolute; left: 130px; right: 230px; text-align: center; opacity: 0;
+      font-family: var(--font-body); font-size: 66px; color: #2a2118; line-height: 1.1; }
+    #verdict-l1 { top: 510px; }
+    #verdict-l2 { top: 610px; }
+    #verdict-l3 { top: 730px; color: var(--blood); }
+    #verdict-strike { position: absolute; left: 150px; top: 768px; width: 580px; height: 8px;
+      background: var(--blood); transform-origin: 0 50%; }
+    #verdict-seal { position: absolute; left: 600px; top: 800px; width: 200px; height: 200px; }
+  </style>
+  <div id="root" data-composition-id="verdict" data-width="1080" data-height="1920">
+    <div id="verdict-paper" class="clip" data-start="0" data-duration="6.15"></div>
+    <h2 id="verdict-head" class="clip" data-start="0" data-duration="6.15">The verdict</h2>
+    <p id="verdict-l1" class="verdict-line clip" data-start="0" data-duration="6.15">Beautifully dressed</p>
+    <p id="verdict-l2" class="verdict-line clip" data-start="0" data-duration="6.15">Spooky retelling</p>
+    <p id="verdict-l3" class="verdict-line clip" data-start="0" data-duration="6.15">A new Christmas classic</p>
+    <div id="verdict-strike" class="clip" data-start="0" data-duration="6.15"></div>
+    <svg id="verdict-seal" class="clip" data-start="0" data-duration="6.15" viewBox="0 0 230 230">
+      <path d="M115 8 L140 30 L172 22 L180 55 L212 68 L200 100 L222 126 L196 148 L200 182 L166 186 L150 216 L118 200 L86 218 L70 188 L36 184 L40 150 L12 128 L34 102 L20 70 L54 56 L60 24 L92 30 Z" style="fill: var(--blood)" />
+      <circle cx="115" cy="115" r="62" style="fill: none; stroke: #b33a3a; stroke-width: 6" />
+      <text x="115" y="140" text-anchor="middle" style="font-family: var(--font-display); font-size: 76px; font-weight: 700; fill: var(--parchment)">E</text>
+    </svg>
+  </div>
+  <script>
+    const tl = gsap.timeline({ paused: true });
+    tl.fromTo("#verdict-paper", { y: 60, opacity: 0 }, { y: 0, opacity: 1, duration: 0.4, ease: "power3.out" }, 0);
+    tl.fromTo("#verdict-head", { y: 60, opacity: 0 }, { y: 0, opacity: 1, duration: 0.4, ease: "power3.out" }, 0.1);
+    tl.fromTo("#verdict-seal", { scale: 2.4, opacity: 0, rotation: -25 }, { scale: 1, opacity: 1, rotation: -8, duration: 0.22, ease: "power4.in" }, 0.5);
+    tl.fromTo("#verdict-l1", { opacity: 0, y: 14 }, { opacity: 1, y: 0, duration: 0.35, ease: "power3.out" }, 1.6);
+    tl.fromTo("#verdict-l2", { opacity: 0, y: 14 }, { opacity: 1, y: 0, duration: 0.35, ease: "power3.out" }, 2.7);
+    tl.fromTo("#verdict-l3", { opacity: 0, y: 14 }, { opacity: 1, y: 0, duration: 0.35, ease: "power3.out" }, 4.1);
+    tl.fromTo("#verdict-strike", { scaleX: 0 }, { scaleX: 1, duration: 0.45, ease: "power2.inOut" }, 4.4);
+    window.__timelines["verdict"] = tl;
+  </script>
+</template>

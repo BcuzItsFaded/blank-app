@@ -1,0 +1,53 @@
+<template>
+  <style>
+    #root { position: absolute; inset: 0; overflow: hidden;
+      background: radial-gradient(ellipse 60% 40% at 50% 38%, #222b3d 0%, var(--night) 72%); }
+    #cast-art { position: absolute; left: 160px; top: 290px; width: 760px; height: 760px; }
+    .cast-line { position: absolute; left: 60px; right: 180px; text-align: center; color: var(--parchment); opacity: 0; }
+    #cast-actor { top: 320px; font-family: var(--font-display); font-size: 96px; font-weight: 700; line-height: 1; }
+    #cast-role { top: 432px; font-family: var(--font-body); font-size: 56px; color: var(--candle); }
+    #cast-dir { top: 500px; font-family: var(--font-body); font-size: 44px; color: var(--frost); }
+    .cast-wisp { opacity: 0; }
+  </style>
+  <div id="root" data-composition-id="cast" data-width="1080" data-height="1920">
+    <svg id="cast-art" class="clip" data-start="0" data-duration="8" viewBox="0 0 900 900">
+      <defs>
+        <linearGradient id="cast-door" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" style="stop-color: #3a4459" />
+          <stop offset="1" style="stop-color: #141a26" />
+        </linearGradient>
+      </defs>
+      <!-- doorway -->
+      <path d="M250 900 V420 Q250 270 450 270 Q650 270 650 420 V900 Z" style="fill: url(#cast-door)" />
+      <path d="M250 900 V420 Q250 270 450 270 Q650 270 650 420 V900" style="fill: none; stroke: var(--night-2); stroke-width: 26" />
+      <!-- Scrooge silhouette: top hat, hunched coat, cane -->
+      <g style="fill: var(--night)">
+        <rect x="402" y="368" width="92" height="92" rx="6" />
+        <rect x="378" y="452" width="140" height="18" rx="9" />
+        <ellipse cx="448" cy="505" rx="44" ry="50" />
+        <path d="M360 560 Q448 520 540 560 L600 900 H300 Z" />
+        <path d="M540 600 L580 760 L560 765 Z" />
+      </g>
+      <path d="M585 700 L612 900" style="stroke: var(--night); stroke-width: 12; stroke-linecap: round" />
+      <!-- ghost-story wisps -->
+      <g style="fill: none; stroke: var(--frost); stroke-width: 5; stroke-linecap: round">
+        <path class="cast-wisp" id="cast-w1" d="M150 800 C 120 700, 200 640, 160 540 C 130 470, 190 420, 170 360" />
+        <path class="cast-wisp" id="cast-w2" d="M760 820 C 790 720, 710 660, 750 560 C 780 480, 720 440, 740 380" />
+        <path class="cast-wisp" id="cast-w3" d="M100 600 C 60 520, 120 470, 90 400" />
+      </g>
+    </svg>
+    <h2 id="cast-actor" class="cast-line clip" data-start="0" data-duration="8">Johnny Depp</h2>
+    <p id="cast-role" class="cast-line clip" data-start="0" data-duration="8">as Scrooge</p>
+    <p id="cast-dir" class="cast-line clip" data-start="0" data-duration="8">Directed by Ti West</p>
+  </div>
+  <script>
+    const tl = gsap.timeline({ paused: true });
+    tl.fromTo("#cast-art", { scale: 1 }, { scale: 1.08, duration: 8, ease: "none", transformOrigin: "50% 55%" }, 0);
+    tl.fromTo("#cast-actor", { opacity: 0, y: 24 }, { opacity: 1, y: 0, duration: 0.45, ease: "power3.out" }, 1.1);
+    tl.fromTo("#cast-role", { opacity: 0, y: 16 }, { opacity: 1, y: 0, duration: 0.4, ease: "power3.out" }, 2.35);
+    tl.fromTo("#cast-dir", { opacity: 0, y: 16 }, { opacity: 1, y: 0, duration: 0.4, ease: "power3.out" }, 4.1);
+    tl.fromTo(".cast-wisp", { opacity: 0, y: 40 }, { opacity: 0.55, y: 0, duration: 1.2, ease: "sine.out", stagger: 0.25 }, 5.9);
+    tl.to("#cast-art", { opacity: 0.85, duration: 0.6, ease: "sine.inOut" }, 7.2);
+    window.__timelines["cast"] = tl;
+  </script>
+</template>

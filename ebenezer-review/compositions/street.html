@@ -1,0 +1,78 @@
+<template>
+  <style>
+    #root { position: absolute; inset: 0; overflow: hidden;
+      background: linear-gradient(180deg, #0c111c 0%, #1a2232 55%, #0a0d14 100%); }
+    .street-layer { position: absolute; left: -200px; top: 0; width: 1480px; height: 1920px; }
+    .street-fog { position: absolute; left: -400px; width: 1880px; height: 360px; border-radius: 50%;
+      background: radial-gradient(ellipse at 50% 50%, rgba(207,219,230,0.20), rgba(207,219,230,0) 70%); }
+    #street-fog1 { top: 760px; }
+    #street-fog2 { top: 920px; }
+    .street-tag { position: absolute; left: 60px; right: 180px; text-align: center; opacity: 0; color: var(--parchment); }
+    #street-head { top: 320px; font-family: var(--font-display); font-size: 92px; font-weight: 700; line-height: 1; }
+    #street-head span { display: block; font-family: var(--font-body); font-size: 50px; font-weight: 400; color: var(--candle); margin-bottom: 16px; }
+    #street-t1 { top: 560px; font-family: var(--font-body); font-size: 60px; }
+    #street-t2 { top: 640px; font-family: var(--font-body); font-size: 60px; }
+    #street-t3 { top: 720px; font-family: var(--font-body); font-size: 60px; }
+    #street-ghost { position: absolute; left: 650px; top: 820px; width: 150px; height: 300px; opacity: 0; }
+  </style>
+  <div id="root" data-composition-id="street" data-width="1080" data-height="1920">
+    <!-- far rooftops -->
+    <svg id="street-far" class="street-layer clip" data-start="0" data-duration="10.7" viewBox="0 0 1480 1920">
+      <path d="M0 1920 V820 H120 V720 H160 V680 H190 V720 H260 V780 H380 V660 H440 V600 H470 V660 H560 V760 H700 V690 H760 V640 H790 V690 H900 V800 H1020 V700 H1080 V650 H1110 V700 H1240 V760 H1360 V690 H1480 V1920 Z" style="fill: #161d2b" />
+      <g style="fill: var(--candle); opacity: 0.55">
+        <rect x="300" y="830" width="22" height="34" /><rect x="600" y="800" width="22" height="34" />
+        <rect x="950" y="860" width="22" height="34" /><rect x="1180" y="810" width="22" height="34" />
+      </g>
+    </svg>
+    <div id="street-fog1" class="street-fog clip" data-start="0" data-duration="10.7"></div>
+    <!-- near street: buildings, lamps, cobbles -->
+    <svg id="street-near" class="street-layer clip" data-start="0" data-duration="10.7" viewBox="0 0 1480 1920">
+      <path d="M0 1920 V700 H240 L300 620 L360 700 V1120 H0 Z" style="fill: #0d121c" />
+      <path d="M1480 1920 V660 H1220 L1160 580 L1100 660 V1120 H1480 Z" style="fill: #0d121c" />
+      <rect x="0" y="1100" width="1480" height="820" style="fill: #0b0f17" />
+      <g style="stroke: #1c2433; stroke-width: 4; fill: none">
+        <path d="M0 1160 H1480 M0 1230 H1480 M0 1310 H1480" />
+      </g>
+      <g id="street-lamps">
+        <g>
+          <rect x="452" y="760" width="16" height="360" style="fill: var(--night-2)" />
+          <path d="M430 700 H490 L480 760 H440 Z" style="fill: var(--night-2)" />
+          <circle cx="460" cy="730" r="20" style="fill: var(--candle)" />
+          <circle cx="460" cy="730" r="120" style="fill: var(--candle); opacity: 0.12" />
+        </g>
+        <g>
+          <rect x="1012" y="760" width="16" height="360" style="fill: var(--night-2)" />
+          <path d="M990 700 H1050 L1040 760 H1000 Z" style="fill: var(--night-2)" />
+          <circle cx="1020" cy="730" r="20" style="fill: var(--candle)" />
+          <circle cx="1020" cy="730" r="120" style="fill: var(--candle); opacity: 0.12" />
+        </g>
+      </g>
+    </svg>
+    <svg id="street-ghost" class="clip" data-start="0" data-duration="10.7" viewBox="0 0 150 300">
+      <path d="M20 300 V90 Q20 10 75 10 Q130 10 130 90 V300 L102 275 L75 300 L48 275 Z" style="fill: var(--frost); opacity: 0.6" />
+    </svg>
+    <div id="street-fog2" class="street-fog clip" data-start="0" data-duration="10.7"></div>
+    <h2 id="street-head" class="street-tag clip" data-start="0" data-duration="10.7"><span>The big draw</span>The atmosphere</h2>
+    <p id="street-t1" class="street-tag clip" data-start="0" data-duration="10.7">Shadowy streets</p>
+    <p id="street-t2" class="street-tag clip" data-start="0" data-duration="10.7">Lavish costumes</p>
+    <p id="street-t3" class="street-tag clip" data-start="0" data-duration="10.7">Eerie imagery</p>
+  </div>
+  <script>
+    const tl = gsap.timeline({ paused: true });
+    // parallax pan
+    tl.fromTo("#street-far", { x: 60 }, { x: -60, duration: 10.7, ease: "none" }, 0);
+    tl.fromTo("#street-near", { x: 140 }, { x: -140, duration: 10.7, ease: "none" }, 0);
+    tl.fromTo("#street-fog1", { x: -80 }, { x: 120, duration: 10.7, ease: "none" }, 0);
+    tl.fromTo("#street-fog2", { x: 100 }, { x: -140, duration: 10.7, ease: "none" }, 0);
+    tl.fromTo("#street-ghost", { x: 140 }, { x: -140, duration: 10.7, ease: "none" }, 0);
+    // "The big draw is the atmosphere" (17.92 → local 0.22; "atmosphere" 1.75)
+    tl.fromTo("#street-head", { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.5, ease: "power3.out" }, 0.25);
+        tl.fromTo("#street-t1", { opacity: 0, y: 16 }, { opacity: 1, y: 0, duration: 0.35, ease: "power3.out" }, 2.85);
+    tl.fromTo("#street-t2", { opacity: 0, y: 16 }, { opacity: 1, y: 0, duration: 0.35, ease: "power3.out" }, 4.75);
+    tl.fromTo("#street-t3", { opacity: 0, y: 16 }, { opacity: 1, y: 0, duration: 0.35, ease: "power3.out" }, 6.25);
+    // "more haunted than cozy": a figure appears by the lamp, lamps dim
+    tl.fromTo("#street-ghost", { opacity: 0 }, { opacity: 1, duration: 0.8, ease: "sine.out" }, 8.6);
+    tl.to("#street-lamps", { opacity: 0.45, duration: 0.8, ease: "sine.inOut" }, 9.0);
+    window.__timelines["street"] = tl;
+  </script>
+</template>

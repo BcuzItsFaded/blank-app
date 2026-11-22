@@ -1,0 +1,25 @@
+<template>
+  <style>
+    #root { position: absolute; inset: 0; overflow: hidden; background: #1b1d21; }
+    #but-warm { position: absolute; inset: 0;
+      background: radial-gradient(ellipse 70% 45% at 50% 42%, #5a3a1c 0%, #201511 70%); }
+    #but-word { position: absolute; left: 60px; right: 180px; top: 400px; text-align: center;
+      font-family: var(--font-display); font-size: 240px; font-weight: 700; color: var(--parchment); line-height: 1; }
+    #but-sub { position: absolute; left: 60px; right: 180px; top: 760px; text-align: center;
+      font-family: var(--font-body); font-size: 64px; color: var(--ash); line-height: 1.2; }
+    #but-sub b { color: var(--parchment); font-weight: 400; }
+  </style>
+  <div id="root" data-composition-id="but" data-width="1080" data-height="1920">
+    <div id="but-warm" class="clip" data-start="0" data-duration="4.05"></div>
+    <h2 id="but-word" class="clip" data-start="0" data-duration="4.05">But…</h2>
+    <p id="but-sub" class="clip" data-start="0" data-duration="4.05">Spectacular<br />isn’t the same as <b>fresh</b></p>
+  </div>
+  <script>
+    const tl = gsap.timeline({ paused: true });
+    tl.fromTo("#but-word", { scale: 1.25, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.22, ease: "power4.out" }, 0.2);
+    tl.fromTo("#but-warm", { opacity: 1 }, { opacity: 0, duration: 2.6, ease: "sine.inOut" }, 0.4);
+    tl.fromTo("#but-sub", { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.45, ease: "power3.out" }, 1.0);
+    tl.fromTo("#but-word", { y: 0 }, { y: -30, duration: 3.6, ease: "none" }, 0.42);
+    window.__timelines["but"] = tl;
+  </script>
+</template>

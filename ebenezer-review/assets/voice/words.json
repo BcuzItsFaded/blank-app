@@ -1,0 +1,710 @@
+[
+ {
+  "id": "w0",
+  "text": "Another",
+  "start": 0.32,
+  "end": 0.965
+ },
+ {
+  "id": "w1",
+  "text": "Christmas",
+  "start": 0.965,
+  "end": 1.414
+ },
+ {
+  "id": "w2",
+  "text": "Carol,",
+  "start": 1.414,
+  "end": 1.863
+ },
+ {
+  "id": "w3",
+  "text": "but",
+  "start": 1.863,
+  "end": 2.113
+ },
+ {
+  "id": "w4",
+  "text": "this",
+  "start": 2.113,
+  "end": 2.362
+ },
+ {
+  "id": "w5",
+  "text": "one",
+  "start": 2.362,
+  "end": 2.611
+ },
+ {
+  "id": "w6",
+  "text": "comes",
+  "start": 2.611,
+  "end": 3.053
+ },
+ {
+  "id": "w7",
+  "text": "with",
+  "start": 3.053,
+  "end": 3.302
+ },
+ {
+  "id": "w8",
+  "text": "a",
+  "start": 3.302,
+  "end": 3.551
+ },
+ {
+  "id": "w9",
+  "text": "chill.",
+  "start": 3.551,
+  "end": 3.801
+ },
+ {
+  "id": "w10",
+  "text": "In",
+  "start": 4.381,
+  "end": 4.644
+ },
+ {
+  "id": "w11",
+  "text": "Ebenezer,",
+  "start": 4.644,
+  "end": 5.512
+ },
+ {
+  "id": "w12",
+  "text": "Johnny",
+  "start": 5.512,
+  "end": 6.152
+ },
+ {
+  "id": "w13",
+  "text": "Depp",
+  "start": 6.152,
+  "end": 6.514
+ },
+ {
+  "id": "w14",
+  "text": "plays",
+  "start": 6.514,
+  "end": 6.876
+ },
+ {
+  "id": "w15",
+  "text": "Scrooge,",
+  "start": 6.876,
+  "end": 7.238
+ },
+ {
+  "id": "w16",
+  "text": "and",
+  "start": 7.238,
+  "end": 7.529
+ },
+ {
+  "id": "w17",
+  "text": "director",
+  "start": 7.529,
+  "end": 8.268
+ },
+ {
+  "id": "w18",
+  "text": "Ti",
+  "start": 8.268,
+  "end": 8.56
+ },
+ {
+  "id": "w19",
+  "text": "West",
+  "start": 8.56,
+  "end": 8.851
+ },
+ {
+  "id": "w20",
+  "text": "leans",
+  "start": 8.851,
+  "end": 9.142
+ },
+ {
+  "id": "w21",
+  "text": "hard",
+  "start": 9.142,
+  "end": 9.434
+ },
+ {
+  "id": "w22",
+  "text": "into",
+  "start": 9.434,
+  "end": 9.949
+ },
+ {
+  "id": "w23",
+  "text": "the",
+  "start": 9.949,
+  "end": 10.24
+ },
+ {
+  "id": "w24",
+  "text": "ghost-story",
+  "start": 10.24,
+  "end": 10.98
+ },
+ {
+  "id": "w25",
+  "text": "side",
+  "start": 10.98,
+  "end": 11.271
+ },
+ {
+  "id": "w26",
+  "text": "of",
+  "start": 11.271,
+  "end": 11.563
+ },
+ {
+  "id": "w27",
+  "text": "Dickens.",
+  "start": 11.563,
+  "end": 12.078
+ },
+ {
+  "id": "w28",
+  "text": "Same",
+  "start": 12.438,
+  "end": 12.817
+ },
+ {
+  "id": "w29",
+  "text": "setup:",
+  "start": 12.817,
+  "end": 13.489
+ },
+ {
+  "id": "w30",
+  "text": "a",
+  "start": 13.489,
+  "end": 13.751
+ },
+ {
+  "id": "w31",
+  "text": "bitter",
+  "start": 13.751,
+  "end": 14.216
+ },
+ {
+  "id": "w32",
+  "text": "miser,",
+  "start": 14.216,
+  "end": 14.68
+ },
+ {
+  "id": "w33",
+  "text": "three",
+  "start": 14.68,
+  "end": 15.026
+ },
+ {
+  "id": "w34",
+  "text": "spirits,",
+  "start": 15.026,
+  "end": 15.64
+ },
+ {
+  "id": "w35",
+  "text": "one",
+  "start": 15.64,
+  "end": 15.98
+ },
+ {
+  "id": "w36",
+  "text": "last",
+  "start": 15.98,
+  "end": 16.321
+ },
+ {
+  "id": "w37",
+  "text": "chance",
+  "start": 16.321,
+  "end": 16.661
+ },
+ {
+  "id": "w38",
+  "text": "to",
+  "start": 16.661,
+  "end": 17.002
+ },
+ {
+  "id": "w39",
+  "text": "change.",
+  "start": 17.002,
+  "end": 17.342
+ },
+ {
+  "id": "w40",
+  "text": "The",
+  "start": 17.922,
+  "end": 18.228
+ },
+ {
+  "id": "w41",
+  "text": "big",
+  "start": 18.228,
+  "end": 18.535
+ },
+ {
+  "id": "w42",
+  "text": "draw",
+  "start": 18.535,
+  "end": 18.841
+ },
+ {
+  "id": "w43",
+  "text": "is",
+  "start": 18.841,
+  "end": 19.148
+ },
+ {
+  "id": "w44",
+  "text": "the",
+  "start": 19.148,
+  "end": 19.454
+ },
+ {
+  "id": "w45",
+  "text": "atmosphere.",
+  "start": 19.454,
+  "end": 20.232
+ },
+ {
+  "id": "w46",
+  "text": "Shadowy",
+  "start": 20.592,
+  "end": 21.37
+ },
+ {
+  "id": "w47",
+  "text": "Victorian",
+  "start": 21.37,
+  "end": 22.149
+ },
+ {
+  "id": "w48",
+  "text": "streets,",
+  "start": 22.149,
+  "end": 22.456
+ },
+ {
+  "id": "w49",
+  "text": "lavish",
+  "start": 22.456,
+  "end": 22.952
+ },
+ {
+  "id": "w50",
+  "text": "costumes",
+  "start": 22.952,
+  "end": 23.665
+ },
+ {
+  "id": "w51",
+  "text": "and",
+  "start": 23.665,
+  "end": 23.946
+ },
+ {
+  "id": "w52",
+  "text": "eerie",
+  "start": 23.946,
+  "end": 24.227
+ },
+ {
+  "id": "w53",
+  "text": "imagery",
+  "start": 24.227,
+  "end": 25.155
+ },
+ {
+  "id": "w54",
+  "text": "make",
+  "start": 25.155,
+  "end": 25.436
+ },
+ {
+  "id": "w55",
+  "text": "this",
+  "start": 25.436,
+  "end": 25.717
+ },
+ {
+  "id": "w56",
+  "text": "Christmas",
+  "start": 25.717,
+  "end": 26.214
+ },
+ {
+  "id": "w57",
+  "text": "feel",
+  "start": 26.214,
+  "end": 26.495
+ },
+ {
+  "id": "w58",
+  "text": "more",
+  "start": 26.495,
+  "end": 26.775
+ },
+ {
+  "id": "w59",
+  "text": "haunted",
+  "start": 26.775,
+  "end": 27.272
+ },
+ {
+  "id": "w60",
+  "text": "than",
+  "start": 27.272,
+  "end": 27.553
+ },
+ {
+  "id": "w61",
+  "text": "cozy.",
+  "start": 27.553,
+  "end": 28.05
+ },
+ {
+  "id": "w62",
+  "text": "But",
+  "start": 28.63,
+  "end": 28.911
+ },
+ {
+  "id": "w63",
+  "text": "looking",
+  "start": 28.911,
+  "end": 29.41
+ },
+ {
+  "id": "w64",
+  "text": "spectacular",
+  "start": 29.41,
+  "end": 30.342
+ },
+ {
+  "id": "w65",
+  "text": "isn't",
+  "start": 30.342,
+  "end": 30.623
+ },
+ {
+  "id": "w66",
+  "text": "the",
+  "start": 30.623,
+  "end": 30.905
+ },
+ {
+  "id": "w67",
+  "text": "same",
+  "start": 30.905,
+  "end": 31.187
+ },
+ {
+  "id": "w68",
+  "text": "as",
+  "start": 31.187,
+  "end": 31.468
+ },
+ {
+  "id": "w69",
+  "text": "feeling",
+  "start": 31.468,
+  "end": 31.967
+ },
+ {
+  "id": "w70",
+  "text": "fresh.",
+  "start": 31.967,
+  "end": 32.249
+ },
+ {
+  "id": "w71",
+  "text": "The",
+  "start": 32.609,
+  "end": 32.907
+ },
+ {
+  "id": "w72",
+  "text": "story",
+  "start": 32.907,
+  "end": 33.434
+ },
+ {
+  "id": "w73",
+  "text": "holds",
+  "start": 33.434,
+  "end": 33.732
+ },
+ {
+  "id": "w74",
+  "text": "few",
+  "start": 33.732,
+  "end": 34.03
+ },
+ {
+  "id": "w75",
+  "text": "surprises,",
+  "start": 34.03,
+  "end": 34.786
+ },
+ {
+  "id": "w76",
+  "text": "slow",
+  "start": 34.786,
+  "end": 35.195
+ },
+ {
+  "id": "w77",
+  "text": "stretches",
+  "start": 35.195,
+  "end": 35.919
+ },
+ {
+  "id": "w78",
+  "text": "drag,",
+  "start": 35.919,
+  "end": 36.328
+ },
+ {
+  "id": "w79",
+  "text": "and",
+  "start": 36.328,
+  "end": 36.623
+ },
+ {
+  "id": "w80",
+  "text": "Depp's",
+  "start": 36.623,
+  "end": 36.918
+ },
+ {
+  "id": "w81",
+  "text": "performance",
+  "start": 36.918,
+  "end": 37.667
+ },
+ {
+  "id": "w82",
+  "text": "is",
+  "start": 37.667,
+  "end": 37.962
+ },
+ {
+  "id": "w83",
+  "text": "divisive,",
+  "start": 37.962,
+  "end": 38.711
+ },
+ {
+  "id": "w84",
+  "text": "just",
+  "start": 38.711,
+  "end": 39.063
+ },
+ {
+  "id": "w85",
+  "text": "when",
+  "start": 39.063,
+  "end": 39.415
+ },
+ {
+  "id": "w86",
+  "text": "the",
+  "start": 39.415,
+  "end": 39.767
+ },
+ {
+  "id": "w87",
+  "text": "film",
+  "start": 39.767,
+  "end": 40.119
+ },
+ {
+  "id": "w88",
+  "text": "needs",
+  "start": 40.119,
+  "end": 40.471
+ },
+ {
+  "id": "w89",
+  "text": "warmth.",
+  "start": 40.471,
+  "end": 40.822
+ },
+ {
+  "id": "w90",
+  "text": "The",
+  "start": 41.402,
+  "end": 41.723
+ },
+ {
+  "id": "w91",
+  "text": "verdict?",
+  "start": 41.723,
+  "end": 42.291
+ },
+ {
+  "id": "w92",
+  "text": "A",
+  "start": 42.651,
+  "end": 42.862
+ },
+ {
+  "id": "w93",
+  "text": "beautifully",
+  "start": 42.862,
+  "end": 43.563
+ },
+ {
+  "id": "w94",
+  "text": "dressed,",
+  "start": 43.563,
+  "end": 43.938
+ },
+ {
+  "id": "w95",
+  "text": "spooky",
+  "start": 43.938,
+  "end": 44.406
+ },
+ {
+  "id": "w96",
+  "text": "retelling,",
+  "start": 44.406,
+  "end": 45.078
+ },
+ {
+  "id": "w97",
+  "text": "but",
+  "start": 45.078,
+  "end": 45.353
+ },
+ {
+  "id": "w98",
+  "text": "not",
+  "start": 45.353,
+  "end": 45.628
+ },
+ {
+  "id": "w99",
+  "text": "a",
+  "start": 45.628,
+  "end": 45.903
+ },
+ {
+  "id": "w100",
+  "text": "new",
+  "start": 45.903,
+  "end": 46.179
+ },
+ {
+  "id": "w101",
+  "text": "Christmas",
+  "start": 46.179,
+  "end": 46.665
+ },
+ {
+  "id": "w102",
+  "text": "classic.",
+  "start": 46.665,
+  "end": 47.152
+ },
+ {
+  "id": "w103",
+  "text": "Come",
+  "start": 47.512,
+  "end": 47.802
+ },
+ {
+  "id": "w104",
+  "text": "for",
+  "start": 47.802,
+  "end": 48.093
+ },
+ {
+  "id": "w105",
+  "text": "the",
+  "start": 48.093,
+  "end": 48.384
+ },
+ {
+  "id": "w106",
+  "text": "ghosts",
+  "start": 48.384,
+  "end": 48.674
+ },
+ {
+  "id": "w107",
+  "text": "and",
+  "start": 48.674,
+  "end": 48.965
+ },
+ {
+  "id": "w108",
+  "text": "the",
+  "start": 48.965,
+  "end": 49.255
+ },
+ {
+  "id": "w109",
+  "text": "Gothic",
+  "start": 49.255,
+  "end": 49.769
+ },
+ {
+  "id": "w110",
+  "text": "gloom.",
+  "start": 49.769,
+  "end": 50.06
+ },
+ {
+  "id": "w111",
+  "text": "Just",
+  "start": 50.42,
+  "end": 50.754
+ },
+ {
+  "id": "w112",
+  "text": "don't",
+  "start": 50.754,
+  "end": 51.088
+ },
+ {
+  "id": "w113",
+  "text": "expect",
+  "start": 51.088,
+  "end": 51.68
+ },
+ {
+  "id": "w114",
+  "text": "Scrooge",
+  "start": 51.68,
+  "end": 52.014
+ },
+ {
+  "id": "w115",
+  "text": "to",
+  "start": 52.014,
+  "end": 52.348
+ },
+ {
+  "id": "w116",
+  "text": "reinvent",
+  "start": 52.348,
+  "end": 52.94
+ },
+ {
+  "id": "w117",
+  "text": "Christmas.",
+  "start": 52.94,
+  "end": 53.531
+ }
+]

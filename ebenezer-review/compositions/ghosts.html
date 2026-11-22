@@ -1,0 +1,69 @@
+<template>
+  <style>
+    #root { position: absolute; inset: 0; overflow: hidden;
+      background: radial-gradient(ellipse 70% 45% at 50% 45%, #1c2436 0%, var(--night) 70%); }
+    #ghosts-art { position: absolute; left: 228px; top: 540px; width: 625px; height: 500px; }
+    #ghosts-glow { position: absolute; left: 268px; top: 580px; width: 546px; height: 440px; opacity: 0;
+      background: radial-gradient(ellipse at 50% 70%, rgba(243, 178, 79, 0.6), rgba(243, 178, 79, 0) 65%); }
+    .ghosts-line { position: absolute; left: 60px; right: 180px; text-align: center; opacity: 0; color: var(--parchment); }
+    #ghosts-l1 { top: 330px; font-family: var(--font-display); font-size: 70px; font-weight: 700; line-height: 1.05; }
+    #ghosts-l2 { top: 440px; font-family: var(--font-body); font-size: 58px; color: var(--frost); }
+    .ghosts-spirit { position: absolute; width: 120px; height: 240px; opacity: 0; }
+    #ghosts-s1 { left: 60px; top: 560px; }
+    #ghosts-s2 { left: 860px; top: 640px; }
+  </style>
+  <div id="root" data-composition-id="ghosts" data-width="1080" data-height="1920">
+    <div id="ghosts-glow" class="clip" data-start="0" data-duration="6.65"></div>
+    <svg id="ghosts-art" class="clip" data-start="0" data-duration="6.65" viewBox="0 0 800 640">
+      <path d="M100 640 V230 Q100 40 400 40 Q700 40 700 230 V640 Z" style="fill: rgba(243,178,79,0.06); stroke: var(--fog); stroke-width: 22" />
+      <path d="M400 40 V640 M100 300 H700 M100 470 H700" style="stroke: var(--fog); stroke-width: 14; fill: none" />
+      <circle cx="400" cy="185" r="78" style="fill: none; stroke: #2f5233; stroke-width: 34" />
+      <circle cx="400" cy="263" r="12" style="fill: var(--blood)" />
+      
+      <defs>
+        <clipPath id="ghosts-clip"><path d="M100 640 V230 Q100 40 400 40 Q700 40 700 230 V600 H100 Z" /></clipPath>
+        <radialGradient id="ghosts-fg" cx="50%" cy="58%" r="62%">
+          <stop offset="30%" style="stop-color: var(--frost); stop-opacity: 0" />
+          <stop offset="100%" style="stop-color: var(--frost); stop-opacity: 0.9" />
+        </radialGradient>
+      </defs>
+      <g id="ghosts-frost" clip-path="url(#ghosts-clip)" style="opacity: 1">
+        <rect x="100" y="40" width="600" height="560" style="fill: url(#ghosts-fg)" />
+        <g style="stroke: var(--frost); stroke-width: 3; fill: none; opacity: 0.85">
+          <path d="M100 160 L180 220 L160 270 M180 220 L250 210 M140 60 L190 150" />
+          <path d="M700 170 L610 230 L640 290 M610 230 L540 210 M660 60 L620 150" />
+          <path d="M100 560 L200 500 L180 450 M200 500 L270 530" />
+          <path d="M700 560 L600 500 L620 440 M600 500 L530 530" />
+        </g>
+      </g>
+      <rect x="60" y="600" width="680" height="40" style="fill: var(--night-2)" />
+      <rect x="378" y="470" width="44" height="130" rx="6" style="fill: var(--parchment)" />
+      <g id="ghosts-flame" style="opacity: 0">
+        <path d="M400 395 Q428 440 412 462 Q400 474 388 462 Q372 440 400 395 Z" style="fill: var(--candle)" />
+        <path d="M400 425 Q412 448 404 460 Q400 464 396 460 Q388 448 400 425 Z" style="fill: var(--parchment)" />
+      </g>
+    </svg>
+    <svg id="ghosts-s1" class="ghosts-spirit clip" data-start="0" data-duration="6.65" viewBox="0 0 120 240">
+      <path d="M10 240 V70 Q10 8 60 8 Q110 8 110 70 V240 L85 218 L60 240 L35 218 Z" style="fill: var(--frost); opacity: 0.55" />
+    </svg>
+    <svg id="ghosts-s2" class="ghosts-spirit clip" data-start="0" data-duration="6.65" viewBox="0 0 120 240">
+      <path d="M10 240 V70 Q10 8 60 8 Q110 8 110 70 V240 L85 218 L60 240 L35 218 Z" style="fill: var(--frost); opacity: 0.45" />
+    </svg>
+    <h2 id="ghosts-l1" class="ghosts-line clip" data-start="0" data-duration="6.65">Come for the ghosts</h2>
+    <p id="ghosts-l2" class="ghosts-line clip" data-start="0" data-duration="6.65">and the Gothic gloom</p>
+  </div>
+  <script>
+    const tl = gsap.timeline({ paused: true });
+    tl.fromTo("#ghosts-art", { scale: 1.06 }, { scale: 1, duration: 6.65, ease: "none", transformOrigin: "50% 60%" }, 0);
+    tl.fromTo("#ghosts-l1", { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.45, ease: "power3.out" }, 0.15);
+    tl.fromTo("#ghosts-s1", { opacity: 0, x: -60, y: 30 }, { opacity: 1, x: 40, y: -20, duration: 2.4, ease: "sine.inOut" }, 0.9);
+    tl.fromTo("#ghosts-s2", { opacity: 0, x: 60, y: 20 }, { opacity: 1, x: -40, y: -30, duration: 2.4, ease: "sine.inOut" }, 1.1);
+    tl.fromTo("#ghosts-l2", { opacity: 0, y: 14 }, { opacity: 1, y: 0, duration: 0.4, ease: "power3.out" }, 1.85);
+    tl.to(["#ghosts-s1", "#ghosts-s2"], { opacity: 0, duration: 0.6, ease: "sine.in" }, 3.6);
+    // the candle relights on its own
+    tl.fromTo("#ghosts-flame", { opacity: 0, scale: 0.2 }, { opacity: 1, scale: 1, duration: 0.5, ease: "back.out(2)", transformOrigin: "50% 100%" }, 4.65);
+    tl.fromTo("#ghosts-glow", { opacity: 0 }, { opacity: 1, duration: 0.9, ease: "sine.out" }, 4.7);
+    tl.fromTo("#ghosts-frost", { opacity: 1 }, { opacity: 0.35, duration: 1.2, ease: "sine.out" }, 4.8);
+    window.__timelines["ghosts"] = tl;
+  </script>
+</template>
