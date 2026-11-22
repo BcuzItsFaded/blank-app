@@ -188,3 +188,19 @@ A mother's love beyond death, or a story the living couldn't let go? 👇
 🎬 Plot Twist with A&R
 
 **Hashtags:** #LaMilagrosa #AmeliaGoyri #Havana #Cuba #CementerioDeColon #CubanLegends #LeyendasCubanas #GhostStories #ScaryStories #Legend #MothersLove #PaperCut #PlotTwistWithAR
+
+---
+
+## San Miguel Canoa, 1968 · Ep. 23 (Paper-cut Lightbox)
+**Title:** San Miguel Canoa: They Only Needed a Place to Sleep 🔥 | Ep. 23
+
+**Caption:**
+September 14, 1968. Puebla, Mexico. 🇲🇽
+Five university workers set out to climb the volcano La Malinche. Rain forced them to stop for the night in San Miguel Canoa, and a local man, Lucas García, took them in. 🏠
+But fear had been preached in that village. The church bells rang, and nearly 800 people believed the visitors were communists who'd come to kill them. 🔔
+
+Four people died, including the man who sheltered them. The priest accused of inciting the crowd was never convicted.
+No ghost. Only a rumor, and a crowd that believed it. 💔
+🎬 Plot Twist with A&R
+
+**Hashtags:** #SanMiguelCanoa #Canoa1968 #Puebla #Mexico #MexicanHistory #HistoriaDeMexico #TrueStory #DarkHistory #RealHorror #TrueCrime #Misinformation #PaperCut #PlotTwistWithAR
