@@ -1,0 +1,206 @@
+{
+  "fingerprint": "a153a130ad4c3a038063fcd4d1b37a5cd1b5b1d1a7dfedbed935239e60d99d54",
+  "preview_seconds": 20,
+  "output": "/home/user/blank-app/videos/low-fade/output/preview.mp4",
+  "output_sha256": "617856b111b9ec67409e607ee625221e178132d735b5c88fcb530275dff0a02b",
+  "original_voice_sha256": "25978ed8302aeb9a82214d6cee0e87991d3d6bb683f00bfaf23143e7b868db71",
+  "original_voice_duration": 45.075,
+  "voice_rate": "unchanged; leading/trailing padding only",
+  "frames": 600,
+  "duration": 20,
+  "cache_hits": 0,
+  "shot_count": 7,
+  "full_decode": "pass",
+  "caption_count": 12,
+  "human_review": "required; technical checks are not acceptance",
+  "inputs": [
+    {
+      "path": "/home/user/blank-app/.claude/skills/directing-stickman-videos/assets/fonts/NotoSans.ttf",
+      "sha256": "bfb7bb691513f12e734dc346c03a03f784912432d7e3fa8e56efcf906fe86b3d"
+    },
+    {
+      "path": "/home/user/blank-app/videos/low-fade/assets/arrow-up.png",
+      "sha256": "bbfcf0d83bc883fc375a6c2183471ac73cbd4e341bd0d672d3a19eac39c8546d"
+    },
+    {
+      "path": "/home/user/blank-app/videos/low-fade/assets/bracket.png",
+      "sha256": "07fe4969598cdfd9eccd7082eec334bcf0789796f3ec40ee701956c44a856fa6"
+    },
+    {
+      "path": "/home/user/blank-app/videos/low-fade/assets/clipper-g1.png",
+      "sha256": "90c5526271eaf26fbefdfbc3faa07356273be7322912556a4386791b7dc024a7"
+    },
+    {
+      "path": "/home/user/blank-app/videos/low-fade/assets/clipper-g2.png",
+      "sha256": "ed2239eb1888496ff7f752c26eb7bbc9493218de5f559476c29a100a18f2c6fc"
+    },
+    {
+      "path": "/home/user/blank-app/videos/low-fade/assets/clipper.png",
+      "sha256": "945bfb37814faa93336c8b8a9a89e49895c7cc8c59fb1f3abc9c7bbd7406a36d"
+    },
+    {
+      "path": "/home/user/blank-app/videos/low-fade/assets/clippings0.png",
+      "sha256": "b85ca017b48f1c7aaf91f2d23d493b9097e23f4e9eaef1f786a967647c009ee2"
+    },
+    {
+      "path": "/home/user/blank-app/videos/low-fade/assets/clippings1.png",
+      "sha256": "2471286cbbae19de8cf6b13922c2e08b706dad8ee4babe5ba46025c05f297c7f"
+    },
+    {
+      "path": "/home/user/blank-app/videos/low-fade/assets/clippings2.png",
+      "sha256": "1a508112b5680aba66adffd226e210e2daf13b460e4f11fdcff07acc1aad5f95"
+    },
+    {
+      "path": "/home/user/blank-app/videos/low-fade/assets/pip.png",
+      "sha256": "6bd13ac13fccfdb2f7ed282ce8b4235786a510222a9ad64d4408d9221f07dfbe"
+    },
+    {
+      "path": "/home/user/blank-app/videos/low-fade/assets/pole0.png",
+      "sha256": "58aa0f726c2ff7ff3ceb8a2ada0c7d71b2fbf716c6e668a6269c4f0e8e6e858c"
+    },
+    {
+      "path": "/home/user/blank-app/videos/low-fade/assets/pole1.png",
+      "sha256": "21a07c9a726cc88b0ab8b967b1140a90448639bf8071ac203057040e7e0bf334"
+    },
+    {
+      "path": "/home/user/blank-app/videos/low-fade/assets/pole2.png",
+      "sha256": "be60e6a953449ed18ab41a0e3f6bbb748be8044b543fee8f27544b4ca589aca3"
+    },
+    {
+      "path": "/home/user/blank-app/videos/low-fade/assets/pole3.png",
+      "sha256": "22bb9494a18c03ad2504aad25355f889aa60fd32e91e33bf14531cf84301d679"
+    },
+    {
+      "path": "/home/user/blank-app/videos/low-fade/assets/pole4.png",
+      "sha256": "a27d292c23e699d3948d507ed84c127b50c0e10a7b2c1f97bd51d8936be69854"
+    },
+    {
+      "path": "/home/user/blank-app/videos/low-fade/assets/pole5.png",
+      "sha256": "728fe102fd39000211dc92bcd325806f66c7e3e92186902f5d1f94e726993b78"
+    },
+    {
+      "path": "/home/user/blank-app/videos/low-fade/assets/s1-bad.png",
+      "sha256": "751ed5df67fa05021cf8a70effdbfeb3950ae9bc3eb23f5853c9e23742b00a87"
+    },
+    {
+      "path": "/home/user/blank-app/videos/low-fade/assets/s1-harsh.png",
+      "sha256": "7914dfe03a8ba5dc8a7216ba42fe0401075f8822999906b1f1b8682bf127bcbe"
+    },
+    {
+      "path": "/home/user/blank-app/videos/low-fade/assets/s2-zoom.png",
+      "sha256": "89035e3c1c50bbb43e954b3857a49796aa31b23aee262409abc44454b5b2d55c"
+    },
+    {
+      "path": "/home/user/blank-app/videos/low-fade/assets/s3-final-card.png",
+      "sha256": "02367e755e1e95f0336581a33017bcd5e79cc258ceade681081f2b572b096b66"
+    },
+    {
+      "path": "/home/user/blank-app/videos/low-fade/assets/s4-before.png",
+      "sha256": "83a461a24317ae97ecb3249f09cd89fccd88070a24ff2b347c6b5d5623f1566e"
+    },
+    {
+      "path": "/home/user/blank-app/videos/low-fade/assets/s4-cut1.png",
+      "sha256": "4a8c740f75e974e08e71e1257835cdbc9f95ce733e4c035c628f30c2b83c670a"
+    },
+    {
+      "path": "/home/user/blank-app/videos/low-fade/assets/s4-cut2.png",
+      "sha256": "cf706dccdaa7192cbac52c31b3cb21cfa2eb333ce205fb317788281e0727fa1b"
+    },
+    {
+      "path": "/home/user/blank-app/videos/low-fade/assets/s4-cut3.png",
+      "sha256": "460683029460465960cc0188bea5a14bd2f9245a36e696a4fdfdada9fc39ddaf"
+    },
+    {
+      "path": "/home/user/blank-app/videos/low-fade/assets/s4-cut4.png",
+      "sha256": "7929a93eff0cfe66df47b8c1331ec82776ec3e7f24f1a862192d6aa7a0e61d02"
+    },
+    {
+      "path": "/home/user/blank-app/videos/low-fade/assets/s4-cut5.png",
+      "sha256": "3ad4827b10c3475205055428a6d182b1dd5e0a512c51421d5969723e4ae6a33c"
+    },
+    {
+      "path": "/home/user/blank-app/videos/low-fade/assets/s4-cut6.png",
+      "sha256": "4f47793e272268f928b235bcfdfbff196e36a6e60ba89a191fbbb5cbf3e0b95b"
+    },
+    {
+      "path": "/home/user/blank-app/videos/low-fade/assets/s4-cut7.png",
+      "sha256": "0da711c1cb17a98187273f069400a95ce21c9dc4906c474c190214a45553e235"
+    },
+    {
+      "path": "/home/user/blank-app/videos/low-fade/assets/s4-cut8.png",
+      "sha256": "75327b20ac80fc3a1c8d6717dd4e6d977b75295db58eccec5568f70d432aacd6"
+    },
+    {
+      "path": "/home/user/blank-app/videos/low-fade/assets/s5-back0.png",
+      "sha256": "e7a92530a1e271609c86c5225a3b65fcf92e6ca3256dbd5e0171bf2373b8e8d4"
+    },
+    {
+      "path": "/home/user/blank-app/videos/low-fade/assets/s5-back1.png",
+      "sha256": "7146321feaf02caab0df9e2e5104e5821bbbf5ba6b482deedac3294401a876a3"
+    },
+    {
+      "path": "/home/user/blank-app/videos/low-fade/assets/s5-back2.png",
+      "sha256": "c9cf0bb7e2b100610dd97fa85af7d53693beaf0ea3ed75de8a6988482de66bb9"
+    },
+    {
+      "path": "/home/user/blank-app/videos/low-fade/assets/s5-back3.png",
+      "sha256": "9dd8f7dd44a94f0d15d620a69e676bcb3193a8e787c8d39eb131f71610723363"
+    },
+    {
+      "path": "/home/user/blank-app/videos/low-fade/assets/s5-back4.png",
+      "sha256": "3ad793e5625258c373dcee3563a65cfddda5ec934473b1506432f70bee877de4"
+    },
+    {
+      "path": "/home/user/blank-app/videos/low-fade/assets/s5-back5.png",
+      "sha256": "97d6d1856842aa9dbba1f0338249516df0ce5ef87f43a39b3f76b8295628565e"
+    },
+    {
+      "path": "/home/user/blank-app/videos/low-fade/assets/s6-base.png",
+      "sha256": "a403f49efbae0d353e65afea0ce4f9e9c5ffd58d9840868c26704df466df2133"
+    },
+    {
+      "path": "/home/user/blank-app/videos/low-fade/assets/s6-flick0.png",
+      "sha256": "1457e4f23cb89131810065a2d9ab1d9b8737fc23a99cdb2ac75a9e9b15518347"
+    },
+    {
+      "path": "/home/user/blank-app/videos/low-fade/assets/s6-flick1.png",
+      "sha256": "a79684b0e6a99b971f1596165c1e559c4b7c0f749c335cd3383355f0b25a4f4c"
+    },
+    {
+      "path": "/home/user/blank-app/videos/low-fade/assets/s6-flick2.png",
+      "sha256": "3c9972919eec327e7eae7364a85ea8770689684507931c0eaebe6ff7cb21b47a"
+    },
+    {
+      "path": "/home/user/blank-app/videos/low-fade/assets/s7-s2.png",
+      "sha256": "60e5d00695034d0df814a3ca12b430985baef28aa4820d8f16872044a9c23d36"
+    },
+    {
+      "path": "/home/user/blank-app/videos/low-fade/assets/shop-clipper.png",
+      "sha256": "1b7f2cc2143212f0b9045afdd1fa0f4fb448ef6b47b3fc79bd52d95ccc9c1b94"
+    },
+    {
+      "path": "/home/user/blank-app/videos/low-fade/assets/shop.png",
+      "sha256": "c62934c1eb535be85b6fcbfe1c44707eda56f3d0347895c4948a7a2f538a8214"
+    },
+    {
+      "path": "/home/user/blank-app/videos/low-fade/assets/sparkle.png",
+      "sha256": "cf7e059937bf1afbd369490dadf07138781a4c97d6b5a23eafe35f358db80a22"
+    },
+    {
+      "path": "/home/user/blank-app/videos/low-fade/assets/speedlines.png",
+      "sha256": "983d159ad3a70a0fe2487954d0c99bfe83daa70df99829529041bbef188d212f"
+    },
+    {
+      "path": "/home/user/blank-app/videos/low-fade/assets/x.png",
+      "sha256": "9ff72a60a6d575a5b8b92e3c0c24a5f1b08fbeedffa40b45fdd49bd3f2e24101"
+    },
+    {
+      "path": "/home/user/blank-app/videos/low-fade/fonts/PressStart2P-Regular.ttf",
+      "sha256": "034c77f1f05ec89421e4a63f0e3a4ca1ecf852cc6d2bf611f126f275728e017d"
+    },
+    {
+      "path": "/home/user/blank-app/videos/low-fade/master.wav",
+      "sha256": "25978ed8302aeb9a82214d6cee0e87991d3d6bb683f00bfaf23143e7b868db71"
+    }
+  ]
+}
