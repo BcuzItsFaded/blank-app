@@ -1,0 +1,295 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Sproutle Island 3D</title>
+<style>
+  :root{ --bg:#0f1b33; --panel:#1b2b4d; --ink:#f4fbff; --muted:#b8cbe8; --accent:#2ec4b6; --accent2:#ffd23f; }
+  *{box-sizing:border-box}
+  html,body{margin:0;background:var(--bg);color:var(--ink);font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+  main{max-width:1180px;margin:0 auto;padding:16px}
+  h1{font-size:clamp(1.1rem,2.4vw,1.6rem);margin:4px 0 12px}
+  h1 small{font-weight:500;color:var(--muted);font-size:.6em;margin-left:.5em}
+  #stage{width:100%;aspect-ratio:16/9;border-radius:14px;overflow:hidden;background:#bfe7ff;box-shadow:0 10px 40px rgba(0,0,0,.5);border:3px solid #2d4a7a;touch-action:none}
+  #stage canvas{display:block;width:100%;height:100%}
+  .controls{display:flex;flex-wrap:wrap;align-items:center;gap:10px 14px;margin-top:12px;padding:10px 12px;background:var(--panel);border-radius:12px}
+  button{font:inherit;font-weight:700;color:#10233f;background:var(--accent2);border:0;border-radius:999px;padding:8px 18px;cursor:pointer;box-shadow:0 3px 0 #b88f00}
+  button:active{transform:translateY(2px);box-shadow:0 1px 0 #b88f00}
+  button:focus-visible,input:focus-visible{outline:3px solid #fff;outline-offset:2px}
+  #restart{background:var(--accent);color:#06302c;box-shadow:0 3px 0 #13857a}
+  label{display:flex;align-items:center;gap:6px;color:var(--muted);font-size:.92rem}
+  .note{color:var(--muted);font-size:.8rem;line-height:1.45;margin:12px 2px 0}
+  #err{display:none;color:#ffb3c1;margin-top:8px}
+</style>
+<script type="importmap">
+{ "imports": {
+    "three": "https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js",
+    "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/"
+} }
+</script>
+</head>
+<body>
+<main>
+  <h1>Sproutle Island <small>a three.js example</small></h1>
+  <div id="stage" role="img" aria-label="3D scene: Sproutle, a teal leaf-eared creature, hops in a loop around a floating grassy island with a tree, flowers and drifting leaves."></div>
+  <div class="controls">
+    <button id="play" type="button" aria-pressed="false">Pause</button>
+    <button id="restart" type="button">Restart</button>
+    <label><input type="checkbox" id="rm"> Reduced motion</label>
+    <label><input type="checkbox" id="spin" checked> Auto-rotate camera</label>
+  </div>
+  <p id="err">Could not load three.js. This page needs an internet connection to fetch it from cdn.jsdelivr.net.</p>
+  <p class="note">Drag to orbit, scroll or pinch to zoom. Space = pause/play &middot; R = restart. Sproutle is an original character; everything is built from three.js primitives in code.</p>
+</main>
+<script>window.addEventListener('error', e => { if (String(e.message || '').includes('three') || (e.target && e.target.src)) document.getElementById('err').style.display = 'block'; }, true);</script>
+<script type="module">
+import * as THREE from 'three';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+
+/* ---------- constants & helpers ---------- */
+const T = 8, HOPS = 8, PATH_R = 2.05, TAU = Math.PI * 2;
+const clamp = (x, a, b) => Math.min(b, Math.max(a, x));
+const lerp = THREE.MathUtils.lerp;
+const smooth = (a, b, x) => { const t = clamp((x - a) / (b - a), 0, 1); return t * t * (3 - 2 * t); };
+const hash = (a, b = 0) => { const x = Math.sin(a * 127.1 + b * 311.7) * 43758.5453; return x - Math.floor(x); };
+
+/* ---------- renderer, scene, camera ---------- */
+const stage = document.getElementById('stage');
+const renderer = new THREE.WebGLRenderer({ antialias: true });
+renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+renderer.outputColorSpace = THREE.SRGBColorSpace;
+renderer.toneMapping = THREE.ACESFilmicToneMapping;
+renderer.shadowMap.enabled = true;
+renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+stage.appendChild(renderer.domElement);
+
+const scene = new THREE.Scene();
+{ // sky gradient background built in code
+  const c = document.createElement('canvas'); c.width = 2; c.height = 256;
+  const g2 = c.getContext('2d'), g = g2.createLinearGradient(0, 0, 0, 256);
+  g.addColorStop(0, '#5fb8ff'); g.addColorStop(0.6, '#bfe7ff'); g.addColorStop(1, '#fff1d6');
+  g2.fillStyle = g; g2.fillRect(0, 0, 2, 256);
+  const tex = new THREE.CanvasTexture(c); tex.colorSpace = THREE.SRGBColorSpace; scene.background = tex;
+}
+scene.fog = new THREE.Fog('#d8efff', 20, 45);
+
+const camera = new THREE.PerspectiveCamera(38, 16 / 9, 0.1, 100);
+camera.position.set(6.5, 4.4, 7.5);
+const controls = new OrbitControls(camera, renderer.domElement);
+controls.target.set(0, 0.7, 0);
+controls.enableDamping = true; controls.autoRotate = true; controls.autoRotateSpeed = 0.6;
+controls.minDistance = 4; controls.maxDistance = 16; controls.maxPolarAngle = Math.PI * 0.49;
+
+scene.add(new THREE.HemisphereLight('#ffffff', '#7cc46a', 1.6));
+const sun = new THREE.DirectionalLight('#fff4dd', 2.4);
+sun.position.set(5, 9, 4); sun.castShadow = true;
+sun.shadow.mapSize.set(2048, 2048);
+Object.assign(sun.shadow.camera, { left: -5, right: 5, top: 5, bottom: -5, near: 1, far: 25 });
+sun.shadow.bias = -0.0005; sun.shadow.normalBias = 0.02;
+scene.add(sun);
+
+// three-step toon ramp
+const ramp = new THREE.DataTexture(new Uint8Array([95, 95, 95, 255, 175, 175, 175, 255, 255, 255, 255, 255]), 3, 1);
+ramp.minFilter = ramp.magFilter = THREE.NearestFilter; ramp.needsUpdate = true;
+const toon = (color, extra = {}) => new THREE.MeshToonMaterial({ color, gradientMap: ramp, ...extra });
+const outlineMat = new THREE.MeshBasicMaterial({ color: '#1d1440', side: THREE.BackSide });
+
+/* ---------- floating island ---------- */
+const island = new THREE.Group(); scene.add(island);
+{
+  const top = new THREE.Mesh(new THREE.CylinderGeometry(3.3, 3.1, 0.45, 48), toon('#7fd35a'));
+  top.position.y = -0.225; top.receiveShadow = true; island.add(top);
+  const dirt = new THREE.Mesh(new THREE.CylinderGeometry(3.1, 3.0, 0.35, 48), toon('#b07a4a'));
+  dirt.position.y = -0.6; island.add(dirt);
+  const rockGeo = new THREE.ConeGeometry(3.0, 3.4, 14, 4); rockGeo.rotateX(Math.PI);
+  const p = rockGeo.attributes.position;
+  for (let i = 0; i < p.count; i++) {
+    const x = p.getX(i), y = p.getY(i), z = p.getZ(i);
+    if (y < 1.6) { const k = 1 + (hash(Math.round(x * 100), Math.round(z * 100) + Math.round(y * 100) * 7) - 0.5) * 0.3; p.setX(i, x * k); p.setZ(i, z * k); }
+  }
+  rockGeo.computeVertexNormals();
+  const rock = new THREE.Mesh(rockGeo, toon('#8a6a55', { flatShading: true })); rock.position.y = -2.475; island.add(rock);
+}
+// central tree
+function tree(x, z, s) {
+  const g = new THREE.Group(); g.position.set(x, 0, z); g.scale.setScalar(s);
+  const trunk = new THREE.Mesh(new THREE.CylinderGeometry(0.14, 0.22, 1.4, 8), toon('#8a5a36')); trunk.position.y = 0.7; trunk.castShadow = true; g.add(trunk);
+  [[0, 1.65, 0, 0.75, '#4fae45'], [0.38, 1.35, 0.15, 0.5, '#5fbf4f'], [-0.35, 1.4, -0.12, 0.52, '#3f9a3c'], [0.05, 2.15, -0.05, 0.48, '#6fcf5a']].forEach(([cx, cy, cz, r, c]) => {
+    const m = new THREE.Mesh(new THREE.IcosahedronGeometry(r, 0), toon(c, { flatShading: true })); m.position.set(cx, cy, cz); m.castShadow = true; g.add(m);
+  });
+  island.add(g); return g;
+}
+const bigTree = tree(0, 0, 1.0);
+[[2.75, 1.2], [-2.6, -1.6], [-1.4, 2.6]].forEach(([x, z]) => {
+  const b = new THREE.Mesh(new THREE.IcosahedronGeometry(0.32, 0), toon('#4fae45', { flatShading: true })); b.position.set(x, 0.22, z); b.castShadow = true; island.add(b);
+});
+// mushrooms
+[[1.0, -0.9], [-0.9, 1.0], [0.6, 1.1]].forEach(([x, z]) => {
+  const stem = new THREE.Mesh(new THREE.CylinderGeometry(0.05, 0.06, 0.18, 8), toon('#fff4e0')); stem.position.set(x, 0.09, z); island.add(stem);
+  const cap = new THREE.Mesh(new THREE.SphereGeometry(0.13, 16, 8, 0, TAU, 0, Math.PI / 2), toon('#ff5d6c')); cap.position.set(x, 0.17, z); cap.castShadow = true; island.add(cap);
+});
+// instanced grass blades and flowers
+const GRASS = 700, grass = new THREE.InstancedMesh(new THREE.ConeGeometry(0.035, 0.26, 4).translate(0, 0.13, 0), toon('#5fbf4f'), GRASS);
+const grassData = [];
+for (let i = 0; i < GRASS; i++) { const a = hash(i, 1) * TAU, r = Math.sqrt(hash(i, 2)) * 3.15; grassData.push([Math.cos(a) * r, Math.sin(a) * r, 0.6 + hash(i, 3) * 0.8, hash(i, 4) * TAU]); }
+island.add(grass);
+const FLOWERS = 60, flowers = new THREE.InstancedMesh(new THREE.SphereGeometry(0.055, 8, 6), toon('#ffffff'), FLOWERS);
+{
+  const m = new THREE.Matrix4(), cols = ['#ff8fbf', '#ffd23f', '#ffffff', '#b48cff'].map(c => new THREE.Color(c));
+  for (let i = 0; i < FLOWERS; i++) { const a = hash(i, 7) * TAU, r = 0.8 + hash(i, 8) * 2.3; m.makeTranslation(Math.cos(a) * r, 0.1, Math.sin(a) * r); flowers.setMatrixAt(i, m); flowers.setColorAt(i, cols[i % 4]); }
+  island.add(flowers);
+}
+// clouds
+const clouds = [];
+for (let i = 0; i < 6; i++) {
+  const c = new THREE.Group(), a = i / 6 * TAU + 0.4, r = 13 + (i % 2) * 3;
+  c.position.set(Math.cos(a) * r, 2.5 + (i % 3), Math.sin(a) * r);
+  [[0, 0, 0, 1], [1, 0.2, 0, 0.8], [-1, 0.1, 0.1, 0.75], [0.4, 0.6, -0.1, 0.7]].forEach(([x, y, z, s]) => { const m = new THREE.Mesh(new THREE.SphereGeometry(s, 16, 12), toon('#ffffff')); m.position.set(x, y, z); c.add(m); });
+  scene.add(c); clouds.push(c);
+}
+// drifting leaves (instanced)
+const leafShape = new THREE.Shape(); leafShape.moveTo(0, 0); leafShape.quadraticCurveTo(0.08, 0.1, 0, 0.22); leafShape.quadraticCurveTo(-0.08, 0.1, 0, 0);
+const LEAVES = 40, leaves = new THREE.InstancedMesh(new THREE.ShapeGeometry(leafShape), toon('#6fcf5a', { side: THREE.DoubleSide }), LEAVES);
+scene.add(leaves);
+
+/* ---------- Sproutle (original character) ---------- */
+function leafGeo(len, wid) {
+  const s = new THREE.Shape(); s.moveTo(0, 0); s.quadraticCurveTo(wid, len * 0.45, 0, len); s.quadraticCurveTo(-wid, len * 0.45, 0, 0);
+  const g = new THREE.ExtrudeGeometry(s, { depth: 0.05, bevelEnabled: true, bevelThickness: 0.02, bevelSize: 0.02, bevelSegments: 2, curveSegments: 12 });
+  g.translate(0, 0, -0.025); return g;
+}
+function makeSproutle() {
+  const C = { body: '#3cc9c0', dark: '#249a92', belly: '#d9fff6', leaf: '#5fd068', vein: '#2f8a3a' };
+  const root = new THREE.Group(), body = new THREE.Group(); root.add(body);
+  const add = (parent, geo, mat, { pos, scale, rot, outline = true, cast = true } = {}) => {
+    const m = new THREE.Mesh(geo, mat);
+    if (pos) m.position.set(...pos); if (scale) m.scale.set(...scale); if (rot) m.rotation.set(...rot);
+    m.castShadow = cast; parent.add(m);
+    if (outline) { const o = new THREE.Mesh(geo, outlineMat); o.scale.setScalar(1.06); m.add(o); }
+    return m;
+  };
+  add(body, new THREE.SphereGeometry(0.55, 32, 24), toon(C.body), { pos: [0, 0.6, 0], scale: [1, 0.92, 1] });
+  add(body, new THREE.SphereGeometry(0.36, 24, 16), toon(C.belly), { pos: [0, 0.5, 0.3], scale: [1, 0.9, 0.55], outline: false });
+  // feet pivot at the ankles
+  const feet = [-1, 1].map(sd => { const g = new THREE.Group(); g.position.set(sd * 0.25, 0.09, 0.05); body.add(g); add(g, new THREE.SphereGeometry(0.17, 16, 12), toon(C.dark), { scale: [1, 0.55, 1.4], pos: [0, 0, 0.04] }); return g; });
+  // paws
+  [-1, 1].forEach(sd => add(body, new THREE.SphereGeometry(0.11, 16, 12), toon(C.body), { pos: [sd * 0.47, 0.42, 0.22] }));
+  // leaf ears pivot at their base
+  const ears = [-1, 1].map(sd => {
+    const g = new THREE.Group(); g.position.set(sd * 0.2, 1.02, -0.02); body.add(g);
+    const e = add(g, leafGeo(0.85, 0.3), toon(C.leaf)); add(e, new THREE.BoxGeometry(0.03, 0.62, 0.075), toon(C.vein), { pos: [0, 0.34, 0], outline: false, cast: false });
+    return g;
+  });
+  const tail = new THREE.Group(); tail.position.set(0, 0.42, -0.48); body.add(tail);
+  add(tail, leafGeo(0.55, 0.2), toon(C.leaf));
+  const gemMat = new THREE.MeshStandardMaterial({ color: '#ffd23f', emissive: '#ffb703', emissiveIntensity: 0.4, metalness: 0.2, roughness: 0.3 });
+  add(body, new THREE.OctahedronGeometry(0.09), gemMat, { pos: [0, 0.97, 0.42], scale: [0.85, 1.15, 0.6], rot: [-0.55, 0, 0] });
+  // face
+  const dark = new THREE.MeshBasicMaterial({ color: '#1d1440' }), white = new THREE.MeshBasicMaterial({ color: '#ffffff' });
+  [-1, 1].forEach(sd => {
+    add(body, new THREE.SphereGeometry(0.11, 20, 16), toon('#ffffff'), { pos: [sd * 0.2, 0.72, 0.47], scale: [1, 1.25, 0.5] });
+    add(body, new THREE.SphereGeometry(0.065, 16, 12), dark, { pos: [sd * 0.2, 0.71, 0.515], scale: [1, 1.2, 0.5], outline: false, cast: false });
+    add(body, new THREE.SphereGeometry(0.024, 8, 8), white, { pos: [sd * 0.2 + 0.025, 0.75, 0.545], outline: false, cast: false });
+    add(body, new THREE.SphereGeometry(0.07, 12, 8), new THREE.MeshBasicMaterial({ color: '#ff8fa8', transparent: true, opacity: 0.6 }), { pos: [sd * 0.36, 0.56, 0.4], scale: [1, 0.6, 0.3], outline: false, cast: false });
+  });
+  add(body, new THREE.TorusGeometry(0.06, 0.016, 8, 16, Math.PI), dark, { pos: [0, 0.56, 0.52], rot: [0, 0, Math.PI], outline: false, cast: false });
+  return { root, body, feet, ears, tail, gemMat };
+}
+const sprout = makeSproutle(); island.add(sprout.root);
+
+// landing dust puffs (reused)
+const dustMat = new THREE.MeshBasicMaterial({ color: '#fff8e8', transparent: true, opacity: 0 });
+const dust = Array.from({ length: 6 }, () => { const m = new THREE.Mesh(new THREE.SphereGeometry(0.09, 10, 8), dustMat); island.add(m); return m; });
+
+/* ---------- animation ---------- */
+const m4 = new THREE.Matrix4(), q = new THREE.Quaternion(), e = new THREE.Euler(), v = new THREE.Vector3(), one = new THREE.Vector3(1, 1, 1);
+function hop(t) {
+  const hopT = T / HOPS, i = Math.floor(t / hopT), p = (t - i * hopT) / hopT;
+  const airP = clamp((p - 0.18) / 0.6, 0, 1), inAir = p > 0.18 && p < 0.78;
+  const y = inAir ? 4 * 0.75 * airP * (1 - airP) : 0;
+  const vy = inAir ? 3 * (1 - 2 * airP) : 0;
+  const ang = TAU * (i + smooth(0, 1, airP)) / HOPS;
+  let sq;
+  if (p < 0.18) sq = 0.2 * smooth(0, 0.16, p);                                  // anticipation crouch
+  else if (inAir) sq = airP < 0.1 ? lerp(0.2, -0.18, airP / 0.1) : lerp(-0.18, 0, smooth(0.1, 0.5, airP)) - 0.06 * smooth(0.7, 1, airP);
+  else { const k = (p - 0.78) / 0.22; sq = 0.25 * Math.exp(-k * 5) * Math.cos(k * 9); } // landing squash + wobble
+  return { p, airP, inAir, y, vy, ang, sq, land: p >= 0.78 ? (p - 0.78) / 0.22 : -1 };
+}
+function update(t, reduced) {
+  const bob = reduced ? 0 : 0.06 * Math.sin(TAU * t / T);
+  island.position.y = bob;
+  const H = hop(t), s = sprout;
+  s.root.position.set(PATH_R * Math.sin(H.ang), H.y, PATH_R * Math.cos(H.ang));
+  s.root.rotation.y = H.ang + Math.PI / 2;
+  s.body.scale.set(1 + H.sq * 0.6, 1 - H.sq, 1 + H.sq * 0.6);
+  s.body.rotation.x = H.inAir ? 0.22 * Math.sin(Math.PI * H.airP) : -0.08 * Math.max(0, H.sq);
+  // ears lag behind vertical motion (follow-through) and spread on squash
+  s.ears.forEach((g, k) => {
+    const sd = k ? 1 : -1;
+    g.rotation.z = sd * (-0.45 - 0.35 * Math.max(0, H.sq));
+    g.rotation.x = -0.2 + clamp(H.vy * 0.12, -0.35, 0.35) + (reduced ? 0 : Math.sin(TAU * t * 2 + k) * 0.04);
+  });
+  s.tail.rotation.set(-1.9 + (reduced ? 0 : Math.sin(TAU * t * 2) * 0.12), Math.sin(TAU * t * 2) * 0.25, 0);
+  s.feet.forEach((f, k) => { f.rotation.x = H.inAir ? -0.6 * Math.sin(Math.PI * H.airP) * (k ? 1 : 0.8) : 0; });
+  s.gemMat.emissiveIntensity = 0.4 + (H.land >= 0 ? 1.4 * Math.exp(-H.land * 4) : 0);
+  // dust ring on landing
+  if (H.land >= 0 && H.land < 0.8) {
+    const k = H.land / 0.8; dustMat.opacity = 0.8 * (1 - k);
+    dust.forEach((d, i) => { const a = i / dust.length * TAU; d.position.set(s.root.position.x + Math.cos(a) * (0.35 + k * 0.5), 0.06 + k * 0.12, s.root.position.z + Math.sin(a) * (0.35 + k * 0.5)); d.scale.setScalar(0.6 + k * 1.2); d.visible = true; });
+  } else dust.forEach(d => (d.visible = false));
+  // grass sway (whole cycles per loop -> seamless)
+  for (let i = 0; i < GRASS; i++) {
+    const [x, z, h, ph] = grassData[i], sway = reduced ? 0 : Math.sin(TAU * t * 2 / T * 2 + ph + x) * 0.18;
+    e.set(sway, ph, sway * 0.5); q.setFromEuler(e); v.set(h * 0.9, h, h * 0.9);
+    m4.compose(new THREE.Vector3(x, 0, z), q, v); grass.setMatrixAt(i, m4);
+  }
+  grass.instanceMatrix.needsUpdate = true;
+  bigTree.rotation.z = reduced ? 0 : Math.sin(TAU * t / T * 2) * 0.015;
+  clouds.forEach((c, i) => { c.position.y = 2.5 + (i % 3) + (reduced ? 0 : Math.sin(TAU * t / T + i) * 0.25); });
+  for (let i = 0; i < LEAVES; i++) {
+    const u = (t / T + i / LEAVES) % 1, a = TAU * (u + i * 0.37), r = 3.6 + Math.sin(i) * 0.6;
+    v.set(Math.cos(a) * r, -1.2 + u * 6, Math.sin(a) * r);
+    e.set(TAU * u * 3 + i, TAU * u * 2, i); q.setFromEuler(e);
+    const sc = Math.sin(Math.PI * u) * 1.2; m4.compose(v, q, new THREE.Vector3(sc, sc, sc)); leaves.setMatrixAt(i, m4);
+  }
+  leaves.instanceMatrix.needsUpdate = true;
+}
+
+/* ---------- sizing ---------- */
+function resize() {
+  const w = stage.clientWidth, h = stage.clientHeight || w * 9 / 16;
+  renderer.setSize(w, h, false); camera.aspect = w / h; camera.updateProjectionMatrix();
+}
+new ResizeObserver(resize).observe(stage); resize();
+
+/* ---------- controls & loop ---------- */
+const playBtn = document.getElementById('play'), restartBtn = document.getElementById('restart');
+const rm = document.getElementById('rm'), spin = document.getElementById('spin');
+const STATIC_T = (T / HOPS) * 0.48;   // mid-hop pose
+let t = 0, playing = true;
+function setPlaying(p) { playing = p; playBtn.textContent = p ? 'Pause' : 'Play'; playBtn.setAttribute('aria-pressed', String(!p)); }
+function syncSpin() { controls.autoRotate = spin.checked && !rm.checked; }
+if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) { rm.checked = true; spin.checked = false; t = STATIC_T; setPlaying(false); }
+syncSpin();
+playBtn.addEventListener('click', () => setPlaying(!playing));
+restartBtn.addEventListener('click', () => { t = 0; setPlaying(true); });
+rm.addEventListener('change', () => { if (rm.checked) { spin.checked = false; t = STATIC_T; setPlaying(false); } syncSpin(); });
+spin.addEventListener('change', syncSpin);
+window.addEventListener('keydown', ev => {
+  if (ev.target && ev.target.tagName === 'INPUT') return;
+  if (ev.code === 'Space') { ev.preventDefault(); setPlaying(!playing); }
+  else if (ev.key === 'r' || ev.key === 'R') { t = 0; setPlaying(true); }
+});
+const clock = new THREE.Clock();
+renderer.setAnimationLoop(() => {
+  const dt = Math.min(0.05, clock.getDelta());
+  if (playing) t = (t + dt * (rm.checked ? 0.4 : 1)) % T;
+  update(t, rm.checked);
+  controls.update(dt);
+  renderer.render(scene, camera);
+});
+window.Sproutle3D = { setTime: x => { t = ((x % T) + T) % T; }, setPlaying, ready: true };
+</script>
+</body>
+</html>
