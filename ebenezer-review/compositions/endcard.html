@@ -3,21 +3,24 @@
   <style>
     #root { position: absolute; inset: 0; overflow: hidden;
       background: radial-gradient(ellipse 70% 45% at 50% 40%, #1c2436 0%, var(--night) 72%); }
-    .end-line { position: absolute; left: 60px; right: 180px; text-align: center; opacity: 0; }
+    #end-wrap { position: absolute; inset: 0; }
+    .end-line { position: absolute; left: 120px; right: 200px; text-align: center; opacity: 0; }
     #end-title { top: 330px; font-family: var(--font-display); font-size: 124px; font-weight: 700; color: var(--parchment); line-height: 1; }
     #end-year { top: 480px; font-family: var(--font-body); font-size: 56px; color: var(--frost); }
     #end-rule { position: absolute; left: 270px; top: 590px; width: 300px; height: 4px; background: var(--candle); transform-origin: 50% 50%; }
-    #end-verdict { top: 650px; font-family: var(--font-display); font-size: 56px; font-weight: 700; color: var(--candle); line-height: 1.15; }
+    #end-verdict { top: 650px; font-family: var(--font-display); font-size: 46px; font-weight: 700; color: var(--candle); line-height: 1.15; }
     #end-cta { top: 900px; font-family: var(--font-body); font-size: 42px; color: var(--parchment); }
     #end-src { top: 990px; font-family: var(--font-body); font-size: 44px; color: var(--ash); }
   </style>
   <div id="root" data-composition-id="endcard" data-width="1080" data-height="1920">
+    <div id="end-wrap" class="clip" data-start="0" data-duration="5">
     <h2 id="end-title" class="end-line clip" data-start="0" data-duration="5">EBENEZER</h2>
     <p id="end-year" class="end-line clip" data-start="0" data-duration="5">(2026)</p>
     <div id="end-rule" class="clip" data-start="0" data-duration="5"></div>
     <p id="end-verdict" class="end-line clip" data-start="0" data-duration="5" data-var-text="endVerdict">Spooky. Gorgeous. Not a classic.</p>
     <p id="end-cta" class="end-line clip" data-start="0" data-duration="5" data-var-text="endCta">Follow for more 60-second reviews</p>
     <p id="end-src" class="end-line clip" data-start="0" data-duration="5">Sources in the description</p>
+    </div>
   </div>
   <script>
     const tl = gsap.timeline({ paused: true });
@@ -27,7 +30,7 @@
     tl.fromTo("#end-verdict", { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.45, ease: "power3.out" }, 0.7);
     tl.fromTo("#end-cta", { opacity: 0 }, { opacity: 1, duration: 0.4, ease: "sine.out" }, 1.4);
     tl.fromTo("#end-src", { opacity: 0 }, { opacity: 1, duration: 0.4, ease: "sine.out" }, 1.7);
-    tl.to("#root", { opacity: 0, duration: 0.6, ease: "sine.in" }, 4.3);
+    tl.fromTo("#end-wrap", { opacity: 1 }, { opacity: 0, duration: 0.4, ease: "sine.in" }, 4.55);
     window.__timelines["endcard"] = tl;
   </script>
 </template>
