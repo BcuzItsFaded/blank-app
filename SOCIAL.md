@@ -222,3 +222,50 @@ Help arrived the very day they stopped waiting. 👇
 🎬 Plot Twist with A&R
 
 **Hashtags:** #Clipperton #ClippertonIsland #IslaClipperton #Mexico #HistoriaDeMexico #MexicanHistory #TrueStory #DarkHistory #RealHorror #Survival #Lighthouse #PaperCut #PlotTwistWithAR
+
+---
+
+## Las Poquianchis · Ep. 25 (Paper-cut Lightbox)
+**Title:** Las Poquianchis: The Sisters Nobody Questioned 🏚️ | Ep. 25
+
+**Caption:**
+Guanajuato, Mexico. The 1950s. Four sisters ran some of the most feared brothels in the country. 🇲🇽
+Their trap was a newspaper ad: "Housemaid wanted." Poor young women answered it… and never came home.
+In 1964, one of them, Catalina Ortega, escaped. Police went to the sisters' ranch and started digging. ⛏️
+
+Reports claimed 91 bodies. Historians still argue over the real number.
+Everyone knew what those houses were. Nobody asked where the girls went. 💔
+🎬 Plot Twist with A&R
+
+**Hashtags:** #LasPoquianchis #Guanajuato #Mexico #HistoriaDeMexico #MexicanHistory #TrueCrime #TrueCrimeCommunity #DarkHistory #TrueStory #CrimenesReales #RealHorror #PaperCut #PlotTwistWithAR
+
+---
+
+## La Mataviejitas · Ep. 26 (Paper-cut Lightbox)
+**Title:** La Mataviejitas: The Killer Nobody Suspected 🎭 | Ep. 26
+
+**Caption:**
+Mexico City. Elderly women living alone were being found dead in their own homes. Many seem to have let their killer in. 🚪
+For years, police hunted a man.
+They were wrong. 😳
+
+In 2006, police caught a woman fleeing her latest victim's home. On weekends she was a professional wrestler: "La Dama del Silencio." 🤼‍♀️
+Convicted of 16 murders and sentenced to 759 years… but linked to as many as 40.
+🎬 Plot Twist with A&R
+
+**Hashtags:** #LaMataviejitas #JuanaBarraza #MexicoCity #CDMX #LuchaLibre #TrueCrime #SerialKiller #TrueCrimeCommunity #DarkHistory #CrimenesReales #TrueStory #PaperCut #PlotTwistWithAR
+
+---
+
+## The Narcosatanists · Ep. 27 (Paper-cut Lightbox)
+**Title:** The Narcosatanists: The Cult That Thought It Was Invisible 🕯️ | Ep. 27
+
+**Caption:**
+Matamoros, 1989. A 21-year-old University of Texas student crosses the border for spring break… and vanishes outside a bar. 🌉
+For weeks, nothing. Then a trafficker drives straight through a police checkpoint. According to later accounts, he believed rituals had made him invisible. 😶
+Police followed him to Rancho Santa Elena. They found a ritual cauldron… and fifteen bodies.
+
+The cult leader, "El Padrino," died before any trial. It was all exposed by one family that never stopped looking. 💔
+🎬 Plot Twist with A&R
+
+**Hashtags:** #Narcosatanicos #Matamoros #MarkKilroy #AdolfoConstanzo #TrueCrime #TrueCrimeCommunity #DarkHistory #Cult #TrueStory #CrimenesReales #Mexico #PaperCut #PlotTwistWithAR
