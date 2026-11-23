@@ -1,0 +1,357 @@
+<!doctype html>
+<html><head><meta charset="utf-8">
+<style>
+@font-face { font-family: 'PH'; src: url('/demos/25-from-short/fonts/patrick-hand-latin-400-normal.woff2') format('woff2'); font-display: block; }
+html,body{margin:0;background:#000;overflow:hidden}canvas{display:block;width:1080px;height:1920px}
+</style>
+</head><body>
+<canvas id="c" width="1080" height="1920"></canvas>
+<script type="module">
+// "FROM — the town that won't let you leave": 60 s 9:16 frame-by-frame recap short. Original doodles only;
+// the script runs as boiling hand captions above a comic panel. Every frame is a pure function of t.
+import { setCtx, setBoil, INK, RED, YEL, CREAM, HI, hash, sn, rr, clamp, lerp, seg, eOut, eIn, eIO, eBack,
+  brush, fillShape, ell, blob, puff, star, twinkle } from '/demos/25-from-short/ink.js';
+const W = 1080, H = 1920, FPS = 24;
+const C = await (await fetch('/demos/25-from-short/cues.json')).json();
+window.DEMO = { width: W, height: H, fps: FPS, duration: C.duration };
+const cv = document.getElementById('c'), X = cv.getContext('2d'); setCtx(X);
+await document.fonts.load("84px 'PH'", 'Imagine taking one wrong turn—’“”?:,.RULES HORROR SURVIVAL PUZZLE STAY WOODS');
+await document.fonts.ready;
+const OLIVE = '#6f8a3a', PINE = '#4f6b34', NAVY = '#141a2e', STONE = '#e6d2a8', WOOD = '#8a4b2e', PALE = '#efe6d2', DUSK = '#2a2440';
+let BOIL = 0;
+const P0 = { x0: 40, y0: 640, x1: 1040, y1: 1580 };   // the comic panel
+const GY = 1430;                                       // road / ground line inside the panel
+
+// ---------------------------------------------------------------- timing
+const ONES = [[1.6, 2.25], [5.1, 5.75], [6.3, 7.6], [18.5, 19.5], [20.6, 21.25], [30.3, 30.95], [38.9, 39.75], [41.2, 41.85], [45.2, 45.7], [47.3, 48.1], [50.0, 50.65]];
+function timing(t) {
+  const f = Math.min(Math.round(C.duration * FPS) - 1, Math.round(t * FPS)), tt = f / FPS;
+  const step = tt >= C.hold ? 3 : ONES.some(([a, b]) => tt >= a && tt < b) ? 1 : 2;
+  return { f, tq: (f - (f % step)) / FPS, boil: Math.floor(f / Math.max(2, step)) };
+}
+
+// ---------------------------------------------------------------- paper
+const paperImg = new Image(); paperImg.src = '/assets/textures/paper/Paper001_4K_color.jpg';
+const grainImg = new Image(); grainImg.src = '/assets/textures/grain/grain_fine_2048.png';
+await Promise.all([paperImg.decode(), grainImg.decode()]);
+const cover = (p, img) => { const s = Math.max(W / img.width, H / img.height); p.drawImage(img, (W - img.width * s) / 2, (H - img.height * s) / 2, img.width * s, img.height * s); };
+const paper = document.createElement('canvas'); paper.width = W; paper.height = H;
+{ const p = paper.getContext('2d'); p.fillStyle = CREAM; p.fillRect(0, 0, W, H);
+  p.globalCompositeOperation = 'multiply'; p.globalAlpha = 0.5; cover(p, paperImg); p.globalAlpha = 1; p.globalCompositeOperation = 'source-over';
+  for (let i = 0; i < 900; i++) { p.fillStyle = `rgba(120,90,60,${0.03 + 0.05 * hash(3, i)})`; p.save(); p.translate(hash(4, i) * W, hash(5, i) * H); p.rotate(hash(6, i) * 6.28); p.fillRect(0, 0, 3 + 12 * hash(7, i), 0.8); p.restore(); }
+  const g = p.createRadialGradient(W / 2, H * 0.5, H * 0.3, W / 2, H * 0.5, H * 0.8); g.addColorStop(0, 'rgba(90,60,30,0)'); g.addColorStop(1, 'rgba(70,45,25,0.3)'); p.fillStyle = g; p.fillRect(0, 0, W, H); }
+const tex = document.createElement('canvas'); tex.width = W; tex.height = H; cover(tex.getContext('2d'), paperImg);
+
+// ---------------------------------------------------------------- helpers
+const poly = (pts, col, seed, w = 5, off = 3) => { fillShape(pts, col, seed, off); brush([...pts, pts[0]], w, { seed: seed + 1, taper: [0.02, 0.02] }); };
+function hand(text, x, y, size, col = INK, align = 'center', seed = 0, rot = 0) {
+  X.save(); X.font = `${size}px PH`; X.textAlign = align; X.textBaseline = 'alphabetic';
+  X.translate(x + sn(BOIL * 7 + seed, 0.5) * 1.5, y + sn(BOIL * 7 + seed + 9, 0.5) * 1.5); X.rotate(rot + sn(BOIL * 3 + seed, 0.4) * 0.02);
+  X.fillStyle = col; X.fillText(text, 0, 0); X.restore();
+}
+function nightWash(a, col = NAVY, x0 = P0.x0, x1 = P0.x1) { if (a <= 0) return; X.save(); X.globalAlpha = a; X.fillStyle = col; X.fillRect(x0, P0.y0, x1 - x0, P0.y1 - P0.y0); X.restore(); }
+function ground(y, x0 = P0.x0, x1 = P0.x1, seed = 3) {
+  const pts = []; for (let i = 0; i <= 24; i++) pts.push([lerp(x0, x1, i / 24), y + Math.sin(i * 1.9) * 3]);
+  brush(pts, 5, { seed, taper: [0.02, 0.02] });
+  for (let i = 0; i < 10; i++) { const x = x0 + 40 + i * (x1 - x0 - 80) / 9; brush([[x, y + 40 + rr(seed, i, 0, 70)], [x + 36, y + 34 + rr(seed, i, 0, 70)]], 2.4, { seed: seed + 20 + i, taper: [0.4, 0.4] }); }
+}
+function pine(x, base, h, seed, col = PINE) {
+  const w = h * 0.42, pts = [[x, base - h]];
+  for (let k = 1; k <= 3; k++) { const y = base - h + h * k / 3.4; pts.push([x + w * k / 3, y], [x + w * k / 3 * 0.55, y - h * 0.04]); }
+  pts.push([x + w * 0.2, base - h * 0.06], [x + w * 0.2, base]); const L = pts.map(([a, b]) => [2 * x - a, b]).reverse();
+  const all = [...pts, ...L]; fillShape(all, col, seed, 3); brush([...all, all[0]], 4.5, { seed: seed + 1, taper: [0.02, 0.02] });
+}
+function forest(base, seed, n = 12, col = PINE) { for (let i = 0; i < n; i++) pine(P0.x0 + 20 + i * (960 / (n - 1)) + rr(seed, i, -20, 20), base + rr(seed, i + 30, -10, 14), 190 + 110 * hash(seed, i), seed + i * 5, col); }
+function house(x, base, w, h, seed, lit = 0, col = STONE) {
+  poly([[x, base], [x, base - h], [x + w, base - h], [x + w, base]], col, seed);
+  poly([[x - 16, base - h], [x + w / 2, base - h - w * 0.55], [x + w + 16, base - h]], RED, seed + 3);
+  const win = [[x + w * 0.2, base - h * 0.72], [x + w * 0.45, base - h * 0.72], [x + w * 0.45, base - h * 0.42], [x + w * 0.2, base - h * 0.42]];
+  if (lit) { X.save(); X.globalAlpha = 0.35 * lit; X.fillStyle = YEL; X.beginPath(); X.arc(x + w * 0.33, base - h * 0.57, w * 0.45, 0, 7); X.fill(); X.restore(); }
+  poly(win, lit ? YEL : INK, seed + 6, 3.5, 1); brush([[x + w * 0.325, base - h * 0.72], [x + w * 0.325, base - h * 0.42]], 2.5, { seed: seed + 8 });
+  poly([[x + w * 0.6, base], [x + w * 0.6, base - h * 0.5], [x + w * 0.82, base - h * 0.5], [x + w * 0.82, base]], WOOD, seed + 9, 3.5, 1);
+}
+function car(x, gy, seed = 900, o = {}) {
+  const { lights = 0, driver = null, wheel = 0 } = o;
+  if (lights > 0) { X.save(); X.globalAlpha = 0.3 * lights; X.fillStyle = YEL; X.beginPath(); X.moveTo(x + 110, gy - 50); X.lineTo(x + 560, gy - 110); X.lineTo(x + 560, gy + 30); X.closePath(); X.fill(); X.restore(); }
+  const body = [[x - 115, gy - 25], [x - 112, gy - 75], [x - 60, gy - 82], [x - 30, gy - 130], [x + 50, gy - 130], [x + 80, gy - 82], [x + 112, gy - 72], [x + 115, gy - 25]];
+  poly(body, RED, seed, 5.5, 3);
+  const win = [[x - 22, gy - 120], [x + 44, gy - 120], [x + 68, gy - 84], [x - 46, gy - 84]];
+  poly(win, lights ? '#3b3f55' : HI, seed + 2, 4, 1);
+  if (driver) blob({ x: x + 10, ground: gy - 84, scale: 0.26, legs: 0, arms: 0, eyes: 'open', look: driver.look || 0, mouth: driver.mouth || 'smile', shadow: 0, seed: seed + 40, body: OLIVE });
+  brush([[x + 10, gy - 120], [x + 10, gy - 84]], 3, { seed: seed + 3 });
+  fillShape(ell(x + 104, gy - 58, 9, 9, 0, 6.29, 10), lights ? HI : YEL, seed + 4, 0.5);
+  for (const wx of [x - 62, x + 66]) { fillShape(ell(wx, gy - 18, 26, 26, 0, 6.29, 18), INK, seed + 5, 0.5); fillShape(ell(wx, gy - 18, 10, 10, 0, 6.29, 10), STONE, seed + 6, 0.3);
+    brush([[wx + Math.cos(wheel) * 9, gy - 18 + Math.sin(wheel) * 9], [wx + Math.cos(wheel) * 22, gy - 18 + Math.sin(wheel) * 22]], 3, { seed: seed + 7, color: STONE }); }
+}
+function creature(x, gy, h, seed, step = 0, reach = 0) {
+  const bob = Math.abs(Math.sin(step * Math.PI)) * 8, top = gy - h - bob, sway = Math.sin(step * Math.PI) * 6;
+  for (const sd of [-1, 1]) { const ph = Math.sin(step * Math.PI + (sd > 0 ? Math.PI : 0)) * 14; brush([[x + sd * 14, gy - h * 0.42 - bob], [x + sd * 16 + ph, gy - 4]], 9, { seed: seed + (sd > 0 ? 1 : 2) }); }
+  const torso = [[x - 32, top + h * 0.2], [x + 32, top + h * 0.2], [x + 24, gy - h * 0.4 - bob], [x - 24, gy - h * 0.4 - bob]];
+  poly(torso, '#2b2633', seed + 3, 4, 1);
+  for (const sd of [-1, 1]) { const hx = x + sd * (38 + reach * 50) + sway, hy = gy - h * 0.38 - bob - reach * h * 0.22; brush([[x + sd * 30, top + h * 0.22], [x + sd * 44 + sway * 0.5, top + h * 0.45], [hx, hy]], 7, { seed: seed + 4 + sd }); for (let k = -1; k <= 1; k++) brush([[hx, hy], [hx + sd * 8 + k * 6, hy + 16]], 2.6, { seed: seed + 7 + k }); }
+  const head = ell(x + sway * 0.3, top + h * 0.1, 36, 44, 0, 6.29, 24); fillShape(head, PALE, seed + 10, 1.5); brush(ell(x + sway * 0.3, top + h * 0.1, 36, 44, 0.5, 6.7, 24), 4, { seed: seed + 11 });
+  for (const sd of [-1, 1]) fillShape(ell(x + sway * 0.3 + sd * 13, top + h * 0.06, 6.5, 9, 0, 6.29, 10), INK, seed + 12, 0.3);
+  const mx = x + sway * 0.3, my = top + h * 0.16, grin = ell(mx, my, 26, 15, 0.05, Math.PI - 0.05, 16);
+  fillShape([...grin, [mx - 26, my]], INK, seed + 13, 0.4);
+  for (let k = -2; k <= 2; k++) brush([[mx + k * 9, my + 1], [mx + k * 9, my + 9 - Math.abs(k) * 1.5]], 2.2, { seed: seed + 14 + k, color: PALE, taper: [0, 0] });
+}
+function eyesInDark(x, y, seed, open = 1, s = 1) {
+  if (open <= 0.05) return; const bl = (BOIL + seed) % 17 === 0 ? 0.15 : 1;
+  for (const sd of [-1, 1]) fillShape(ell(x + sd * 15 * s, y, 8 * s, 6 * s * open * bl, 0, 6.29, 10), YEL, seed + sd, 0.5);
+}
+function bigEye(x, y, w, open, look, seed = 3300) {
+  if (open <= 0.02) return;
+  const lid = (sgn) => { const pts = []; for (let i = 0; i <= 20; i++) { const u = i / 20, xx = x - w + 2 * w * u; pts.push([xx, y + sgn * Math.sin(u * Math.PI) * w * 0.42 * open]); } return pts; };
+  const up = lid(-1), dn = lid(1), shape = [...up, ...dn.reverse()];
+  fillShape(shape, PALE, seed, 2);
+  X.save(); X.beginPath(); shape.forEach((p, i) => i ? X.lineTo(p[0], p[1]) : X.moveTo(p[0], p[1])); X.closePath(); X.clip();
+  fillShape(ell(x + look * w * 0.35, y, w * 0.32, w * 0.32, 0, 6.29, 24), RED, seed + 2, 1); fillShape(ell(x + look * w * 0.35, y, w * 0.14, w * 0.18, 0, 6.29, 16), INK, seed + 3, 0.3);
+  X.restore(); brush(up, 6, { seed: seed + 4, taper: [0.1, 0.1] }); brush(dn, 5, { seed: seed + 5, taper: [0.1, 0.1] });
+  for (let i = 0; i < 7; i++) { const u = 0.15 + i * 0.12, xx = x - w + 2 * w * u, yy = y - Math.sin(u * Math.PI) * w * 0.42 * open; brush([[xx, yy], [xx + (u - 0.5) * 30, yy - 26 * open]], 4, { seed: seed + 10 + i }); }
+}
+function door(x, base, open, inside, seed = 4600) {
+  const w = 170, h = 320, fr = [[x - w / 2 - 18, base], [x - w / 2 - 18, base - h - 18], [x + w / 2 + 18, base - h - 18], [x + w / 2 + 18, base]];
+  poly(fr, STONE, seed, 5, 2);
+  const hole = [[x - w / 2, base], [x - w / 2, base - h], [x + w / 2, base - h], [x + w / 2, base]];
+  fillShape(hole, inside === 'light' ? HI : INK, seed + 2, 0);
+  if (inside === 'light' && open > 0) { X.save(); X.globalAlpha = 0.45 * open; X.fillStyle = YEL; X.beginPath(); X.moveTo(x - w / 2, base); X.lineTo(x - w * 1.6, base + 140); X.lineTo(x + w * 1.6, base + 140); X.lineTo(x + w / 2, base); X.fill(); X.restore(); }
+  if (inside === 'dark') { eyesInDark(x - 30, base - h * 0.6, seed + 5, 1, 1.2); eyesInDark(x + 40, base - h * 0.35, seed + 9, 1, 0.9); }
+  const dw = w * (1 - 0.82 * open), leaf = [[x - w / 2, base], [x - w / 2, base - h], [x - w / 2 + dw, base - h + 18 * open], [x - w / 2 + dw, base - 14 * open]];
+  poly(leaf, WOOD, seed + 4, 5, 1.5);
+  if (open < 0.1) { brush([[x - w / 2 + 4, base - 4], [x - w / 2 + 4, base - h + 4]], 5, { seed: seed + 6, color: YEL }); fillShape(ell(x + w / 2 - 26, base - h / 2, 8, 8, 0, 6.29, 10), YEL, seed + 7, 0.5); }
+}
+function signpost(x, gy, rot, tally = 0, seed = 1200) {
+  brush([[x, gy], [x, gy - 230]], 9, { seed, color: WOOD, taper: [0, 0] }); brush([[x - 5, gy], [x - 5, gy - 230]], 3, { seed: seed + 1 });
+  X.save(); X.translate(x, gy - 190); X.scale(Math.cos(rot), 1);
+  poly([[-10, -30], [120, -30], [150, 0], [120, 30], [-10, 30]], STONE, seed + 2, 4, 1); hand('HOME', 60, 14, 38, INK, 'center', seed);
+  X.restore();
+}
+function townSign(x, gy, tally, u = 1, seed = 1300) {
+  if (u <= 0) return; X.save(); X.translate(x, gy); X.scale(1, eBack(u)); X.translate(-x, -gy);
+  for (const dx of [-70, 70]) brush([[x + dx, gy], [x + dx, gy - 130]], 7, { seed: seed + dx, color: WOOD, taper: [0, 0] });
+  poly([[x - 105, gy - 120], [x + 105, gy - 120], [x + 105, gy - 210], [x - 105, gy - 210]], STONE, seed + 2, 4.5, 1.5);
+  hand('WELCOME', x, gy - 152, 44, INK, 'center', seed);
+  for (let i = 0; i < tally; i++) brush([[x - 60 + i * 18, gy - 140], [x - 54 + i * 18, gy - 124]], 4, { seed: seed + 10 + i, color: RED });
+  X.restore();
+}
+function qmarkGlyph(x, y, size, seed, col = RED) { hand('?', x + 5, y + 5, size, INK, 'center', seed); hand('?', x, y, size, col, 'center', seed); }
+
+// ---------------------------------------------------------------- title lettering: FROM
+const LET = {
+  F: { w: 86, s: [[[0, 200], [0, 0], [86, 2]], [[0, 100], [66, 98]]] },
+  R: { w: 96, s: [[[0, 200], [0, 0]], [[0, 0], [60, 2], [92, 28], [92, 74], [60, 104], [0, 106]], [[34, 106], [96, 200]]] },
+  O: { w: 128, s: [ell(64, 100, 64, 100, -Math.PI / 2, Math.PI * 1.55, 30)] },
+  M: { w: 140, s: [[[0, 200], [8, 0], [70, 138], [132, 0], [140, 200]]] },
+};
+function titleFROM(cx, cy, sc, t0, step, seed = 1500) {
+  const tw = (86 + 96 + 128 + 140) * sc + 3 * 40 * sc; let x = cx - tw / 2, k = 0;
+  for (const ch of 'FROM') { const L = LET[ch];
+    for (const st of L.s) { const u = seg(tqG, t0 + k * step, t0 + k * step + step * 1.4); if (u > 0) { const pts = st.map(([a, b]) => [x + a * sc, cy - 100 * sc + b * sc]);
+      brush(pts.map(([a, b]) => [a + 9 * sc, b + 8 * sc]), 34 * sc, { seed: seed + k * 3, upto: eOut(u), color: INK, taper: [0.1, 0.15], amp: 2 });
+      brush(pts, 34 * sc, { seed: seed + k * 3 + 1, upto: eOut(u), color: RED, taper: [0.1, 0.15], amp: 2 }); } k++; }
+    x += (L.w + 40) * sc; }
+}
+let tqG = 0;
+
+// ---------------------------------------------------------------- panel, wipes, captions
+function panelBorder() { const { x0, y0, x1, y1 } = P0; brush([[x0, y0], [x1, y0], [x1, y1], [x0, y1], [x0, y0], [x1, y0]], 9, { seed: 77, taper: [0, 0], amp: 1.6 }); }
+function inkWipe(t, t0, seed) {
+  const u = seg(t, t0, t0 + 0.6); if (u <= 0 || u >= 1) return;
+  const { x0, y0, x1, y1 } = P0, w = x1 - x0, a = u < 0.5 ? x0 : x0 + w * (u - 0.5) * 2.2, b = u < 0.5 ? x0 + w * u * 2.2 : x1 + 40;
+  const pts = [[a, y0 - 5]]; for (let i = 0; i <= 12; i++) pts.push([Math.min(x1 + 5, b + sn(seed + BOIL, i) * 40), lerp(y0, y1, i / 12)]);
+  pts.push([a, y1 + 5]); for (let i = 12; i >= 0; i--) pts.push([Math.max(x0 - 5, a + (u < 0.5 ? -40 : sn(seed + 5 + BOIL, i) * 40)), lerp(y0, y1, i / 12)]);
+  fillShape(pts, INK, seed, 0);
+}
+const HOT = new Set(C.hot);
+function captions(t) {
+  let page = null; for (const p of C.pages) if (t >= p.t) page = p; if (!page) return;
+  page.lines.forEach(([t0, text], li) => {
+    if (t < t0) return; let fs = 92; X.font = `${fs}px PH`; const words = text.split(' '), sp = X.measureText(' ').width;
+    const wid = w => [...w].reduce((a, ch) => a + X.measureText(ch).width, 0);
+    let tw = words.reduce((a, w) => a + wid(w), 0) + sp * (words.length - 1);
+    if (tw > 1000) { fs = 92 * 1000 / tw; X.font = `${fs}px PH`; tw = 1000; }
+    let x = (W - tw) / 2; const y = 330 + li * 130;
+    words.forEach((w, wi) => {
+      const ww = wid(w), k = seg(t, t0 + wi * 0.07, t0 + wi * 0.07 + 0.17); if (k <= 0) { x += ww + sp; return; }
+      const sc = eBack(k), hot = HOT.has(w); let cx = x;
+      [...w].forEach((ch, ci) => { const cw = X.measureText(ch).width, j = wi * 17 + ci + li * 101 + page.t * 13;
+        X.save(); X.translate(cx + cw / 2 + sn(BOIL * 7 + j, 0.5) * 1.6, y + sn(BOIL * 7 + j + 50, 0.5) * 1.6); X.rotate(sn(BOIL * 3 + j, 0.4) * 0.045); X.scale(sc, sc); X.textAlign = 'center';
+        if (hot) { X.fillStyle = INK; X.fillText(ch, 5, 5); X.fillStyle = RED; X.fillText(ch, 0, 0); X.lineWidth = 2; X.strokeStyle = INK; X.strokeText(ch, 0, 0); } else { X.fillStyle = INK; X.fillText(ch, 0, 0); }
+        X.restore(); cx += cw; });
+      if (hot && k >= 1) brush([[x, y + 16], [x + ww * 0.5, y + 22], [x + ww, y + 14]], 7, { seed: 6000 + li * 31 + wi + page.t * 7, color: YEL, taper: [0.2, 0.4] });
+      x += ww + sp;
+    });
+  });
+}
+
+// ---------------------------------------------------------------- scenes
+function sceneRoad(t, T) {
+  const night = eIO(seg(t, C.night[0], C.night[1]));
+  forest(1250, 100, 12);
+  // town on the right, drawn in at the hook's second line
+  const td = seg(t, C.town_draw[0], C.town_draw[1]);
+  if (td > 0) { const hs = [[780, 120, 110], [900, 110, 140], [640, 100, 95]]; hs.forEach(([hx, w, h], i) => { const k = clamp(td * 3 - i); if (k > 0) { X.save(); X.translate(hx + w / 2, 1300); X.scale(1, eBack(k)); X.translate(-hx - w / 2, -1300); house(hx, 1300, w, h, 1400 + i * 20, 0); X.restore(); } }); }
+  ground(GY);
+  brush([[P0.x0, GY + 70], [P0.x1, GY + 70]], 4, { seed: 31, taper: [0, 0] });
+  for (let i = 0; i < 6; i++) brush([[P0.x0 + 40 + i * 170, GY + 36], [P0.x0 + 110 + i * 170, GY + 36]], 5, { seed: 40 + i, color: YEL, taper: [0.1, 0.1] });
+  // sign spins at the wrong turn
+  if (t < C.loop[0][0]) { const sp = seg(t, C.turn - 0.3, C.turn + 0.2); signpost(300, GY, Math.PI * eIO(sp)); }
+  const tally = t >= C.loop[2][0] ? 2 : t >= C.loop[1][0] ? 1 : 0;
+  if (td > 0) townSign(700, GY, tally, seg(t, C.town_draw[0] + 0.5, C.town_draw[0] + 0.9));
+  // fallen tree blocks the way back
+  if (t >= C.tree_fall - 0.4 && t < C.loop[0][0]) { const u = eIn(seg(t, C.tree_fall - 0.4, C.tree_fall)); X.save(); X.translate(130, GY + 30); X.rotate(-Math.PI / 2 * (1 - u) + 0.0); X.translate(-130, -(GY + 30));
+    poly([[130, GY + 14], [470, GY + 4], [470, GY + 40], [130, GY + 46]], WOOD, 1600, 5, 2); for (let i = 0; i < 4; i++) pine(250 + i * 60, GY + 26, 90, 1610 + i, PINE); X.restore();
+    if (t >= C.tree_fall && t < C.tree_fall + 0.6) for (const sd of [-1, 1]) puff(300 + sd * 200, GY + 10, 50, 1620 + sd, eOut(seg(t, C.tree_fall, C.tree_fall + 0.15)), seg(t, C.tree_fall + 0.1, C.tree_fall + 0.6)); }
+  // night falls
+  nightWash(0.74 * night);
+  if (night > 0) {
+    const mu = seg(t, C.night[0] + 0.3, C.night[1]); fillShape(ell(860, 790, 52, 52, 0, 6.29, 24), PALE, 1700, 1); brush(ell(860, 790, 52, 52, 0, 6.29 * mu, 24), 4, { seed: 1701, color: INK });
+    fillShape(ell(880, 780, 46, 46, 0, 6.29, 24), NAVY, 1702, 0);
+    for (let i = 0; i < 6; i++) twinkle(150 + i * 140, 720 + (i % 3) * 50, 8 * night, 1710 + i);
+    [[780, 120, 110], [900, 110, 140], [640, 100, 95]].forEach(([hx, w, h], i) => { X.save(); X.globalAlpha = night; fillShape([[hx + w * 0.2, 1300 - h * 0.72], [hx + w * 0.45, 1300 - h * 0.72], [hx + w * 0.45, 1300 - h * 0.42], [hx + w * 0.2, 1300 - h * 0.42]], YEL, 1720 + i, 1); X.restore(); });
+  }
+  if (t >= C.eyes) for (let i = 0; i < 8; i++) eyesInDark(110 + i * 105 + rr(9, i, -20, 20), 1120 + rr(9, i + 10, -40, 60), 1800 + i * 3, eOut(seg(t, C.eyes + i * 0.18, C.eyes + i * 0.18 + 0.2)));
+  // the car
+  let cx = 0, wheel = 0, show = true, look = 0, mouth = 'smile';
+  if (t < C.loop[0][0]) { const u = seg(t, 0, 4.6); cx = lerp(-260, 560, eOut(u)); wheel = eOut(u) * 40; if (t >= C.tree_fall) { look = -1; mouth = 'o'; } }
+  else { const L = C.loop; if (t < L[0][1]) { const u = seg(t, L[0][0], L[0][1]); cx = lerp(560, 1220, eIn(u)); }
+    else if (t < L[1][1]) { const u = seg(t, L[1][0], L[1][1]); cx = lerp(-260, 1220, u); }
+    else { const u = seg(t, L[2][0], L[2][1]); cx = lerp(-260, 500, eOut(u)); if (u >= 1) { look = Math.sin(t * 2) > 0 ? -1 : 1; mouth = 'o'; } }
+    wheel = t * 30; }
+  if (t >= C.creatures) { look = -1; mouth = 'o'; }
+  car(cx, GY + 30, 900, { lights: night, driver: { look, mouth }, wheel });
+  if (t >= C.loop[2][1] && t < C.night[0]) { qmarkGlyph(cx - 40, GY - 190, 70, 1900); qmarkGlyph(cx + 50, GY - 220, 54, 1901); }
+  if (t >= C.creatures) [[150, 0], [330, 0.25], [880, 0.12]].forEach(([x0, d], i) => { const u = seg(t, C.creatures + d, C.creatures + d + 2.0); const x = x0 + (cx - x0) * 0.28 * eOut(u); creature(x, GY + 6, 330 + i * 30, 2000 + i * 40, (t - C.creatures) * 2.2, eOut(seg(t, C.creatures + 1.2, C.creatures + 2.0)) * 0.6); });
+}
+function sceneRules(t, T) {
+  forest(1200, 200, 12, '#3d5230'); ground(GY + 30);
+  nightWash(0.68);
+  fillShape(ell(860, 760, 44, 44, 0, 6.29, 20), PALE, 2100, 1); fillShape(ell(878, 750, 40, 40, 0, 6.29, 20), NAVY, 2101, 0);
+  // the rules board, lit by a lantern
+  X.save(); X.globalAlpha = 0.28; X.fillStyle = YEL; X.beginPath(); X.arc(300, 1080, 290, 0, 7); X.fill(); X.restore();
+  for (const px of [110, 490]) brush([[px, GY + 30], [px, 860]], 12, { seed: 2110 + px, color: WOOD, taper: [0, 0] });
+  poly([[80, 880], [520, 880], [520, 1250], [80, 1250]], STONE, 2120, 5, 2);
+  for (let i = 1; i < 4; i++) brush([[86, 880 + i * 92], [514, 880 + i * 92]], 2.2, { seed: 2130 + i, taper: [0.1, 0.1] });
+  hand('RULES', 300, 950, 66, RED, 'center', 2140);
+  ['1. Inside before dark', '2. Lock every door', '3. Never open at night'].forEach((r, i) => { const u = seg(t, C.rules[i], C.rules[i] + 0.6); if (u <= 0) return;
+    X.save(); X.beginPath(); X.rect(90, 990 + i * 82, 420 * eOut(u), 80); X.clip(); hand(r, 110, 1050 + i * 82, 46, INK, 'left', 2150 + i); X.restore(); });
+  fillShape(ell(300, 860, 22, 30, 0, 6.29, 12), YEL, 2160, 1); brush(ell(300, 860, 22, 30, 0, 6.4, 12), 3.5, { seed: 2161 });
+  // residents' house, faces at the window
+  const hx = 640, base = GY + 30, w = 330, h = 330;
+  poly([[hx, base], [hx, base - h], [hx + w, base - h], [hx + w, base]], '#c9b48a', 2200, 5, 2);
+  poly([[hx - 20, base - h], [hx + w / 2, base - h - 170], [hx + w + 20, base - h]], '#8f3a28', 2203, 5, 2);
+  const wx0 = hx + 40, wy0 = base - 270, ww = 200, wh = 140;
+  X.save(); X.globalAlpha = 0.35; X.fillStyle = YEL; X.beginPath(); X.arc(wx0 + ww / 2, wy0 + wh / 2, 190, 0, 7); X.fill(); X.restore();
+  fillShape([[wx0, wy0], [wx0 + ww, wy0], [wx0 + ww, wy0 + wh], [wx0, wy0 + wh]], YEL, 2205, 1);
+  X.save(); X.beginPath(); X.rect(wx0, wy0, ww, wh); X.clip();
+  if (t >= C.residents) { const k = eOut(seg(t, C.residents, C.residents + 0.4)); blob({ x: wx0 + 60, ground: wy0 + wh + 60 - 80 * k, scale: 0.45, legs: 0, arms: 0, look: -0.6, mouth: 'o', shadow: 0, seed: 2210, body: RED });
+    blob({ x: wx0 + 145, ground: wy0 + wh + 70 - 80 * k, scale: 0.4, legs: 0, arms: 0, look: -0.8, mouth: 'smile', shadow: 0, seed: 2220, body: OLIVE }); }
+  X.restore();
+  brush([[wx0, wy0], [wx0 + ww, wy0], [wx0 + ww, wy0 + wh], [wx0, wy0 + wh], [wx0, wy0]], 5, { seed: 2230, taper: [0, 0] });
+  brush([[wx0 + ww / 2, wy0], [wx0 + ww / 2, wy0 + wh]], 4, { seed: 2231 });
+  poly([[hx + 250, base], [hx + 250, base - 150], [hx + 310, base - 150], [hx + 310, base]], WOOD, 2232, 4, 1);
+  if (t >= C.qmarks) [[700, 1000, 80], [790, 950, 100], [880, 1010, 70]].forEach(([x, y, s], i) => { const k = eBack(seg(t, C.qmarks + i * 0.2, C.qmarks + i * 0.2 + 0.25)); if (k > 0) { X.save(); X.translate(x, y); X.scale(k, k); qmarkGlyph(0, 0, s, 2240 + i, YEL); X.restore(); } });
+  if (t >= C.big_eye) { const o = eOut(seg(t, C.big_eye, C.big_eye + 0.6)); bigEye(540, 770, 200, o, Math.sin((t - C.big_eye) * 1.3) * 0.8); }
+  if (t < C.big_eye) for (let i = 0; i < 5; i++) eyesInDark(120 + i * 210, 1090 + (i % 2) * 40, 2300 + i * 3, 1);
+}
+function sceneMap(t, T) {
+  const shrink = eIO(seg(t, C.tiles[0] - 0.5, C.tiles[0])), ms = lerp(1, 0.55, shrink), mcx = 540, mcy = lerp(1100, 860, shrink);
+  X.save(); X.translate(mcx, mcy); X.scale(ms, ms); X.rotate(sn(91, t * 0.3) * 0.03);
+  const k = eOut(seg(t, C.map, C.map + 1.0));
+  for (let i = 0; i < 18; i++) { const a = i / 18 * 6.28; pine(Math.cos(a) * 390, Math.sin(a) * 330 + 60, 90, 2400 + i * 3, PINE); }
+  brush(ell(0, 0, 300, 250, -1.6, -1.6 + 6.3 * k, 50), 26, { seed: 2450, color: STONE, taper: [0, 0] });
+  brush(ell(0, 0, 314, 264, -1.6, -1.6 + 6.3 * k, 50), 4, { seed: 2451, taper: [0, 0] }); brush(ell(0, 0, 286, 236, -1.6, -1.6 + 6.3 * k, 50), 4, { seed: 2452, taper: [0, 0] });
+  [[-140, 30], [-30, -60], [90, 10], [10, 110], [150, 120], [-120, 140]].forEach(([x, y], i) => { if (k > 0.3 + i * 0.1) house(x - 35, y, 70, 55, 2460 + i * 10, 0); });
+  if (k >= 1) { const pk = eBack(seg(t, C.map + 1.0, C.map + 1.3)); X.save(); X.translate(-30, -110); X.scale(pk, pk); poly([[0, 0], [-26, -60], [0, -80], [26, -60]], RED, 2500, 4, 1); fillShape(ell(0, -58, 9, 9, 0, 6.29, 10), HI, 2501, 0); X.restore(); }
+  for (let i = 0; i < 6; i++) { const a = t * 0.9 + i * 1.05; brush([[Math.cos(a) * 300, Math.sin(a) * 250], [Math.cos(a + 0.12) * 300, Math.sin(a + 0.12) * 250]], 6, { seed: 2510 + i, color: RED }); }
+  X.restore();
+  // three genre tiles
+  const tiles = [['HORROR', 'claw'], ['SURVIVAL', 'fire'], ['PUZZLE', 'piece']];
+  tiles.forEach(([label, icon], i) => {
+    const t0 = C.tiles[i]; if (t < t0) return; const k2 = eBack(seg(t, t0, t0 + 0.3)), x = 80 + i * 320, y = 1180, w = 280, h = 300;
+    X.save(); X.translate(x + w / 2, y + h / 2); X.scale(k2, k2); X.rotate((i - 1) * 0.04); X.translate(-x - w / 2, -y - h / 2);
+    poly([[x, y], [x + w, y], [x + w, y + h], [x, y + h]], HI, 2600 + i * 20, 6, 2);
+    const cx = x + w / 2, cy = y + 120;
+    if (icon === 'claw') for (let j = 0; j < 3; j++) brush([[cx - 70 + j * 40, cy - 70], [cx - 30 + j * 40, cy + 70]], 20, { seed: 2610 + j, color: RED, taper: [0.15, 0.5] });
+    if (icon === 'fire') { brush([[cx - 70, cy + 80], [cx + 70, cy + 50]], 18, { seed: 2620, color: WOOD, taper: [0.05, 0.05] }); brush([[cx - 70, cy + 50], [cx + 70, cy + 80]], 18, { seed: 2621, color: WOOD, taper: [0.05, 0.05] });
+      const fl = [[cx - 50, cy + 50], [cx - 60, cy], [cx - 25, cy - 20], [cx - 20, cy - 70], [cx + 5, cy - 30], [cx + 20 + sn(BOIL, 1) * 8, cy - 95], [cx + 35, cy - 20], [cx + 60, cy - 10], [cx + 50, cy + 50]]; poly(fl, RED, 2622, 5, 2); poly(fl.map(([a, b]) => [lerp(a, cx, 0.45), lerp(b, cy + 40, 0.45)]), YEL, 2624, 3, 1); }
+    if (icon === 'piece') {
+      const out = seg(t, C.crack, C.crack + 0.5), pp = piecePts(cx, cy, 70);
+      if (out <= 0) poly(pp, YEL, 2630, 5, 2);
+      else { poly(pp, INK, 2631, 5, 0); eyesInDark(cx, cy - 10, 2632, 1, 1.1);
+        const g = ell(cx, cy + 22, 34, 14, 0.1, Math.PI - 0.1, 12); fillShape([...g, [cx - 34, cy + 22]], PALE, 2633, 0.3);
+        for (let j = 0; j < 5; j++) { const a = j / 5 * 6.28 + 0.4; brush([[cx + Math.cos(a) * 80, cy + Math.sin(a) * 80], [cx + Math.cos(a) * 125, cy + Math.sin(a) * 120]], 4, { seed: 2640 + j }); }
+        if (out < 1) { X.save(); X.translate(cx + out * 260, cy - out * 520 + out * out * 300); X.rotate(out * 4); poly(piecePts(0, 0, 70), YEL, 2650, 5, 2); X.restore(); } }
+    }
+    hand(label, cx, y + h - 34, 54, INK, 'center', 2660 + i);
+    X.restore();
+  });
+}
+function piecePts(cx, cy, s) {
+  const p = [[-1, -1], [-0.3, -1], ...ell(0, -1.15, 0.32, 0.32, Math.PI * 0.8, Math.PI * 2.2, 12), [0.3, -1], [1, -1], [1, -0.3], ...ell(1.15, 0, 0.32, 0.32, -Math.PI * 0.7, Math.PI * 0.7, 12), [1, 0.3], [1, 1], [-1, 1], [-1, 0.3], ...ell(-0.85, 0, 0.3, 0.3, Math.PI * 0.35, -Math.PI * 0.35, 10).map(([a, b]) => [a, b]), [-1, -0.3]];
+  return p.map(([a, b]) => [cx + a * s, cy + b * s]);
+}
+function spiral(u) { const a = u * Math.PI * 5.2, r = 50 + u * 330; return [540 + Math.cos(a) * r, 1080 + Math.sin(a) * r * 0.62]; }
+function sceneRun(t, T) {
+  forest(1180, 300, 12, '#3d5230'); nightWash(0.4, DUSK);
+  if (t < C.door) {
+    const pts = []; for (let i = 0; i <= 120; i++) pts.push(spiral(i / 120));
+    brush(pts, 34, { seed: 3000, color: STONE, taper: [0, 0], amp: 1 }); brush(pts.map(([a, b]) => [a, b - 17]), 3.5, { seed: 3001, taper: [0, 0] }); brush(pts.map(([a, b]) => [a, b + 17]), 3.5, { seed: 3002, taper: [0, 0] });
+    for (let i = 0; i < 8; i++) { const k = 0.1 + i * 0.11, [a, b] = spiral(k), [c, d] = spiral(k + 0.02); brush([[a, b], [c, d]], 6, { seed: 3010 + i, color: YEL }); }
+    const runU = seg(t, C.wipe[2] + 0.4, C.run[0] + 0.8), back = t >= C.run[0] + 1.2;
+    const u = back ? seg(t, C.run[0] + 1.2, C.door - 0.2) * 0.6 : runU;
+    const [x, y] = spiral(u), [x2, y2] = spiral(Math.min(1, u + 0.01));
+    blob({ x, ground: y + 10, scale: 0.42, lift: Math.abs(Math.sin(t * 14)) * 12, rot: (x2 > x ? 1 : -1) * 0.12, armPose: 'dance', wave: t * 14, mouth: back ? 'o' : 'grin', look: x2 > x ? 1 : -1, shadow: 0.6, seed: 3050, band: true });
+    if (t >= C.run[0] + 0.8 && t < C.run[0] + 1.4) puff(spiral(1)[0], spiral(1)[1] - 30, 60, 3060, eOut(seg(t, C.run[0] + 0.8, C.run[0] + 0.95)), seg(t, C.run[0] + 0.9, C.run[0] + 1.4));
+    if (back && t < C.run[0] + 1.6) puff(spiral(0)[0], spiral(0)[1] - 30, 50, 3070, eOut(seg(t, C.run[0] + 1.2, C.run[0] + 1.3)), seg(t, C.run[0] + 1.25, C.run[0] + 1.6));
+  } else {
+    ground(GY + 30); const op = eOut(seg(t, C.door_open, C.door_open + 0.5)), dark = t >= C.door_open + 0.8;
+    door(560, GY + 30, op, dark ? 'dark' : 'light');
+    blob({ x: 290, ground: GY + 30, scale: 0.8, look: 1, mouth: dark ? 'o' : 'smile', eyes: 'open', armPose: dark ? 'up' : 'down', sx: dark ? 0.92 : 1, sy: dark ? 1.06 : 1, seed: 3100, band: true });
+    if (t >= C.qmark) { const k = eBack(seg(t, C.qmark, C.qmark + 0.3)); X.save(); X.translate(560, 900); X.scale(k, k); qmarkGlyph(0, 0, 300, 3110); X.restore(); }
+  }
+}
+function sceneChoice(t, T) {
+  // left: the town (stay) — right: the woods
+  X.save(); X.beginPath(); X.rect(P0.x0, P0.y0, 500, P0.y1 - P0.y0); X.clip();
+  forest(1220, 400, 6); house(110, GY, 150, 150, 3200, 1); house(300, GY, 120, 120, 3220, 1); ground(GY, P0.x0, 540, 3);
+  nightWash(0.32, DUSK, P0.x0, 540);
+  X.restore();
+  X.save(); X.beginPath(); X.rect(540, P0.y0, 500, P0.y1 - P0.y0); X.clip();
+  for (let i = 0; i < 6; i++) pine(570 + i * 95, GY + 20, 360 + 120 * hash(410, i), 4100 + i * 5, '#2f4226');
+  ground(GY, 540, P0.x1, 5); nightWash(0.78, NAVY, 540, P0.x1);
+  for (let i = 0; i < 7; i++) eyesInDark(600 + (i % 4) * 110 + (i > 3 ? 50 : 0), 1000 + Math.floor(i / 4) * 180 + rr(5, i, -30, 30), 4200 + i * 3, 1);
+  X.restore();
+  const jag = []; for (let i = 0; i <= 14; i++) jag.push([540 + (i % 2 ? 14 : -14), lerp(P0.y0, P0.y1, i / 14)]); brush(jag, 8, { seed: 4300, taper: [0, 0] });
+  // the little figure in between, looking both ways
+  const lk = Math.sin(t * (t >= C.hold ? 1.2 : 2.0)) > 0 ? 1 : -1;
+  blob({ x: 540, ground: GY + 60, scale: 0.75, look: lk, mouth: 'o', armPose: 'down', seed: 4310, band: true });
+  if (t >= C.labels) [[270, 'STAY', YEL, -0.06], [810, 'THE WOODS', RED, 0.06]].forEach(([x, s, col, r], i) => { const k = eBack(seg(t, C.labels + i * 0.4, C.labels + i * 0.4 + 0.3)); if (k <= 0) return;
+    X.save(); X.translate(x, 800); X.rotate(r); X.scale(k, k); poly([[-170, -60], [170, -60], [170, 60], [-170, 60]], col, 4320 + i, 6, 2); hand(s, 0, 24, 72, INK, 'center', 4330 + i); X.restore(); });
+}
+
+// ---------------------------------------------------------------- the film
+function frame(t) {
+  const T = timing(t); BOIL = T.boil; setBoil(T.boil); const tq = T.tq; tqG = tq;
+  X.setTransform(1, 0, 0, 1, 0, 0); X.drawImage(paper, 0, 0);
+  let sh = 0; if (tq >= C.tree_fall && tq < C.tree_fall + 0.4) sh = 10; if (tq >= C.crack && tq < C.crack + 0.4) sh = 9; if (tq >= C.door_open + 0.8 && tq < C.door_open + 1.1) sh = 8;
+  if (tq >= C.creatures && tq < C.creatures + 0.3) sh = 6;
+  X.setTransform(1, 0, 0, 1, rr(91, T.f, -1, 1) * sh, rr(92, T.f, -1, 1) * sh);
+  X.save(); X.beginPath(); X.rect(P0.x0, P0.y0, P0.x1 - P0.x0, P0.y1 - P0.y0); X.clip();
+  const sc = C.wipe.filter(w => tq >= w + 0.3).length;
+  [sceneRoad, sceneRules, sceneMap, sceneRun, sceneChoice][sc](tq, T);
+  if (tq >= C.title[0] && tq < C.loop[0][0]) titleFROM(540, 860, 1.1, C.title[0], 0.1);
+  C.wipe.forEach((w, i) => inkWipe(tq, w, 7000 + i * 50));
+  X.restore();
+  panelBorder();
+  X.setTransform(1, 0, 0, 1, 0, 0);
+  captions(tq);
+  X.globalCompositeOperation = 'multiply'; X.globalAlpha = 0.13; X.drawImage(tex, 0, 0);
+  X.globalAlpha = 0.10; X.drawImage(grainImg, -((T.boil * 397) % 600), -((T.boil * 211) % 400), 2048 * 1.3, 2048 * 1.3);
+  X.globalAlpha = 1; X.globalCompositeOperation = 'source-over';
+}
+window.renderAt = async (t) => { frame(t); };
+frame(0);
+window.__ready = true;
+</script>
+</body></html>
