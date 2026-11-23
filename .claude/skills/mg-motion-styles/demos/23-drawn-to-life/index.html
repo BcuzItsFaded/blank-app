@@ -1,0 +1,458 @@
+<!doctype html>
+<html><head><meta charset="utf-8">
+<style>html,body{margin:0;background:#000;overflow:hidden}canvas{display:block;width:1920px;height:1080px}</style>
+</head><body>
+<canvas id="c" width="1920" height="1080"></canvas>
+<script type="module">
+// "Drawn to Life" — frame-by-frame / line-boil film. Every frame is a pure function of t.
+// A pencil scribbles a circle -> it becomes an ink blob character -> hops, dances, leaps ->
+// bursts into cel FX (starburst, smoke, sparks) -> sparks write hand-lettered HAND MADE -> blob returns, winks.
+const W = 1920, H = 1080, FPS = 24;
+window.DEMO = { width: W, height: H, fps: FPS, duration: 10 };
+const cv = document.getElementById('c'), X = cv.getContext('2d');
+const cues = await (await fetch('/demos/23-drawn-to-life/cues.json')).json();
+
+const INK = '#211b1a', RED = '#e2462e', YEL = '#f4bd2f', CREAM = '#f5e8cc', HI = '#fff6e2';
+
+// ---------------------------------------------------------------- seeded noise
+const hash = (a, b = 0) => { let h = (a * 374761393 + b * 668265263) | 0; h = (h ^ (h >>> 13)) * 1274126177 | 0; return ((h ^ (h >>> 16)) >>> 0) / 4294967296; };
+const sn = (seed, x) => { const i = Math.floor(x), f = x - i, u = f * f * (3 - 2 * f); return (hash(seed, i) * (1 - u) + hash(seed, i + 1) * u) * 2 - 1; };
+const rr = (seed, i, a = -1, b = 1) => a + (b - a) * hash(seed * 131 + 7, i);
+const clamp = (v, a = 0, b = 1) => Math.max(a, Math.min(b, v));
+const lerp = (a, b, u) => a + (b - a) * u;
+const seg = (t, a, b) => clamp((t - a) / (b - a));
+const eOut = u => 1 - Math.pow(1 - u, 3), eIn = u => u * u * u, eIO = u => u < .5 ? 4 * u * u * u : 1 - Math.pow(-2 * u + 2, 3) / 2;
+const eBack = u => { const c = 1.9; return 1 + (c + 1) * Math.pow(u - 1, 3) + c * Math.pow(u - 1, 2); };
+
+// ---------------------------------------------------------------- timing: animate on 1s / 2s / 3s
+function timing(t) {
+  const f = Math.min(239, Math.round(t * FPS));
+  const step = f < 24 ? 1 : f < 118 ? 2 : f < 166 ? 1 : f < 210 ? 2 : 3;   // pencil on 1s, acting on 2s, leap/burst on 1s, hold on 3s
+  const base = f < 24 ? 0 : f < 118 ? 24 : f < 166 ? 118 : f < 210 ? 166 : 210;
+  const fq = base + Math.floor((f - base) / step) * step;
+  return { f, fq, tq: fq / FPS, boil: Math.floor(f / Math.max(2, step)) };
+}
+
+// ---------------------------------------------------------------- brush renderer
+let BOIL = 0;
+function resample(pts, sp = 5) {
+  const out = [pts[0]]; let acc = 0;
+  for (let i = 1; i < pts.length; i++) {
+    const [x0, y0] = pts[i - 1], [x1, y1] = pts[i]; const d = Math.hypot(x1 - x0, y1 - y0); if (!d) continue;
+    let s = sp - acc;
+    while (s <= d) { out.push([x0 + (x1 - x0) * s / d, y0 + (y1 - y0) * s / d]); s += sp; }
+    acc = d - (s - sp);
+  }
+  const last = pts[pts.length - 1], pl = out[out.length - 1];
+  if (Math.hypot(last[0] - pl[0], last[1] - pl[1]) > 0.5) out.push(last);
+  return out;
+}
+// variable-width ink stroke: jitter (boil) + pressure + taper -> filled outline polygon
+function brush(pts, w, o = {}) {
+  if (pts.length < 2) return;
+  const seed = (o.seed ?? 1) * 97 + BOIL * 13, amp = o.amp ?? 1.7, upto = o.upto ?? 1, taper = o.taper ?? [0.18, 0.22];
+  let P = resample(pts, 5);
+  const n0 = P.length; if (n0 < 2) return;
+  const nn = Math.max(2, Math.round(n0 * clamp(upto)));
+  if (upto < 1e-3) return;
+  P = P.slice(0, nn);
+  const L = [], R = [], N = P.length;
+  for (let i = 0; i < N; i++) {
+    const a = P[Math.max(0, i - 1)], b = P[Math.min(N - 1, i + 1)];
+    let tx = b[0] - a[0], ty = b[1] - a[1]; const tl = Math.hypot(tx, ty) || 1; tx /= tl; ty /= tl;
+    const nx = -ty, ny = tx, s = i / 9;
+    const jx = sn(seed, s) * amp, jy = sn(seed + 5, s) * amp;
+    const u = (i / (n0 - 1));
+    let p = 1 + 0.2 * sn(seed + 9, s * 0.6);
+    const tin = taper[0] > 0 ? clamp(u / taper[0]) : 1, tout = taper[1] > 0 ? clamp((1 - u) / taper[1]) : 1;
+    p *= (0.28 + 0.72 * Math.sqrt(tin)) * (0.18 + 0.82 * Math.sqrt(upto < 1 && i > N - 4 ? 1 : tout));
+    const hw = w * p / 2, x = P[i][0] + jx, y = P[i][1] + jy;
+    L.push([x + nx * hw, y + ny * hw]); R.push([x - nx * hw, y - ny * hw]);
+  }
+  X.beginPath(); X.moveTo(L[0][0], L[0][1]);
+  for (const q of L) X.lineTo(q[0], q[1]);
+  for (let i = R.length - 1; i >= 0; i--) X.lineTo(R[i][0], R[i][1]);
+  X.closePath(); X.fillStyle = o.color || INK; X.fill();
+  // round caps
+  X.beginPath(); X.arc(P[0][0], P[0][1], Math.max(0.5, w * 0.14), 0, 7); X.fill();
+}
+// closed shape fill, off-register like hand colouring
+function fillShape(pts, color, seed = 1, off = 5) {
+  const s = seed * 31 + BOIL * 7, ox = sn(s, 0.5) * off + off * 0.6, oy = sn(s + 3, 0.5) * off - off * 0.3;
+  X.beginPath();
+  pts.forEach((p, i) => { const k = i / 6; const x = p[0] + ox + sn(s + 11, k) * 1.6, y = p[1] + oy + sn(s + 17, k) * 1.6; i ? X.lineTo(x, y) : X.moveTo(x, y); });
+  X.closePath(); X.fillStyle = color; X.fill();
+}
+const ell = (cx, cy, rx, ry, a0 = 0, a1 = Math.PI * 2, n = 48, rot = 0) => {
+  const out = [], c = Math.cos(rot), s = Math.sin(rot);
+  for (let i = 0; i <= n; i++) { const a = a0 + (a1 - a0) * i / n, x = Math.cos(a) * rx, y = Math.sin(a) * ry; out.push([cx + x * c - y * s, cy + x * s + y * c]); }
+  return out;
+};
+
+// ---------------------------------------------------------------- paper
+const paperImg = new Image(); paperImg.src = '/assets/textures/paper/Paper001_4K_color.jpg';
+const grainImg = new Image(); grainImg.src = '/assets/textures/grain/grain_fine_2048.png';
+await Promise.all([paperImg.decode(), grainImg.decode()]);
+const paper = document.createElement('canvas'); paper.width = W; paper.height = H;
+{ const p = paper.getContext('2d');
+  p.fillStyle = CREAM; p.fillRect(0, 0, W, H);
+  p.globalCompositeOperation = 'multiply'; p.globalAlpha = 0.55; p.drawImage(paperImg, 0, 0, W, H * 1.2);
+  p.globalAlpha = 1; p.globalCompositeOperation = 'source-over';
+  // fibres + flecks
+  for (let i = 0; i < 900; i++) { p.fillStyle = `rgba(120,90,60,${0.03 + 0.05 * hash(3, i)})`; const x = hash(4, i) * W, y = hash(5, i) * H, a = hash(6, i) * 6.28, l = 3 + 12 * hash(7, i);
+    p.save(); p.translate(x, y); p.rotate(a); p.fillRect(0, 0, l, 0.8); p.restore(); }
+  const g = p.createRadialGradient(W / 2, H / 2, H * 0.35, W / 2, H / 2, H * 1.05);
+  g.addColorStop(0, 'rgba(90,60,30,0)'); g.addColorStop(1, 'rgba(90,60,30,0.22)'); p.fillStyle = g; p.fillRect(0, 0, W, H); }
+const tex = document.createElement('canvas'); tex.width = W; tex.height = H;
+{ const p = tex.getContext('2d'); p.drawImage(paperImg, 0, 0, W, H * 1.2); }
+
+// ---------------------------------------------------------------- the body loop: one scribbled, overlapping circle
+const R0 = 147;   // body radius of the drawn loop (= 92 * 1.6)
+const LOOP_A0 = -1.95, LOOP_A1 = LOOP_A0 + Math.PI * 2 * 1.08;
+function loopPts(cx, cy, r, sx = 1, sy = 1, rot = 0, n = 64) {
+  const out = [], c = Math.cos(rot), s = Math.sin(rot);
+  for (let i = 0; i <= n; i++) { const u = i / n, a = LOOP_A0 + (LOOP_A1 - LOOP_A0) * u; const rad = r * (1 + 0.035 * Math.sin(a * 3 + 1) - 0.05 * u * u);
+    const x = Math.cos(a) * rad * sx, y = Math.sin(a) * rad * sy; out.push([cx + x * c - y * s, cy + x * s + y * c]); }
+  return out;
+}
+
+// ---------------------------------------------------------------- pencil
+function pencil(tx0, ty0, ang, stretch = 1, seed = 3, k = 1.45) {
+  X.save(); X.translate(tx0, ty0); X.scale(k, k); const tx = 0, ty = 0;
+  // ang: direction from tip toward the back end
+  const c = Math.cos(ang), s = Math.sin(ang), Lp = 430 * stretch, hw = 23;
+  const P = (u, v) => [tx + c * u - s * v, ty + s * u + c * v];
+  const poly = (arr, col, sd) => { fillShape(arr, col, sd, 2.5); };
+  const body = [P(80, -hw), P(Lp - 50, -hw), P(Lp - 50, hw), P(80, hw)];
+  const cone = [P(0, 0), P(80, -hw), P(80, hw)];
+  const era = [P(Lp - 30, -hw), P(Lp, -hw * 0.85), P(Lp, hw * 0.85), P(Lp - 30, hw)];
+  poly(cone, HI, seed); poly(body, YEL, seed + 1); poly(era, RED, seed + 2);
+  fillShape([P(0, 0), P(26, -7.5), P(26, 7.5)], INK, seed + 3, 0);
+  const w = 4.2, o = { seed };
+  brush([P(0, 0), P(80, -hw), P(Lp - 50, -hw)], w, { seed: seed + 4 });
+  brush([P(0, 0), P(80, hw), P(Lp - 50, hw)], w, { seed: seed + 5 });
+  brush([P(80, -hw), P(80, hw)], w * 0.8, { seed: seed + 6 });
+  brush([P(110, -hw * 0.33), P(Lp - 70, -hw * 0.33)], 2.4, { seed: seed + 7 });
+  brush([P(110, hw * 0.33), P(Lp - 70, hw * 0.33)], 2.4, { seed: seed + 8 });
+  // ferrule
+  fillShape([P(Lp - 50, -hw - 2), P(Lp - 30, -hw - 2), P(Lp - 30, hw + 2), P(Lp - 50, hw + 2)], CREAM, seed + 9, 1);
+  brush([P(Lp - 50, -hw - 2), P(Lp - 50, hw + 2)], w, { seed: seed + 10 });
+  brush([P(Lp - 40, -hw - 2), P(Lp - 40, hw + 2)], 2.2, { seed: seed + 11 });
+  brush([P(Lp - 30, -hw - 2), P(Lp - 30, hw + 2)], w, { seed: seed + 12 });
+  brush([P(Lp - 50, -hw - 2), P(Lp, -hw * 0.85), P(Lp + 2, 0), P(Lp, hw * 0.85), P(Lp - 50, hw + 2)], w, { seed: seed + 13 });
+  // wood shavings hatch on the cone
+  for (let j = 0; j < 3; j++) brush([P(40 + j * 12, -hw * 0.25 - j * 3), P(52 + j * 12, hw * 0.15 - j * 2)], 1.8, { seed: seed + 20 + j });
+  X.restore();
+}
+function speedLines(x, y, dx, dy, n, len, seed, spread = 46, w = 4) {
+  const l = Math.hypot(dx, dy) || 1, ux = dx / l, uy = dy / l, nx = -uy, ny = ux;
+  for (let i = 0; i < n; i++) {
+    const off = (i - (n - 1) / 2) * spread / Math.max(1, n - 1) * 2 + rr(seed, i, -6, 6), back = rr(seed, i + 9, 20, 60), ll = len * rr(seed, i + 20, 0.55, 1.1);
+    const x0 = x - ux * back + nx * off, y0 = y - uy * back + ny * off;
+    brush([[x0, y0], [x0 - ux * ll, y0 - uy * ll]], w, { seed: seed + i, taper: [0.05, 0.7] });
+  }
+}
+
+// ---------------------------------------------------------------- character
+// base = point between the feet on the ground; legs 0..1 grown; sx/sy squash; rot lean; eyes 'open'|'closed'|'wink'|'none'
+function blob(o) {
+  const { x, ground, sx = 1, sy = 1, rot = 0, legs = 1, lift = 0, eyes = 'open', look = 0, mouth = 'smile', arms = 0, armPose = 'down', scale = 1.6, shadow = 1, seed = 40, smear = 0 } = o;
+  const R = 92 * scale, legLen = 46 * scale * legs;
+  const hipY = ground - legLen - lift;
+  const cx = x, cy = hipY - R * sy;
+  const c = Math.cos(rot), s = Math.sin(rot);
+  const M = (lx, ly) => [cx + (lx * sx) * c - (ly * sy) * s, cy + (lx * sx) * s + (ly * sy) * c];
+  // ground shadow: hatched ellipse
+  if (shadow > 0.02) {
+    const sw = 74 * scale * shadow, shh = 11 * scale * shadow;
+    for (let i = 0; i < 7; i++) { const u = (i - 3) / 3.3, hx = x + u * sw, hh = shh * Math.sqrt(1 - u * u * 0.85);
+      brush([[hx - 7, ground + 6 + hh], [hx + 7, ground + 6 - hh]], 2.6 * scale, { seed: seed + 60 + i, taper: [0.3, 0.3] }); }
+  }
+  // legs + feet
+  if (legs > 0.02) for (const sd of [-1, 1]) {
+    const hx = cx + sd * 30 * scale * sx, hy = hipY + 4, fx = x + sd * 36 * scale, fy = ground - lift * 0.0 - (lift > 0 ? lift - 0 : 0);
+    const footY = lift > 0 ? hipY + legLen : ground;
+    const kx = (hx + fx) / 2 + sd * 6 * scale, ky = (hy + footY) / 2;
+    brush([[hx, hy], [kx, ky], [fx, footY - 4]], 5.5 * scale, { seed: seed + (sd > 0 ? 1 : 2) });
+    const fo = ell(fx + sd * 9 * scale, footY - 3, 15 * scale, 7 * scale, 0, Math.PI * 2, 18);
+    fillShape(fo, INK, seed + 3 + sd, 0.6);
+  }
+  // body
+  const bodyFill = ell(0, 0, 1, 1, 0, Math.PI * 2, 40).map(([a, b]) => M(a * R * 0.99, b * R * 0.99));
+  fillShape(bodyFill, RED, seed + 5, 6);
+  // highlight + hatching
+  brush([M(-R * 0.62, -R * 0.2), M(-R * 0.55, -R * 0.48), M(-R * 0.32, -R * 0.66)], 9 * scale, { seed: seed + 6, color: YEL, taper: [0.3, 0.4] });
+  for (let i = 0; i < 4; i++) { const a = 0.35 + i * 0.22; const p0 = M(Math.cos(a) * R * 0.62, Math.sin(a) * R * 0.62), p1 = M(Math.cos(a - 0.25) * R * 0.9, Math.sin(a - 0.25) * R * 0.9);
+    brush([p0, p1], 2.6 * scale, { seed: seed + 70 + i, taper: [0.3, 0.4] }); }
+  // body outline (the scribbled loop)
+  const loop = loopPts(0, 0, R).map(([a, b]) => M(a, b));
+  brush(loop, 7 * scale, { seed: seed + 7, taper: [0.08, 0.12] });
+  // arms
+  if (arms > 0.02) for (const sd of [-1, 1]) {
+    const sh = M(sd * R * 0.93, R * 0.05);
+    let hx, hy;
+    if (armPose === 'up') { hx = sh[0] + sd * 50 * scale; hy = sh[1] - 70 * scale; }
+    else if (armPose === 'wave' && sd > 0) { const w = Math.sin(o.wave || 0); hx = sh[0] + 46 * scale + w * 18 * scale; hy = sh[1] - 78 * scale; }
+    else if (armPose === 'dance') { const ph = o.wave || 0; hx = sh[0] + sd * 52 * scale; hy = sh[1] + (sd * Math.sin(ph) * 46 - 8) * scale; }
+    else { hx = sh[0] + sd * 34 * scale; hy = sh[1] + 52 * scale; }
+    const mx = (sh[0] + hx) / 2 + sd * 10 * scale, my = (sh[1] + hy) / 2 + 6 * scale;
+    brush([sh, [mx, my], [hx, hy]], 5 * scale * arms, { seed: seed + 20 + sd, taper: [0.1, 0.05] });
+    const hand = ell(hx, hy, 9 * scale, 9 * scale, 0, Math.PI * 2, 14); fillShape(hand, HI, seed + 23 + sd, 0.5);
+    brush(ell(hx, hy, 9 * scale, 9 * scale, 0.3, 0.3 + Math.PI * 2 * 0.95, 14), 3.2 * scale, { seed: seed + 25 + sd, taper: [0.1, 0.1] });
+  }
+  // face
+  if (eyes !== 'none') for (const sd of [-1, 1]) {
+    const e = M(sd * 30 * scale + look * 10 * scale, -R * 0.18);
+    const closed = eyes === 'closed' || (eyes === 'wink' && sd > 0);
+    if (closed) {
+      const pts = sd > 0 && eyes === 'wink' ? [[e[0] - 15 * scale, e[1] + 2], [e[0], e[1] - 9 * scale], [e[0] + 15 * scale, e[1] + 2]] : [[e[0] - 15 * scale, e[1]], [e[0], e[1] + 6 * scale], [e[0] + 15 * scale, e[1]]];
+      brush(pts, 5 * scale, { seed: seed + 30 + sd });
+    } else {
+      const er = ell(e[0], e[1], 17 * scale * sx, 23 * scale * sy, 0, Math.PI * 2, 24);
+      fillShape(er, HI, seed + 31 + sd, 1.2);
+      brush(ell(e[0], e[1], 17 * scale * sx, 23 * scale * sy, -1.2, -1.2 + Math.PI * 2 * 0.97, 24), 3.6 * scale, { seed: seed + 33 + sd, taper: [0.1, 0.1] });
+      const px = e[0] + look * 7 * scale + 2 * scale, py = e[1] + 4 * scale;
+      fillShape(ell(px, py, 8 * scale, 10.5 * scale, 0, Math.PI * 2, 16), INK, seed + 35 + sd, 0.3);
+      fillShape(ell(px - 3 * scale, py - 4 * scale, 2.6 * scale, 2.6 * scale, 0, Math.PI * 2, 8), HI, seed + 37 + sd, 0);
+    }
+  }
+  if (mouth === 'smile') brush([M(-20 * scale + look * 8 * scale, R * 0.22), M(look * 8 * scale, R * 0.36), M(20 * scale + look * 8 * scale, R * 0.22)], 5 * scale, { seed: seed + 40 });
+  else if (mouth === 'grin') {
+    const m = [M(-26 * scale, R * 0.18), M(0, R * 0.48), M(26 * scale, R * 0.18)];
+    fillShape([...ell(0, 0, 1, 1, 0, Math.PI, 16).map(([a, b]) => M(a * 26 * scale, R * 0.18 + b * 30 * scale))], INK, seed + 41, 0.5);
+    brush([m[0], M(-8 * scale, R * 0.22), M(8 * scale, R * 0.22), m[2]], 4 * scale, { seed: seed + 42 });
+  } else if (mouth === 'o') {
+    const mo = M(look * 6 * scale, R * 0.32);
+    fillShape(ell(mo[0], mo[1], 9 * scale, 12 * scale, 0, Math.PI * 2, 16), INK, seed + 43, 0.3);
+  }
+}
+
+// ---------------------------------------------------------------- cel FX
+function puff(cx, cy, r, seed, grow = 1, fade = 0) {
+  // union of circles: fill, outline, refill smaller to erase inner lines; dissipate by shrinking each lobe
+  if (r * grow < 2) return;
+  const lobes = [];
+  const n = 6;
+  for (let i = 0; i < n; i++) { const a = i / n * Math.PI * 2 + rr(seed, i, -0.3, 0.3); const d = r * 0.55 * rr(seed, i + 10, 0.8, 1.1);
+    const kill = clamp((fade - i / n * 0.6) / 0.4); const lr = r * rr(seed, i + 20, 0.42, 0.6) * grow * (1 - eIn(kill));
+    if (lr > 1.5) lobes.push([cx + Math.cos(a) * d * grow, cy + Math.sin(a) * d * grow * 0.85, lr]); }
+  const cr = r * 0.55 * grow * (1 - eIn(clamp(fade * 1.3))); if (cr > 1.5) lobes.push([cx, cy, cr]);
+  for (const [x, y, q] of lobes) fillShape(ell(x, y, q, q, 0, 6.29, 20), HI, seed + 3, 0);
+  lobes.forEach(([x, y, q], i) => brush(ell(x, y, q, q, i, i + Math.PI * 2, 22), Math.max(2.2, 5.2 * Math.min(1, q / 40)), { seed: seed + i * 3, taper: [0.05, 0.05], amp: 1.3 }));
+  for (const [x, y, q] of lobes) if (q > 6) fillShape(ell(x, y, q - 4.5, q - 4.5, 0, 6.29, 20), HI, seed + 4, 0);
+  // curl inside the biggest lobe
+  if (lobes.length) { const [x, y, q] = lobes[lobes.length - 1]; if (q > 18) brush(ell(x - q * 0.1, y - q * 0.05, q * 0.4, q * 0.35, 3.6, 5.8, 10), 3, { seed: seed + 50 }); }
+}
+function star(cx, cy, r, n, seed, rot = 0, fill = YEL, inner = 0.5, w = 6) {
+  const pts = [];
+  for (let i = 0; i < n * 2; i++) { const a = rot + i / (n * 2) * Math.PI * 2; const q = (i % 2 ? inner : 1) * r * (i % 2 ? 1 : rr(seed, i, 0.82, 1.12)); pts.push([cx + Math.cos(a) * q, cy + Math.sin(a) * q]); }
+  fillShape(pts, fill, seed, 3);
+  brush([...pts, pts[0], pts[1]], w, { seed: seed + 1, taper: [0.02, 0.02] });
+}
+function spark(x, y, ang, len, seed, col = YEL) {
+  const c = Math.cos(ang), s = Math.sin(ang), wd = len * 0.32;
+  const pts = [[x + c * len * 0.6, y + s * len * 0.6], [x - s * wd, y + c * wd], [x - c * len * 0.4, y - s * len * 0.4], [x + s * wd, y - c * wd]];
+  fillShape(pts, col, seed, 1.5);
+  brush([...pts, pts[0], pts[1]], 3.2, { seed: seed + 1, taper: [0.02, 0.02] });
+}
+function twinkle(x, y, r, seed) {
+  brush([[x - r, y], [x + r, y]], 4, { seed, taper: [0.4, 0.4] });
+  brush([[x, y - r], [x, y + r]], 4, { seed: seed + 1, taper: [0.4, 0.4] });
+}
+
+// ---------------------------------------------------------------- hand lettering: HAND MADE as brush strokes
+const LETTERS = {
+  H: { w: 100, s: [[[0, 0], [2, 200]], [[100, 0], [98, 200]], [[0, 104], [100, 98]]] },
+  A: { w: 116, s: [[[0, 200], [30, 100], [58, 0], [86, 100], [116, 200]], [[24, 128], [92, 124]]] },
+  N: { w: 104, s: [[[0, 200], [2, 0], [102, 200], [104, 0]]] },
+  D: { w: 100, s: [[[0, 0], [0, 200]], [[0, 0], ...ell(0, 100, 100, 100, -Math.PI / 2, Math.PI / 2, 20).slice(1).map(([a, b]) => [a, b]), [0, 200]]] },
+  M: { w: 140, s: [[[0, 200], [8, 0], [70, 138], [132, 0], [140, 200]]] },
+  E: { w: 92, s: [[[92, 0], [0, 2], [0, 198], [92, 200]], [[0, 100], [74, 98]]] },
+};
+const TITLE = cues.title;               // {x0, base, scale, gap, space}
+const STROKES = [];
+{ let x = TITLE.x0; const sc = TITLE.scale, top = TITLE.base - 200 * sc;
+  for (const ch of 'HAND MADE') {
+    if (ch === ' ') { x += TITLE.space; continue; }
+    const L = LETTERS[ch];
+    const tilt = (STROKES.length % 3 - 1) * 0.02;   // hand-set bounce
+    L.s.forEach(st => STROKES.push({ ch, pts: st.map(([a, b]) => [x + a * sc + (200 - b) * tilt * sc, top + b * sc]) }));
+    x += L.w * sc + TITLE.gap;
+  } }
+// schedule: one stroke per 16th, read from cues
+STROKES.forEach((s, i) => { s.t0 = cues.write0 + i * cues.write_step; s.t1 = s.t0 + cues.write_dur; });
+
+function drawTitle(t) {
+  const sc = TITLE.scale;
+  for (const pass of [0, 1]) STROKES.forEach((s, i) => {
+    const u = seg(t, s.t0, s.t1); if (u <= 0) return;
+    const pts = pass === 0 ? s.pts.map(([a, b]) => [a + 12 * sc, b + 10 * sc]) : s.pts;
+    brush(pts, 34 * sc, { seed: 300 + i * 5 + pass, upto: eOut(u), color: pass === 0 ? RED : INK, taper: [0.12, 0.16], amp: 2.0 });
+  });
+  // underline swoosh + flourish
+  const ul = seg(t, cues.underline, cues.underline + 0.2);
+  if (ul > 0) {
+    const y = TITLE.base + 58, x0 = TITLE.x0 - 10, x1 = cues.title_x1 + 10;
+    const pts = []; for (let i = 0; i <= 24; i++) { const u = i / 24; pts.push([lerp(x0, x1, u), y + Math.sin(u * Math.PI) * 22 - u * u * 34]); }
+    brush(pts, 22, { seed: 900, upto: eOut(ul), color: YEL, taper: [0.1, 0.3] });
+    brush(pts.map(([a, b]) => [a, b + 3]), 5, { seed: 901, upto: eOut(ul), taper: [0.1, 0.4] });
+  }
+}
+
+// ---------------------------------------------------------------- the film
+const C = cues;
+function frame(t) {
+  const T = timing(t); BOIL = T.boil; const tq = T.tq;
+  X.setTransform(1, 0, 0, 1, 0, 0);
+  X.drawImage(paper, 0, 0);
+  // camera shake on the BOOM (on 1s)
+  const sh = clamp(1 - (tq - C.boom) / 0.3) * (tq >= C.boom ? 1 : 0);
+  if (sh > 0) X.translate(rr(77, T.f, -1, 1) * 16 * sh, rr(78, T.f, -1, 1) * 12 * sh);
+
+  const G = C.ground;
+  // ---- the scribble: pencil draws the loop (0.21 – 0.88)
+  const draw = eIO(seg(tq, C.scribble0, C.scribble1));
+  const cx0 = C.x_start, cy0 = G - R0 - 2;
+  if (tq < C.pop) {
+    if (draw > 0) brush(loopPts(cx0, cy0, R0), 7, { seed: 47, upto: draw, taper: [0.08, 0.12] });
+    // a couple of construction ticks the pencil leaves
+  }
+  // ---- pencil
+  if (tq < C.pencil_out + 0.12) {
+    let px, py, ang = -0.95, str = 1, smear = false;
+    const start = loopPts(cx0, cy0, R0)[0];
+    if (tq < C.scribble0) {
+      const u = eOut(seg(tq, 0, C.scribble0)); px = lerp(2150, start[0], u); py = lerp(-120, start[1], u);
+      if (T.f === 2) { str = 2.6; smear = true; }
+      ang = -0.95 + (1 - u) * 0.3;
+    } else if (tq < C.scribble1) {
+      const P = loopPts(cx0, cy0, R0, 1, 1, 0, 400); const k = Math.min(400, Math.round(draw * 400)); [px, py] = P[k];
+      ang = -0.95 + 0.12 * Math.sin(tq * 30);
+    } else {
+      const u = eIn(seg(tq, C.scribble1, C.pencil_out + 0.12)); const P = loopPts(cx0, cy0, R0); const e = P[P.length - 1];
+      px = lerp(e[0], 2300, u); py = lerp(e[1], -500, u) - Math.sin(u * 3) * 40; ang = -0.95 - u * 0.4;
+      if (T.f === 22) { str = 2.4; smear = true; }
+    }
+    if (smear) speedLines(px + Math.cos(ang) * 200, py + Math.sin(ang) * 200, -Math.cos(ang), -Math.sin(ang), 4, 260, 500 + T.f, 60, 5);
+    pencil(px, py, ang, str, 11);
+  }
+
+  // ---- the character (from the pop until it bursts)
+  if (tq >= C.pop && tq < C.boom) {
+    let x = cx0, lift = 0, sx = 1, sy = 1, rot = 0, legs = 1, eyes = 'open', look = 0, mouth = 'smile', arms = 1, armPose = 'down', wave = 0, shadow = 1;
+    // pop: legs sprout, squash-stretch settle
+    const pu = seg(tq, C.pop, C.pop + 0.42);
+    legs = eBack(clamp(pu * 1.6)); const sq = Math.sin(pu * Math.PI * 2.2) * (1 - pu) * 0.22; sx = 1 + sq; sy = 1 - sq;
+    arms = clamp((tq - C.pop - 0.17) / 0.17);
+    if (tq < C.eyes_open) eyes = tq < C.eyes_open - 0.17 ? 'none' : 'closed';
+    if (tq >= C.look_left) look = -1; if (tq >= C.look_right) look = 1; if (tq >= C.look_right + 0.33) look = 0.3;
+    if (tq >= C.pop && tq < C.eyes_open) mouth = 'none';
+    // crouch before hop 1
+    const cr = seg(tq, C.crouch, C.hop[0]) * (tq < C.hop[0] ? 1 : 0);
+    if (cr > 0) { sx = 1 + 0.2 * eOut(cr); sy = 1 - 0.2 * eOut(cr); legs = 1 - 0.45 * eOut(cr); mouth = 'smile'; }
+    // hops: [take-off, land] pairs on the beat
+    const xs = [C.x_start, ...C.hop_x];
+    for (let i = 0; i < C.hop.length; i++) {
+      const a = C.hop[i], b = C.land[i];
+      if (tq >= a) x = xs[i + 1];
+      if (tq >= a && tq < b) {
+        const u = (tq - a) / (b - a); x = lerp(xs[i], xs[i + 1], eIO(u)); lift = Math.sin(u * Math.PI) * 230; shadow = 1 - 0.55 * Math.sin(u * Math.PI);
+        const st = u < 0.5 ? 1 - u * 2 : 0; sx = 1 - 0.16 * st; sy = 1 + 0.22 * st; rot = 0.14 * (1 - u * 2); legs = 0.8; armPose = 'up'; mouth = 'grin';
+        if (u < 0.3) speedLines(x - 70, G - lift - 190, 1, -0.9, 3, 110, 600 + i * 10 + T.boil, 80, 4);
+      }
+      if (tq >= b && tq < b + 0.17) { const k = (tq - b) / 0.17; sx = 1 + 0.26 * (1 - k); sy = 1 - 0.24 * (1 - k); legs = 1 - 0.4 * (1 - k); }
+    }
+    // dance on 2s
+    if (tq >= C.dance0 && tq < C.crouch2) {
+      const ph = (tq - C.dance0) / 0.25; const k = Math.floor(ph);
+      const b = Math.abs(Math.sin(ph * Math.PI)); lift = b * 34; rot = (k % 2 ? -1 : 1) * 0.13; sx = 1 - 0.06 * b; sy = 1 + 0.08 * b;
+      armPose = 'dance'; wave = ph * Math.PI; mouth = 'grin'; look = (k % 2 ? -0.6 : 0.6);
+      if (Math.abs(tq - C.blink) < 0.09) eyes = 'closed';
+    }
+    // big crouch (anticipation)
+    if (tq >= C.crouch2 && tq < C.leap) { const u = eOut(seg(tq, C.crouch2, C.leap - 0.08)); sx = 1 + 0.3 * u; sy = 1 - 0.32 * u; legs = 1 - 0.6 * u; armPose = 'down'; mouth = 'smile'; eyes = u > 0.6 ? 'closed' : 'open'; }
+    // the leap: smear frame, rise to the apex, spin into the burst
+    if (tq >= C.leap) {
+      const u = seg(tq, C.leap, C.boom); lift = eOut(u) * (G - C.apex_y - 60); x = lerp(x, 960, eOut(u)); shadow = 1 - eOut(u);
+      sx = 1 - 0.3 * (1 - u); sy = 1 + 0.45 * (1 - u); legs = 0.7; armPose = 'up'; mouth = 'o'; rot = Math.sin(u * 7) * 0.08;
+      if (u > 0.7) { const v = (u - 0.7) / 0.3; sx = 1 + 0.25 * v; sy = 1 + 0.25 * v; mouth = 'grin'; }
+      if (T.f === Math.round(C.leap * FPS) + 1) {   // SMEAR: one frame stretched ~260 %
+        speedLines(x, G - lift - 60, 0, -1, 5, 380, 700, 130, 6);
+        sx = 0.6; sy = 2.2;
+      } else if (u < 0.45) speedLines(x, G - lift + 40, 0, -1, 4, 240 * (1 - u), 710 + T.boil, 120, 5);
+    }
+    blob({ x, ground: G, sx, sy, rot, legs, lift, eyes, look, mouth, arms, armPose, wave, shadow, seed: 40 });
+    // pop lines at birth (3 frames)
+    if (tq >= C.pop && tq < C.pop + 0.13) for (let i = 0; i < 8; i++) { const a = i / 8 * 6.28 + 0.2, r0 = 190 + (tq - C.pop) * 420, r1 = r0 + 60;
+      brush([[cx0 + Math.cos(a) * r0, cy0 - 60 + Math.sin(a) * r0], [cx0 + Math.cos(a) * r1, cy0 - 60 + Math.sin(a) * r1]], 7, { seed: 800 + i }); }
+    // dust puffs at each landing
+    C.land.forEach((b, i) => { const u = seg(tq, b, b + 0.42); if (u > 0 && u < 1) for (const sd of [-1, 1]) puff(xs[i + 1] + sd * (125 + u * 90), G - 10 - u * 20, 38, 120 + i * 7 + (sd > 0 ? 3 : 0), eOut(clamp(u * 3)), u); });
+  }
+  // ---- crouch2 dust, leap dust
+  { const u = seg(tq, C.leap, C.leap + 0.5); if (u > 0 && u < 1) for (const sd of [-1, 1]) puff(C.hop_x[C.hop_x.length - 1] + sd * (110 + u * 130), G - 14, 50, 150 + (sd > 0 ? 3 : 0), eOut(clamp(u * 3)), u); }
+
+  // ---- BOOM: starburst, smoke ring, sparks that become the lettering
+  const bx = 960, by = C.apex_y;
+  if (tq >= C.boom) {
+    const fb = T.f - Math.round(C.boom * FPS);
+    if (fb >= 0 && fb < 5) {   // starburst on 1s, 5 frames, two alternating drawings
+      const r = [240, 400, 440, 330, 200][fb];
+      star(bx, by, r, 12, 1000 + (fb % 2), fb * 0.12, YEL, 0.55, 7);
+      star(bx, by, r * 0.55, 9, 1010 + (fb % 2), -fb * 0.1, RED, 0.5, 5);
+      if (fb < 3) star(bx, by, r * 0.22, 6, 1020, 0, HI, 0.45, 4);
+    }
+    // smoke ring
+    for (let i = 0; i < 8; i++) {
+      const a = i / 8 * Math.PI * 2 + 0.3, d0 = C.boom + 0.04 + (i % 3) * 0.02, u = seg(tq, d0, d0 + 1.3);
+      if (u <= 0 || u >= 1) continue;
+      const dist = 170 + 220 * eOut(u), px = bx + Math.cos(a) * dist * 1.25, py = by + Math.sin(a) * dist * 0.8 - u * 60;
+      puff(px, py, 80 + (i % 2) * 22, 1100 + i * 9, eOut(clamp(u * 4)), clamp((u - 0.35) / 0.65));
+    }
+    // sparks: launch outward, then home in on the start of each letter stroke
+    STROKES.forEach((s, i) => {
+      if (tq >= s.t0) return;
+      const a = i / STROKES.length * Math.PI * 2 + rr(5, i, -0.2, 0.2), u = seg(tq, C.boom, s.t0);
+      const ctrl = [bx + Math.cos(a) * 420, by + Math.sin(a) * 300], tgt = s.pts[0];
+      const e = eIO(u), q0 = [lerp(bx, ctrl[0], e), lerp(by, ctrl[1], e)], q1 = [lerp(ctrl[0], tgt[0], e), lerp(ctrl[1], tgt[1], e)];
+      const px = lerp(q0[0], q1[0], e), py = lerp(q0[1], q1[1], e);
+      const dx = q1[0] - q0[0], dy = q1[1] - q0[1];
+      spark(px, py, Math.atan2(dy, dx), 30 + 10 * Math.sin(i), 1200 + i, i % 3 === 0 ? RED : YEL);
+      if (T.f % 2 === 0 && u > 0.05) brush([[px - dx * 0.08, py - dy * 0.08], [px - dx * 0.2, py - dy * 0.2]], 3, { seed: 1300 + i, taper: [0.05, 0.8] });
+    });
+    // arrival sparkles
+    STROKES.forEach((s, i) => { const u = seg(tq, s.t0, s.t0 + 0.17); if (u > 0 && u < 1) twinkle(s.pts[0][0] - 18, s.pts[0][1] - 18, 14 * Math.sin(u * Math.PI), 1400 + i); });
+    drawTitle(tq);
+  }
+
+  // ---- the blob comes back: drops onto the M, lands, winks
+  if (tq >= C.return0) {
+    const st = STROKES.find(s => s.ch === 'M'); const mx = (st.pts[0][0] + st.pts[st.pts.length - 1][0]) / 2, gy = st.pts[1][1] - 6;
+    const u = seg(tq, C.return0, C.return_land); const lift = (1 - eIn(u)) * 900;
+    let sx = 1, sy = 1, legs = 1, eyes = 'open', mouth = 'grin', armPose = 'up', wave = 0;
+    if (u < 1) { sx = 0.85; sy = 1.2; }
+    const k = seg(tq, C.return_land, C.return_land + 0.25); if (u >= 1 && k < 1) { sx = 1 + 0.28 * (1 - k); sy = 1 - 0.26 * (1 - k); legs = 1 - 0.4 * (1 - k); }
+    if (tq >= C.wink) { eyes = 'wink'; armPose = 'wave'; wave = (tq - C.wink) * 9; mouth = 'smile'; }
+    if (tq >= C.wink + 0.5) eyes = 'open';
+    if (tq >= C.wink + 0.75) eyes = 'wink';
+    blob({ x: mx, ground: gy, sx, sy, legs, lift, eyes, mouth, arms: 1, armPose, wave, scale: 0.85, shadow: u >= 1 ? 0.8 : 0, seed: 40 });
+    if (u >= 1 && k < 1) for (let i = 0; i < 5; i++) { const a = -Math.PI + 0.2 + i / 4 * (Math.PI - 0.4), r0 = 70 + k * 40;
+      brush([[mx + Math.cos(a) * r0, gy - 40 + Math.sin(a) * r0 * 0.6], [mx + Math.cos(a) * (r0 + 26), gy - 40 + Math.sin(a) * (r0 + 26) * 0.6]], 4, { seed: 1500 + i }); }
+  }
+  // ---- end-frame life: twinkles + small stars on 3s
+  if (tq >= C.underline) {
+    const spots = [[TITLE.x0 - 60, TITLE.base - 300], [C.title_x1 + 50, TITLE.base - 320], [C.title_x1 + 20, TITLE.base + 120], [TITLE.x0 + 140, TITLE.base + 130]];
+    spots.forEach(([x, y], i) => { const k = seg(tq, C.underline + i * 0.12, C.underline + i * 0.12 + 0.25); if (k > 0) star(x, y, 30 * eBack(k) * (1 + 0.15 * Math.sin(T.boil * 1.7 + i)), 5, 1600 + i + (T.boil % 3) * 2, i, i % 2 ? RED : YEL, 0.45, 3.5); });
+  }
+
+  // ---- paper grain over everything (multiply ~13 %) + fine grain
+  X.setTransform(1, 0, 0, 1, 0, 0);
+  X.globalCompositeOperation = 'multiply'; X.globalAlpha = 0.13; X.drawImage(tex, 0, 0);
+  X.globalAlpha = 0.10; const gx = (T.boil * 397) % 600, gy2 = (T.boil * 211) % 400; X.drawImage(grainImg, -gx, -gy2, 2048 * 1.3, 2048 * 1.3);
+  X.globalAlpha = 1; X.globalCompositeOperation = 'source-over';
+}
+
+window.renderAt = async (t) => { frame(t); };
+frame(0);
+window.__ready = true;
+</script>
+</body></html>
