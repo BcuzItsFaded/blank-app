@@ -125,6 +125,104 @@ function creature(x, gy, h, id, step = 0, reach = 0) {
   for (const sd of [-1, 1]) { const hx = x + sd * (46 + reach * 60), hy = gy - h * 0.4 - bob - reach * h * 0.25; cut([[x + sd * 30, gy - h * 0.8 - bob], [x + sd * 40, gy - h * 0.78 - bob], [hx + 6, hy], [hx - 6, hy]], INK, { rim: 3, id: id + 4 + sd }); }
   portrait(x, gy - h * 0.9 - bob, 0.17, 0, { cameo: true, grin: 1, id: id + 7 });
 }
+
+// ---------------------------------------------------------------- recognisable roles (archetypes, original designs)
+const SUIT = '#2a2a33', TAN = '#b8955a', BROWN = '#5a3a24', DRESS = '#7a2f3a', CARDI = '#6e5a7e';
+function paperFace(cx, cy, r, id, o = {}) {   // pale cut-paper face: dead eyes, frozen wide smile
+  const { hair = '#2a1d15', bun = false, smile = 1, glasses = false, skin = PALE } = o;
+  if (bun) cut(ell(cx, cy - r * 1.05, r * 0.5, r * 0.4, 0, 6.29, 14), hair, { rim: 3, id: id + 1 });
+  cut(ell(cx, cy, r * 0.82, r, 0, 6.29, 28), skin, { rim: 5, id });
+  X.save(); const [jx, jy] = jit(id); X.translate(jx, jy);
+  path([...ell(cx, cy - r * 0.15, r * 0.84, r * 0.9, Math.PI * 1.08, Math.PI * 1.92, 16)]); X.fillStyle = hair; X.fill();
+  for (const sd of [-1, 1]) { X.fillStyle = INK; X.beginPath(); X.ellipse(cx + sd * r * 0.32, cy - r * 0.05, r * 0.1, r * 0.13, 0, 0, 7); X.fill(); }
+  if (glasses) { X.strokeStyle = INK; X.lineWidth = 3; for (const sd of [-1, 1]) { X.beginPath(); X.arc(cx + sd * r * 0.32, cy - r * 0.05, r * 0.22, 0, 7); X.stroke(); } }
+  if (smile > 0) { const w = r * 0.62 * smile, y = cy + r * 0.38; X.beginPath(); X.moveTo(cx - w, y); X.quadraticCurveTo(cx, y + r * 0.42, cx + w, y); X.quadraticCurveTo(cx, y + r * 0.2, cx - w, y); X.fillStyle = INK; X.fill();
+    X.strokeStyle = RIM; X.lineWidth = 2.5; X.beginPath(); X.moveTo(cx - w * 0.8, y + r * 0.1); X.quadraticCurveTo(cx, y + r * 0.27, cx + w * 0.8, y + r * 0.1); X.stroke(); }
+  else { X.strokeStyle = INK; X.lineWidth = 3; X.beginPath(); X.moveTo(cx - r * 0.2, cy + r * 0.45); X.quadraticCurveTo(cx, cy + r * 0.52, cx + r * 0.2, cy + r * 0.45); X.stroke(); }
+  X.restore();
+}
+function legs(x, top, gy, id, step, col = SUIT, gap = 14) {
+  const sw = (Math.floor(step * 2) % 2) ? 8 : -8;
+  for (const sd of [-1, 1]) cut([[x + sd * gap - 8, top], [x + sd * gap + 8, top], [x + sd * (gap + 2) + 8 + sd * sw, gy - 10], [x + sd * (gap + 2) - 8 + sd * sw, gy - 10]], col, { rim: 3, id: id + (sd > 0 ? 1 : 2) });
+  for (const sd of [-1, 1]) cut(ell(x + sd * (gap + 6) + sd * sw, gy - 6, 16, 7, 0, 6.29, 10), INK, { rim: 2, id: id + 3 + (sd > 0 ? 1 : 0) });
+}
+// the polite man in the old suit and fedora; tip: 0..1 hat raised
+function smileMan(x, gy, h, id, step = 0, tip = 0) {
+  const bob = (Math.floor(step * 2) % 2) * 5, hip = gy - h * 0.46 - bob;
+  legs(x, hip, gy, id, step);
+  cut([[x - 46, gy - h * 0.8 - bob], [x + 46, gy - h * 0.8 - bob], [x + 40, hip + 6], [x - 40, hip + 6]], SUIT, { rim: 4, dots: 0.2, light: true, id: id + 6 });
+  cut([[x - 12, gy - h * 0.8 - bob], [x + 12, gy - h * 0.8 - bob], [x, gy - h * 0.62 - bob]], RIM, { rim: 0, shadow: 0, id: id + 7 });
+  cut([[x - 5, gy - h * 0.78 - bob], [x + 5, gy - h * 0.78 - bob], [x + 7, gy - h * 0.6 - bob], [x, gy - h * 0.56 - bob], [x - 7, gy - h * 0.6 - bob]], RED, { rim: 0, shadow: 0, id: id + 8 });
+  for (const sd of [-1, 1]) { const up = sd > 0 && tip > 0; const hx = up ? x + 40 : x + sd * 52, hy = up ? gy - h * 1.02 - bob : hip + 10;
+    cut([[x + sd * 40, gy - h * 0.78 - bob], [x + sd * 52, gy - h * 0.76 - bob], [hx + 7, hy], [hx - 7, hy]], SUIT, { rim: 3, id: id + 9 + sd }); cut(ell(hx, hy, 9, 9, 0, 6.29, 10), PALE, { rim: 2, id: id + 12 + sd }); }
+  const hy = gy - h * 0.9 - bob; paperFace(x, hy, 40, id + 20, { hair: '#1c1712' });
+  X.save(); X.translate(x, hy - 40 - tip * 34); X.rotate(-tip * 0.25);
+  cut(ell(0, 0, 66, 13, 0, 6.29, 20), BROWN, { rim: 3, id: id + 30 }); cut([[-36, 2], [-30, -42], [30, -42], [36, 2]], BROWN, { rim: 3, dots: 0.25, id: id + 31 });
+  cut([[-35, -6], [35, -6], [35, 2], [-35, 2]], INK, { rim: 0, shadow: 0, id: id + 32 }); X.restore();
+}
+// the 1950s woman in the pillbox hat; knock: 0..1 hand raised to tap
+function smileWoman(x, gy, h, id, step = 0, knock = 0, dir = 1) {
+  const bob = (Math.floor(step * 2) % 2) * 5, waist = gy - h * 0.55 - bob;
+  legs(x, gy - h * 0.25, gy, id, step, PALE, 10);
+  cut([[x - 26, waist], [x + 26, waist], [x + 70, gy - h * 0.24], [x - 70, gy - h * 0.24]], DRESS, { rim: 4, dots: 0.3, id: id + 6 });
+  cut([[x - 30, gy - h * 0.8 - bob], [x + 30, gy - h * 0.8 - bob], [x + 26, waist], [x - 26, waist]], DRESS, { rim: 4, dots: 0.3, id: id + 7 });
+  cut([[x - 22, gy - h * 0.8 - bob], [x + 22, gy - h * 0.8 - bob], [x, gy - h * 0.72 - bob]], RIM, { rim: 0, shadow: 0, id: id + 8 });
+  for (const sd of [-1, 1]) { const raise = sd === dir && knock > 0; const tap = raise ? Math.sin(knock * Math.PI * 6) * 10 : 0;
+    const hx = raise ? x + sd * 92 + tap : x + sd * 40, hy = raise ? gy - h * 0.82 - bob : waist + 30;
+    cut([[x + sd * 24, gy - h * 0.78 - bob], [x + sd * 34, gy - h * 0.76 - bob], [hx + 6, hy], [hx - 6, hy]], DRESS, { rim: 3, id: id + 9 + sd }); cut(ell(hx, hy, 10, 10, 0, 6.29, 10), RIM, { rim: 2, id: id + 12 + sd }); }
+  const hy = gy - h * 0.9 - bob; paperFace(x, hy, 38, id + 20, { hair: '#4a2a1a', bun: true });
+  cut([[x - 22, hy - 42], [x + 22, hy - 42], [x + 20, hy - 64], [x - 20, hy - 64]], RED, { rim: 3, id: id + 30 });
+}
+function sheriff(x, gy, s, id, swing = 0) {
+  const h = 420 * s, hip = gy - h * 0.46;
+  legs(x, hip, gy, id, 0, '#3b3a30', 16 * s);
+  cut([[x - 50 * s, gy - h * 0.8], [x + 50 * s, gy - h * 0.8], [x + 44 * s, hip + 6], [x - 44 * s, hip + 6]], TAN, { rim: 4, dots: 0.25, id: id + 6 });
+  cut([[x - 46 * s, hip - 4], [x + 46 * s, hip - 4], [x + 46 * s, hip + 12], [x - 46 * s, hip + 12]], BROWN, { rim: 0, shadow: 0, id: id + 7 });
+  const star = [...Array(10)].map((_, k) => { const a = k / 10 * 6.28 - 1.57, r = (k % 2 ? 7 : 16) * s; return [x - 22 * s + Math.cos(a) * r, gy - h * 0.68 + Math.sin(a) * r]; });
+  cut(star, YEL, { rim: 2, id: id + 8 });
+  // lantern arm
+  const lx = x + 70 * s + Math.sin(swing) * 6, ly = hip - 10 * s;
+  cut([[x + 44 * s, gy - h * 0.78], [x + 56 * s, gy - h * 0.76], [lx + 6, ly - 30 * s], [lx - 6, ly - 30 * s]], TAN, { rim: 3, id: id + 9 });
+  X.save(); X.globalAlpha = 0.32; X.fillStyle = YEL; X.beginPath(); X.arc(lx, ly, 110 * s, 0, 7); X.fill(); X.restore();
+  cut([[lx - 18 * s, ly - 26 * s], [lx + 18 * s, ly - 26 * s], [lx + 18 * s, ly + 26 * s], [lx - 18 * s, ly + 26 * s]], YEL, { rim: 4, id: id + 10 });
+  cut([[x - 44 * s, gy - h * 0.78], [x - 56 * s, gy - h * 0.76], [x - 60 * s, hip + 6], [x - 48 * s, hip + 6]], TAN, { rim: 3, id: id + 11 });
+  const hy = gy - h * 0.9; portrait(x, hy + 6 * s, 0.16 * s, 0, { cameo: true, id: id + 12 });
+  X.save(); X.translate(x, hy - 46 * s);
+  cut(ell(0, 0, 80 * s, 15 * s, 0, 6.29, 20), BROWN, { rim: 3, id: id + 20 }); cut([[-40 * s, 2], [-34 * s, -46 * s], [0, -36 * s], [34 * s, -46 * s], [40 * s, 2]], BROWN, { rim: 3, dots: 0.25, id: id + 21 }); X.restore();
+}
+function rv(x, gy, o = {}) {
+  const { lights = 0, id = 300, jaw = 0 } = o;
+  if (lights) { X.save(); X.globalAlpha = 0.45; cut([[x + 170, gy - 55], [x + 640, gy - 140], [x + 640, gy + 40]], YEL, { rim: 0, shadow: 0, id: id + 9 }); X.restore(); }
+  cut([[x - 175, gy - 22], [x - 175, gy - 200], [x + 110, gy - 200], [x + 130, gy - 160], [x + 170, gy - 120], [x + 175, gy - 22]], CREAM, { rim: 6, dots: 0.12, id });
+  cut([[x - 175, gy - 110], [x + 172, gy - 110], [x + 174, gy - 86], [x - 175, gy - 86]], TEAL, { rim: 0, shadow: 0, id: id + 1 });
+  cut([[x - 175, gy - 74], [x + 174, gy - 74], [x + 175, gy - 62], [x - 175, gy - 62]], RED, { rim: 0, shadow: 0, id: id + 2 });
+  [[-140, 0], [-70, 1], [0, 0]].forEach(([wx, f], i) => { X.save(); path([[x + wx, gy - 180], [x + wx + 56, gy - 180], [x + wx + 56, gy - 124], [x + wx, gy - 124]]); X.fillStyle = lights ? '#2a2c38' : '#cfd8d0'; X.fill(); X.clip();
+    if (f) { X.translate(2 * (x + wx + 28), 0); X.scale(-1, 1); } portrait(x + wx + 28, gy - 140, 0.07, i === 2 ? jaw : 0, { id: id + 20 + i, jitter: 0 }); X.restore(); });
+  X.save(); path([[x + 90, gy - 186], [x + 118, gy - 186], [x + 150, gy - 126], [x + 90, gy - 126]]); X.fillStyle = lights ? '#2a2c38' : '#cfd8d0'; X.fill(); X.restore();
+  cut([[x + 50, gy - 22], [x + 50, gy - 120], [x + 82, gy - 120], [x + 82, gy - 22]], '#d9cfb8', { rim: 2, shadow: 0, id: id + 3 });
+  for (const wx of [x - 110, x + 110]) { cut(ell(wx, gy - 16, 29, 29, 0, 6.29, 16), INK, { rim: 4, id: id + 4 + (wx > x ? 1 : 0), jitter: 1 }); cut(ell(wx, gy - 16, 11, 11, 0, 6.29, 10), GREY, { rim: 0, shadow: 0, id: id + 6 }); }
+}
+function diner(x, base, w, h, id) {
+  cut([[x, base], [x, base - h], [x + w, base - h], [x + w, base]], '#9fb9b0', { rim: 6, dots: 0.2, id });
+  cut([[x - 10, base - h - 4], [x + w + 10, base - h - 4], [x + w + 10, base - h + 18], [x - 10, base - h + 18]], RED, { rim: 4, id: id + 1 });
+  for (let i = 0; i < 3; i++) cut([[x + 14 + i * (w - 28) / 3, base - h * 0.7], [x + 6 + (i + 1) * (w - 28) / 3, base - h * 0.7], [x + 6 + (i + 1) * (w - 28) / 3, base - h * 0.35], [x + 14 + i * (w - 28) / 3, base - h * 0.35]], YEL, { rim: 3, shadow: 0, id: id + 2 + i });
+  X.save(); X.translate(x + w / 2, base - h - 50); X.rotate(-0.03); cut(tornRect(-w * 0.42, -34, w * 0.42, 34, id + 8, 3), INK, { rim: 5, id: id + 8 }); typed('DINER', 0, 16, 46, RED, 'center', 'Inter', '900'); X.restore();
+}
+function charmTree(x, base, h, id, sw = 0) {
+  cut([[x - 14, base], [x - 8, base - h], [x + 8, base - h], [x + 14, base]], BROWN, { rim: 4, dots: 0.3, id });
+  const br = [[-1, 0.55, 0.42], [1, 0.7, 0.38], [-1, 0.85, 0.3], [1, 0.95, 0.28]];
+  br.forEach(([d, yy, L], i) => { const y0 = base - h * yy; cut([[x, y0 - 6], [x + d * h * L, y0 - h * 0.12], [x + d * h * L, y0 - h * 0.12 + 10], [x, y0 + 6]], BROWN, { rim: 3, id: id + 1 + i });
+    for (let k = 1; k <= 2; k++) { const cx = x + d * h * L * k / 2.2, cy = y0 - h * 0.12 * k / 2.2, sway = Math.sin(sw + i + k) * 6, len = 40 + 20 * k;
+      X.save(); X.strokeStyle = '#3a2a1a'; X.lineWidth = 2; X.beginPath(); X.moveTo(cx, cy); X.lineTo(cx + sway, cy + len); X.stroke(); X.restore();
+      cut(ell(cx + sway, cy + len + 14, 13, 16, 0, 6.29, 14), '#a7a39a', { rim: 3, dots: 0.2, id: id + 10 + i * 3 + k });
+      X.save(); X.strokeStyle = INK; X.lineWidth = 2; X.beginPath(); X.arc(cx + sway, cy + len + 14, 6, 0, 4.5); X.stroke(); X.restore(); } });
+}
+function busInWoods(x, gy, s, id) {
+  cut([[x - 120 * s, gy], [x - 120 * s, gy - 90 * s], [x + 110 * s, gy - 90 * s], [x + 130 * s, gy - 50 * s], [x + 130 * s, gy]], YEL, { rim: 5, dots: 0.35, id });
+  for (let i = 0; i < 5; i++) cut([[x - 105 * s + i * 42 * s, gy - 78 * s], [x - 75 * s + i * 42 * s, gy - 78 * s], [x - 75 * s + i * 42 * s, gy - 50 * s], [x - 105 * s + i * 42 * s, gy - 50 * s]], '#3a3a40', { rim: 0, shadow: 0, id: id + 1 + i });
+  for (const wx of [x - 80 * s, x + 90 * s]) cut(ell(wx, gy, 18 * s, 18 * s, 0, 6.29, 12), INK, { rim: 3, id: id + 8 });
+}
+
 function eyes(x, y, id, s = 1) { if ((HOLD + id) % 13 === 0) return; for (const sd of [-1, 1]) cut(ell(x + sd * 16 * s, y, 9 * s, 7 * s, 0, 6.29, 10), YEL, { rim: 2, shadow: 0, id: id + sd, jitter: 1 }); }
 function bigEye(x, y, w, open, look, id = 700) {
   if (open <= 0.02) return; const up = [], dn = [];
@@ -235,9 +333,10 @@ function sceneRoad(t) {
   if (t < C.loop[0][0]) { cx = lerp(-260, 560, eOut(seg(t, 0, 4.6))); if (t >= C.tree_fall) jaw = 1; }
   else { const L = C.loop; if (t < L[0][1]) cx = lerp(560, 1220, eIn(seg(t, L[0][0], L[0][1]))); else if (t < L[1][1]) cx = lerp(-260, 1220, seg(t, L[1][0], L[1][1])); else { const u = seg(t, L[2][0], L[2][1]); cx = lerp(-260, 500, eOut(u)); if (u >= 1) jaw = 0.5; } }
   if (t >= C.creatures) jaw = 1;
-  car(cx, GY + 40, { lights: night > 0.5 ? 1 : 0, jaw });
+  rv(cx, GY + 40, { lights: night > 0.5 ? 1 : 0, jaw });
   if (t >= C.loop[2][1] && t < C.night[0]) { qm(cx - 40, GY - 170, 90, 240); qm(cx + 60, GY - 200, 70, 241); }
-  if (t >= C.creatures) [[150, 0], [330, 0.25], [880, 0.12]].forEach(([x0, d], i) => { const u = seg(t, C.creatures + d, C.creatures + d + 2.0); creature(x0 + (cx - x0) * 0.28 * eOut(u), GY + 8, 360 + i * 30, 260 + i * 20, (t - C.creatures), eOut(seg(t, C.creatures + 1.2, C.creatures + 2.0)) * 0.6); });
+  if (t >= C.creatures) [[130, 0], [300, 0.25], [880, 0.12]].forEach(([x0, d], i) => { const u = seg(t, C.creatures + d, C.creatures + d + 2.0), x = x0 + (cx - x0) * 0.22 * eOut(u), st = (t - C.creatures);
+    if (i === 1) smileWoman(x, GY + 8, 400, 260 + i * 40, st); else smileMan(x, GY + 8, 420 + i * 10, 260 + i * 40, st, i === 0 ? eOut(seg(t, C.creatures + 1.0, C.creatures + 1.3)) * (t < C.creatures + 2.0 ? 1 : 0) : 0); });
   if (t >= C.title[0] && t < C.loop[0][0]) titleSlap(t);
 }
 function titleSlap(t) {
@@ -267,6 +366,8 @@ function sceneRules(t) {
   if (t >= C.residents) { const k = eOut(seg(t, C.residents, C.residents + 0.4)); X.save(); path([[wx0, wy0], [wx0 + ww, wy0], [wx0 + ww, wy0 + wh], [wx0, wy0 + wh]]); X.clip();
     portrait(wx0 + 62, wy0 + wh + 70 - 120 * k, 0.17, t >= C.qmarks ? 0.5 : 0, { id: 360 }); X.translate(2 * (wx0 + 160), 0); X.scale(-1, 1); portrait(wx0 + 160, wy0 + wh + 80 - 120 * k, 0.15, 0, { id: 361 }); X.restore(); }
   cut([[hx + 270, base], [hx + 270, base - 150], [hx + 330, base - 150], [hx + 330, base]], '#6b3a22', { rim: 4, dots: 0.3, id: 353 });
+  sheriff(470, GY + 40, 0.95, 1000, t * 2.5);
+  if (t >= C.residents + 0.4) { const k = eOut(seg(t, C.residents + 0.4, C.residents + 0.9)); smileWoman(lerp(1160, 960, k), GY + 30, 420, 1050, t, t >= C.residents + 1.0 ? seg(t, C.residents + 1.0, C.qmarks + 1.5) : 0, -1); }
   if (t >= C.qmarks) [[700, 1000, 120], [800, 950, 150], [900, 1010, 110]].forEach(([x, y, s], i) => { if (t >= C.qmarks + i * 0.2) qm(x, y, s, 370 + i, i === 1 ? RED : YEL); });
   if (t >= C.big_eye) bigEye(540, 770, 210, eOut(seg(t, C.big_eye, C.big_eye + 0.6)), Math.sin((t - C.big_eye) * 1.3) * 0.8, 380);
   else for (let i = 0; i < 5; i++) eyes(120 + i * 210, 1140 + (i % 2) * 40, 390 + i * 3);
@@ -276,7 +377,8 @@ function sceneMap(t) {
   X.save(); X.translate(mcx, mcy); X.scale(ms, ms);
   cut(ell(0, 0, 400, 340, 0, 6.29, 60), NEWS, { rim: 8, id: 400 });
   for (let i = 0; i < 16; i++) { const a = i / 16 * 6.28; pine(Math.cos(a) * 330, Math.sin(a) * 270 + 40, 80, 410 + i); }
-  [[-130, 20], [-20, -60], [100, 10], [10, 110], [150, 110]].forEach(([x, y], i) => house(x - 32, y, 64, 50, 430 + i * 5, 0));
+  [[-130, 20], [100, 10], [150, 120]].forEach(([x, y], i) => house(x - 32, y, 64, 50, 430 + i * 5, 0));
+  diner(-80, -50, 120, 70, 445); charmTree(30, 150, 110, 455, t * 2); busInWoods(300, -190, 0.5, 465);
   // red yarn looping round the town, pinned
   const k = eOut(seg(t, C.map, C.map + 1.2)); X.save(); X.strokeStyle = RED; X.lineWidth = 7; X.lineCap = 'round'; X.shadowColor = 'rgba(0,0,0,0.35)'; X.shadowBlur = 4; X.shadowOffsetY = 3;
   X.beginPath(); for (let i = 0; i <= 120 * k; i++) { const a = -1.6 + i / 120 * 6.6, r = 230 + Math.sin(i * 0.5) * 6; i ? X.lineTo(Math.cos(a) * r * 1.1, Math.sin(a) * r * 0.85) : X.moveTo(Math.cos(a) * r * 1.1, Math.sin(a) * r * 0.85); } X.stroke(); X.restore();
@@ -325,13 +427,14 @@ function sceneRun(t) {
 function sceneChoice(t) {
   X.save(); X.beginPath(); X.rect(30, 640, 520, 980); X.clip();
   cut(tornRect(30, 640, 560, 1200, 700, 8), '#d9c9a4', { rim: 0, id: 700, jitter: 0 }); forest(1240, 710, 6);
-  house(90, GY, 170, 160, 720, 1, 'news'); house(300, GY, 140, 130, 730, 1);
+  diner(70, GY, 210, 150, 720); charmTree(440, GY, 300, 735, t * 2); house(300, GY, 120, 110, 730, 1);
   cut([[30, GY - 8], [560, GY - 8], [560, 1610], [30, 1610]], '#9a8f7a', { rim: 0, dots: 0.3, id: 740, jitter: 0 });
   X.restore();
   X.save(); X.beginPath(); X.rect(530, 640, 520, 980); X.clip();
   cut(tornRect(520, 640, 1050, 1610, 750, 8), NAVY, { rim: 0, dots: 0.25, light: true, id: 750, jitter: 0 });
   for (let i = 0; i < 6; i++) pine(570 + i * 95, GY + 20, 380 + 120 * hash(760, i), 760 + i, '#24361f');
   for (let i = 0; i < 7; i++) eyes(600 + (i % 4) * 110 + (i > 3 ? 50 : 0), 1020 + Math.floor(i / 4) * 180 + rr(5, i, -30, 30), 780 + i * 3);
+  paperFace(700, 1180, 34, 870, { hair: '#1c1712' }); paperFace(930, 1290, 32, 880, { hair: '#4a2a1a', bun: true });
   X.restore();
   // a torn seam down the middle
   cut(tornRect(528, 640, 552, 1610, 790, 10), RIM, { rim: 0, id: 790, jitter: 0 });
