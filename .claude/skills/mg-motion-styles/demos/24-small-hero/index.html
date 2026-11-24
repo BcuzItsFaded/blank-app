@@ -1,0 +1,375 @@
+<!doctype html>
+<html><head><meta charset="utf-8">
+<style>
+@font-face { font-family: 'PH'; src: url('/demos/24-small-hero/fonts/patrick-hand-latin-400-normal.woff2') format('woff2'); font-display: block; }
+html,body{margin:0;background:#000;overflow:hidden}canvas{display:block;width:1080px;height:1920px}
+</style>
+</head><body>
+<canvas id="c" width="1080" height="1920"></canvas>
+<script type="module">
+// "One Small Hero" — 9:16 frame-by-frame / line-boil recap short. Original doodle cast; the script runs as boiling hand captions.
+import { setCtx, setBoil, BOIL as _B, INK, RED, YEL, CREAM, HI, hash, sn, rr, clamp, lerp, seg, eOut, eIn, eIO, eBack,
+  brush, fillShape, ell, blob, puff, star, spark, twinkle } from '/demos/24-small-hero/ink.js';
+const W = 1080, H = 1920, FPS = 24;
+const C = await (await fetch('/demos/24-small-hero/cues.json')).json();
+window.DEMO = { width: W, height: H, fps: FPS, duration: C.duration };
+const cv = document.getElementById('c'), X = cv.getContext('2d'); setCtx(X);
+await document.fonts.load("84px 'PH'", 'Mario thinks saving the world ’?:,.-');
+await document.fonts.ready;
+const OLIVE = '#7f9a3d', SHELL = '#c9452e', STONE = '#e6d2a8';
+let BOIL = 0;
+
+// ---------------------------------------------------------------- timing: on 2s, fast action on 1s, final hold on 3s
+const ONES = [[1.45, 2.05], [2.95, 3.55], [4.45, 5.05], [6.4, 7.45], [13.3, 13.95], [15.45, 16.3], [20.1, 20.75], [24.5, 25.7]];
+function timing(t) {
+  const f = Math.min(Math.round(C.duration * FPS) - 1, Math.round(t * FPS)), tt = f / FPS;
+  const step = tt >= C.qmark ? 3 : ONES.some(([a, b]) => tt >= a && tt < b) ? 1 : 2;
+  const fq = f - (f % step);
+  return { f, tq: fq / FPS, boil: Math.floor(f / Math.max(2, step)) };
+}
+
+// ---------------------------------------------------------------- paper
+const paperImg = new Image(); paperImg.src = '/assets/textures/paper/Paper001_4K_color.jpg';
+const grainImg = new Image(); grainImg.src = '/assets/textures/grain/grain_fine_2048.png';
+await Promise.all([paperImg.decode(), grainImg.decode()]);
+const cover = (p, img) => { const s = Math.max(W / img.width, H / img.height); p.drawImage(img, (W - img.width * s) / 2, (H - img.height * s) / 2, img.width * s, img.height * s); };
+const paper = document.createElement('canvas'); paper.width = W; paper.height = H;
+{ const p = paper.getContext('2d'); p.fillStyle = CREAM; p.fillRect(0, 0, W, H);
+  p.globalCompositeOperation = 'multiply'; p.globalAlpha = 0.5; cover(p, paperImg); p.globalAlpha = 1; p.globalCompositeOperation = 'source-over';
+  for (let i = 0; i < 900; i++) { p.fillStyle = `rgba(120,90,60,${0.03 + 0.05 * hash(3, i)})`; p.save(); p.translate(hash(4, i) * W, hash(5, i) * H); p.rotate(hash(6, i) * 6.28); p.fillRect(0, 0, 3 + 12 * hash(7, i), 0.8); p.restore(); }
+  const g = p.createRadialGradient(W / 2, H * 0.55, H * 0.3, W / 2, H * 0.55, H * 0.8); g.addColorStop(0, 'rgba(90,60,30,0)'); g.addColorStop(1, 'rgba(90,60,30,0.24)'); p.fillStyle = g; p.fillRect(0, 0, W, H); }
+const tex = document.createElement('canvas'); tex.width = W; tex.height = H; cover(tex.getContext('2d'), paperImg);
+
+// ---------------------------------------------------------------- props
+const heart = (cx, cy, r) => { const out = []; for (let i = 0; i <= 30; i++) { const a = i / 30 * Math.PI * 2; out.push([cx + 16 * Math.pow(Math.sin(a), 3) * r / 16, cy - (13 * Math.cos(a) - 5 * Math.cos(2 * a) - 2 * Math.cos(3 * a) - Math.cos(4 * a)) * r / 16]); } return out; };
+function drawHeart(cx, cy, r, seed, col = RED) { const h = heart(cx, cy, r); fillShape(h, col, seed, 2); brush(h, Math.max(2.5, r * 0.14), { seed: seed + 1, taper: [0.03, 0.03] }); }
+function groundLine(y, x0 = -20, x1 = W + 20, seed = 5) {
+  const pts = []; for (let i = 0; i <= 30; i++) pts.push([lerp(x0, x1, i / 30), y + Math.sin(i * 1.7) * 3]);
+  brush(pts, 5, { seed, taper: [0.02, 0.02] });
+  for (let i = 0; i < 9; i++) { const x = 40 + i * 120 + rr(seed, i, -30, 30); brush([[x, y + 30 + rr(seed, i + 9, 0, 60)], [x + 40, y + 24 + rr(seed, i + 9, 0, 60)]], 2.4, { seed: seed + 20 + i, taper: [0.4, 0.4] }); }
+  for (let i = 0; i < 7; i++) { const x = 70 + i * 150 + rr(seed, i + 40, -20, 20); brush([[x - 8, y], [x - 3, y - 18]], 3, { seed: seed + 50 + i }); brush([[x + 4, y], [x + 8, y - 14]], 3, { seed: seed + 60 + i }); }
+}
+// toadstool minion: yellow cap, red spots, grumpy brows. squash: 0 alive .. 1 pancake
+function minion(x, gy, s, seed, squash = 0, step = 0, look = -1) {
+  const sy = 1 - 0.72 * squash, sx = 1 + 0.55 * squash, bob = Math.abs(Math.sin(step * Math.PI)) * 6 * s * (1 - squash);
+  const by = gy - bob;
+  if (squash < 0.5) for (const sd of [-1, 1]) { const lx = x + sd * 14 * s, ph = Math.sin(step * Math.PI + (sd > 0 ? Math.PI : 0)); brush([[lx, by - 18 * s], [lx + ph * 6 * s, gy - 3]], 4.5 * s, { seed: seed + (sd > 0 ? 1 : 2) }); fillShape(ell(lx + ph * 6 * s + look * 6 * s, gy - 3, 10 * s, 5 * s, 0, 6.29, 12), INK, seed + 3, 0.4); }
+  const stemTop = by - (18 + 46 * sy) * s, stemB = ell(x, by - (18 + 24 * sy) * s, 26 * s * sx, 28 * s * sy, 0, 6.29, 24);
+  fillShape(stemB, HI, seed + 4, 2); brush(ell(x, by - (18 + 24 * sy) * s, 26 * s * sx, 28 * s * sy, 0.4, 6.4, 24), 4 * s, { seed: seed + 5 });
+  const cap = [...ell(x, stemTop + 8 * s, 50 * s * sx, 46 * s * sy, Math.PI, Math.PI * 2, 24), [x + 50 * s * sx, stemTop + 8 * s]];
+  fillShape(cap, YEL, seed + 6, 3);
+  for (let i = 0; i < 3; i++) fillShape(ell(x + (i - 1) * 24 * s * sx, stemTop - 16 * s * sy - (i === 1 ? 12 * s * sy : 0), 8 * s * sx, 7 * s * sy, 0, 6.29, 10), RED, seed + 7 + i, 1);
+  brush([...cap, cap[0]], 4.5 * s, { seed: seed + 10, taper: [0.02, 0.02] });
+  if (squash < 0.4) for (const sd of [-1, 1]) {
+    const ex = x + sd * 11 * s + look * 4 * s, ey = by - (18 + 30 * sy) * s;
+    fillShape(ell(ex, ey, 3.8 * s, 5 * s, 0, 6.29, 10), INK, seed + 12, 0.2);
+    brush([[ex - sd * 9 * s, ey - 13 * s], [ex + sd * 7 * s, ey - 7 * s]], 3.4 * s, { seed: seed + 13 + sd });
+  } else brush([[x - 16 * s, by - (18 + 26 * sy) * s], [x - 6 * s, by - (18 + 22 * sy) * s]], 3 * s, { seed: seed + 15 }), brush([[x + 6 * s, by - (18 + 22 * sy) * s], [x + 16 * s, by - (18 + 26 * sy) * s]], 3 * s, { seed: seed + 16 });
+}
+function shroomHouse(x, gy, s, seed) {
+  const stem = [[x - 42 * s, gy], [x - 36 * s, gy - 110 * s], [x + 36 * s, gy - 110 * s], [x + 42 * s, gy]];
+  fillShape(stem, HI, seed, 3); brush([...stem], 4.5, { seed: seed + 1, taper: [0.02, 0.02] });
+  const door = ell(x, gy, 18 * s, 44 * s, Math.PI, Math.PI * 2, 14); fillShape(door, INK, seed + 2, 0.5);
+  fillShape(ell(x + 22 * s, gy - 80 * s, 9 * s, 9 * s, 0, 6.29, 10), YEL, seed + 3, 0.5); brush(ell(x + 22 * s, gy - 80 * s, 9 * s, 9 * s, 0, 6.4, 10), 3, { seed: seed + 4 });
+  const cap = [...ell(x, gy - 100 * s, 110 * s, 90 * s, Math.PI, Math.PI * 2, 30)];
+  fillShape(cap, YEL, seed + 5, 4);
+  [[-55, -125, 16], [5, -160, 19], [60, -120, 14], [-20, -112, 9]].forEach(([dx, dy, r], i) => fillShape(ell(x + dx * s, gy + dy * s, r * s, r * 0.8 * s, 0, 6.29, 12), RED, seed + 6 + i, 1));
+  brush([...cap, cap[0]], 5, { seed: seed + 9, taper: [0.02, 0.02] });
+}
+function flame(x, base, h, w, seed) {
+  if (h < 4) return;
+  const sway = sn(seed + BOIL * 3, 0.3) * w * 0.35, mk = (k) => {
+    const hh = h * k, ww = w * k, pts = [];
+    pts.push([x - ww / 2, base]);
+    pts.push([x - ww * 0.62, base - hh * 0.35]); pts.push([x - ww * 0.42, base - hh * 0.5]); pts.push([x - ww * 0.5, base - hh * 0.72 + rr(seed + BOIL, 1, -6, 6)]);
+    pts.push([x - ww * 0.15 + sway * 0.6, base - hh * 0.62]); pts.push([x + sway, base - hh]);
+    pts.push([x + ww * 0.25 + sway * 0.5, base - hh * 0.58]); pts.push([x + ww * 0.48, base - hh * 0.75 + rr(seed + BOIL, 2, -6, 6)]); pts.push([x + ww * 0.45, base - hh * 0.42]);
+    pts.push([x + ww * 0.6, base - hh * 0.25]); pts.push([x + ww / 2, base]);
+    return pts;
+  };
+  const o = mk(1); fillShape(o, RED, seed, 2); fillShape(mk(0.6).map(([a, b]) => [a, b]), YEL, seed + 1, 1.5);
+  brush([...o], Math.max(2.5, w * 0.05), { seed: seed + 2, taper: [0.05, 0.05] });
+}
+function breathCone(x0, y0, x1, y1, w, seed) {
+  const dx = x1 - x0, dy = y1 - y0, L = Math.hypot(dx, dy), ux = dx / L, uy = dy / L, nx = -uy, ny = ux, n = 14, up = [], dn = [];
+  for (let i = 0; i <= n; i++) { const u = i / n, ww = (18 + w * u) * (1 + 0.25 * sn(seed + BOIL * 5, i * 0.9)) * (i % 2 ? 0.82 : 1); up.push([x0 + dx * u + nx * ww, y0 + dy * u + ny * ww]); dn.push([x0 + dx * u - nx * ww, y0 + dy * u - ny * ww]); }
+  const poly = [...up, ...dn.reverse()]; fillShape(poly, RED, seed, 3);
+  const core = []; for (let i = 0; i <= n; i++) { const u = i / n, ww = (6 + w * 0.45 * u) * (1 + 0.3 * sn(seed + 9 + BOIL * 5, i)); core.push([x0 + dx * u + nx * ww, y0 + dy * u + ny * ww]); }
+  for (let i = n; i >= 0; i--) { const u = i / n, ww = (6 + w * 0.45 * u) * (1 + 0.3 * sn(seed + 19 + BOIL * 5, i)); core.push([x0 + dx * u - nx * ww, y0 + dy * u - ny * ww]); }
+  fillShape(core, YEL, seed + 1, 2); fillShape(core.map(([a, b]) => [lerp(a, x0 + dx * 0.4, 0.5), lerp(b, y0 + dy * 0.4, 0.5)]), HI, seed + 2, 1);
+  brush([...poly, poly[0]], 5, { seed: seed + 3, taper: [0.02, 0.02] });
+}
+// the giant fire-breathing turtle (original design): olive skin, cream muzzle, red shell with cream rim, stubby horns
+function turtle(cx, cy, s, o = {}) {
+  const { mouth = 0, love = 0, look = -1, seed = 2000 } = o;
+  const P = (u, v) => [cx + u * s, cy + v * s];
+  // shell (behind, to the right)
+  const sh = ell(cx + 330 * s, cy + 300 * s, 330 * s, 300 * s, Math.PI * 1.05, Math.PI * 2.0, 36);
+  const shell = [...sh, P(660, 600), P(0, 600)];
+  fillShape(shell, SHELL, seed, 5);
+  for (let i = 0; i < 4; i++) { const a = Math.PI * (1.2 + i * 0.2), bx = cx + 330 * s + Math.cos(a) * 330 * s, by = cy + 300 * s + Math.sin(a) * 300 * s, tx = cx + 330 * s + Math.cos(a) * 420 * s, ty = cy + 300 * s + Math.sin(a) * 390 * s;
+    const sp = [[bx + Math.sin(a) * 34 * s, by - Math.cos(a) * 34 * s], [tx, ty], [bx - Math.sin(a) * 34 * s, by + Math.cos(a) * 34 * s]];
+    fillShape(sp, HI, seed + 10 + i, 2); brush(sp, 5, { seed: seed + 14 + i, taper: [0.05, 0.05] }); }
+  brush(sh, 7, { seed: seed + 1, taper: [0.03, 0.03] });
+  brush(ell(cx + 330 * s, cy + 300 * s, 280 * s, 250 * s, Math.PI * 1.08, Math.PI * 1.95, 30), 18 * s, { seed: seed + 2, color: HI, taper: [0.1, 0.1] });
+  for (let i = 0; i < 6; i++) { const a = Math.PI * (1.15 + i * 0.14); brush([[cx + 330 * s + Math.cos(a) * 200 * s, cy + 300 * s + Math.sin(a) * 180 * s], [cx + 330 * s + Math.cos(a + 0.05) * 240 * s, cy + 300 * s + Math.sin(a + 0.05) * 215 * s]], 3, { seed: seed + 20 + i }); }
+  // neck
+  const neck = [P(-60, 120), P(160, 60), P(260, 600), P(-20, 600)];
+  fillShape(neck, OLIVE, seed + 3, 4); brush([P(-60, 120), P(-30, 360), P(-20, 600)], 6, { seed: seed + 4 }); brush([P(160, 60), P(220, 330), P(260, 600)], 6, { seed: seed + 5 });
+  for (let i = 0; i < 4; i++) brush([P(10 + i * 8, 260 + i * 80), P(150 + i * 10, 240 + i * 80)], 3, { seed: seed + 6 + i, taper: [0.3, 0.3] });
+  // horns
+  for (const [hx, hy, d] of [[-120, -150, -1], [60, -175, 1]]) { const hn = [P(hx - 32, hy + 20), P(hx + d * 18, hy - 85), P(hx + 30, hy + 12)]; fillShape(hn, HI, seed + 30 + d, 2); brush([...hn], 5, { seed: seed + 32 + d, taper: [0.05, 0.05] }); }
+  // head
+  const head = ell(cx, cy, 215 * s, 170 * s, 0, 6.29, 40);
+  fillShape(head, OLIVE, seed + 40, 5);
+  for (let i = 0; i < 5; i++) { const a = 5.5 + i * 0.16; brush([P(Math.cos(a) * 150, Math.sin(a) * 120), P(Math.cos(a) * 195, Math.sin(a) * 152)], 3, { seed: seed + 41 + i }); }
+  brush(ell(cx, cy, 215 * s, 170 * s, 2.4, 2.4 + 6.2, 40), 7, { seed: seed + 46, taper: [0.03, 0.03] });
+  // muzzle + mouth
+  const mz = ell(cx - 70 * s, cy + 70 * s, 170 * s, 105 * s, 0, 6.29, 30);
+  fillShape(mz, STONE, seed + 47, 3); brush(ell(cx - 70 * s, cy + 70 * s, 170 * s, 105 * s, 0.3, 0.3 + 6.1, 30), 5.5, { seed: seed + 48 });
+  fillShape(ell(cx - 170 * s, cy + 20 * s, 9 * s, 7 * s, 0, 6.29, 10), INK, seed + 49, 0.3); fillShape(ell(cx - 120 * s, cy + 14 * s, 9 * s, 7 * s, 0, 6.29, 10), INK, seed + 50, 0.3);
+  if (mouth > 0.05) {
+    const mo = ell(cx - 80 * s, cy + 105 * s, 120 * s, 60 * s * mouth, 0, 6.29, 28);
+    fillShape(mo, INK, seed + 51, 0.5); fillShape(ell(cx - 70 * s, cy + 125 * s + 20 * s * mouth, 60 * s, 22 * s * mouth, 0, 6.29, 18), RED, seed + 52, 0.5);
+    for (const tx of [-150, -10]) { const tt = [P(tx - 14, 105 - 58 * mouth), P(tx, 105 - 58 * mouth + 30), P(tx + 14, 105 - 58 * mouth)]; fillShape(tt, HI, seed + 53, 0.5); }
+  } else if (love > 0.5) brush([P(-170, 110), P(-80, 150), P(10, 110)], 6, { seed: seed + 54 });
+  else { brush([P(-190, 110), P(-80, 125), P(20, 100)], 6, { seed: seed + 55 }); const tt = [P(-140, 112), P(-128, 140), P(-116, 114)]; fillShape(tt, HI, seed + 56, 0.4); brush(tt, 3, { seed: seed + 57 }); }
+  // eyes
+  for (const [ex, ey, sd] of [[-120, -40, -1], [20, -55, 1]]) {
+    const e = P(ex, ey);
+    if (love > 0.5) { drawHeart(e[0], e[1], 34 * s * (1 + 0.08 * Math.sin(BOIL)), seed + 60 + sd); continue; }
+    fillShape(ell(e[0], e[1], 34 * s, 30 * s, 0, 6.29, 20), HI, seed + 61 + sd, 1); brush(ell(e[0], e[1], 34 * s, 30 * s, 0, 6.4, 20), 4.5, { seed: seed + 62 + sd });
+    fillShape(ell(e[0] + look * 14 * s, e[1] + 4 * s, 13 * s, 15 * s, 0, 6.29, 12), INK, seed + 63 + sd, 0.3);
+    brush([P(ex - 50, ey - 40 - (sd < 0 ? 0 : 10)), P(ex + 45, ey - 30 + (sd < 0 ? 18 : -18))].map((p, i) => sd < 0 ? p : p), 13 * s, { seed: seed + 64 + sd, taper: [0.2, 0.3] });
+  }
+  if (love > 0.5) for (const bx of [-205, 70]) { fillShape(ell(cx + bx * s, cy + 40 * s, 34 * s, 18 * s, 0, 6.29, 14), RED, seed + 70, 1); for (let i = 0; i < 3; i++) brush([P(bx - 16 + i * 14, 52), P(bx - 6 + i * 14, 30)], 3, { seed: seed + 71 + i }); }
+}
+// castle drawn stroke by stroke; u = 0..1 draw progress
+const CASTLE = (() => {
+  const S = [], R = (x0, y0, x1, y1) => [[x0, y0], [x0, y1], [x1, y1], [x1, y0]];
+  const cren = (x0, x1, y, n) => { const p = [[x0, y]]; const w = (x1 - x0) / n; for (let i = 0; i < n; i++) { const a = x0 + i * w; p.push([a, y - 28], [a + w / 2, y - 28], [a + w / 2, y]); if (i < n - 1) p.push([a + w, y]); } p.push([x1, y]); return p; };
+  S.push({ p: R(110, 0, 370, -300), fill: STONE });
+  S.push({ p: cren(110, 370, -300, 4) });
+  S.push({ p: R(0, 0, 110, -400), fill: STONE }); S.push({ p: [[-14, -400], [55, -510], [124, -400], [-14, -400]], fill: SHELL });
+  S.push({ p: R(370, 0, 480, -400), fill: STONE }); S.push({ p: [[356, -400], [425, -510], [494, -400], [356, -400]], fill: SHELL });
+  S.push({ p: [...ell(240, 0, 52, 120, Math.PI, Math.PI * 2, 16)], fill: INK });
+  S.push({ p: [...ell(55, -260, 16, 30, Math.PI, Math.PI * 2, 10), [71, -230], [39, -230], [39, -260]], fill: INK });
+  S.push({ p: [...ell(425, -260, 16, 30, Math.PI, Math.PI * 2, 10), [441, -230], [409, -230], [409, -260]], fill: INK });
+  S.push({ p: [[55, -510], [55, -580]] }); S.push({ p: [[55, -580], [115, -560], [55, -540]], fill: RED });
+  S.push({ p: [[425, -510], [425, -580]] }); S.push({ p: [[425, -580], [485, -560], [425, -540]], fill: RED });
+  for (let i = 0; i < 6; i++) S.push({ p: [[130 + (i % 3) * 80, -60 - Math.floor(i / 3) * 90], [175 + (i % 3) * 80, -60 - Math.floor(i / 3) * 90]], thin: 1 });
+  return S;
+})();
+function castle(x0, y0, s, u, seed = 3000) {
+  const n = CASTLE.length;
+  CASTLE.forEach((st, i) => {
+    const k = clamp(u * n - i * 0.85); if (k <= 0) return;
+    const pts = st.p.map(([a, b]) => [x0 + a * s, y0 + b * s]);
+    if (st.fill && k >= 1) fillShape(pts, st.fill, seed + i, 3);
+    brush(st.fill && st.fill !== INK ? [...pts, pts[0]] : pts, st.thin ? 3 : 5.5, { seed: seed + 50 + i, upto: eOut(k), taper: [0.04, 0.06] });
+  });
+}
+function cage(x, top, seed = 4000) {
+  brush([[x, 560], [x, top]], 4, { seed, taper: [0, 0] });
+  for (let i = 0; i < 6; i++) brush(ell(x, 560 + (i + 0.5) * (top - 560) / 6, 6, 11, 0, 6.4, 10), 3, { seed: seed + 1 + i });
+  const w = 150, h = 300, by = top + h;
+  const dome = ell(x, top + 70, w, 70, Math.PI, Math.PI * 2, 20);
+  brush(dome, 6, { seed: seed + 10 });
+  for (let i = 0; i <= 7; i++) { const bx = x - w + i * (2 * w / 7), yt = top + 70 - Math.sqrt(Math.max(0, 1 - Math.pow((bx - x) / w, 2))) * 70; brush([[bx, yt], [bx, by]], 4.5, { seed: seed + 20 + i, taper: [0.02, 0.02] }); }
+  brush(ell(x, by, w, 22, 0, 6.4, 26), 6, { seed: seed + 30 });
+  fillShape(ell(x, top, 16, 16, 0, 6.29, 10), YEL, seed + 31, 0.5); brush(ell(x, top, 16, 16, 0, 6.4, 10), 4, { seed: seed + 32 });
+  return by;
+}
+function pipe(x, gy, seed = 4500) {
+  const body = [[x - 70, gy], [x - 70, gy - 170], [x + 70, gy - 170], [x + 70, gy]], rim = [[x - 90, gy - 165], [x - 90, gy - 215], [x + 90, gy - 215], [x + 90, gy - 165]];
+  fillShape(body, STONE, seed, 3); fillShape(rim, STONE, seed + 1, 3);
+  brush([...body], 5.5, { seed: seed + 2, taper: [0.02, 0.02] }); brush([...rim, rim[0]], 5.5, { seed: seed + 3, taper: [0.02, 0.02] });
+  fillShape(ell(x, gy - 215, 78, 14, 0, 6.29, 20), INK, seed + 4, 0.5);
+  for (let i = 0; i < 4; i++) brush([[x + 30 + i * 9, gy - 150], [x + 30 + i * 9, gy - 20]], 2.6, { seed: seed + 5 + i, taper: [0.2, 0.2] });
+  for (let i = 0; i < 3; i++) brush([[x - 50, gy - 120 + i * 40], [x - 38, gy - 110 + i * 40]], 2.6, { seed: seed + 10 + i });
+}
+function bubbleThought(cx, cy, r, sx, sy, seed) {
+  puff(cx, cy, r, seed, 1, 0);
+  fillShape(ell(sx, sy, 14, 12, 0, 6.29, 12), HI, seed + 1, 0); brush(ell(sx, sy, 14, 12, 0, 6.4, 12), 3.5, { seed: seed + 2 });
+  const mx = lerp(sx, cx, 0.45), my = lerp(sy, cy, 0.45); fillShape(ell(mx, my, 22, 19, 0, 6.29, 14), HI, seed + 3, 0); brush(ell(mx, my, 22, 19, 0, 6.4, 14), 4, { seed: seed + 4 });
+}
+function crown(cx, cy, s, seed) {
+  const p = [[cx - 60 * s, cy + 30 * s], [cx - 70 * s, cy - 30 * s], [cx - 35 * s, cy], [cx, cy - 45 * s], [cx + 35 * s, cy], [cx + 70 * s, cy - 30 * s], [cx + 60 * s, cy + 30 * s]];
+  fillShape(p, YEL, seed, 2); brush([...p, p[0]], 5, { seed: seed + 1, taper: [0.02, 0.02] });
+  for (const [dx, dy] of [[-70, -30], [0, -45], [70, -30]]) { fillShape(ell(cx + dx * s, cy + dy * s - 8, 9, 9, 0, 6.29, 10), RED, seed + 2, 0.5); }
+}
+function qmark(cx, cy, s, u, seed = 5000) {
+  const hook = []; for (let i = 0; i <= 20; i++) { const a = Math.PI * 1.1 + i / 20 * Math.PI * 1.35; hook.push([cx + Math.cos(a) * 70 * s, cy - 90 * s + Math.sin(a) * 70 * s]); }
+  hook.push([cx + 5 * s, cy - 10 * s], [cx, cy + 40 * s]);
+  brush(hook.map(([a, b]) => [a + 10, b + 9]), 34 * s, { seed, color: INK, upto: u, taper: [0.1, 0.2] });
+  brush(hook, 34 * s, { seed: seed + 1, color: RED, upto: u, taper: [0.1, 0.2] });
+  if (u > 0.9) { fillShape(ell(cx + 10, cy + 109 * s, 22 * s, 22 * s, 0, 6.29, 14), INK, seed + 2, 0); fillShape(ell(cx, cy + 100 * s, 22 * s, 22 * s, 0, 6.29, 14), RED, seed + 3, 0); }
+}
+function speedBurst(cx, cy, r0, r1, n, seed) { for (let i = 0; i < n; i++) { const a = i / n * 6.28 + rr(seed, i, -0.15, 0.15); brush([[cx + Math.cos(a) * r0, cy + Math.sin(a) * r0], [cx + Math.cos(a) * r1, cy + Math.sin(a) * r1]], 5, { seed: seed + i, taper: [0.1, 0.5] }); } }
+
+// ---------------------------------------------------------------- boiling hand captions
+const HOT = new Set(C.hot);
+function captions(t) {
+  let page = null; for (const p of C.pages) if (t >= p.t) page = p;
+  if (!page) return;
+  const pi = C.pages.indexOf(page), next = C.pages[pi + 1], out = 0;
+  page.lines.forEach(([t0, text], li) => {
+    if (t < t0) return;
+    let fs = 100; X.font = `${fs}px PH`; const words = text.split(' ');
+    const sp = X.measureText(' ').width; let tw = words.reduce((a, w) => a + X.measureText(w).width, 0) + sp * (words.length - 1);
+    if (tw > 1000) { fs = 100 * 1000 / tw; X.font = `${fs}px PH`; tw = 1000; }
+    let x = (W - tw) / 2; const y = 380 + li * 135;
+    words.forEach((w, wi) => {
+      const ww = X.measureText(w).width, k = seg(t, t0 + wi * 0.07, t0 + wi * 0.07 + 0.17);
+      if (k <= 0) { x += ww + sp; return; }
+      const sc = eBack(k) * (1 - eIn(out)), hot = HOT.has(w);
+      let cx = x;
+      [...w].forEach((ch, ci) => {
+        const cw = X.measureText(ch).width, j = wi * 17 + ci + li * 101;
+        X.save(); X.translate(cx + cw / 2 + sn(BOIL * 7 + j, 0.5) * 1.6, y + sn(BOIL * 7 + j + 50, 0.5) * 1.6); X.rotate(sn(BOIL * 3 + j, 0.4) * 0.045); X.scale(sc, sc);
+        X.textAlign = 'center'; X.textBaseline = 'alphabetic';
+        if (hot) { X.fillStyle = INK; X.fillText(ch, 5, 5); X.fillStyle = RED; X.fillText(ch, 0, 0); X.lineWidth = 2; X.strokeStyle = INK; X.strokeText(ch, 0, 0); }
+        else { X.fillStyle = INK; X.fillText(ch, 0, 0); }
+        X.restore(); cx += cw;
+      });
+      if (hot && k >= 1) brush([[x, y + 16], [x + ww * 0.5, y + 22], [x + ww, y + 14]], 7, { seed: 6000 + li * 31 + wi, color: YEL, taper: [0.2, 0.4] });
+      x += ww + sp;
+    });
+  });
+}
+
+// ---------------------------------------------------------------- the film
+const G = C.ground;
+function wipe(t, t0, seed) {   // element-carried transition: a wall of smoke puffs fills the scene and clears
+  const u = seg(t, t0, t0 + 0.6); if (u <= 0 || u >= 1) return;
+  for (let i = 0; i < 14; i++) { const x = (i % 4) * 300 + 30 + ((i >> 2) % 2) * 150, y = 700 + Math.floor(i / 4) * 260 + rr(seed, i, -40, 40);
+    puff(x, y, 200, seed + i * 7, eOut(clamp(u * 2.2 - (i % 3) * 0.1)), clamp((u - 0.5) / 0.5)); }
+}
+function frame(t) {
+  const T = timing(t); BOIL = T.boil; setBoil(T.boil); const tq = T.tq;
+  X.setTransform(1, 0, 0, 1, 0, 0); X.drawImage(paper, 0, 0);
+  // camera: shake + slow push for the final question
+  let sh = 0; if (tq >= C.shake && tq < C.shake + 0.9) sh = 12 * (1 - (tq - C.shake) / 0.9);
+  C.bops.forEach(b => { if (tq >= b && tq < b + 0.12) sh = Math.max(sh, 6); });
+  if (tq >= C.breath[0] && tq < C.breath[0] + 0.5) sh = Math.max(sh, 8 * (1 - (tq - C.breath[0]) / 0.5));
+  const z = tq >= C.push[0] ? 1 + 0.06 * eIO(seg(tq, C.push[0], C.push[1])) : 1;
+  X.setTransform(z, 0, 0, z, 540 * (1 - z) + rr(91, T.f, -1, 1) * sh, 1300 * (1 - z) + rr(92, T.f, -1, 1) * sh);
+
+  const A = tq < C.wipe1 + 0.25, Bsc = tq >= C.shake && tq < C.wipe1 + 0.25, Csc = tq >= C.wipe1 + 0.25 && tq < C.wipe2 + 0.25, D = tq >= C.wipe2 + 0.25;
+
+  // ------------------------------------------------ act 1 + 2 world
+  if (A) {
+    if (tq >= C.castle[0]) castle(70, C.far, 0.95, seg(tq, C.castle[0], C.castle[1]));
+    if (tq < C.shake + 0.6) { shroomHouse(150, C.far, 0.75, 210); shroomHouse(380, C.far, 0.6, 220); }
+    groundLine(C.far, -20, 620, 7);
+    // army marching in on the far ground
+    if (tq >= C.army[0]) for (let i = 0; i < 6; i++) { const tx = 40 + i * 78, x = lerp(tx - 640, tx, eOut(seg(tq, C.army[0], C.army[1]))); minion(x, C.far, 0.6, 2500 + i * 20, 0, tq * 4 + i * 0.5, 1); }
+    groundLine(G, -20, W + 20, 3);
+    // the turtle rises
+    if (tq >= C.rise[0]) {
+      const u = seg(tq, C.rise[0], C.rise[1]), y = lerp(2350, 1000, eBack(u)) + Math.sin(BOIL * 0.9) * 5;
+      const roar = tq >= C.roar[0] && tq < C.roar[1] ? Math.sin(seg(tq, C.roar[0], C.roar[1]) * Math.PI) : 0;
+      const love = tq >= C.crush ? 1 : 0;
+      turtle(800, y, 1.12, { mouth: roar, love, look: -1 });
+      if (roar > 0.3) { for (let i = 0; i < 4; i++) flame(600 - i * 45, y + 80 - i * 75, 90 + i * 25 * roar, 60, 2600 + i); puff(480, y - 240, 50 * roar, 2650, 1, 0); }
+      if (love) {
+        for (let i = 0; i < 6; i++) { const t0 = C.crush + 0.2 + i * 0.45, k = seg(tq, t0, t0 + 1.6); if (k > 0 && k < 1) drawHeart(720 + rr(77, i, -120, 160) + Math.sin(k * 8 + i) * 18, y - 220 - k * 240, 18 + 10 * Math.sin(k * Math.PI), 2700 + i * 3); }
+        if (tq >= C.dream) { const k = eBack(seg(tq, C.dream, C.dream + 0.25)); X.save(); X.translate(470, 680); X.scale(k, k); X.translate(-470, -680);
+          bubbleThought(470, 680, 120, 640, 800, 2800); drawHeart(470, 690, 70, 2810); crown(470, 625, 0.7, 2820); X.restore(); }
+      }
+    }
+    // minions on the near ground (act 1)
+    C.minions.forEach((mx, i) => { const b = C.bops[i]; if (tq > b + 0.38) return;
+      const sq = tq >= b ? eOut(seg(tq, b, b + 0.08)) : 0; minion(mx, G, 1.4, 2100 + i * 30, sq, tq * 4 + i * 0.7, -1); });
+    C.bops.forEach((b, i) => { const u = seg(tq, b + 0.2, b + 0.8); if (u > 0 && u < 1) puff(C.minions[i], G - 50, 75, 2200 + i * 9, eOut(clamp(u * 3)), u); if (tq >= b && tq < b + 0.13) star(C.minions[i], G - 80, 85, 8, 2250 + i, 0, YEL, 0.5, 4); });
+    // the hero
+    let x = 260, lift = 0, sx = 1, sy = 1, rot = 0, eyes = 'open', look = 1, mouth = 'smile', armPose = 'down', wave = 0, brow = 0, shadow = 1;
+    if (tq < C.walk_in[1]) { const u = seg(tq, 0, C.walk_in[1]); x = lerp(-120, 260, u); lift = Math.abs(Math.sin(u * Math.PI * 3)) * 18; rot = Math.sin(u * Math.PI * 6) * 0.08; armPose = 'dance'; wave = u * 18; }
+    const starts = [260, ...C.minions];
+    C.bops.forEach((b, i) => {
+      const a = b - 0.42; if (tq >= a) x = starts[i + 1];
+      if (tq >= a && tq < b) { const u = (tq - a) / 0.42; x = lerp(starts[i], starts[i + 1], eIO(u)); lift = Math.sin(u * Math.PI) * 260 + u * 100; sx = 0.88; sy = 1.14; armPose = 'up'; mouth = 'grin'; rot = 0.12; shadow = 1 - 0.5 * Math.sin(u * Math.PI); }
+      if (tq >= b && tq < b + 0.4) { const u = (tq - b) / 0.4; lift = 100 * (1 - u) + Math.sin(u * Math.PI) * 80; mouth = 'grin'; armPose = 'up'; if (u < 0.25) { sx = 1.2; sy = 0.82; } }
+    });
+    if (tq >= C.smug && tq < C.shake) { eyes = 'closed'; mouth = 'smile'; rot = -0.1 + Math.sin(BOIL) * 0.02; armPose = 'wave'; wave = (tq - C.smug) * 6; }
+    if (tq >= C.flee[0]) {
+      const u = seg(tq, C.flee[0], C.flee[1]); x = lerp(890, 250, eIO(u)); lift = Math.sin(u * Math.PI) * 200; eyes = 'open'; mouth = 'o'; look = 1; armPose = 'up';
+      if (u >= 1) { lift = 0; rot = sn(BOIL * 9, 0.5) * 0.05; x += sn(BOIL * 5, 0.3) * 4; armPose = 'down'; sx = 0.94; sy = 1.04; }
+      if (tq >= C.crush) { mouth = 'smile'; look = 0.6; brow = 0; eyes = BOIL % 6 === 0 ? 'closed' : 'open'; }
+      if (u < 1) speedLines(x, G - lift - 100, -1, 0, 3, 120, 2400 + T.boil, 70);
+    }
+    blob({ x, ground: G, sx, sy, rot, lift, eyes, look, mouth, arms: 1, armPose, wave, scale: 1.25, shadow, seed: 40, band: true, brow });
+    if (tq >= C.shake && tq < C.shake + 0.9) for (let i = 0; i < 6; i++) brush([[60 + i * 190, G + 20], [100 + i * 190, G + 12]], 4, { seed: 2450 + i + T.boil });
+    if (tq >= C.flee[1] && tq < C.crush) { brush([[x - 100, G - 290], [x - 88, G - 325]], 4, { seed: 2460 }); brush([[x + 90, G - 300], [x + 106, G - 335]], 4, { seed: 2461 }); }
+  }
+
+  // ------------------------------------------------ act 3: the cage, the pipe, the comeback
+  if (Csc) {
+    castle(70, C.far, 0.95, 1);
+    groundLine(C.far, -20, 620, 7); groundLine(G, -20, W + 20, 3);
+    const cu = seg(tq, C.cage[0], C.cage[1]), top = lerp(300, 760, eBack(cu)), rk = Math.sin(tq * 9) * 0.04 * (tq > C.cage[1] ? 1 : 0);
+    X.save(); X.translate(790, 560); X.rotate(rk); X.translate(-790, -560);
+    const by = cage(790, top);
+    blob({ x: 790 + sn(BOIL * 11, 0.5) * 5, ground: by - 8, sx: 0.82, sy: 1.28, eyes: 'open', look: -1, mouth: 'o', arms: 1, armPose: 'up', scale: 0.85, shadow: 0, seed: 140, body: OLIVE });
+    for (let i = 0; i < 2; i++) brush([[860 + i * 26, by - 250 - i * 20], [868 + i * 26, by - 226 - i * 20]], 4, { seed: 4100 + i + BOIL });
+    X.restore();
+    pipe(330, G);
+    let x = 330, lift = 0, sx = 1, sy = 1, rot = 0, eyes = 'open', look = 1, mouth = 'o', armPose = 'up', brow = 0, show = tq >= C.pipe_pop;
+    if (show && tq < C.pipe_land) { const u = seg(tq, C.pipe_pop, C.pipe_land); x = lerp(330, 560, u); lift = 215 + Math.sin(u * Math.PI) * 300 - u * 215; rot = u * Math.PI * 2; sx = 0.9; sy = 1.15; eyes = 'closed';
+      if (T.f === Math.round(C.pipe_pop * FPS) + 1) { sx = 0.6; sy = 2.0; speedLines(x, G - lift - 60, 0, -1, 4, 260, 4200, 110); } }
+    if (tq >= C.pipe_land) { x = 560; const k = seg(tq, C.pipe_land, C.pipe_land + 0.25); if (k < 1) { sx = 1 + 0.3 * (1 - k); sy = 1 - 0.28 * (1 - k); }
+      eyes = 'closed'; mouth = 'o'; armPose = 'down'; rot = Math.sin(tq * 5) * 0.12;
+      if (tq < C.dizzy_end) for (let i = 0; i < 3; i++) { const a = tq * 6 + i * 2.1; twinkle(x + Math.cos(a) * 135, G - 360 + Math.sin(a) * 30, 16, 4300 + i); }
+      if (tq >= C.dizzy_end) { rot = Math.sin((tq - C.dizzy_end) * 30) * 0.22 * (1 - seg(tq, C.dizzy_end, C.determined)); eyes = 'open'; mouth = 'smile'; armPose = 'down'; }
+      if (tq >= C.determined) { rot = 0; eyes = 'open'; brow = 1; mouth = 'grin'; armPose = 'up'; look = 1; const j = seg(tq, C.determined + 0.1, C.determined + 0.5); lift = Math.sin(j * Math.PI) * 90;
+        if (tq < C.determined + 0.6) speedBurst(x, G - 210, 230, 250 + 40 * seg(tq, C.determined, C.determined + 0.3), 12, 4400 + T.boil);
+        const s2 = seg(tq, C.determined + 0.3, C.determined + 0.6); if (s2 > 0 && s2 < 1) star(x + 180, G - 400, 40 * Math.sin(s2 * Math.PI), 5, 4450, 0, YEL, 0.45, 4); }
+    }
+    if (show) blob({ x, ground: G, sx, sy, rot, lift, eyes, look, mouth, arms: 1, armPose, wave: 0, scale: 1.25, shadow: tq >= C.pipe_land ? 1 : 0.4, seed: 40, band: true, brow });
+    if (show && tq < C.pipe_pop + 0.5) puff(330, G - 230, 60, 4500, eOut(seg(tq, C.pipe_pop, C.pipe_pop + 0.15)), seg(tq, C.pipe_pop + 0.1, C.pipe_pop + 0.5));
+  }
+
+  // ------------------------------------------------ act 4: the question
+  if (D) {
+    shroomHouse(140, C.far, 0.8, 310); shroomHouse(420, C.far, 0.65, 320); shroomHouse(640, C.far, 0.55, 330);
+    groundLine(C.far, -20, W + 20, 7);
+    const sp = seg(tq, C.spread[0], C.spread[1]);
+    // flames on the far ground + house caps, spreading right to left
+    if (sp > 0) { for (let i = 0; i < 9; i++) { const fx = 1040 - i * 115, ig = clamp(sp * 1.6 - i * 0.07); if (ig > 0) flame(fx, C.far + 4, 70 + 130 * eOut(ig) + 20 * Math.sin(i), 80 + 30 * ig, 5100 + i * 5); }
+      [[640, 0.55, 0.15], [420, 0.65, 0.35], [140, 0.8, 0.6]].forEach(([hx, s, d], i) => { const ig = clamp((sp - d) * 2.5); if (ig > 0) for (let k = 0; k < 3; k++) flame(hx + (k - 1) * 55 * s * 1.4, C.far - 150 * s + Math.abs(k - 1) * 30 * s, 60 + 110 * ig * s, 60 * s + 20, 5200 + i * 10 + k); }); }
+    groundLine(G, -20, W + 20, 3);
+    const mouth = tq >= C.turtle_beat ? (tq < C.breath[0] ? 0.4 * seg(tq, C.turtle_beat + 0.4, C.breath[0]) : tq < C.breath[1] + 0.3 ? 1 : 0.5) : 0;
+    const ty = 1000 + Math.sin(BOIL * 0.9) * 5 - (tq >= C.turtle_beat && tq < C.breath[0] ? 20 * eOut(seg(tq, C.turtle_beat, C.turtle_beat + 0.4)) : 0);
+    turtle(810, ty, 1.15, { mouth, look: -1 });
+    if (tq >= C.breath[0] && tq < C.breath[1]) { const u = seg(tq, C.breath[0], C.breath[0] + 0.25); const ex = lerp(600, 470, u), ey = lerp(ty + 200, G - 20, u); breathCone(810 - 80 * 1.15, ty + 110 * 1.15, ex, ey, 70 + 60 * u, 5300); puff(ex - 30, ey - 30, 70 * u, 5310, 1, 0); }
+    // near-ground flames right of the hero
+    if (sp > 0) for (let i = 0; i < 5; i++) { const fx = 470 + i * 90, ig = clamp(sp * 2 - i * 0.12); if (ig > 0) flame(fx, G + 6, 90 + 150 * eOut(ig) + 25 * Math.sin(i * 2), 90 + 30 * ig, 5400 + i * 5); }
+    // the small hero holds his ground
+    let lift = 0, sx = 1, sy = 1, eyes = 'open', mouth2 = 'smile', armPose = 'down', brow = 1, look = 1;
+    if (tq >= C.hero_beat) { const k = seg(tq, C.hero_beat, C.hero_beat + 0.3); lift = Math.sin(k * Math.PI) * 50; armPose = 'up'; mouth2 = 'grin'; }
+    if (tq >= C.breath[0]) { mouth2 = 'o'; armPose = 'up'; sx = 0.92; sy = 1.06; }
+    if (tq >= C.spread[0] + 1.2) { mouth2 = 'grin'; brow = 1; }
+    blob({ x: 230, ground: G, sx, sy, lift, eyes, look, mouth: mouth2, arms: 1, armPose, scale: 1.25, seed: 40, band: true, brow });
+    if (tq >= C.hero_beat && tq < C.hero_beat + 0.5) speedBurst(230, G - 210, 220, 280, 10, 5500 + T.boil);
+    if (tq >= C.qmark) { const k = seg(tq, C.qmark, C.qmark + 0.3); X.save(); X.translate(560, 820); const s2 = eBack(clamp(k * 1.2)); X.scale(s2, s2); X.translate(-560, -820); qmark(560, 820, 1.25, eOut(k)); X.restore();
+      if (k >= 1) { twinkle(400, 730, 16 + 4 * Math.sin(BOIL), 5600); twinkle(720, 980, 14, 5601); } }
+  }
+  wipe(tq, C.wipe1, 7000); wipe(tq, C.wipe2, 7100);
+
+  X.setTransform(1, 0, 0, 1, 0, 0);
+  captions(tq);
+  // paper grain over everything
+  X.globalCompositeOperation = 'multiply'; X.globalAlpha = 0.13; X.drawImage(tex, 0, 0);
+  X.globalAlpha = 0.10; X.drawImage(grainImg, -((T.boil * 397) % 600), -((T.boil * 211) % 400), 2048 * 1.3, 2048 * 1.3);
+  X.globalAlpha = 1; X.globalCompositeOperation = 'source-over';
+}
+function speedLines(x, y, dx, dy, n, len, seed, spread = 46, w = 4) {
+  const l = Math.hypot(dx, dy) || 1, ux = dx / l, uy = dy / l, nx = -uy, ny = ux;
+  for (let i = 0; i < n; i++) { const off = (i - (n - 1) / 2) * spread / Math.max(1, n - 1) * 2, back = rr(seed, i + 9, 40, 80), ll = len * rr(seed, i + 20, 0.55, 1.1), x0 = x - ux * back + nx * off, y0 = y - uy * back + ny * off;
+    brush([[x0, y0], [x0 - ux * ll, y0 - uy * ll]], w, { seed: seed + i, taper: [0.05, 0.7] }); }
+}
+window.renderAt = async (t) => { frame(t); };
+frame(0);
+window.__ready = true;
+</script>
+</body></html>

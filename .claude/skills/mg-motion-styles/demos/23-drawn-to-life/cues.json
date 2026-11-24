@@ -1,0 +1,47 @@
+{
+ "bpm": 120,
+ "bar_anchor": 0.5,
+ "ground": 820,
+ "x_start": 500,
+ "scribble0": 0.21,
+ "scribble1": 0.88,
+ "pencil_out": 0.95,
+ "pop": 1.0,
+ "eyes_open": 1.33,
+ "look_left": 1.58,
+ "look_right": 1.83,
+ "crouch": 2.08,
+ "hop": [
+  2.33,
+  2.83
+ ],
+ "land": [
+  2.75,
+  3.25
+ ],
+ "hop_x": [
+  730,
+  960
+ ],
+ "dance0": 3.42,
+ "blink": 4.0,
+ "crouch2": 4.5,
+ "leap": 5.0,
+ "boom": 6.0,
+ "apex_y": 430,
+ "write0": 6.6,
+ "write_step": 0.1,
+ "write_dur": 0.15,
+ "underline": 8.2,
+ "return0": 8.35,
+ "return_land": 8.75,
+ "wink": 9.1,
+ "title": {
+  "x0": 216,
+  "base": 690,
+  "scale": 1.3,
+  "gap": 40,
+  "space": 80
+ },
+ "title_x1": 1704
+}

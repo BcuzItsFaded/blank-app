@@ -1,0 +1,33 @@
+{
+ "duration": 60, "bpm": 90,
+ "pages": [
+  {"t": 0.2,  "lines": [[0.2, "Imagine taking one wrong turn—"], [2.2, "and ending up in a town"]]},
+  {"t": 4.0,  "lines": [[4.0, "that won’t let you leave."]]},
+  {"t": 6.2,  "lines": [[6.2, "That’s the nightmare"], [7.4, "at the center of FROM."]]},
+  {"t": 9.6,  "lines": [[9.6, "People arrive in a strange town,"], [11.4, "but every road somehow"]]},
+  {"t": 13.4, "lines": [[13.4, "leads them right back."]]},
+  {"t": 15.4, "lines": [[15.4, "Then night falls—"], [16.8, "and terrifying creatures"]]},
+  {"t": 18.6, "lines": [[18.6, "come out of the woods."]]},
+  {"t": 21.0, "lines": [[21.0, "The residents have"], [22.0, "rules to survive,"]]},
+  {"t": 23.6, "lines": [[23.6, "but staying alive doesn’t explain"], [25.6, "how they got there—"]]},
+  {"t": 27.4, "lines": [[27.4, "or what the town"], [28.6, "wants from them."]]},
+  {"t": 30.6, "lines": [[30.6, "That mystery is what makes"], [32.2, "FROM so gripping."]]},
+  {"t": 34.2, "lines": [[34.2, "It’s a horror story,"], [35.6, "a survival drama,"]]},
+  {"t": 37.0, "lines": [[37.0, "and a puzzle where every answer"], [39.0, "seems to uncover something worse."]]},
+  {"t": 41.6, "lines": [[41.6, "And the scariest question"], [43.2, "isn’t just,"]]},
+  {"t": 44.2, "lines": [[44.2, "“How do they escape?”"]]},
+  {"t": 46.0, "lines": [[46.0, "It’s: What happens"], [47.4, "if they finally learn the truth?"]]},
+  {"t": 50.4, "lines": [[50.4, "Would you stay in the town—"], [52.2, "or risk the woods?"]]},
+  {"t": 55.0, "lines": [[55.0, "FROM centers on a nightmarish town"], [56.6, "that traps everyone who enters."]]}
+ ],
+ "hot": ["wrong", "FROM.", "FROM", "back.", "creatures", "woods.", "rules", "town", "horror", "survival", "puzzle", "worse.", "escape?”", "truth?", "stay", "woods?", "nightmarish", "traps"],
+ "turn": 2.0, "town_draw": [4.0, 5.0], "tree_fall": 5.2,
+ "title": [6.3, 7.5],
+ "loop": [[9.6, 10.6], [10.6, 12.0], [12.0, 13.4]],
+ "night": [15.4, 16.4], "eyes": 16.8, "creatures": 18.6,
+ "wipe": [20.6, 30.3, 41.2, 50.0],
+ "rules": [21.3, 22.1, 22.9], "residents": 23.6, "qmarks": 25.6, "big_eye": 27.4,
+ "map": 30.6, "tiles": [34.2, 35.6, 37.0], "crack": 39.0,
+ "run": [44.2, 46.0], "door": 46.0, "door_open": 47.4, "qmark": 48.6,
+ "choice": 50.4, "labels": 52.2, "tag": 55.0, "hold": 57.5
+}

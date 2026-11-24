@@ -1,0 +1,480 @@
+<!doctype html>
+<html><head><meta charset="utf-8">
+<style>html,body{margin:0;background:#000;overflow:hidden}canvas{display:block;width:1080px;height:1920px}</style>
+</head><body>
+<canvas id="c" width="1080" height="1920"></canvas>
+<script type="module">
+// "FROM" — collage / cut-out version. Kraft ground, scissor-cut paper with white rims and drop shadows, halftone dots,
+// 1854 newsprint, a CC0 vintage portrait as a puppet narrator (jaw on a hinge), ransom-note captions, 12 fps stop-motion
+// with +/-2 px hand-placement jitter, scene changes slapped on as new torn sheets. Every frame is a pure function of t.
+const W = 1080, H = 1920, FPS = 24;
+const C = await (await fetch('/demos/26-from-collage/cues.json')).json();
+window.DEMO = { width: W, height: H, fps: FPS, duration: C.duration };
+const cv = document.getElementById('c'), X = cv.getContext('2d');
+const FONTS = ['bold 80px "DejaVu Serif"', '900 80px Inter', 'bold 80px "Liberation Sans"', 'bold 80px "Courier 10 Pitch"', 'italic bold 80px "Liberation Serif"', 'bold 80px "Bitstream Charter"'];
+for (const f of FONTS) await document.fonts.load(f, 'ABCabc?');
+await document.fonts.ready;
+
+const A = {}; for (const n of ['p_face', 'p_jaw', 'p_lid', 'news_a', 'news_b', 'manicule', 'flame0', 'flame1', 'page_kraft', 'page_red']) { const im = new Image(); im.src = `/demos/26-from-collage/assets/${n}.${n.startsWith('page') ? 'jpg' : 'png'}`; A[n] = im; }
+const grain = new Image(); grain.src = '/assets/textures/grain/grain_film35_2048.png';
+const paperTex = new Image(); paperTex.src = '/assets/textures/paper/Paper001_4K_color.jpg';
+await Promise.all([...Object.values(A), grain, paperTex].map(i => i.decode()));
+
+const INK = '#16130f', RIM = '#f4eee0', CREAM = '#efe4cb', RED = '#c8362b', YEL = '#e9b434', NAVY = '#1b2340', PINE = '#3f5a33', GREY = '#8d8a80', TEAL = '#2f6f73', PALE = '#efe6d2';
+const hash = (a, b = 0) => { let h = (a * 374761393 + b * 668265263) | 0; h = (h ^ (h >>> 13)) * 1274126177 | 0; return ((h ^ (h >>> 16)) >>> 0) / 4294967296; };
+const rr = (s, i, a = -1, b = 1) => a + (b - a) * hash(s * 131 + 7, i);
+const clamp = (v, a = 0, b = 1) => Math.max(a, Math.min(b, v)), lerp = (a, b, u) => a + (b - a) * u, seg = (t, a, b) => clamp((t - a) / (b - a));
+const eOut = u => 1 - Math.pow(1 - u, 3), eIn = u => u * u * u, eIO = u => u < .5 ? 4 * u * u * u : 1 - Math.pow(-2 * u + 2, 3) / 2;
+const eBack = u => { const c = 1.9; return 1 + (c + 1) * Math.pow(u - 1, 3) + c * Math.pow(u - 1, 2); };
+const ell = (cx, cy, rx, ry, a0 = 0, a1 = Math.PI * 2, n = 40) => { const o = []; for (let i = 0; i <= n; i++) { const a = a0 + (a1 - a0) * i / n; o.push([cx + Math.cos(a) * rx, cy + Math.sin(a) * ry]); } return o; };
+
+// ---------------------------------------------------------------- stop-motion timing: 12 fps, hits on 24, end hold on 8
+let HOLD = 0;
+const ONES = [[5.1, 5.5], [18.55, 18.9], [38.95, 39.3], [47.3, 47.7]];
+function timing(t) {
+  const f = Math.min(Math.round(C.duration * FPS) - 1, Math.round(t * FPS)), tt = f / FPS;
+  const step = tt >= C.hold ? 3 : ONES.some(([a, b]) => tt >= a && tt < b) ? 1 : 2;
+  return { f, tq: (f - (f % step)) / FPS, hold: Math.floor(f / Math.max(2, step)) };
+}
+const jit = (id, a = 2) => [rr(id * 7 + 1, HOLD, -a, a), rr(id * 7 + 2, HOLD, -a, a)];   // hand-placement jitter per held frame
+
+// ---------------------------------------------------------------- textures and patterns
+const mkPat = (draw, w, h) => { const c = document.createElement('canvas'); c.width = w; c.height = h; draw(c.getContext('2d'), w, h); return X.createPattern(c, 'repeat'); };
+const DOTS = mkPat((p, w) => { p.fillStyle = 'rgba(0,0,0,0.55)'; for (const [x, y] of [[3, 3], [9, 9]]) { p.beginPath(); p.arc(x, y, 2.1, 0, 7); p.fill(); } }, 12, 12);
+const DOTSL = mkPat((p) => { p.fillStyle = 'rgba(255,255,255,0.5)'; for (const [x, y] of [[3, 3], [9, 9]]) { p.beginPath(); p.arc(x, y, 1.8, 0, 7); p.fill(); } }, 12, 12);
+const NEWS = X.createPattern(A.news_a, 'repeat'), KRAFT = X.createPattern(A.page_kraft, 'repeat'), REDP = X.createPattern(A.page_red, 'repeat');
+const LINES = mkPat((p, w, h) => { p.fillStyle = CREAM; p.fillRect(0, 0, w, h); p.strokeStyle = 'rgba(60,90,160,0.35)'; p.lineWidth = 2; p.beginPath(); p.moveTo(0, h - 1); p.lineTo(w, h - 1); p.stroke(); }, 40, 70);
+
+// ---------------------------------------------------------------- cut-paper primitive
+function tornRect(x0, y0, x1, y1, seed, tooth = 7) {
+  const pts = [], step = 22;
+  const edge = (ax, ay, bx, by, k) => { const n = Math.max(2, Math.round(Math.hypot(bx - ax, by - ay) / step)); for (let i = 0; i < n; i++) { const u = i / n; pts.push([lerp(ax, bx, u) + (ay === by ? 0 : rr(seed + k, i, -tooth, tooth)), lerp(ay, by, u) + (ay === by ? rr(seed + k, i, -tooth, tooth) : 0)]); } };
+  edge(x0, y0, x1, y0, 1); edge(x1, y0, x1, y1, 2); edge(x1, y1, x0, y1, 3); edge(x0, y1, x0, y0, 4); return pts;
+}
+function path(pts) { X.beginPath(); pts.forEach((p, i) => i ? X.lineTo(p[0], p[1]) : X.moveTo(p[0], p[1])); X.closePath(); }
+// fill: colour string | CanvasPattern ; o: {rim, dots, shadow, id}
+function cut(pts, fill, o = {}) {
+  const { rim = 6, dots = 0.0, shadow = 1, id = 0, light = false } = o;
+  const [jx, jy] = jit(id, o.jitter ?? 2);
+  X.save(); X.translate(jx, jy);
+  path(pts); X.lineJoin = 'round';
+  if (shadow) { X.shadowColor = 'rgba(20,12,5,0.38)'; X.shadowBlur = 9; X.shadowOffsetX = 4; X.shadowOffsetY = 7; }
+  if (rim) { X.lineWidth = rim * 2; X.strokeStyle = RIM; X.stroke(); }
+  X.fillStyle = rim ? RIM : fill; X.fill(); X.shadowColor = 'transparent';
+  X.fillStyle = fill; X.fill();
+  if (dots > 0) { X.globalAlpha = dots; X.fillStyle = light ? DOTSL : DOTS; X.fill(); X.globalAlpha = 1; }
+  X.restore();
+}
+function img(im, x, y, w, h, o = {}) {
+  const [jx, jy] = jit(o.id || 0, o.jitter ?? 2);
+  X.save(); X.translate(x + jx + w / 2, y + jy + h / 2); X.rotate(o.rot || 0); if (o.flip) X.scale(-1, 1);
+  if (o.shadow !== 0) { X.shadowColor = 'rgba(20,12,5,0.38)'; X.shadowBlur = 9; X.shadowOffsetX = 4; X.shadowOffsetY = 7; }
+  X.drawImage(im, -w / 2, -h / 2, w, h); X.restore();
+}
+function typed(text, x, y, size, col = INK, align = 'center', font = '"Courier 10 Pitch"', weight = 'bold') {
+  X.save(); X.font = `${weight} ${size}px ${font}`; X.textAlign = align; X.fillStyle = col; X.fillText(text, x, y); X.restore();
+}
+function tape(x, y, w, rot, id) { X.save(); X.translate(x, y); X.rotate(rot); const [jx, jy] = jit(id, 1); X.translate(jx, jy); X.globalAlpha = 0.72; X.fillStyle = '#e8dcae'; path(tornRect(-w / 2, -16, w / 2, 16, id, 3)); X.fill(); X.globalAlpha = 1; X.restore(); }
+
+// ---------------------------------------------------------------- the portrait puppet (CC0): lid + face + hinged jaw
+const PH = { jaw: [372.75, 470.5], head: [371.6, 344] };
+function portrait(cx, cy, s, jaw = 0, o = {}) {   // (cx, cy) = head centre on screen
+  const ox = cx - PH.head[0] * s, oy = cy - PH.head[1] * s, [jx, jy] = jit(o.id || 900, o.jitter ?? 2);
+  X.save(); X.translate(ox + jx, oy + jy);
+  if (o.cameo) { X.beginPath(); X.ellipse(PH.head[0] * s, PH.head[1] * s + 40 * s, 250 * s, 330 * s, 0, 0, 7); X.save(); X.shadowColor = 'rgba(20,12,5,0.4)'; X.shadowBlur = 10; X.shadowOffsetY = 6; X.fillStyle = RIM; X.lineWidth = 12; X.strokeStyle = RIM; X.stroke(); X.fill(); X.restore(); X.clip(); }
+  else { X.shadowColor = 'rgba(20,12,5,0.4)'; X.shadowBlur = 10; X.shadowOffsetX = 5; X.shadowOffsetY = 8; }
+  // mouth cavity behind the jaw
+  X.fillStyle = '#0e0b08'; X.beginPath(); X.ellipse(PH.jaw[0] * s, (PH.jaw[1] + 30) * s, 120 * s, 70 * s, 0, 0, 7); X.fill();
+  X.drawImage(A.p_lid, 0, 0, 802 * s, 1009 * s); X.drawImage(A.p_face, 0, 0, 802 * s, 1009 * s);
+  X.save(); X.translate(PH.jaw[0] * s, PH.jaw[1] * s); X.rotate(-0.06 * jaw); X.translate(0, 62 * s * jaw); X.translate(-PH.jaw[0] * s, -PH.jaw[1] * s); X.drawImage(A.p_jaw, 0, 0, 802 * s, 1009 * s); X.restore();
+  if (o.grin) {   // pasted-on paper grin: disproportionate, surreal
+    X.shadowColor = 'transparent'; const gy = (PH.jaw[1] + 10) * s, gw = 210 * s * o.grin;
+    const g = [...ell(PH.jaw[0] * s, gy, gw, 70 * s, 0, Math.PI, 18)]; path(g); X.fillStyle = RIM; X.lineWidth = 10; X.strokeStyle = RIM; X.stroke(); X.fillStyle = INK; X.fill();
+    for (let k = -4; k <= 4; k++) { X.fillStyle = RIM; X.fillRect(PH.jaw[0] * s + k * gw / 5 - 7 * s, gy, 14 * s, (26 - Math.abs(k) * 3) * s); }
+  }
+  X.restore();
+}
+const talking = (t) => { for (const p of C.pages) for (const [t0, text] of p.lines) { const n = text.split(' ').length; for (let i = 0; i < n; i++) { const d = t - (t0 + i * 0.07); if (d >= 0 && d < 0.14) return d < 0.07 ? 1 : 0.5; } } return 0; };
+
+// ---------------------------------------------------------------- props as cut paper
+function pine(x, base, h, id, col = PINE) {
+  const w = h * 0.45, pts = [[x, base - h]];
+  for (let k = 1; k <= 3; k++) { const y = base - h + h * k / 3.3; pts.push([x + w * k / 3, y], [x + w * k / 3 * 0.5, y - h * 0.05]); }
+  pts.push([x + w * 0.15, base - h * 0.04], [x + w * 0.15, base]); const all = [...pts, ...pts.map(([a, b]) => [2 * x - a, b]).reverse()];
+  cut(all, col, { rim: 4, dots: 0.3, id, jitter: 1 });
+}
+function forest(base, id, n = 11, col = PINE) { for (let i = 0; i < n; i++) pine(60 + i * (960 / (n - 1)) + rr(id, i, -20, 20), base + rr(id, i + 30, -8, 14), 200 + 120 * hash(id, i), id + i, col); }
+function house(x, base, w, h, id, lit = 0, col = CREAM) {
+  cut([[x, base], [x, base - h], [x + w, base - h], [x + w, base]], col === 'news' ? NEWS : col, { rim: 5, dots: 0.15, id });
+  cut([[x - 16, base - h + 4], [x + w / 2, base - h - w * 0.55], [x + w + 16, base - h + 4]], RED, { rim: 5, dots: 0.35, id: id + 1 });
+  cut([[x + w * 0.18, base - h * 0.75], [x + w * 0.48, base - h * 0.75], [x + w * 0.48, base - h * 0.42], [x + w * 0.18, base - h * 0.42]], lit ? YEL : INK, { rim: 3, id: id + 2, shadow: 0 });
+  cut([[x + w * 0.6, base], [x + w * 0.6, base - h * 0.52], [x + w * 0.84, base - h * 0.52], [x + w * 0.84, base]], '#6b3a22', { rim: 3, id: id + 3, shadow: 0, dots: 0.3 });
+}
+function car(x, gy, o = {}) {
+  const { lights = 0, jaw = 0, id = 300 } = o;
+  if (lights) { X.save(); X.globalAlpha = 0.45; cut([[x + 110, gy - 55], [x + 600, gy - 140], [x + 600, gy + 40]], YEL, { rim: 0, shadow: 0, id: id + 9 }); X.restore(); }
+  cut([[x - 120, gy - 22], [x - 116, gy - 80], [x - 60, gy - 88], [x - 32, gy - 140], [x + 52, gy - 140], [x + 84, gy - 88], [x + 118, gy - 76], [x + 120, gy - 22]], REDP, { rim: 6, dots: 0.35, id });
+  X.save(); path([[x - 24, gy - 128], [x + 46, gy - 128], [x + 70, gy - 90], [x - 48, gy - 90]]); X.fillStyle = lights ? '#2a2c38' : '#cfd8d0'; X.fill(); X.clip();
+  portrait(x + 6, gy - 100, 0.075, jaw, { id: id + 5, jitter: 0, cameo: false }); X.restore();
+  for (const wx of [x - 64, x + 68]) { cut(ell(wx, gy - 16, 27, 27, 0, 6.29, 16), INK, { rim: 4, id: id + 2 + (wx > x ? 1 : 0), jitter: 1 }); cut(ell(wx, gy - 16, 10, 10, 0, 6.29, 10), GREY, { rim: 0, shadow: 0, id: id + 4 }); }
+}
+function creature(x, gy, h, id, step = 0, reach = 0) {
+  const bob = (Math.floor(step * 2) % 2) * 6;
+  for (const sd of [-1, 1]) cut([[x + sd * 10 - 7, gy - h * 0.45 - bob], [x + sd * 10 + 7, gy - h * 0.45 - bob], [x + sd * 16 + 7 + (sd * ((Math.floor(step * 2) % 2) ? 8 : -8)), gy], [x + sd * 16 - 7 + (sd * ((Math.floor(step * 2) % 2) ? 8 : -8)), gy]], INK, { rim: 3, id: id + (sd > 0 ? 1 : 2) });
+  cut([[x - 34, gy - h * 0.82 - bob], [x + 34, gy - h * 0.82 - bob], [x + 26, gy - h * 0.42 - bob], [x - 26, gy - h * 0.42 - bob]], '#24202c', { rim: 4, dots: 0.25, light: true, id: id + 3 });
+  for (const sd of [-1, 1]) { const hx = x + sd * (46 + reach * 60), hy = gy - h * 0.4 - bob - reach * h * 0.25; cut([[x + sd * 30, gy - h * 0.8 - bob], [x + sd * 40, gy - h * 0.78 - bob], [hx + 6, hy], [hx - 6, hy]], INK, { rim: 3, id: id + 4 + sd }); }
+  portrait(x, gy - h * 0.9 - bob, 0.17, 0, { cameo: true, grin: 1, id: id + 7 });
+}
+
+// ---------------------------------------------------------------- recognisable roles (archetypes, original designs)
+const SUIT = '#2a2a33', TAN = '#b8955a', BROWN = '#5a3a24', DRESS = '#7a2f3a', CARDI = '#6e5a7e';
+function paperFace(cx, cy, r, id, o = {}) {   // pale cut-paper face: dead eyes, frozen wide smile
+  const { hair = '#2a1d15', bun = false, smile = 1, glasses = false, skin = PALE } = o;
+  if (bun) cut(ell(cx, cy - r * 1.05, r * 0.5, r * 0.4, 0, 6.29, 14), hair, { rim: 3, id: id + 1 });
+  cut(ell(cx, cy, r * 0.82, r, 0, 6.29, 28), skin, { rim: 5, id });
+  X.save(); const [jx, jy] = jit(id); X.translate(jx, jy);
+  path([...ell(cx, cy - r * 0.15, r * 0.84, r * 0.9, Math.PI * 1.08, Math.PI * 1.92, 16)]); X.fillStyle = hair; X.fill();
+  for (const sd of [-1, 1]) { X.fillStyle = INK; X.beginPath(); X.ellipse(cx + sd * r * 0.32, cy - r * 0.05, r * 0.1, r * 0.13, 0, 0, 7); X.fill(); }
+  if (glasses) { X.strokeStyle = INK; X.lineWidth = 3; for (const sd of [-1, 1]) { X.beginPath(); X.arc(cx + sd * r * 0.32, cy - r * 0.05, r * 0.22, 0, 7); X.stroke(); } }
+  if (smile > 0) { const w = r * 0.62 * smile, y = cy + r * 0.38; X.beginPath(); X.moveTo(cx - w, y); X.quadraticCurveTo(cx, y + r * 0.42, cx + w, y); X.quadraticCurveTo(cx, y + r * 0.2, cx - w, y); X.fillStyle = INK; X.fill();
+    X.strokeStyle = RIM; X.lineWidth = 2.5; X.beginPath(); X.moveTo(cx - w * 0.8, y + r * 0.1); X.quadraticCurveTo(cx, y + r * 0.27, cx + w * 0.8, y + r * 0.1); X.stroke(); }
+  else { X.strokeStyle = INK; X.lineWidth = 3; X.beginPath(); X.moveTo(cx - r * 0.2, cy + r * 0.45); X.quadraticCurveTo(cx, cy + r * 0.52, cx + r * 0.2, cy + r * 0.45); X.stroke(); }
+  X.restore();
+}
+function legs(x, top, gy, id, step, col = SUIT, gap = 14) {
+  const sw = (Math.floor(step * 2) % 2) ? 8 : -8;
+  for (const sd of [-1, 1]) cut([[x + sd * gap - 8, top], [x + sd * gap + 8, top], [x + sd * (gap + 2) + 8 + sd * sw, gy - 10], [x + sd * (gap + 2) - 8 + sd * sw, gy - 10]], col, { rim: 3, id: id + (sd > 0 ? 1 : 2) });
+  for (const sd of [-1, 1]) cut(ell(x + sd * (gap + 6) + sd * sw, gy - 6, 16, 7, 0, 6.29, 10), INK, { rim: 2, id: id + 3 + (sd > 0 ? 1 : 0) });
+}
+// the polite man in the old suit and fedora; tip: 0..1 hat raised
+function smileMan(x, gy, h, id, step = 0, tip = 0) {
+  const bob = (Math.floor(step * 2) % 2) * 5, hip = gy - h * 0.46 - bob;
+  legs(x, hip, gy, id, step);
+  cut([[x - 46, gy - h * 0.8 - bob], [x + 46, gy - h * 0.8 - bob], [x + 40, hip + 6], [x - 40, hip + 6]], SUIT, { rim: 4, dots: 0.2, light: true, id: id + 6 });
+  cut([[x - 12, gy - h * 0.8 - bob], [x + 12, gy - h * 0.8 - bob], [x, gy - h * 0.62 - bob]], RIM, { rim: 0, shadow: 0, id: id + 7 });
+  cut([[x - 5, gy - h * 0.78 - bob], [x + 5, gy - h * 0.78 - bob], [x + 7, gy - h * 0.6 - bob], [x, gy - h * 0.56 - bob], [x - 7, gy - h * 0.6 - bob]], RED, { rim: 0, shadow: 0, id: id + 8 });
+  for (const sd of [-1, 1]) { const up = sd > 0 && tip > 0; const hx = up ? x + 40 : x + sd * 52, hy = up ? gy - h * 1.02 - bob : hip + 10;
+    cut([[x + sd * 40, gy - h * 0.78 - bob], [x + sd * 52, gy - h * 0.76 - bob], [hx + 7, hy], [hx - 7, hy]], SUIT, { rim: 3, id: id + 9 + sd }); cut(ell(hx, hy, 9, 9, 0, 6.29, 10), PALE, { rim: 2, id: id + 12 + sd }); }
+  const hy = gy - h * 0.9 - bob; paperFace(x, hy, 40, id + 20, { hair: '#1c1712' });
+  X.save(); X.translate(x, hy - 40 - tip * 34); X.rotate(-tip * 0.25);
+  cut(ell(0, 0, 66, 13, 0, 6.29, 20), BROWN, { rim: 3, id: id + 30 }); cut([[-36, 2], [-30, -42], [30, -42], [36, 2]], BROWN, { rim: 3, dots: 0.25, id: id + 31 });
+  cut([[-35, -6], [35, -6], [35, 2], [-35, 2]], INK, { rim: 0, shadow: 0, id: id + 32 }); X.restore();
+}
+// the 1950s woman in the pillbox hat; knock: 0..1 hand raised to tap
+function smileWoman(x, gy, h, id, step = 0, knock = 0, dir = 1) {
+  const bob = (Math.floor(step * 2) % 2) * 5, waist = gy - h * 0.55 - bob;
+  legs(x, gy - h * 0.25, gy, id, step, PALE, 10);
+  cut([[x - 26, waist], [x + 26, waist], [x + 70, gy - h * 0.24], [x - 70, gy - h * 0.24]], DRESS, { rim: 4, dots: 0.3, id: id + 6 });
+  cut([[x - 30, gy - h * 0.8 - bob], [x + 30, gy - h * 0.8 - bob], [x + 26, waist], [x - 26, waist]], DRESS, { rim: 4, dots: 0.3, id: id + 7 });
+  cut([[x - 22, gy - h * 0.8 - bob], [x + 22, gy - h * 0.8 - bob], [x, gy - h * 0.72 - bob]], RIM, { rim: 0, shadow: 0, id: id + 8 });
+  for (const sd of [-1, 1]) { const raise = sd === dir && knock > 0; const tap = raise ? Math.sin(knock * Math.PI * 6) * 10 : 0;
+    const hx = raise ? x + sd * 92 + tap : x + sd * 40, hy = raise ? gy - h * 0.82 - bob : waist + 30;
+    cut([[x + sd * 24, gy - h * 0.78 - bob], [x + sd * 34, gy - h * 0.76 - bob], [hx + 6, hy], [hx - 6, hy]], DRESS, { rim: 3, id: id + 9 + sd }); cut(ell(hx, hy, 10, 10, 0, 6.29, 10), RIM, { rim: 2, id: id + 12 + sd }); }
+  const hy = gy - h * 0.9 - bob; paperFace(x, hy, 38, id + 20, { hair: '#4a2a1a', bun: true });
+  cut([[x - 22, hy - 42], [x + 22, hy - 42], [x + 20, hy - 64], [x - 20, hy - 64]], RED, { rim: 3, id: id + 30 });
+}
+function sheriff(x, gy, s, id, swing = 0) {
+  const h = 420 * s, hip = gy - h * 0.46;
+  legs(x, hip, gy, id, 0, '#3b3a30', 16 * s);
+  cut([[x - 50 * s, gy - h * 0.8], [x + 50 * s, gy - h * 0.8], [x + 44 * s, hip + 6], [x - 44 * s, hip + 6]], TAN, { rim: 4, dots: 0.25, id: id + 6 });
+  cut([[x - 46 * s, hip - 4], [x + 46 * s, hip - 4], [x + 46 * s, hip + 12], [x - 46 * s, hip + 12]], BROWN, { rim: 0, shadow: 0, id: id + 7 });
+  const star = [...Array(10)].map((_, k) => { const a = k / 10 * 6.28 - 1.57, r = (k % 2 ? 7 : 16) * s; return [x - 22 * s + Math.cos(a) * r, gy - h * 0.68 + Math.sin(a) * r]; });
+  cut(star, YEL, { rim: 2, id: id + 8 });
+  // lantern arm
+  const lx = x + 70 * s + Math.sin(swing) * 6, ly = hip - 10 * s;
+  cut([[x + 44 * s, gy - h * 0.78], [x + 56 * s, gy - h * 0.76], [lx + 6, ly - 30 * s], [lx - 6, ly - 30 * s]], TAN, { rim: 3, id: id + 9 });
+  X.save(); X.globalAlpha = 0.32; X.fillStyle = YEL; X.beginPath(); X.arc(lx, ly, 110 * s, 0, 7); X.fill(); X.restore();
+  cut([[lx - 18 * s, ly - 26 * s], [lx + 18 * s, ly - 26 * s], [lx + 18 * s, ly + 26 * s], [lx - 18 * s, ly + 26 * s]], YEL, { rim: 4, id: id + 10 });
+  cut([[x - 44 * s, gy - h * 0.78], [x - 56 * s, gy - h * 0.76], [x - 60 * s, hip + 6], [x - 48 * s, hip + 6]], TAN, { rim: 3, id: id + 11 });
+  const hy = gy - h * 0.9; portrait(x, hy + 6 * s, 0.16 * s, 0, { cameo: true, id: id + 12 });
+  X.save(); X.translate(x, hy - 46 * s);
+  cut(ell(0, 0, 80 * s, 15 * s, 0, 6.29, 20), BROWN, { rim: 3, id: id + 20 }); cut([[-40 * s, 2], [-34 * s, -46 * s], [0, -36 * s], [34 * s, -46 * s], [40 * s, 2]], BROWN, { rim: 3, dots: 0.25, id: id + 21 }); X.restore();
+}
+function rv(x, gy, o = {}) {
+  const { lights = 0, id = 300, jaw = 0 } = o;
+  if (lights) { X.save(); X.globalAlpha = 0.45; cut([[x + 170, gy - 55], [x + 640, gy - 140], [x + 640, gy + 40]], YEL, { rim: 0, shadow: 0, id: id + 9 }); X.restore(); }
+  cut([[x - 175, gy - 22], [x - 175, gy - 200], [x + 110, gy - 200], [x + 130, gy - 160], [x + 170, gy - 120], [x + 175, gy - 22]], CREAM, { rim: 6, dots: 0.12, id });
+  cut([[x - 175, gy - 110], [x + 172, gy - 110], [x + 174, gy - 86], [x - 175, gy - 86]], TEAL, { rim: 0, shadow: 0, id: id + 1 });
+  cut([[x - 175, gy - 74], [x + 174, gy - 74], [x + 175, gy - 62], [x - 175, gy - 62]], RED, { rim: 0, shadow: 0, id: id + 2 });
+  [[-140, 0], [-70, 1], [0, 0]].forEach(([wx, f], i) => { X.save(); path([[x + wx, gy - 180], [x + wx + 56, gy - 180], [x + wx + 56, gy - 124], [x + wx, gy - 124]]); X.fillStyle = lights ? '#2a2c38' : '#cfd8d0'; X.fill(); X.clip();
+    if (f) { X.translate(2 * (x + wx + 28), 0); X.scale(-1, 1); } portrait(x + wx + 28, gy - 140, 0.07, i === 2 ? jaw : 0, { id: id + 20 + i, jitter: 0 }); X.restore(); });
+  X.save(); path([[x + 90, gy - 186], [x + 118, gy - 186], [x + 150, gy - 126], [x + 90, gy - 126]]); X.fillStyle = lights ? '#2a2c38' : '#cfd8d0'; X.fill(); X.restore();
+  cut([[x + 50, gy - 22], [x + 50, gy - 120], [x + 82, gy - 120], [x + 82, gy - 22]], '#d9cfb8', { rim: 2, shadow: 0, id: id + 3 });
+  for (const wx of [x - 110, x + 110]) { cut(ell(wx, gy - 16, 29, 29, 0, 6.29, 16), INK, { rim: 4, id: id + 4 + (wx > x ? 1 : 0), jitter: 1 }); cut(ell(wx, gy - 16, 11, 11, 0, 6.29, 10), GREY, { rim: 0, shadow: 0, id: id + 6 }); }
+}
+function diner(x, base, w, h, id) {
+  cut([[x, base], [x, base - h], [x + w, base - h], [x + w, base]], '#9fb9b0', { rim: 6, dots: 0.2, id });
+  cut([[x - 10, base - h - 4], [x + w + 10, base - h - 4], [x + w + 10, base - h + 18], [x - 10, base - h + 18]], RED, { rim: 4, id: id + 1 });
+  for (let i = 0; i < 3; i++) cut([[x + 14 + i * (w - 28) / 3, base - h * 0.7], [x + 6 + (i + 1) * (w - 28) / 3, base - h * 0.7], [x + 6 + (i + 1) * (w - 28) / 3, base - h * 0.35], [x + 14 + i * (w - 28) / 3, base - h * 0.35]], YEL, { rim: 3, shadow: 0, id: id + 2 + i });
+  X.save(); X.translate(x + w / 2, base - h - 50); X.rotate(-0.03); cut(tornRect(-w * 0.42, -34, w * 0.42, 34, id + 8, 3), INK, { rim: 5, id: id + 8 }); typed('DINER', 0, 16, 46, RED, 'center', 'Inter', '900'); X.restore();
+}
+function charmTree(x, base, h, id, sw = 0) {
+  cut([[x - 14, base], [x - 8, base - h], [x + 8, base - h], [x + 14, base]], BROWN, { rim: 4, dots: 0.3, id });
+  const br = [[-1, 0.55, 0.42], [1, 0.7, 0.38], [-1, 0.85, 0.3], [1, 0.95, 0.28]];
+  br.forEach(([d, yy, L], i) => { const y0 = base - h * yy; cut([[x, y0 - 6], [x + d * h * L, y0 - h * 0.12], [x + d * h * L, y0 - h * 0.12 + 10], [x, y0 + 6]], BROWN, { rim: 3, id: id + 1 + i });
+    for (let k = 1; k <= 2; k++) { const cx = x + d * h * L * k / 2.2, cy = y0 - h * 0.12 * k / 2.2, sway = Math.sin(sw + i + k) * 6, len = 40 + 20 * k;
+      X.save(); X.strokeStyle = '#3a2a1a'; X.lineWidth = 2; X.beginPath(); X.moveTo(cx, cy); X.lineTo(cx + sway, cy + len); X.stroke(); X.restore();
+      cut(ell(cx + sway, cy + len + 14, 13, 16, 0, 6.29, 14), '#a7a39a', { rim: 3, dots: 0.2, id: id + 10 + i * 3 + k });
+      X.save(); X.strokeStyle = INK; X.lineWidth = 2; X.beginPath(); X.arc(cx + sway, cy + len + 14, 6, 0, 4.5); X.stroke(); X.restore(); } });
+}
+function busInWoods(x, gy, s, id) {
+  cut([[x - 120 * s, gy], [x - 120 * s, gy - 90 * s], [x + 110 * s, gy - 90 * s], [x + 130 * s, gy - 50 * s], [x + 130 * s, gy]], YEL, { rim: 5, dots: 0.35, id });
+  for (let i = 0; i < 5; i++) cut([[x - 105 * s + i * 42 * s, gy - 78 * s], [x - 75 * s + i * 42 * s, gy - 78 * s], [x - 75 * s + i * 42 * s, gy - 50 * s], [x - 105 * s + i * 42 * s, gy - 50 * s]], '#3a3a40', { rim: 0, shadow: 0, id: id + 1 + i });
+  for (const wx of [x - 80 * s, x + 90 * s]) cut(ell(wx, gy, 18 * s, 18 * s, 0, 6.29, 12), INK, { rim: 3, id: id + 8 });
+}
+
+function eyes(x, y, id, s = 1) { if ((HOLD + id) % 13 === 0) return; for (const sd of [-1, 1]) cut(ell(x + sd * 16 * s, y, 9 * s, 7 * s, 0, 6.29, 10), YEL, { rim: 2, shadow: 0, id: id + sd, jitter: 1 }); }
+function bigEye(x, y, w, open, look, id = 700) {
+  if (open <= 0.02) return; const up = [], dn = [];
+  for (let i = 0; i <= 18; i++) { const u = i / 18; up.push([x - w + 2 * w * u, y - Math.sin(u * Math.PI) * w * 0.45 * open]); dn.push([x - w + 2 * w * u, y + Math.sin(u * Math.PI) * w * 0.45 * open]); }
+  const shape = [...up, ...dn.reverse()]; cut(shape, PALE, { rim: 7, id });
+  X.save(); path(shape); X.clip(); cut(ell(x + look * w * 0.35, y, w * 0.34, w * 0.34, 0, 6.29, 24), RED, { rim: 0, dots: 0.45, shadow: 0, id: id + 1 }); cut(ell(x + look * w * 0.35, y, w * 0.14, w * 0.17, 0, 6.29, 14), INK, { rim: 0, shadow: 0, id: id + 2 }); X.restore();
+}
+function sign(x, y, text, rot, flip, id) {
+  cut([[x - 6, y + 220], [x + 6, y + 220], [x + 6, y - 10], [x - 6, y - 10]], '#6b3a22', { rim: 3, id: id + 1 });
+  X.save(); X.translate(x, y); X.rotate(rot); X.scale(flip, 1);
+  cut([[-10, -34], [130, -34], [162, 0], [130, 34], [-10, 34]], NEWS, { rim: 5, id }); typed(text, 66, 14, 40, RED); X.restore();
+}
+function townSign(x, gy, tally, u, id = 400) {
+  if (u <= 0) return; X.save(); X.translate(x, gy); X.scale(1, eBack(u)); X.translate(-x, -gy);
+  for (const dx of [-70, 70]) cut([[x + dx - 6, gy], [x + dx + 6, gy], [x + dx + 6, gy - 130], [x + dx - 6, gy - 130]], '#6b3a22', { rim: 3, id: id + dx });
+  cut(tornRect(x - 112, gy - 214, x + 112, gy - 118, id, 5), CREAM, { rim: 5, dots: 0.12, id: id + 2 }); typed('WELCOME', x, gy - 152, 40, INK);
+  for (let i = 0; i < tally; i++) cut([[x - 64 + i * 22, gy - 140], [x - 58 + i * 22, gy - 140], [x - 52 + i * 22, gy - 122], [x - 58 + i * 22, gy - 122]], RED, { rim: 2, shadow: 0, id: id + 10 + i });
+  X.restore();
+}
+function door(x, base, open, dark, id = 800) {
+  const w = 170, h = 320;
+  cut([[x - w / 2 - 20, base], [x - w / 2 - 20, base - h - 20], [x + w / 2 + 20, base - h - 20], [x + w / 2 + 20, base]], NEWS, { rim: 6, id });
+  cut([[x - w / 2, base], [x - w / 2, base - h], [x + w / 2, base - h], [x + w / 2, base]], dark ? INK : '#fff3c4', { rim: 0, shadow: 0, id: id + 1 });
+  if (!dark && open > 0) { X.save(); X.globalAlpha = 0.5 * open; cut([[x - w / 2, base], [x - w * 1.7, base + 150], [x + w * 1.7, base + 150], [x + w / 2, base]], YEL, { rim: 0, shadow: 0, id: id + 2 }); X.restore(); }
+  if (dark) { eyes(x - 30, base - h * 0.62, id + 5, 1.2); eyes(x + 36, base - h * 0.35, id + 9, 0.9); }
+  const dw = w * (1 - 0.85 * open); cut([[x - w / 2, base], [x - w / 2, base - h], [x - w / 2 + dw, base - h + 18 * open], [x - w / 2 + dw, base - 14 * open]], '#6b3a22', { rim: 4, dots: 0.35, id: id + 3 });
+}
+function qm(x, y, size, id, col = RED) {
+  X.save(); const [jx, jy] = jit(id); X.translate(x + jx, y + jy); X.rotate(rr(id, 0, -0.15, 0.15));
+  X.font = `900 ${size}px Inter`; X.textAlign = 'center'; X.lineJoin = 'round'; X.shadowColor = 'rgba(20,12,5,0.4)'; X.shadowBlur = 8; X.shadowOffsetY = 6;
+  X.lineWidth = size * 0.12; X.strokeStyle = RIM; X.strokeText('?', 0, 0); X.shadowColor = 'transparent'; X.fillStyle = col; X.fillText('?', 0, 0); X.restore();
+}
+function hand(x, y, dir, id = 950) { img(A.manicule, dir > 0 ? x - 654 * 0.55 : x - (678 - 654) * 0.55, y - 71 * 0.55, 678 * 0.55, 372 * 0.55, { flip: dir < 0, id }); }
+
+// ---------------------------------------------------------------- ransom-note captions
+const HOT = new Set(C.hot);
+const BOXES = ['news', CREAM, INK, YEL, 'kraft', CREAM, 'news', '#d9d2c0'];
+function ransomLetter(ch, x, y, size, seed, hot, k) {
+  if (ch === ' ') return;
+  const font = FONTS[Math.floor(hash(seed, 1) * FONTS.length)].replace('80px', `${Math.round(size * rr(seed, 2, 0.88, 1.12))}px`);
+  X.save(); X.font = font; const cw = X.measureText(ch).width; X.restore();
+  const bg = hot ? RED : BOXES[Math.floor(hash(seed, 3) * BOXES.length)], fg = hot || bg === INK ? RIM : INK;
+  const sc = 1 + 0.25 * (1 - k), rot = rr(seed, 4, -0.09, 0.09), bx = cw / 2 + 6, by = size * 0.62;
+  X.save(); X.translate(x, y + rr(seed, 5, -5, 5)); X.rotate(rot); X.scale(sc, sc);
+  const box = tornRect(-bx, -by, bx, by * 0.62, seed, 2);
+  path(box); X.shadowColor = 'rgba(20,12,5,0.35)'; X.shadowBlur = 5; X.shadowOffsetY = 4; X.fillStyle = bg === 'news' ? NEWS : bg === 'kraft' ? KRAFT : bg; X.fill(); X.shadowColor = 'transparent';
+  if (bg === 'news') { X.fillStyle = 'rgba(245,238,220,0.55)'; X.fill(); }
+  X.font = font; X.textAlign = 'center'; X.fillStyle = fg; X.fillText(ch, 0, by * 0.45); X.restore();
+  return cw + 20;
+}
+function captions(t) {
+  let page = null; for (const p of C.pages) if (t >= p.t) page = p; if (!page) return;
+  const size = 70, gap = 30, maxW = 1010, rowH = 100, rows = [];
+  const fontOf = s => FONTS[Math.floor(hash(s, 1) * FONTS.length)].replace('80px', `${Math.round(size * rr(s, 2, 0.88, 1.12))}px`);
+  page.lines.forEach(([t0, text], li) => {
+    let row = { items: [], w: 0 };
+    text.split(' ').forEach((w, wi) => {
+      const chars = [...w].map((ch, ci) => { const sd = Math.round(page.t * 100 + li * 1000 + wi * 37 + ci); X.font = fontOf(sd); return { ch, sd, cw: X.measureText(ch).width + 12 }; });
+      const ww = chars.reduce((a, c) => a + c.cw, 0);
+      if (row.items.length && row.w + gap + ww > maxW) { rows.push(row); row = { items: [], w: 0 }; }
+      row.w += (row.items.length ? gap : 0) + ww; row.items.push({ w, chars, ww, t0: t0 + wi * 0.08, hot: HOT.has(w) });
+    });
+    rows.push(row);
+  });
+  const fit = Math.min(1, 4 / rows.length), y0 = 385 - (rows.length - 1) * rowH * fit / 2;
+  rows.forEach((row, ri) => {
+    const y = y0 + ri * rowH * fit; let x = (W - row.w * fit) / 2;
+    X.save(); X.translate(x, y); X.scale(fit, fit); let cx = 0;
+    row.items.forEach(it => { const k = seg(t, it.t0, it.t0 + 0.09);
+      if (k > 0) { let lx = cx; it.chars.forEach(c => { ransomLetter(c.ch, lx + c.cw / 2, 0, size, c.sd, it.hot, k); lx += c.cw; }); }
+      cx += it.ww + gap; });
+    X.restore();
+  });
+}
+
+// ---------------------------------------------------------------- scene sheets (each scene is a torn sheet slapped onto the kraft)
+const SHEET = { x0: 40, y0: 650, x1: 1040, y1: 1600 };
+const GY = 1440;
+function sheet(fill, id, rot = 0, drop = 1) {
+  const s = SHEET, pts = tornRect(s.x0, s.y0, s.x1, s.y1, id, 9), cx = (s.x0 + s.x1) / 2, cy = (s.y0 + s.y1) / 2;
+  X.translate(cx, cy); X.rotate(rot * drop + (1 - drop) * 0.12); X.scale(1 + 0.12 * (1 - drop), 1 + 0.12 * (1 - drop)); X.translate(-cx, -cy);
+  cut(pts, fill, { rim: 0, id, jitter: 0, dots: 0 }); return pts;
+}
+function sceneRoad(t) {
+  const night = seg(t, C.night[0], C.night[1]);
+  forest(1280, 100);
+  const td = seg(t, C.town_draw[0], C.town_draw[1]);
+  [[780, 120, 110], [900, 110, 150], [640, 100, 95]].forEach(([hx, w, h], i) => { const k = clamp(td * 3 - i); if (k > 0) { X.save(); X.translate(0, (1 - eOut(k)) * -500); house(hx, 1310, w, h, 120 + i * 10, night > 0.5 ? 1 : 0, i === 1 ? 'news' : CREAM); X.restore(); } });
+  cut([[30, GY - 6], [1050, GY - 10], [1050, 1610], [30, 1610]], GREY, { rim: 0, dots: 0.35, id: 150, jitter: 0 });
+  for (let i = 0; i < 6; i++) tape(110 + i * 170, GY + 70, 90, rr(160, i, -0.08, 0.08), 160 + i);
+  if (t < C.loop[0][0]) { const sp = seg(t, C.turn - 0.3, C.turn + 0.2); sign(300, GY - 230, 'HOME', 0, Math.cos(Math.PI * eIO(sp)) || 0.01, 170); }
+  const tally = t >= C.loop[2][0] ? 2 : t >= C.loop[1][0] ? 1 : 0;
+  townSign(700, GY, tally, seg(t, C.town_draw[0] + 0.5, C.town_draw[0] + 0.9));
+  if (t >= C.tree_fall - 0.4 && t < C.loop[0][0]) { const u = eIn(seg(t, C.tree_fall - 0.4, C.tree_fall)); X.save(); X.translate(130, GY + 20); X.rotate(-Math.PI / 2 * (1 - u)); X.translate(-130, -(GY + 20));
+    cut([[130, GY + 6], [470, GY - 4], [470, GY + 32], [130, GY + 40]], '#6b3a22', { rim: 5, dots: 0.35, id: 180 }); for (let i = 0; i < 4; i++) pine(250 + i * 60, GY + 18, 90, 181 + i); X.restore(); }
+  // night: a navy paper sky is slapped down over the top, stars are punched-out white paper
+  if (night > 0) {
+    X.save(); X.translate(0, (1 - eOut(night)) * -700);
+    cut(tornRect(30, 640, 1050, 1150, 190, 10), NAVY, { rim: 0, dots: 0.25, light: true, id: 190, jitter: 1 });
+    X.save(); X.beginPath(); X.arc(840, 790, 62, 0, 7); X.shadowColor = 'rgba(0,0,0,0.4)'; X.shadowBlur = 10; X.fillStyle = RIM; X.fill(); X.clip(); X.drawImage(A.news_b, 700, 640, 300, 400); X.restore();
+    for (let i = 0; i < 7; i++) { const sx = 120 + i * 120, sy = 720 + (i % 3) * 60; cut([...Array(10)].map((_, k) => { const a = k / 10 * 6.28 - 1.57, r = k % 2 ? 6 : 15; return [sx + Math.cos(a) * r, sy + Math.sin(a) * r]; }), RIM, { rim: 0, shadow: 0, id: 200 + i, jitter: 1 }); }
+    X.restore();
+    X.save(); X.globalAlpha = 0.5 * night; X.fillStyle = NAVY; X.fillRect(30, 1150, 1020, 460); X.restore();
+    [[780, 120, 110], [900, 110, 150], [640, 100, 95]].forEach(([hx, w, h], i) => cut([[hx + w * 0.18, 1310 - h * 0.75], [hx + w * 0.48, 1310 - h * 0.75], [hx + w * 0.48, 1310 - h * 0.42], [hx + w * 0.18, 1310 - h * 0.42]], YEL, { rim: 3, shadow: 0, id: 125 + i * 10 }));
+  }
+  if (t >= C.eyes) for (let i = 0; i < 8; i++) if (t >= C.eyes + i * 0.18) eyes(110 + i * 105 + rr(9, i, -20, 20), 1150 + rr(9, i + 10, -40, 60), 220 + i * 3);
+  let cx = 0, jaw = 0;
+  if (t < C.loop[0][0]) { cx = lerp(-260, 560, eOut(seg(t, 0, 4.6))); if (t >= C.tree_fall) jaw = 1; }
+  else { const L = C.loop; if (t < L[0][1]) cx = lerp(560, 1220, eIn(seg(t, L[0][0], L[0][1]))); else if (t < L[1][1]) cx = lerp(-260, 1220, seg(t, L[1][0], L[1][1])); else { const u = seg(t, L[2][0], L[2][1]); cx = lerp(-260, 500, eOut(u)); if (u >= 1) jaw = 0.5; } }
+  if (t >= C.creatures) jaw = 1;
+  rv(cx, GY + 40, { lights: night > 0.5 ? 1 : 0, jaw });
+  if (t >= C.loop[2][1] && t < C.night[0]) { qm(cx - 40, GY - 170, 90, 240); qm(cx + 60, GY - 200, 70, 241); }
+  if (t >= C.creatures) [[130, 0], [300, 0.25], [880, 0.12]].forEach(([x0, d], i) => { const u = seg(t, C.creatures + d, C.creatures + d + 2.0), x = x0 + (cx - x0) * 0.22 * eOut(u), st = (t - C.creatures);
+    if (i === 1) smileWoman(x, GY + 8, 400, 260 + i * 40, st); else smileMan(x, GY + 8, 420 + i * 10, 260 + i * 40, st, i === 0 ? eOut(seg(t, C.creatures + 1.0, C.creatures + 1.3)) * (t < C.creatures + 2.0 ? 1 : 0) : 0); });
+  if (t >= C.title[0] && t < C.loop[0][0]) titleSlap(t);
+}
+function titleSlap(t) {
+  [['F', 210, -0.08], ['R', 420, 0.05], ['O', 640, -0.04], ['M', 870, 0.07]].forEach(([ch, x, r], i) => {
+    const k = seg(t, C.title[0] + i * 0.17, C.title[0] + i * 0.17 + 0.09); if (k <= 0) return;
+    X.save(); X.translate(x, 900); X.rotate(r); const sc = 1 + 0.4 * (1 - k); X.scale(sc, sc);
+    const bg = [RED, 'news', INK, YEL][i]; const box = tornRect(-100, -130, 100, 110, 500 + i, 6);
+    cut(box, bg === 'news' ? NEWS : bg, { rim: 7, dots: bg === RED ? 0.3 : 0, id: 500 + i });
+    X.font = `900 ${i % 2 ? 210 : 230}px ${i === 1 ? '"DejaVu Serif"' : i === 3 ? '"Liberation Serif"' : 'Inter'}`; X.textAlign = 'center'; X.fillStyle = bg === INK || bg === RED ? RIM : INK; X.fillText(ch, 0, 78); X.restore();
+  });
+}
+function sceneRules(t) {
+  cut(tornRect(30, 640, 1050, 1220, 300, 10), NAVY, { rim: 0, dots: 0.2, light: true, id: 300, jitter: 0 });
+  forest(1250, 310, 11, '#2c4029');
+  cut([[30, GY - 10], [1050, GY - 14], [1050, 1610], [30, 1610]], '#4a4a52', { rim: 0, dots: 0.3, id: 320, jitter: 0 });
+  // the rules: a torn notebook page, typewritten, taped to two posts
+  for (const px of [120, 480]) cut([[px - 8, GY + 20], [px + 8, GY + 20], [px + 8, 880], [px - 8, 880]], '#6b3a22', { rim: 3, id: 330 + px });
+  cut(tornRect(80, 860, 530, 1260, 340, 6), LINES, { rim: 6, id: 340 }); tape(110, 870, 110, -0.5, 341); tape(500, 870, 110, 0.5, 342);
+  typed('RULES', 305, 950, 64, RED, 'center', 'Inter', '900');
+  ['1. Inside before dark', '2. Lock every door', '3. Never open at night'].forEach((r, i) => { const n = Math.floor(seg(t, C.rules[i], C.rules[i] + 0.6) * r.length); if (n > 0) typed(r.slice(0, n), 110, 1040 + i * 72, 36, INK, 'left'); });
+  // the residents' house, two portrait cameos at the window
+  const hx = 620, base = GY + 20, w = 360, h = 340;
+  cut([[hx, base], [hx, base - h], [hx + w, base - h], [hx + w, base]], NEWS, { rim: 6, dots: 0.15, id: 350 });
+  cut([[hx - 22, base - h + 6], [hx + w / 2, base - h - 170], [hx + w + 22, base - h + 6]], REDP, { rim: 6, dots: 0.3, id: 351 });
+  const wx0 = hx + 40, wy0 = base - 280, ww = 220, wh = 160;
+  cut([[wx0, wy0], [wx0 + ww, wy0], [wx0 + ww, wy0 + wh], [wx0, wy0 + wh]], YEL, { rim: 6, id: 352 });
+  if (t >= C.residents) { const k = eOut(seg(t, C.residents, C.residents + 0.4)); X.save(); path([[wx0, wy0], [wx0 + ww, wy0], [wx0 + ww, wy0 + wh], [wx0, wy0 + wh]]); X.clip();
+    portrait(wx0 + 62, wy0 + wh + 70 - 120 * k, 0.17, t >= C.qmarks ? 0.5 : 0, { id: 360 }); X.translate(2 * (wx0 + 160), 0); X.scale(-1, 1); portrait(wx0 + 160, wy0 + wh + 80 - 120 * k, 0.15, 0, { id: 361 }); X.restore(); }
+  cut([[hx + 270, base], [hx + 270, base - 150], [hx + 330, base - 150], [hx + 330, base]], '#6b3a22', { rim: 4, dots: 0.3, id: 353 });
+  sheriff(470, GY + 40, 0.95, 1000, t * 2.5);
+  if (t >= C.residents + 0.4) { const k = eOut(seg(t, C.residents + 0.4, C.residents + 0.9)); smileWoman(lerp(1160, 960, k), GY + 30, 420, 1050, t, t >= C.residents + 1.0 ? seg(t, C.residents + 1.0, C.qmarks + 1.5) : 0, -1); }
+  if (t >= C.qmarks) [[700, 1000, 120], [800, 950, 150], [900, 1010, 110]].forEach(([x, y, s], i) => { if (t >= C.qmarks + i * 0.2) qm(x, y, s, 370 + i, i === 1 ? RED : YEL); });
+  if (t >= C.big_eye) bigEye(540, 770, 210, eOut(seg(t, C.big_eye, C.big_eye + 0.6)), Math.sin((t - C.big_eye) * 1.3) * 0.8, 380);
+  else for (let i = 0; i < 5; i++) eyes(120 + i * 210, 1140 + (i % 2) * 40, 390 + i * 3);
+}
+function sceneMap(t) {
+  const shrink = eIO(seg(t, C.tiles[0] - 0.5, C.tiles[0])), ms = lerp(1, 0.55, shrink), mcx = 540, mcy = lerp(1100, 870, shrink);
+  X.save(); X.translate(mcx, mcy); X.scale(ms, ms);
+  cut(ell(0, 0, 400, 340, 0, 6.29, 60), NEWS, { rim: 8, id: 400 });
+  for (let i = 0; i < 16; i++) { const a = i / 16 * 6.28; pine(Math.cos(a) * 330, Math.sin(a) * 270 + 40, 80, 410 + i); }
+  [[-130, 20], [100, 10], [150, 120]].forEach(([x, y], i) => house(x - 32, y, 64, 50, 430 + i * 5, 0));
+  diner(-80, -50, 120, 70, 445); charmTree(30, 150, 110, 455, t * 2); busInWoods(300, -190, 0.5, 465);
+  // red yarn looping round the town, pinned
+  const k = eOut(seg(t, C.map, C.map + 1.2)); X.save(); X.strokeStyle = RED; X.lineWidth = 7; X.lineCap = 'round'; X.shadowColor = 'rgba(0,0,0,0.35)'; X.shadowBlur = 4; X.shadowOffsetY = 3;
+  X.beginPath(); for (let i = 0; i <= 120 * k; i++) { const a = -1.6 + i / 120 * 6.6, r = 230 + Math.sin(i * 0.5) * 6; i ? X.lineTo(Math.cos(a) * r * 1.1, Math.sin(a) * r * 0.85) : X.moveTo(Math.cos(a) * r * 1.1, Math.sin(a) * r * 0.85); } X.stroke(); X.restore();
+  for (const [px, py] of [[0, -196], [252, 0], [0, 196], [-252, 0]]) if (k > 0.3) { cut(ell(px, py, 13, 13, 0, 6.29, 12), RED, { rim: 3, id: 470 + px }); }
+  X.restore();
+  [['HORROR', 'claw'], ['SURVIVAL', 'fire'], ['PUZZLE', 'piece']].forEach(([label, icon], i) => {
+    const t0 = C.tiles[i]; if (t < t0) return; const k2 = seg(t, t0, t0 + 0.09), x = 80 + i * 320, y = 1190, w = 280, h = 300;
+    X.save(); X.translate(x + w / 2, y + h / 2); X.rotate((i - 1) * 0.05 + rr(480, i, -0.03, 0.03)); X.scale(1 + 0.3 * (1 - k2), 1 + 0.3 * (1 - k2)); X.translate(-x - w / 2, -y - h / 2);
+    cut(tornRect(x, y, x + w, y + h, 480 + i, 5), [CREAM, 'news', YEL][i] === 'news' ? NEWS : [CREAM, 'news', YEL][i], { rim: 7, id: 480 + i });
+    const cx = x + w / 2, cy = y + 120;
+    if (icon === 'claw') for (let j = 0; j < 3; j++) cut([[cx - 76 + j * 40, cy - 80], [cx - 60 + j * 40, cy - 84], [cx - 18 + j * 40, cy + 80], [cx - 34 + j * 40, cy + 84]], RED, { rim: 3, dots: 0.3, id: 490 + j });
+    if (icon === 'fire') { cut([[cx - 80, cy + 76], [cx + 70, cy + 44], [cx + 76, cy + 62], [cx - 74, cy + 94]], '#6b3a22', { rim: 3, id: 495 }); img(HOLD % 2 ? A.flame1 : A.flame0, cx - 60, cy - 110, 120, 170, { id: 496 }); }
+    if (icon === 'piece') { const out = seg(t, C.crack, C.crack + 0.5), pp = piecePts(cx, cy, 72);
+      if (out <= 0) cut(pp, TEAL, { rim: 5, dots: 0.35, id: 497 });
+      else { cut(pp, INK, { rim: 0, id: 498 }); eyes(cx, cy - 12, 499, 1.1); const g = ell(cx, cy + 22, 36, 16, 0.1, Math.PI - 0.1, 12); cut([...g, [cx - 36, cy + 22]], PALE, { rim: 0, shadow: 0, id: 500 });
+        if (out < 1) { X.save(); X.translate(cx + out * 260, cy - out * 540 + out * out * 300); X.rotate(out * 4); cut(piecePts(0, 0, 72), TEAL, { rim: 5, dots: 0.35, id: 501 }); X.restore(); } } }
+    X.save(); X.translate(cx, y + h - 36); X.rotate(-0.03); X.fillStyle = INK; X.fillRect(-110, -38, 220, 52); X.restore(); typed(label, cx, y + h - 22, 40, RIM, 'center', 'Inter', '900');
+    X.restore();
+  });
+}
+function piecePts(cx, cy, s) {
+  const p = [[-1, -1], [-0.3, -1], ...ell(0, -1.15, 0.32, 0.32, Math.PI * 0.8, Math.PI * 2.2, 12), [0.3, -1], [1, -1], [1, -0.3], ...ell(1.15, 0, 0.32, 0.32, -Math.PI * 0.7, Math.PI * 0.7, 12), [1, 0.3], [1, 1], [-1, 1], [-1, 0.3], ...ell(-0.85, 0, 0.3, 0.3, Math.PI * 0.35, -Math.PI * 0.35, 10), [-1, -0.3]];
+  return p.map(([a, b]) => [cx + a * s, cy + b * s]);
+}
+function spiral(u) { const a = u * Math.PI * 5.2, r = 50 + u * 330; return [540 + Math.cos(a) * r, 1090 + Math.sin(a) * r * 0.62]; }
+function sceneRun(t) {
+  cut(tornRect(30, 640, 1050, 1200, 600, 10), '#2a2440', { rim: 0, dots: 0.2, light: true, id: 600, jitter: 0 });
+  forest(1220, 610, 11, '#2c4029');
+  cut([[30, GY - 10], [1050, GY - 14], [1050, 1610], [30, 1610]], '#5a5560', { rim: 0, dots: 0.3, id: 620, jitter: 0 });
+  if (t < C.door) {
+    const pts = []; for (let i = 0; i <= 140; i++) pts.push(spiral(i / 140));
+    X.save(); X.lineJoin = 'round'; X.lineCap = 'round'; X.shadowColor = 'rgba(0,0,0,0.4)'; X.shadowBlur = 8; X.shadowOffsetY = 6;
+    X.beginPath(); pts.forEach((p, i) => i ? X.lineTo(p[0], p[1]) : X.moveTo(p[0], p[1])); X.strokeStyle = RIM; X.lineWidth = 48; X.stroke(); X.shadowColor = 'transparent'; X.strokeStyle = NEWS; X.lineWidth = 36; X.stroke(); X.restore();
+    const runU = seg(t, C.wipe[2] + 0.4, C.run[0] + 0.8), back = t >= C.run[0] + 1.2, u = back ? seg(t, C.run[0] + 1.2, C.door - 0.2) * 0.6 : runU;
+    const [x, y] = spiral(u);
+    for (const sd of [-1, 1]) cut([[x + sd * 8 - 5, y - 20], [x + sd * 8 + 5, y - 20], [x + sd * 14 + 5 + ((HOLD % 2) ? sd * 10 : -sd * 10), y + 16], [x + sd * 14 - 5 + ((HOLD % 2) ? sd * 10 : -sd * 10), y + 16]], INK, { rim: 2, id: 630 + sd });
+    portrait(x, y - 60, 0.11, back ? 1 : 0, { cameo: true, id: 640 });
+    if (back && t < C.run[0] + 1.6) qm(spiral(0)[0] + 60, spiral(0)[1] - 120, 90, 650);
+  } else {
+    const op = eOut(seg(t, C.door_open, C.door_open + 0.5)), dark = t >= C.door_open + 0.8;
+    door(600, GY + 20, op, dark);
+    portrait(290, 1190, 0.3, dark ? 1 : talking(t) ? 0.5 : 0, { id: 660 });
+    if (t >= C.qmark) qm(600, 1020, 280, 670);
+  }
+}
+function sceneChoice(t) {
+  X.save(); X.beginPath(); X.rect(30, 640, 520, 980); X.clip();
+  cut(tornRect(30, 640, 560, 1200, 700, 8), '#d9c9a4', { rim: 0, id: 700, jitter: 0 }); forest(1240, 710, 6);
+  diner(70, GY, 210, 150, 720); charmTree(440, GY, 300, 735, t * 2); house(300, GY, 120, 110, 730, 1);
+  cut([[30, GY - 8], [560, GY - 8], [560, 1610], [30, 1610]], '#9a8f7a', { rim: 0, dots: 0.3, id: 740, jitter: 0 });
+  X.restore();
+  X.save(); X.beginPath(); X.rect(530, 640, 520, 980); X.clip();
+  cut(tornRect(520, 640, 1050, 1610, 750, 8), NAVY, { rim: 0, dots: 0.25, light: true, id: 750, jitter: 0 });
+  for (let i = 0; i < 6; i++) pine(570 + i * 95, GY + 20, 380 + 120 * hash(760, i), 760 + i, '#24361f');
+  for (let i = 0; i < 7; i++) eyes(600 + (i % 4) * 110 + (i > 3 ? 50 : 0), 1020 + Math.floor(i / 4) * 180 + rr(5, i, -30, 30), 780 + i * 3);
+  paperFace(700, 1180, 34, 870, { hair: '#1c1712' }); paperFace(930, 1290, 32, 880, { hair: '#4a2a1a', bun: true });
+  X.restore();
+  // a torn seam down the middle
+  cut(tornRect(528, 640, 552, 1610, 790, 10), RIM, { rim: 0, id: 790, jitter: 0 });
+  if (t >= C.labels) [[280, 'STAY', YEL, -0.07], [790, 'THE WOODS', RED, 0.05]].forEach(([x, s, col, r], i) => { const k = seg(t, C.labels + i * 0.4, C.labels + i * 0.4 + 0.09); if (k <= 0) return;
+    X.save(); X.translate(x, 820); X.rotate(r); X.scale(1 + 0.3 * (1 - k), 1 + 0.3 * (1 - k)); cut(tornRect(i ? -225 : -170, -62, i ? 225 : 170, 62, 800 + i, 5), col, { rim: 7, dots: 0.2, id: 800 + i }); typed(s, 0, 26, i ? 68 : 76, i ? RIM : INK, 'center', 'Inter', '900'); X.restore(); });
+  // the pointing hand can't decide
+  const lk = Math.floor(t / (t >= C.hold ? 1.0 : 0.6)) % 2 ? 1 : -1;
+  hand(540 + lk * 130, 1220, lk, 810);
+  portrait(540, 1470, 0.24, talking(t), { id: 820 });
+}
+
+// ---------------------------------------------------------------- the film
+const kraftBG = document.createElement('canvas'); kraftBG.width = W; kraftBG.height = H;
+{ const p = kraftBG.getContext('2d'); p.drawImage(A.page_kraft, 0, 0, 1920, 1080, -420, 0, 1920 * 1.78, 1920); p.globalCompositeOperation = 'multiply'; p.globalAlpha = 0.35; p.drawImage(paperTex, 0, 0, W, H); }
+function frame(t) {
+  const T = timing(t); HOLD = T.hold; const tq = T.tq;
+  X.setTransform(1, 0, 0, 1, 0, 0); X.drawImage(kraftBG, 0, 0);
+  // newsprint strip behind the captions + a scrap of red paper
+  cut(tornRect(-30, 170, 1110, 600, 11, 10), NEWS, { rim: 0, id: 11, jitter: 1 });
+  X.save(); X.globalAlpha = 0.55; X.fillStyle = CREAM; path(tornRect(-30, 170, 1110, 600, 11, 10)); X.fill(); X.restore();
+  let sh = 0; if (tq >= C.tree_fall && tq < C.tree_fall + 0.3) sh = 10; if (tq >= C.crack && tq < C.crack + 0.3) sh = 9; if (tq >= C.door_open + 0.8 && tq < C.door_open + 1.0) sh = 8;
+  X.setTransform(1, 0, 0, 1, rr(91, T.f, -1, 1) * sh, rr(92, T.f, -1, 1) * sh);
+  // scene sheet: the current one, with the next slapped on top during a change
+  const sc = C.wipe.filter(w => tq >= w + 0.3).length, scenes = [sceneRoad, sceneRules, sceneMap, sceneRun, sceneChoice];
+  const fills = [CREAM, NAVY, CREAM, '#2a2440', CREAM], rots = [-0.012, 0.01, -0.008, 0.012, -0.006];
+  X.save(); const drop = sc > 0 ? eOut(seg(tq, C.wipe[sc - 1] + 0.3, C.wipe[sc - 1] + 0.45)) : 1;
+  if (sc > 0 && drop < 1) { X.save(); const pts0 = sheet(fills[sc - 1], 40 + sc - 1, rots[sc - 1]); X.restore(); }
+  const pts = sheet(fills[sc], 40 + sc, rots[sc], drop); path(pts); X.clip(); scenes[sc](tq); X.restore();
+  // incoming hand slaps the next sheet on
+  C.wipe.forEach((w, i) => { const u = seg(tq, w, w + 0.45); if (u > 0 && u < 1) hand(lerp(1500, 760, eOut(Math.min(1, u * 1.6))) - (u > 0.7 ? (u - 0.7) * 1600 : 0), 1100, -1, 830 + i); });
+  // the narrator: portrait puppet bottom-left for the hook
+  if (tq < C.title[0]) { const k = eOut(seg(tq, 0, 0.3)); portrait(220, lerp(2200, 1640, k), 0.42, talking(tq), { id: 840 }); }
+  X.setTransform(1, 0, 0, 1, 0, 0);
+  captions(tq);
+  X.globalCompositeOperation = 'multiply'; X.globalAlpha = 0.12; X.drawImage(paperTex, 0, 0, W, H);
+  X.globalCompositeOperation = 'overlay'; X.globalAlpha = 0.18; X.drawImage(grain, -((T.hold * 397) % 600), -((T.hold * 211) % 400), 2048 * 1.3, 2048 * 1.3);
+  X.globalAlpha = 1; X.globalCompositeOperation = 'source-over';
+}
+window.renderAt = async (t) => { frame(t); };
+frame(0);
+window.__ready = true;
+</script>
+</body></html>

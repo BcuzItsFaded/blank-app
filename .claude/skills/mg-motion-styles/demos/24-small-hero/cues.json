@@ -1,0 +1,191 @@
+{
+ "duration": 30,
+ "bpm": 120,
+ "bar_anchor": 0.0,
+ "ground": 1480,
+ "far": 1340,
+ "walk_in": [
+  0.0,
+  0.8
+ ],
+ "minions": [
+  470,
+  680,
+  890
+ ],
+ "bops": [
+  1.9,
+  3.4,
+  4.9
+ ],
+ "smug": 5.3,
+ "shake": 6.4,
+ "flee": [
+  6.5,
+  7.0
+ ],
+ "rise": [
+  6.5,
+  7.4
+ ],
+ "roar": [
+  7.6,
+  8.3
+ ],
+ "castle": [
+  8.5,
+  9.7
+ ],
+ "army": [
+  9.6,
+  10.6
+ ],
+ "crush": 10.6,
+ "dream": 12.0,
+ "wipe1": 13.35,
+ "cage": [
+  13.7,
+  14.2
+ ],
+ "pipe_pop": 15.5,
+ "pipe_land": 16.2,
+ "dizzy_end": 18.4,
+ "determined": 19.2,
+ "wipe2": 20.15,
+ "push": [
+  20.4,
+  23.6
+ ],
+ "hero_beat": 21.8,
+ "turtle_beat": 23.6,
+ "breath": [
+  24.6,
+  25.6
+ ],
+ "spread": [
+  25.0,
+  28.4
+ ],
+ "qmark": 28.6,
+ "pages": [
+  {
+   "t": 0.2,
+   "lines": [
+    [
+     0.2,
+     "Mario thinks saving the world"
+    ],
+    [
+     3.0,
+     "means jumping on a few Goombas."
+    ]
+   ]
+  },
+  {
+   "t": 6.4,
+   "lines": [
+    [
+     6.4,
+     "Then Bowser shows up"
+    ],
+    [
+     8.4,
+     "with an army, a giant castle,"
+    ]
+   ]
+  },
+  {
+   "t": 10.6,
+   "lines": [
+    [
+     10.6,
+     "and a very serious crush"
+    ],
+    [
+     12.0,
+     "on Princess Peach."
+    ]
+   ]
+  },
+  {
+   "t": 13.6,
+   "lines": [
+    [
+     13.6,
+     "With Luigi in danger,"
+    ],
+    [
+     15.4,
+     "Mario has to prove he’s more"
+    ]
+   ]
+  },
+  {
+   "t": 17.4,
+   "lines": [
+    [
+     17.4,
+     "than a plumber"
+    ],
+    [
+     18.4,
+     "who got lost in a pipe."
+    ]
+   ]
+  },
+  {
+   "t": 20.4,
+   "lines": [
+    [
+     20.4,
+     "The real question is:"
+    ],
+    [
+     21.8,
+     "can one small hero stop"
+    ]
+   ]
+  },
+  {
+   "t": 23.6,
+   "lines": [
+    [
+     23.6,
+     "a giant fire-breathing turtle"
+    ],
+    [
+     25.0,
+     "before the Mushroom Kingdom"
+    ]
+   ]
+  },
+  {
+   "t": 26.4,
+   "lines": [
+    [
+     26.4,
+     "goes up"
+    ],
+    [
+     27.2,
+     "in flames?"
+    ]
+   ]
+  }
+ ],
+ "hot": [
+  "Mario",
+  "Goombas.",
+  "Bowser",
+  "Luigi",
+  "Princess",
+  "Peach.",
+  "hero",
+  "turtle",
+  "flames?",
+  "army,",
+  "castle,",
+  "crush",
+  "pipe."
+ ]
+}
