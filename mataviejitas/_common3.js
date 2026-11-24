@@ -24,3 +24,8 @@ function cauldron(c, x, base, k, t) { c.save(); c.translate(x, base); c.scale(k,
   c.strokeStyle = '#0a0606'; c.lineWidth = 8; for (let i = 0; i < 5; i++) { c.beginPath(); c.moveTo(-90 + i * 45, -120); c.lineTo(-110 + i * 55, -230 - (i % 2) * 40); c.stroke(); } c.restore(); }
 function smallFlags(c, t, n, y0, y1, seed, a, t0 = 0, dt = .1) { const R = mulberry(seed); for (let i = 0; i < n; i++) { const x = 60 + R() * 960, y = y0 + R() * (y1 - y0), s = .5 + (y - y0) / (y1 - y0 + 1) * .8, aa = a * ss(clamp((t - t0 - i * dt) / .4)); if (aa <= 0) continue; c.save(); c.globalAlpha = aa; c.strokeStyle = '#e8e0d0'; c.lineWidth = 3 * s; c.beginPath(); c.moveTo(x, y); c.lineTo(x, y - 60 * s); c.stroke(); c.fillStyle = '#f4ece0'; c.beginPath(); c.moveTo(x, y - 60 * s); c.lineTo(x + 34 * s, y - 50 * s); c.lineTo(x, y - 40 * s); c.closePath(); c.fill(); c.restore(); } }
 const darkSky = (top, bot, glow) => Ly(SK(top, bot, glow), '#000', 0, { raw: true });
+
+// ---------- long-form helpers: reuse a scene on a new timeline, or write a scene in local time ----------
+function remapScene(S, f) { const w = fn => fn && ((c, t) => fn(c, f(t))); for (const L of S.layers) { L.front = w(L.front); L.back = w(L.back); } const cam = S.cam; S.cam = t => cam(f(t)); if (S.over) { const o = S.over; S.over = (c, t) => o(c, f(t)); } return S; }
+const addReuse = (a, b, k) => { const [oa, ob, build] = OLD[k]; addScene(a, b, () => remapScene(build(), t => oa + (t - a) / (b - a) * (ob - oa))); };
+const addRel = (a, b, build) => addScene(a, b, () => remapScene(build(b - a), t => t - a));
