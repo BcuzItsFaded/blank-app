@@ -269,3 +269,30 @@ The cult leader, "El Padrino," died before any trial. It was all exposed by one 
 🎬 Plot Twist with A&R
 
 **Hashtags:** #Narcosatanicos #Matamoros #MarkKilroy #AdolfoConstanzo #TrueCrime #TrueCrimeCommunity #DarkHistory #Cult #TrueStory #CrimenesReales #Mexico #PaperCut #PlotTwistWithAR
+
+---
+
+## Long versions (2–2.5 min) · Episodes 25–27
+Use these captions with the long cuts (`*-long.mp4`). Titles and hashtags are the same as the short versions, with "(Full Story)" added to each title.
+
+**Las Poquianchis: The Sisters Nobody Questioned 🏚️ | Ep. 25 (Full Story)**
+Guanajuato, Mexico. Four sisters, daughters of a violent small-town policeman, turned a bar's back room into a network of brothels across three states. 🇲🇽
+Their trap was a newspaper ad: "Housemaid wanted." Women who answered were locked in, trapped by debts they could never repay. A former army captain guarded the doors, and according to later accounts, officials looked away.
+In 1964, Catalina Ortega escaped. Police dug at the sisters' ranch. Reports claimed 91 bodies, though some historians say only 8 were ever confirmed. ⛏️
+Each surviving sister got 40 years. Mexico has retold the story ever since, on screen and on the page.
+Everyone knew what those houses were. Nobody asked where the girls went. 💔
+🎬 Plot Twist with A&R
+
+**La Mataviejitas: The Killer Nobody Suspected 🎭 | Ep. 26 (Full Story)**
+Mexico City, late 1990s to 2006. Elderly women living alone, found dead in their own homes. Many had opened the door themselves. 🚪
+Police hunted a man in disguise. Officials called it "media sensationalism." They even chased a painting that turned up in several victims' homes. 🖼️
+In 2006, a woman was caught fleeing her latest victim's home: Juana Barraza, a professional wrestler known as "La Dama del Silencio." 🤼‍♀️
+Convicted of 16 murders, sentenced to 759 years… and linked to as many as 40. Dozens of cases were simply closed.
+🎬 Plot Twist with A&R
+
+**The Narcosatanists: The Cult That Thought It Was Invisible 🕯️ | Ep. 27 (Full Story)**
+Matamoros, 1989. Fifteen thousand spring breakers. At 2 a.m., a 21-year-old UT student vanishes outside a bar. 🌉
+His parents print 20,000 flyers. Weeks pass. Then a trafficker runs a police checkpoint, and leads police straight to Rancho Santa Elena. 🚔
+Fifteen bodies. A ritual cauldron. And a leader called "El Padrino": a Miami-born tarot reader who sold protection to traffickers, with a college honors student as his "Madrina." 🃏
+El Padrino died before any trial. The cult was exposed by one family that never stopped looking. 💔
+🎬 Plot Twist with A&R
