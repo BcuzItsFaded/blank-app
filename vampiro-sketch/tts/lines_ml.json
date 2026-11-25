@@ -1,0 +1,47 @@
+[
+ {
+  "id": "v01",
+  "text": "En Guadalajara existe una tumba que, según la leyenda, jamás debería abrirse. Algo aterrador permanece enterrado debajo de ella.",
+  "rate": "+14%"
+ },
+ {
+  "id": "v02",
+  "text": "Durante el siglo diecinueve, un misterioso extranjero llegó a la ciudad. Nadie conocía su pasado ni entendía por qué solamente salía de noche.",
+  "rate": "+14%"
+ },
+ {
+  "id": "v03",
+  "text": "Poco después, comenzaron a aparecer animales muertos y personas sin vida, aparentemente sin una sola gota de sangre.",
+  "rate": "+14%"
+ },
+ {
+  "id": "v04",
+  "text": "Los habitantes sospecharon del extranjero. Convencidos de que era un vampiro, lo persiguieron hasta encontrarlo.",
+  "rate": "+14%"
+ },
+ {
+  "id": "v05",
+  "text": "Le clavaron una estaca en el corazón. Pero antes de morir, supuestamente lanzó una maldición: algún día regresaría para vengarse.",
+  "rate": "+14%"
+ },
+ {
+  "id": "v06",
+  "text": "Enterraron su cuerpo en el Panteón de Belén. Tiempo después, un enorme árbol comenzó a crecer sobre su tumba.",
+  "rate": "+14%"
+ },
+ {
+  "id": "v07",
+  "text": "La leyenda advierte que, cuando el árbol muera o sus raíces terminen de destruir la tumba, el vampiro despertará.",
+  "rate": "+14%"
+ },
+ {
+  "id": "v08",
+  "text": "Lo más inquietante es que ese árbol existe.",
+  "rate": "+14%"
+ },
+ {
+  "id": "v09",
+  "text": "¿Y si sus raíces no estuvieran creciendo para destruir la tumba… sino para mantener algo encerrado?",
+  "rate": "+14%"
+ }
+]

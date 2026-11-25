@@ -296,3 +296,17 @@ His parents print 20,000 flyers. Weeks pass. Then a trafficker runs a police che
 Fifteen bodies. A ritual cauldron. And a leader called "El Padrino": a Miami-born tarot reader who sold protection to traffickers, with a college honors student as his "Madrina." 🃏
 El Padrino died before any trial. The cult was exposed by one family that never stopped looking. 💔
 🎬 Plot Twist with A&R
+
+## El vampiro de Guadalajara: La tumba prohibida (Urban Sketch · Pen & Wash, 60 s)
+
+**Título:** El vampiro de Guadalajara: la tumba que jamás debería abrirse 🌳🩸
+
+**Caption:**
+En el Panteón de Belén, en Guadalajara, hay un árbol que creció sobre una tumba. La leyenda dice que cuando muera, el vampiro despertará… ¿o sus raíces lo mantienen encerrado? 👀
+
+Realidad vs. leyenda: el Panteón de Belén y el Árbol del Vampiro existen. La historia del vampiro pertenece al folclore mexicano y no está comprobada. El giro final es una dramatización original.
+
+Fuentes: El Informador | N+ México | NTR Guadalajara
+
+**Hashtags:**
+#PlotTwistWithAandR #ElVampiroDeGuadalajara #PanteonDeBelen #Guadalajara #Jalisco #LeyendasMexicanas #LeyendasDeMexico #Terror #HistoriasDeTerror #Folclore #MexicoMisterioso #UrbanSketch #Leyendas #Shorts #Reels

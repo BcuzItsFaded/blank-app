@@ -1,0 +1,13 @@
+EL VAMPIRO DE GUADALAJARA: LA TUMBA PROHIBIDA — Plot Twist with A&R
+Urban Sketch · Pen & Wash (Lemo-Opuscar library) · 1080x1920 · 30 fps · 60 s · -14 LUFS
+
+Guion ............. del usuario, narrado tal cual
+Imagen ............ main.js: una página de cuaderno por escena; engine.js y poses.js del estilo urban-sketch de la biblioteca
+Voz ............... Microsoft edge-tts, es-MX-JorgeNeural (tts/edge_ml.py), +14 %
+Música y efectos .. mix.py: guitarra de nylon original (síntesis), bordón grave, pluma y papel, grillos, viento, campana, pasos, crujidos
+Tipografías ....... Caveat y Reenie Beanie (SIL Open Font License 1.1), en fonts/
+Subtítulos ........ vampiro-sketch.es.srt (y escritos a mano en el margen)
+Datos ............. FACTS.md
+
+Personajes originales dibujados como figuras de cuaderno sin rostro. Ninguna imagen, personaje o música de películas de vampiros.
+La violencia es implícita: figuras cubiertas, una estaca alzada (nunca el golpe), el color que se va.
