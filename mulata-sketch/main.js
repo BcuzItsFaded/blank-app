@@ -18,7 +18,7 @@ const b12 = () => T * 12 | 0;
 const C = { ink: hex('#2b2a2a'), steel: hex('#9aa3ad'), sea: hex('#7c9aa6'), night: hex('#56627d'), stone: hex('#cdbd9c'), slate: hex('#8d96a3'), wall: hex('#d9c9a8'), dusk: hex('#c9a183'), lamp: hex('#e6d39a'), adobe: hex('#c9a27e'), sky: hex('#a9c0d6'), leaf: hex('#7fa04a'), sand: hex('#d7bf94'), wood: hex('#a57c55'), ochre: hex('#d8ad74') };
 const RED = hex('#a8322f'), REDINK = mix3(RED, INK, .25);
 const LK = {
-  soledad: { skin: hex('#b9825f'), top: hex('#e9e1d0'), bottom: hex('#e9e1d0'), hair: hex('#1f1a18'), hairLong: 1, dress: 1, flare: .18, sleeve: 'long', torso: [.078, .06, .086], shoe: hex('#2a2a2a') },
+  soledad: { skin: hex('#b9825f'), top: RED, bottom: RED, hair: hex('#1f1a18'), hairLong: 1, dress: 1, flare: .18, sleeve: 'long', torso: [.078, .06, .086], shoe: hex('#2a2a2a') },
   guard: { skin: hex('#c48e6e'), top: hex('#4e5345'), bottom: hex('#474b3f'), hair: hex('#2a2a2a'), sleeve: 'long', pants: 1, torso: [.084, .092, .116], shoe: hex('#1d1d1d') },
   judge: { skin: hex('#e4c0a0'), top: hex('#2a2a30'), bottom: hex('#2a2a30'), hair: hex('#cfcac2'), sleeve: 'long', pants: 1, torso: [.09, .1, .12], shoe: hex('#111111') },
   woman: { skin: hex('#d9a383'), top: hex('#8b7a66'), bottom: hex('#8b7a66'), hair: hex('#2a1e18'), hairLong: 1, dress: 1, flare: .16, sleeve: 'long', torso: [.08, .062, .088], shoe: hex('#3a2a22') },
@@ -95,7 +95,7 @@ function person(c, look, pose, x, y, Sz, yaw, o = {}) {
   if (o.cape) { sk('cape', [[hx - r * 1.9, hy + r * 2.2], [hx + r * 1.9, hy + r * 2.2], [hx + r * 2.6, hy + r * 6], [hx + r * 3.0, hy + r * 10], [hx - r * 3.0, hy + r * 10], [hx - r * 2.6, hy + r * 6]], C.ink, .85, 400); }
   if (o.ruff) { for (let i = 0; i < 8; i++) { const a = Math.PI * (i / 7 + .08); drawPen(c, penStroke([[hx + Math.cos(a) * r * 1.2, hy + r * 1.8 + Math.sin(a) * r * .5], [hx + Math.cos(a) * r * 1.85, hy + r * 1.8 + Math.sin(a) * r * .7]], { w: lw * .9, wob: .3, seed: 370 + i, over: 0, gap: 0 }), col); } sk('ruff', ellipse(hx, hy + r * 2.1, r * 1.5, r * .35, 16), hex('#f2ede3'), .3, 372); }
   if (o.belt) { const bx = prims.hand?.R ? 0 : 0; const by = hy + r * 8.5; drawPen(c, penStroke([[hx - r * 1.5, by], [hx + r * 1.5, by]], { w: lw * 1.2, wob: .2, seed: 410, over: 1 }), col); drawPen(c, penStroke([...ellipse(hx + r * 1.7, by + r * .3, r * .35, r * .35, 10)], { w: lw * .8, wob: .2, seed: 411, over: 0 }), col); }
-  if (o.rebozo) { sk('rebozo', [[hx - r * 2.5, hy + r * 1.5], [hx + r * 2.5, hy + r * 1.5], [hx + r * 2.1, hy + r * 2.7], [hx - r * 2.1, hy + r * 2.7]], RED, .9, 420); sk('ends', [[hx - r * 2.5, hy + r * 1.5], [hx - r * 1.6, hy + r * 1.5], [hx - r * 1.5, hy + r * 3.9], [hx - r * 2.2, hy + r * 3.7]], RED, .8, 421); sk('ends2', [[hx + r * 1.6, hy + r * 1.5], [hx + r * 2.5, hy + r * 1.5], [hx + r * 2.2, hy + r * 3.7], [hx + r * 1.5, hy + r * 3.9]], RED, .8, 422); for (let i = 0; i < 7; i++) drawPen(c, penStroke([[hx - r * 2.0 + i * r * .55, hy + r * 2.7], [hx - r * 2.0 + i * r * .55, hy + r * 3.3]], { w: .9, wob: .2, seed: 425 + i, over: 0, gap: 0 }), col * .9); }
+  if (o.rebozo) { sk('rebozo', [[hx - r * 2.4, hy + r * 1.5], [hx + r * 2.4, hy + r * 1.5], [hx + r * 1.9, hy + r * 2.4], [hx - r * 1.9, hy + r * 2.4]], RED, .9, 420); for (let i = 0; i < 6; i++) drawPen(c, penStroke([[hx - r * 1.7 + i * r * .6, hy + r * 2.4], [hx - r * 1.7 + i * r * .6, hy + r * 2.9]], { w: .9, wob: .2, seed: 425 + i, over: 0, gap: 0 }), col * .9); }
   if (o.earrings) { c.fillStyle = rgba(INK, .9); c.beginPath(); c.arc(hx - r * 1.05, hy + r * .3, Math.max(.8, r * .14), 0, TAU); c.fill(); c.beginPath(); c.arc(hx + r * 1.05, hy + r * .3, Math.max(.8, r * .14), 0, TAU); c.fill(); }
   if (o.torch) { const [tx, ty] = prims.hand.R; drawPen(c, penStroke([[tx, ty + Sz * .04], [tx + Sz * .02, ty - Sz * .2]], { w: lw * 2.2, wob: .5, seed: 430, over: 1 }), 1); const fx = tx + Sz * .02, fy = ty - Sz * .24, fl = 1 + .15 * Math.sin(T * 17 + x); reserve(c, ellipse(fx, fy, Sz * .09, Sz * .11, 14), .35, 6, 3); wash(c, ellipse(fx, fy, Sz * .05 * fl, Sz * .08 * fl, 12), C.ochre, { a: .8, j: 3, layers: 2, seed: 431 + b12() }); }
   if (o.halberd) { const [gx, gy] = prims.hand.R; drawPen(c, penStroke([[gx, gy + Sz * .1], [gx + Sz * .06, gy - Sz * .95]], { w: lw * 1.6, wob: .4, seed: 440, over: 2 }), 1); sk('blade', [[gx + Sz * .06, gy - Sz * .95], [gx + Sz * .14, gy - Sz * .86], [gx + Sz * .1, gy - Sz * .72], [gx + Sz * .06, gy - Sz * .78]], C.steel, .7, 441); }
@@ -134,7 +134,7 @@ const PG = {
     P.rwash(40, 1180, 1000, 400, C.sea, { a: .4 });
     for (let k = 0; k < 9; k++) P.line(80 + (k * 110) % 800, 1240 + k * 26, 150 + (k * 110) % 800, 1240 + k * 26, { w: 1.2, a: .55 });
     P.line(40, 1180, 1040, 1180, { w: 2 });
-    P.text('Veracruz', 120, 1520, 58); return P; },
+    return P; },
   calle: () => { const P = new Page(2, 'Córdoba · la calle');
     P.rwash(40, 40, 1000, 900, C.dusk, { a: .25 });
     for (let i = 0; i < 4; i++) { const x = 60 + i * 260, h = 460 + (i % 2) * 80; P.rect(x, 1000 - h, 220, h, { w: 1.8 }); P.rwash(x, 1000 - h, 220, h, C.adobe, { a: .32 });
@@ -142,7 +142,7 @@ const PG = {
       P.rect(x + 60, 1000 - 170, 100, 170, { w: 1.6 }); P.shape([[x + 60, 1000 - 170], [x + 110, 1000 - 200], [x + 160, 1000 - 170]], { w: 1.4 }); }
     P.line(40, 1000, 1040, 1000, { w: 2 }); P.rwash(40, 1000, 1000, 600, C.slate, { a: .28 });
     for (let i = 0; i < 14; i++) P.line(60 + i * 70, 1080, 80 + i * 70 + (i % 3) * 8, 1140, { w: 1, a: .5 });
-    P.text('sin envejecer', 120, 1520, 58); return P; },
+    return P; },
   inquisicion: () => { const P = new Page(3, 'la Santa Inquisición');
     P.rwash(40, 40, 1000, 1540, C.stone, { a: .25 }); P.rect(120, 200, 840, 540, { w: 2.2 }); P.rwash(120, 200, 840, 540, C.wall, { a: .3 });
     P.rect(480, 220, 120, 60, { w: 1.4 }); for (let i = 0; i < 4; i++) P.line(500 + i * 26, 220, 500 + i * 26, 280, { w: 1, a: .6 });   // a barred window
@@ -151,7 +151,7 @@ const PG = {
     for (let i = 0; i < 3; i++) P.rect(230 + i * 260, 790, 60, 60, { w: 1.4 });   // scrolls and papers
     P.line(40, 1180, 1040, 1180, { w: 2 }); P.rwash(40, 1180, 1000, 400, C.sand, { a: .25 });
     for (let i = 0; i < 12; i++) P.line(60 + i * 84, 1190, 80 + i * 84, 1300, { w: .9, a: .5 });
-    P.text('condenada a la hoguera', 110, 1540, 52); return P; },
+    return P; },
   celda: () => { const P = new Page(4, 'la celda · la noche antes');
     P.rwash(40, 40, 1000, 1540, C.night, { a: .55, src: [540, 260] });
     for (let r = 0; r < 8; r++) for (let k = 0; k < 6; k++) P.rect(40 + k * 170 + (r % 2) * 85, 60 + r * 110, 170, 110, { w: .7, a: .35 });   // stone walls
@@ -161,12 +161,12 @@ const PG = {
     for (let i = 0; i < 40; i++) { const x = 100 + (i * 71) % 880, y = 1190 + (i * 37) % 200; P.line(x, y, x + 12, y + 2, { w: .9, a: .5 }); }   // straw
     for (let i = 0; i < 6; i++) P.line(60 + i * 160, 1200, 40 + i * 160, 1260, { w: 1.1, a: .4 });
     P.reserve([[300, 360], [900, 360], [900, 1180], [300, 1180]], { a: .5, late: .1 });
-    P.text('un pedazo de carbón', 110, 1540, 52); return P; },
+    return P; },
   dibujo: () => { const P = new Page(5, 'el barco en la pared');
     P.rwash(40, 40, 1000, 1540, C.stone, { a: .22 }); P.rwash(40, 40, 1000, 1540, C.wall, { a: .18 });
     P.rect(90, 240, 900, 700, { w: 1.8, a: .8 }); P.rwash(90, 240, 900, 700, C.sea, { a: .14 });
     P.line(40, 1180, 1040, 1180, { w: 3 }); P.rwash(40, 1180, 1000, 400, C.stone, { a: .25 });
-    P.text('¿Qué crees que le falta?', 110, 1540, 52); return P; },
+    return P; },
   barco: () => { const P = new Page(6, 'y saltó dentro del dibujo');
     P.rwash(40, 40, 1000, 1540, C.night, { a: .4 }); P.rect(90, 240, 900, 700, { w: 1.8 }); P.rwash(90, 240, 900, 700, C.sea, { a: .2 });
     for (let k = 0; k < 6; k++) P.line(120 + k * 140, 880 - k * 10, 180 + k * 140, 880 - k * 10, { w: 1.3, a: .6 });
@@ -176,13 +176,13 @@ const PG = {
     P.rwash(40, 40, 1000, 1540, C.sand, { a: .3 }); P.rect(120, 160, 840, 760, { w: 2.2 }); P.rwash(120, 160, 840, 760, C.wall, { a: .25 });
     for (let r = 0; r < 6; r++) for (let k = 0; k < 5; k++) P.rect(140 + k * 166 + (r % 2) * 80, 180 + r * 120, 166, 120, { w: .6, a: .3 });
     P.line(40, 1180, 1040, 1180, { w: 3 }); P.rwash(40, 1180, 1000, 400, C.stone, { a: .25 });
-    P.text('la celda vacía', 110, 1540, 52); return P; },
+    return P; },
   hoy: () => { const P = new Page(8, 'hoy · un escaparate en Córdoba');
     P.rwash(40, 40, 1000, 1540, C.dusk, { a: .3 }); P.rect(160, 340, 760, 760, { w: 2.6 }); P.rwash(160, 340, 760, 760, C.sky, { a: .3 });
     P.rect(200, 360, 680, 60, { w: 1.6 }); P.text('Córdoba · Ver.', 540, 402, 40, { align: 'center' });   // a shop sign
     P.line(160, 1100, 920, 1100, { w: 2.2 }); P.rwash(160, 1100, 760, 16, C.wood, { a: .4 });
     P.line(40, 1180, 1040, 1180, { w: 2.4 }); P.rwash(40, 1180, 1000, 400, C.stone, { a: .25 });
-    P.text('¿y si todavía estuviera entre nosotros?', 110, 1540, 46); return P; },
+    return P; },
   final: () => { const P = new Page(9, 'Plot Twist with A&R');
     P.text('LA MULATA', 540, 380, 120, { weight: 700, align: 'center' }); P.text('DE CÓRDOBA', 540, 500, 96, { weight: 700, align: 'center' });
     P.text('Ni la muerte pudo detenerla.', 540, 1180, 60, { align: 'center' });
@@ -195,39 +195,39 @@ const PG = {
 const DY = {
   mar: (c, t, u) => { const k = ss(seg(u, .2, .5));
     for (let i = 0; i < 4; i++) { const r = (1 - ((t * .3 + i * .25) % 1)) * 90 + 10; drawPen(c, penStroke([...Array(10)].map((_, q) => { const a = -.9 + q * .2; return [700 + Math.cos(a) * r, 560 + Math.sin(a) * r * .6]; }), { w: 1.6, wob: .4, seed: 20 + i, over: 1 }), 1, mix3(RED, INK, .3), clamp(1 - r / 110)); }
-    person(c, LK.soledad, stand({ handR: V(.06, .86, .14), elbR: V(1, -.4, 0) }), 540, 1180, 560 * (.92 + .08 * k), Math.PI * .5, { rebozo: true, earrings: true, seed: 10 });
-    if (u > .3) handwrite(c, 'una mujer misteriosa', 120, 1440, 56, seg(u, .3, .25)); },
+    person(c, LK.soledad, stand({ handR: V(.06, .86, .14), elbR: V(1, -.4, 0) }), 540, 1180, 560 * (.92 + .08 * k), Math.PI * .5, { earrings: true, seed: 10 });
+  },
   calle: (c, t, u) => { const x = lerp(-120, 540, ss(seg(u, 0, .6)));
-    person(c, LK.woman, walk(t * 4), x, 1200, 560, Math.PI * .5, { rebozo: true, earrings: true, seed: 30 });
+    person(c, LK.soledad, walk(t * 4), x, 1200, 560, Math.PI * .5, { earrings: true, seed: 30 });
     person(c, LK.old, walk(t * 3.5 + 2), lerp(980, 720, ss(seg(u, 0, .8))), 1200, 520, -Math.PI * .5, { hat: 'wide', seed: 31 });
-    if (u > .4) handwrite(c, 'siglos', 620, 760, 54, seg(u, .4, .25)); },
+    if (u > .4) handwrite(c, 'siglos', 560, 470, 54, seg(u, .4, .25)); },
   inquisicion: (c, t, u) => {
     person(c, LK.judge, stand({ handR: V(.1, .9, .3), elbR: V(1, -.3, 0) }), 540, 1140, 600, -Math.PI * .5, { cape: true, ruff: true, cross: true, hat: 'top', seed: 40 });
     const k = ss(seg(u, .3, .4));
     for (let i = 0; i < 4; i++) { const x = 830 + i * 20, h = 60 + k * 240 * (1 - i * .15); drawPen(c, penStroke([[x, 1120], [x - 8 + Math.sin(t * 3 + i) * 8, 1120 - h]], { w: 4, wob: 1.2, seed: 50 + i + b12(), over: 2 }), 1, INK, .6); }
     if (u > .3) handwrite(c, 'bruja', 180, 500, 80, seg(u, .3, .2), { weight: 700 }); },
   celda: (c, t, u) => {
-    person(c, LK.soledad, stand({ handR: V(.05, .6, .18), elbR: V(1, -.4, 0) }), 540, 1180, 520, Math.PI * .5, { rebozo: true, seed: 60 });
+    person(c, LK.soledad, stand({ handR: V(.05, .6, .18), elbR: V(1, -.4, 0) }), 540, 1180, 520, Math.PI * .5, { seed: 60 });
     const k = ss(seg(u, .4, .5)); drawPen(c, penStroke([[560, 960], [640, 760 + (1 - k) * 60], [700, 620 + (1 - k) * 80]], { w: 3, wob: .8, seed: 61, over: 2 }), 1, INK, .4);
-    if (u > .7) handwrite(c, 'carbón', 740, 980, 46, seg(u, .7, .2)); },
+     },
   dibujo: (c, t, u) => {
-    person(c, LK.soledad, stand({ handR: V(.1, .68, .42), elbR: V(1, -.3, 0) }), 260, 1180, 500, Math.PI * .5, { rebozo: true, seed: 70 });
+    person(c, LK.soledad, stand({ handR: V(.1, .68, .42), elbR: V(1, -.3, 0) }), 260, 1180, 500, Math.PI * .5, { seed: 70 });
     shipInk(c, 540, 640, 1.0, ss(seg(u, 0, .5)), INK, 71, ss(seg(u, .4, .4)));
     person(c, LK.guard, stand({ handR: V(.1, .7, .2) }), 860, 1180, 520, -Math.PI * .5, { hat: 'tricorn', torch: true, belt: true, seed: 72 });
-    if (u > .58) handwrite(c, 'Navegar —respondió él.', 260, 300, 46, seg(u, .58, .3)); },
+  },
   barco: (c, t, u) => { const mv = ss(seg(u, .1, .6));
     shipInk(c, 440 + mv * 200, 640, 1.0, 1, INK, 80, 1);
-    person(c, LK.soledad, stand({ handR: V(.1, .8, .3), elbR: V(1, -.3, 0) }), lerp(260, 520 + mv * 220, mv), lerp(1180, 640, mv), lerp(500, 260, mv), Math.PI * .5, { rebozo: true, seed: 81, color: 1 - mv * .4, ink: 1 - mv * .6 });
+    person(c, LK.soledad, stand({ handR: V(.1, .8, .3), elbR: V(1, -.3, 0) }), lerp(260, 520 + mv * 220, mv), lerp(1180, 640, mv), lerp(500, 260, mv), Math.PI * .5, { seed: 81, color: 1 - mv * .4, ink: 1 - mv * .6 });
     if (mv > .2) for (let i = 0; i < 6; i++) drawPen(c, penStroke([[260 + i * 40, 1060], [260 + i * 40 + 30, 1100 - mv * 200 * (i % 2)]], { w: 1.4, wob: .6, seed: 82 + i, over: 1 }), mv, mix3(RED, INK, .3));
-    if (u > .55) handwrite(c, 'la mujer sonrió', 120, 300, 50, seg(u, .55, .25)); },
+  },
   manana: (c, t, u) => { shipInk(c, 540, 640, 1.0, 1, INK, 90, 1);
     const d = ss(seg(u, .3, .4));
     person(c, LK.guard, stand({ armL: -1.1, armR: -1.1, bendL: .3, bendR: .3 }), 280, 1180, 480 * (1 - d * .15), Math.PI * .5, { hat: 'tricorn', seed: 91, color: 1 - d * .3, ink: 1 - d * .4 });
-    if (u > .5) handwrite(c, 'Soledad había desaparecido', 120, 1000, 50, seg(u, .5, .3)); },
+  },
   hoy: (c, t, u) => { const x = lerp(-60, 460, ss(seg(u, 0, .7)));
-    person(c, LK.soledad, walk(t * 4.5), x, 1240, 600, 0, { rebozo: true, earrings: true, seed: 100 });
+    person(c, LK.soledad, walk(t * 4.5), x, 1240, 600, 0, { earrings: true, seed: 100 });
     drawPen(c, penStroke([[600, 420], [600, 980]], { w: 1, wob: .5, seed: 101, over: 2 }), 1, INK, .4);
-    if (u > .4) handwrite(c, 'sin envejecer', 230, 320, 56, seg(u, .4, .25)); },
+  },
   final: () => {},
 };
 
