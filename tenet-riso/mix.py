@@ -75,6 +75,9 @@ def whoosh_back(d=.9, g=.22):  # an inverted sound: a reversed whoosh
 ARR = {'B': (0.0, 1.0), 'K': (Lt(2, .2), 1.1), 'S': (Lt(2, .6), .9)}
 for p, (t0, d) in ARR.items():
     put(FX, t0, st(shhk(d, .22), {'B': -.3, 'K': .3, 'S': 0}[p]))
+# a new sheet at every cut: the paper feed, then the drum
+CUTS = [Lt(2, 0), Lt(2, .36), Lt(2, .66), Lt(3, 0), Lt(3, .55), Lt(4, 0), Lt(5, 0), Lt(6, 0), Lt(6, .55), Lt(7, 0), Lt(8, 0), Lt(8, .5), Lt(9, 0), Lt(10, 0), Lt(11, 0), Lt(11, .52), Lt(12, 0), Lt(13, 0), Lt(13, .45), Lt(14, 0), Lt(15, 0), Lt(15, .5)]
+for k, c in enumerate(CUTS): put(FX, c - .05, st(shhk(.5, .16), -.4 + .8 * (k % 2))); put(FX, c + .12, st(kachunk(.18), 0))
 # each ring of the Algorithm: a drum turn
 for i in range(9): put(FX, Lt(6, .05 + i * .07), st(kachunk(.35), -.3 + .075 * i))
 # the magnifier, the bullet, the inversion, the plates lifting off

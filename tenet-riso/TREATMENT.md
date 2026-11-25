@@ -113,3 +113,17 @@ Narration: dry and close; music ducks about 8 dB under the voice; −14 LUFS.
 ## 11. Self-check against the demo
 
 Before delivery, the opening (a knockout of the opera house, not a title on a field), the structure (three inks as directions of time), the signature shot (the turnstile's overprint match cut), the score (instruments that layer and leave like plates) and the ending (one ink left, then the print on a wall) must differ from the demo in at least four of six ways.
+
+## Revision: more detail (shot by shot, with detailed characters)
+
+The first cut piled every beat onto one sheet. This version gives each narration beat its own sheet (23 shots), and the plates roll in again at every cut with a new misregistration, like a new sheet through the drum.
+
+Characters are original stand-ins built from one rig (no likeness of any actor), each told apart by costume, hair and ink:
+- **The Protagonist**: close crop, stubble, dark suit with tie, white cuffs, watch; tactical kit with helmet in the opera and at Stalsk-12. Blue.
+- **Neil**: swept hair, linen jacket with creases, rolled sleeves, striped scarf, backpack carrying the orange trinket. Blue, turning pink as he walks back.
+- **Kat**: low bun, earrings, belted trench coat with epaulettes. Blue; at the shooting she fades to a paper outline (implied).
+- **Andrei Sator**: heavy build, receding grey hair, stern brows, stubble, double-breasted overcoat, a sunflower signet ring. Overprinted blue + pink, the darkest ink in the film; pink with a breathing mask when inverted.
+- **The masked soldier**: helmet, gas mask with filter, plate carrier with pouches, rifle, pack with the trinket. Blue in the opera, pink (inverted) at the gate.
+- **The scientist**: bob, glasses, lab coat with lanyard badge. **The handler**: cap, glasses, peacoat.
+
+Shots: title clock running backward; opera exterior (columns, statues, lit arches, vans, assault team); opera interior (balconies, curtain, chandelier, standoff); the bullet flying back into the gun; rail-yard loyalty test with the pill magnified; recruitment at sea with TENET mirrored; inversion lab; Sator with inverted gold and a radio mast receiving pink waves; the nine parts on a blueprint; the planet turning pink; the team line-up; jet into the freeport; the highway with a pink car driving backward; inverted Sator, Kat, the final piece; the turnstile (blue room / pink room); the yacht with a dead-man's switch inset (water reflection on); Stalsk-12 cutaway with the Algorithm under a bomb; the temporal pincer (a building collapsing on one side and reassembling on the other); the Algorithm pulled out / meanwhile on the yacht; the inverted soldier at the gate; the trinket on Neil's bag in profile close-up; Neil's farewell; THE FOUNDER over the loop of stations. Blue and pink lift; the sunflower title and trinket remain.
