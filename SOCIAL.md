@@ -310,3 +310,17 @@ Fuentes: El Informador | N+ México | NTR Guadalajara
 
 **Hashtags:**
 #PlotTwistWithAandR #ElVampiroDeGuadalajara #PanteonDeBelen #Guadalajara #Jalisco #LeyendasMexicanas #LeyendasDeMexico #Terror #HistoriasDeTerror #Folclore #MexicoMisterioso #UrbanSketch #Leyendas #Shorts #Reels
+
+## La Mulata de Córdoba: La mujer que desafió a la muerte (Urban Sketch · Pen & Wash, 60 s)
+
+**Título:** La Mulata de Córdoba: la mujer que no envejecía 🎨🌊
+
+**Caption:**
+En Córdoba, Veracruz, vivió una mujer que, según la leyenda, jamás envejecía. La Inquisición la condenó a la hoguera… pero dibujó un barco en la pared de su celda, y el barco se movió. ¿Sigue entre nosotros? 👀
+
+Realidad vs. leyenda: la historia forma parte del folclore de Veracruz y los hechos sobrenaturales no están comprobados. La amenaza final es una dramatización original.
+
+Fuentes: INAH – Leyendas de San Juan de Ulúa | Secretaría de Educación Pública de México
+
+**Hashtags:**
+#PlotTwistWithAandR #LaMulataDeCordoba #Veracruz #Cordoba #LeyendasDeMexico #LeyendasMexicanas #Brujeria #Inquisicion #Terror #HistoriasDeTerror #Folclore #UrbanSketch #Leyendas #Shorts #Reels

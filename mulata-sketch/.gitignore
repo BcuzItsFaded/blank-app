@@ -1,0 +1,4 @@
+out/
+stills/
+*.lock
+voices/*.mp3
