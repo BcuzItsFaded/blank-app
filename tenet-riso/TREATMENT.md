@@ -127,3 +127,11 @@ Characters are original stand-ins built from one rig (no likeness of any actor),
 - **The scientist**: bob, glasses, lab coat with lanyard badge. **The handler**: cap, glasses, peacoat.
 
 Shots: title clock running backward; opera exterior (columns, statues, lit arches, vans, assault team); opera interior (balconies, curtain, chandelier, standoff); the bullet flying back into the gun; rail-yard loyalty test with the pill magnified; recruitment at sea with TENET mirrored; inversion lab; Sator with inverted gold and a radio mast receiving pink waves; the nine parts on a blueprint; the planet turning pink; the team line-up; jet into the freeport; the highway with a pink car driving backward; inverted Sator, Kat, the final piece; the turnstile (blue room / pink room); the yacht with a dead-man's switch inset (water reflection on); Stalsk-12 cutaway with the Algorithm under a bomb; the temporal pincer (a building collapsing on one side and reassembling on the other); the Algorithm pulled out / meanwhile on the yacht; the inverted soldier at the gate; the trinket on Neil's bag in profile close-up; Neil's farewell; THE FOUNDER over the loop of stations. Blue and pink lift; the sunflower title and trinket remain.
+
+## Revision 2: even more detail
+
+- **Dossier portraits.** Four full-bust close-ups with a sunburst, a halftone halo and a dossier card whose facts come only from the narration: The Protagonist, Andrei Sator, Neil, Kat. Faces are large enough to read (brows, eyes, nose, stubble, earrings, hair).
+- **Living figures.** Standing characters breathe (a slight bob and arm sway) and blink every few seconds. Feet now stay above the subtitle bar, which is also slimmer.
+- **Opera exterior.** Larger assault team, a helicopter with a searchlight crossing the sky, watchers on the roofline, and embers rising from the vans.
+- **Highway heist.** Gantry sign (TALLINN), scrolling lamp posts and barriers, headlight and tail-light glow, skid marks, a lorry with a crew on its roof and a flashing beacon, a helicopter with a searchlight, a fireball with smoke, and the pink inverted car driving backward.
+- **Paper flecks** drift across every shot.

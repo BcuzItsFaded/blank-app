@@ -236,7 +236,7 @@ function person(c, o, A, mask, mul = 1) {
   if (o.hair !== 'balaclava') {
     const ey = hY - .5;
     if (mk_ !== 'gas') {
-      for (const sx of [-1, 1]) { KO(0, E(sx * 2.05 + lx, ey, 1.05, .62)); F(1, E(sx * 2.05 + lx * 1.25, ey, .58, .62)); }
+      for (const sx of [-1, 1]) { if (o.blink) { Lw(1, .5, P([[sx * 2.05 + lx - 1, ey], [sx * 2.05 + lx + 1, ey + .1]])); continue; } KO(0, E(sx * 2.05 + lx, ey, 1.05, .62)); F(1, E(sx * 2.05 + lx * 1.25, ey, .58, .62)); }
       const bA = o.brows === 'stern' ? 1 : 0, bd = hd > .5 ? hd : .9;
       Lw(bd, .8, P([[-3.4 + lx, hY - 2.6 - bA * .4], [-1.1 + lx, hY - 2.3 + bA * .5]])); Lw(bd, .8, P([[1.1 + lx, hY - 2.3 + bA * .5], [3.4 + lx, hY - 2.6 - bA * .4]]));
       if (o.glasses) { Lw(1, .42, R_(-3.7 + lx, ey - 1.4, 3.2, 2.6)); Lw(1, .42, R_(.5 + lx, ey - 1.4, 3.2, 2.6)); Lw(1, .35, P([[-.5 + lx, ey - .6], [.5 + lx, ey - .6]])); }
@@ -297,6 +297,11 @@ function person(c, o, A, mask, mul = 1) {
 
 // draw one person: knocked out of every plate (a paper fringe), inked on plate p (and overprinted on o.over)
 function figure(p, x, y, h, o = {}) {
+  if (!o.fixedY && y > 940) y -= 70;                          // feet stay above the subtitle bar
+  const ph0 = T * 2.2 + x * .013;
+  if (o.walk === undefined && !o.armF) o = { ...o, armF: [Math.sin(ph0) * .05, .22], armB: [-Math.sin(ph0) * .05, .22] };   // breathing
+  if (o.blink === undefined) o = { ...o, blink: (T * .9 + x * .0037) % 3 < .12 };
+  if (o.walk === undefined) y += Math.sin(ph0) * 1.3 * (h / 400);
   const f = o.face ?? 1, s = h / 100, A = {};
   const [ax, ay] = scr(x - h * .7, y - h * 1.12), [bx, by] = scr(x + h * .7, y + h * .1);
   const X0 = Math.max(0, Math.floor(ax) - 10), Y0 = Math.max(0, Math.floor(ay) - 10), X1 = Math.min(W, Math.ceil(bx) + 10), Y1 = Math.min(H, Math.ceil(by) + 10);
@@ -333,6 +338,14 @@ function trinket(x, y, s, lift = 0, big = 1) {
 
 // ---------------------------------------------------------------- props and sets
 function stars(n, seed, y1 = 700, ps = ['B']) { const r = rng(seed); for (let i = 0; i < n; i++) { const x = r() * (W + 300) - 150, y = r() * (y1 + 150) - 150, s = .8 + r() * 2.4; knock(ps, ell(x, y, s, s)); } }
+function sparks(n, seed, x0, x1, y0, rise, p = 'S', big = 4) {   // embers rising and fading
+  const r = rng(seed);
+  for (let i = 0; i < n; i++) { const ph = (T * (.15 + r() * .25) + r()) % 1, x = x0 + (x1 - x0) * r() + Math.sin(T * 2 + i) * 14, y = y0 - ph * rise, a = 1 - ph, q = 1.5 + r() * big * a; if (a > .05) fill(p, a, ell(x, y, q, q)); }
+}
+function ambient(t, i) {   // drifting paper flecks (a knockout in the blue plate)
+  const r = rng(i * 31 + 5);
+  for (let k = 0; k < 70; k++) { const x = ((r() * W + t * (6 + r() * 14) * (k % 2 ? 1 : -1)) % W + W) % W, y = ((r() * H + t * (4 + r() * 8)) % H + H) % H, q = .8 + r() * 1.8; knock(['B'], ell(x, y, q, q)); }
+}
 function statue(x, y, s = 1) {
   fill('B', 1, rect(x - 16 * s, y - 12 * s, 32 * s, 12 * s));
   fill('B', 1, poly([[x - 7 * s, y - 12 * s], [x + 7 * s, y - 12 * s], [x + 5 * s, y - 52 * s], [x - 5 * s, y - 52 * s]]));
@@ -504,11 +517,14 @@ function shOperaOut(t, u) {   // 2a · the opera house under siege, at night
   lamp(300, GY + 40, 320); lamp(1560, GY + 40, 320);
   van(-60, 1000, 1, t, 1.1); van(1980, 1000, -1, t, 1.1);
   // the assault team walks to the doors; the Protagonist leads
+  sparks(26, 3, 60, 360, 960, 380, 'S', 5); sparks(26, 4, 1560, 1860, 960, 380, 'S', 5);
+  { const hx = lerp(-300, 2100, u); fill('S', .22, poly([[hx + 100, 150], [hx + 20, 900], [hx + 360, 900]])); helo(hx - 100, 110, 1.15, t);
+    for (const [rx, ry] of [[500, 452], [1380, 452], [700, 364], [1190, 364]]) figure('B', rx, ry, 78, { coat: 'tactical', hair: 'helmet', gun: 'aim', armF: [1.15, .55], armB: [.95, .75], gloves: true, face: rx < 900 ? 1 : -1, halo: 2 }); }
   for (let i = 4; i >= 0; i--) {
-    const x = 640 + i * 150 + t * 22, wph = t * 6.5 + i * 1.7;
-    figure('B', x, 1040 - i * 18, 300 - i * 14, { coat: 'tactical', hair: 'helmet', gun: 'port', gloves: true, walk: wph, stride: .85, face: 1, skin: .16, stubble: i === 0, look: .9 });
+    const x = 560 + i * 170 + t * 16, wph = t * 6.5 + i * 1.7;
+    figure('B', x, 928 - i * 8, 352 - i * 16, { coat: 'tactical', hair: 'helmet', gun: 'port', gloves: true, walk: wph, stride: .85, face: 1, skin: .16, stubble: i === 0, look: .9, fixedY: true });
   }
-  if (u > .25) tag('THE PROTAGONIST', 520, 690, 'B', 24);
+  if (u > .25) tag('THE PROTAGONIST', 640, 520, 'B', 24);
   tag('KYIV · OPERA HOUSE', 60, 110, 'B', 30);
 }
 
@@ -563,6 +579,27 @@ function shBullet(t, u) {   // 2c · the bullet flies backward: out of the wall 
   tag('THE BULLET RETURNS TO THE GUN', 1240, 200, 'K', 26);
 }
 
+function portraitScene(cfg, t, u) {   // a big bust on a sunburst, and a dossier card with the facts from the narration
+  fill('B', .2, rect(-300, -300, W + 600, H + 600));
+  for (let i = 0; i < 28; i++) { const a = i / 28 * TAU + t * .04, b = a + TAU / 56; fill('B', .16, poly([[600, 420], [600 + Math.cos(a) * 1700, 420 + Math.sin(a) * 1700], [600 + Math.cos(b) * 1700, 420 + Math.sin(b) * 1700]])); }
+  knock(PLATES, ell(600, 330, 340)); fill(cfg.accent, .5, ell(600, 330, 330)); stroke('B', 1, 10, ell(600, 330, 346));
+  for (let i = 0; i < 40; i++) { const a = i / 40 * TAU + t * .1; knock(PLATES, ell(600 + Math.cos(a) * 372, 330 + Math.sin(a) * 372, 5)); fill(i % 2 ? 'B' : cfg.accent, 1, ell(600 + Math.cos(a) * 372, 330 + Math.sin(a) * 372, 3.4)); }
+  figure('B', 600 + Math.sin(t * 1.3) * 6, 1880, 1800, { ...cfg.fig, fixedY: true, face: 1, halo: 8 });
+  knock(PLATES, rect(1080, 100, 760, 800)); fill('B', 1, rect(1080, 100, 760, 14)); stroke('B', 1, 6, rect(1080, 100, 760, 800));
+  tag(cfg.kicker, 1120, 190, cfg.accent === 'S' ? 'B' : 'K', 24);
+  cfg.inks.forEach((c, i) => { const x = 1740 + i * 50; knock(PLATES, ell(x, 168, 20)); fill(c, 1, ell(x, 168, 15)); });
+  cfg.name.forEach((s, i) => text('B', 1, s, 1120, 300 + i * 92, '800 84px Bricolage', 'left'));
+  const y0 = 300 + (cfg.name.length - 1) * 92 + 40;
+  stroke('B', 1, 4, path([[1120, y0 - 14], [1800, y0 - 14]]));
+  cfg.facts.forEach(([k, v], i) => { const kk = ss(seg(u, .06 + i * .13, .12)); if (kk <= 0) return; const y = y0 + 40 + i * 88; text('B', kk, k, 1120, y, '600 22px Jost', 'left', undefined, 4); text('B', kk, v, 1120, y + 40, '600 36px Jost', 'left'); stroke('B', kk * .5, 2, path([[1120, y + 60], [1800, y + 60]]), [8, 8]); });
+  tag('PROFILE', 80, 110, 'B', 26);
+}
+const PROTAG = { kicker: 'CIA · NO NAME ON FILE', name: ['THE', 'PROTAGONIST'], accent: 'S', inks: ['B'], facts: [['ROLE', 'CIA AGENT'], ['SURVIVES', 'THE KYIV SIEGE'], ['PASSES', 'A LETHAL LOYALTY TEST'], ['RECRUITED INTO', 'TENET'], ['MISSION', 'STOP INVERSION']], fig: { coat: 'suit', hair: 'crop', tie: true, stubble: true, watch: true, look: .9, brows: 'stern', armF: [.08, .15], armB: [.05, .2] } };
+const SATOR = { kicker: 'THE MAN BEHIND IT', name: ['ANDREI', 'SATOR'], accent: 'K', inks: ['B', 'K'], facts: [['ROLE', 'RUSSIAN OLIGARCH'], ['RECEIVES', 'INVERTED GOLD'], ['TAKES ORDERS FROM', 'FUTURE ANTAGONISTS'], ['HEALTH', 'DYING OF CANCER']], fig: { coat: 'overcoat', hair: 'slick', hairD: .9, build: 1.3, cloth: .9, tie: true, stubble: true, brows: 'stern', over: ['K'], overD: .75, ring: true, watch: true, look: .9, armF: [.2, .5], armB: [.1, .2] } };
+const NEIL = { kicker: 'A SHARP HANDLER', name: ['NEIL'], accent: 'S', inks: ['B', 'K'], facts: [['ROLE', 'HANDLER'], ['TEAMS UP WITH', 'THE PROTAGONIST'], ['CARRIES', 'AN ORANGE TRINKET'], ['IN THE END', 'GOES BACK, ON PURPOSE']], fig: { coat: 'linen', cloth: .48, hair: 'swept', scarf: true, scarfD: .95, rolled: true, pack: true, trinket: true, smile: true, look: .9, armF: [.1, .2] } };
+const KAT = { kicker: "SATOR'S ESTRANGED WIFE", name: ['KAT'], accent: 'K', inks: ['B'], facts: [['ROLE', 'TEAMS UP WITH THE PROTAGONIST'], ['KNOWS', 'SATOR BEST'], ['ON THE YACHT', 'STALLS HIM, THEN ENDS IT']], fig: { coat: 'trench', cloth: .7, hair: 'bun', hairD: .85, earrings: true, build: .92, look: .7, armF: [.2, .5], armB: [.05, .15] } };
+const portrait = cfg => (t, u) => portraitScene(cfg, t, u);
+
 function shLoyalty(t, u) {   // 3a · the loyalty test: the rails, the train, the pill
   const VY = 430;
   grad('B', 0, -200, 0, VY, [[0, 1], [1, .6]], rect(-300, -300, W + 600, VY + 300));
@@ -581,7 +618,7 @@ function shLoyalty(t, u) {   // 3a · the loyalty test: the rails, the train, th
   // the chair and the Protagonist, tied
   const L = LT(470, 1020, 4.6);
   L.line('B', 1, 3.4, [[-6, 0], [-6, -62]]); L.line('B', 1, 3.4, [[-6, -28], [28, -28]]); L.line('B', 1, 3.2, [[26, -28], [26, 0]]);
-  figure('B', 470, 1020, 460, { seated: true, coat: 'suit', hair: 'crop', armF: [-.55, .25], armB: [-.5, .3], stubble: true, cloth: .85, face: 1, look: .4 });
+  figure('B', 470, 1020, 460, { fixedY: true, seated: true, coat: 'suit', hair: 'crop', armF: [-.55, .25], armB: [-.5, .3], stubble: true, cloth: .85, face: 1, look: .4 });
   for (const yy of [-48, -42, -36]) L.ko(['B'], [[-10, yy], [12, yy - 1]], 1.4);
   // the pill, magnified
   const cx = 1460, cy = 360, R = 210;
@@ -753,25 +790,40 @@ function shFreeport(t, u) {   // 8a · a jumbo jet into the Oslo freeport
 }
 
 function shHighway(t, u) {   // 8b · the highway heist in Tallinn: one car runs backward
-  fill('B', .12, rect(-300, -300, W + 600, 380));
-  blocks(-40, W + 40, 380, 91, .5, 80, 200);
-  fill('B', .42, rect(-300, 380, W + 600, 700));
-  for (const y of [590, 770]) { const off = (t * 900) % 160; for (let x = -200 - off; x < W + 200; x += 160) knock(['B'], rect(x, y - 4, 80, 8)); }
-  stroke('B', 1, 8, path([[-300, 420], [W + 300, 420]])); for (let x = -((t * 900) % 100); x < W + 100; x += 100) stroke('B', 1, 5, path([[x, 420], [x, 448]]));
-  stroke('B', 1, 8, path([[-300, 1030], [W + 300, 1030]]));
-  const car_ = (lane, x0, sp, len) => { const L_ = lane === 1 ? 740 : 920; const x = ((x0 + t * sp) % (W + 1200) + W + 1200) % (W + 1200) - 600; car(x, L_, len, 'B', 1, t, {}); };
+  grad('B', 0, -100, 0, 430, [[0, .55], [1, .02]], rect(-300, -300, W + 600, 730));
+  blocks(-40, W + 40, 430, 92, .3, 60, 150); blocks(-40, W + 40, 430, 91, .55, 80, 200);
+  // the gantry sign
+  stroke('B', 1, 14, path([[300, 470], [300, 150]])); stroke('B', 1, 14, path([[1180, 470], [1180, 150]])); stroke('B', 1, 14, path([[290, 160], [1190, 160]]));
+  knock(PLATES, rect(420, 150, 640, 130)); fill('B', 1, rect(420, 150, 640, 130)); knockText(['B'], 'TALLINN  →', 740, 238, '800 74px Bricolage', 'center', 6);
+  fill('B', .42, rect(-300, 470, W + 600, 700));
+  // lamp posts and the jersey barrier scroll with the traffic
+  const sc = (t * 700) % 480;
+  for (let x = -480 - sc; x < W + 480; x += 480) { stroke('B', 1, 8, path([[x + 480, 470], [x + 480, 190]])); stroke('B', 1, 5, path([[x + 480, 200], [x + 560, 170]])); fill('B', 1, rect(x + 540, 164, 44, 14)); rgrad('S', x + 562, 200, 120, [[0, .45], [1, 0]], ell(x + 562, 200, 120, 90)); }
+  for (let x = -((t * 700) % 120); x < W + 120; x += 120) { fill('B', .95, poly([[x, 470], [x + 100, 470], [x + 92, 498], [x + 8, 498]])); knock(['B'], path([[x + 50, 472], [x + 50, 496]]), 2); }
+  for (const y of [650, 830]) { const off = (t * 900) % 160; for (let x = -200 - off; x < W + 200; x += 160) knock(['B'], rect(x, y - 4, 80, 8)); }
+  stroke('B', 1, 8, path([[-300, 1040], [W + 300, 1040]]));
+  for (let k = 0; k < 4; k++) stroke('K', .55, 5, path([[300 + k * 380, 700 + k * 30], [620 + k * 380, 720 + k * 24]]));   // skid marks
+  const car_ = (lane, x0, sp, len) => { const L_ = lane === 1 ? 760 : 940; const x = ((x0 + t * sp) % (W + 1200) + W + 1200) % (W + 1200) - 600; rgrad('K', x, L_ - len * .18, 70, [[0, .5], [1, 0]], ell(x, L_ - len * .18, 70, 40)); rgrad('S', x + len, L_ - len * .18, 130, [[0, .45], [1, 0]], ell(x + len + 60, L_ - len * .18, 150, 40)); car(x, L_, len, 'B', 1, t, {}); };
   for (const [l, x0, sp, len] of [[1, 0, 380, 330], [1, 900, 380, 300], [2, 300, 300, 360], [2, 1300, 300, 320]]) car_(l, x0, sp, len);
-  // a lorry with a ladder, forward
-  const tx = ((300 + t * 240) % (W + 1400)) - 700; const L = LT(tx, 920, 1.4);
+  // a lorry with the crew on its roof, a beacon on the cab
+  const tx = ((300 + t * 240) % (W + 1400)) - 700; const L = LT(tx, 940, 1.4);
   L.paint('B', 1, [[0, -10], [0, -130], [300, -130], [300, -10]], ['S', 'K']); L.paint('B', 1, [[300, -10], [300, -110], [360, -110], [386, -70], [390, -10]], ['S', 'K']); L.ko(['B'], [[312, -100], [352, -100], [374, -72], [312, -72]]);
   for (let i = 0; i < 6; i++) L.ko(['B'], [[20 + i * 46, -120], [56 + i * 46, -120], [56 + i * 46, -20], [20 + i * 46, -20]], 1.5);
   for (const u2 of [60, 240, 340]) wheel(L, u2, -10, 26, t * 9);
-  // the inverted car (pink) drives backward against the traffic, wheels turning the wrong way
+  const bk = Math.floor(t * 5) % 2; fill(bk ? 'K' : 'S', 1, ell(tx + 330 * 1.4, 940 - 118 * 1.4, 12));
+  for (const dx of [100, 190]) figure('B', tx + dx * 1.4, 940 - 130 * 1.4, 160, { coat: 'tactical', hair: 'helmet', gun: 'port', gloves: true, face: 1, walk: t * 3 + dx, stride: .2, fixedY: true });
+  // the helicopter overhead, its searchlight sweeping the road
+  const hx = lerp(-400, 1500, u); fill('S', .2, poly([[hx + 120, 230], [hx - 80, 700], [hx + 320, 700]])); helo(hx, 110, 1.15, t);
+  // chaos: a fireball and smoke drifting back along the road
+  const ex = 1550 - ((t * 260) % 800); burst(ex, 700, 56 + Math.sin(t * 14) * 8, 9, 12);
+  for (let k = 0; k < 5; k++) { const ph = (t * .6 + k * .2) % 1, sx = ex + 50 + k * 54, sy = 640 - ph * 120 - k * 24, q = 26 + k * 12 + ph * 20; knock(['B'], ell(sx, sy, q, q * .8)); fill('B', .55 * (1 - ph), ell(sx, sy, q, q * .8)); }
+  sparks(24, 8, ex - 80, ex + 80, 720, 260, 'S', 4);
+  // the inverted car runs backward against the traffic, wheels turning the wrong way
   const ix = ((1800 - t * 520) % (W + 1000) + W + 1000) % (W + 1000) - 500;
-  car(ix, 560, 340, 'K', 1, t, { back: true, d: 1 });
-  for (let i = 0; i < 5; i++) stroke('K', 1, 3, path([[ix + 360 + i * 24, 500 + i * 8], [ix + 480 + i * 30, 500 + i * 8]]));
-  tag('INVERTED', ix + 60, 455, 'K', 22);
-  tag('TALLINN · HIGHWAY', 60, 110, 'B', 30);
+  car(ix, 580, 340, 'K', 1, t, { back: true, d: 1 });
+  for (let i = 0; i < 5; i++) stroke('K', 1, 3, path([[ix + 360 + i * 24, 520 + i * 8], [ix + 480 + i * 30, 520 + i * 8]]));
+  tag('INVERTED', ix + 60, 475, 'K', 22);
+  tag('TALLINN · HIGHWAY', 60, 110, 'B', 30); tag('THE HEIST', 60, 170, 'S', 22);
 }
 
 function shKat(t, u) {   // 9 · an inverted Sator takes the last piece and shoots Kat with an inverted bullet (implied)
@@ -965,9 +1017,9 @@ function shFounder(t, u) {   // 15b · the founder: the whole story was a loop, 
 // ---------------------------------------------------------------- subtitles: a paper strip knocked out of every plate, the words in blue
 function drawSub(t) {
   const cue = CUES.find(q => t >= q.t0 && t < q.t1); if (!cue) return;
-  const size = 40, lh = 52, rows = wrap(cue.text, 64);
+  const size = 36, lh = 46, rows = wrap(cue.text, 72);
   const c0 = PL.B; c0.save(); c0.setTransform(1, 0, 0, 1, 0, 0); c0.font = `500 ${size}px Jost`; const w = Math.max(...rows.map(r => c0.measureText(r).width)) + 70; c0.restore();
-  const h = rows.length * lh + 30, x = (W - w) / 2, y = H - 34 - h;
+  const h = rows.length * lh + 30, x = (W - w) / 2, y = H - 26 - h;
   for (const p of PLATES) { const c = PL[p]; c.save(); c.setTransform(1, 0, 0, 1, 0, 0); c.clearRect(x, y, w, h); c.restore(); }
   const c = PL.B; c.save(); c.setTransform(1, 0, 0, 1, 0, 0); c.fillStyle = '#000'; c.fillRect(x, y, w, 4); c.font = `500 ${size}px Jost`; c.textAlign = 'center'; rows.forEach((r, i) => c.fillText(r, W / 2, y + 16 + lh * (i + .78))); c.restore();
 }
@@ -982,6 +1034,7 @@ function frame(t) {
   setCam(lerp(cm.z0 ?? 1, cm.z1 ?? 1.04, e), cm.cx ?? 960, cm.cy ?? 540, lerp(cm.px0 ?? 0, cm.px1 ?? 0, e), lerp(cm.py0 ?? 0, cm.py1 ?? 0, e));
   const extra = sh.draw(lt, u) || {};
   for (const p of PLATES) PL[p].setTransform(1, 0, 0, 1, 0, 0);
+  ambient(t, i);
   drawSub(t);
   const bB = PL.B.getImageData(0, 0, W, H).data, bS = PL.S.getImageData(0, 0, W, H).data, bK = PL.K.getImageData(0, 0, W, H).data;
   const sep = SC.createImageData(W, H), d = sep.data;
@@ -1013,13 +1066,17 @@ window.DUR = 0; window.READY = false;
     { t0: Lt(2, 0), draw: shOperaOut, cam: { z0: 1, z1: 1.08, cy: 640 } },
     { t0: Lt(2, .36), draw: shOperaIn, cam: { z0: 1.05, z1: 1, cx: 1100 } },
     { t0: Lt(2, .66), draw: shBullet, cam: { z0: 1, z1: 1.05, cx: 1100, cy: 450 } },
+    { t0: Lt(2, .86), draw: portrait(PROTAG), cam: { z0: 1.02, z1: 1.07, cx: 600, cy: 400 } },
     { t0: Lt(3, 0), draw: shLoyalty, cam: { z0: 1, z1: 1.06, cx: 1300, cy: 400 } },
     { t0: Lt(3, .55), draw: shRecruit, cam: { z0: 1.04, z1: 1 } },
     { t0: Lt(4, 0), draw: shLab, cam: { z0: 1, z1: 1.05, px0: 30, px1: -30 } },
     { t0: Lt(5, 0), draw: shSator, cam: { z0: 1, z1: 1.1, cx: 1260, cy: 380 } },
+    { t0: Lt(5, .52), draw: portrait(SATOR), cam: { z0: 1.02, z1: 1.07, cx: 600, cy: 400 } },
     { t0: Lt(6, 0), draw: shParts, cam: { z0: 1, z1: 1.03 } },
     { t0: Lt(6, .55), draw: shPlanet, cam: { z0: 1, z1: 1.08, cy: 510 } },
     { t0: Lt(7, 0), draw: shTeam, cam: { z0: 1.04, z1: 1, cy: 700 } },
+    { t0: Lt(7, .43), draw: portrait(NEIL), cam: { z0: 1.02, z1: 1.07, cx: 600, cy: 400 } },
+    { t0: Lt(7, .69), draw: portrait(KAT), cam: { z0: 1.02, z1: 1.07, cx: 600, cy: 400 } },
     { t0: Lt(8, 0), draw: shFreeport, cam: { z0: 1, z1: 1.05, cx: 1300 } },
     { t0: Lt(8, .5), draw: shHighway, cam: { z0: 1, z1: 1.03 } },
     { t0: Lt(9, 0), draw: shKat, cam: { z0: 1, z1: 1.05 } },
