@@ -1,0 +1,13 @@
+TENET, SKETCHED — Urban Sketch · Pen & Wash (Lemo-Opuscar library)
+Code-rendered film · 1920x1080 · 24 fps · about 128 s · -14 LUFS
+
+Picture ........... main.js: one sketchbook page per place; engine.js and poses.js from the library's urban-sketch style
+                    (fineliner with wobble, overshoot and draw-on; watercolour washes; sketched 3D-skeleton figures; handwriting)
+Fonts ............. Caveat and Reenie Beanie (SIL Open Font License 1.1), in fonts/ (google/fonts pinned to 86aced91)
+Voice ............. Kokoro TTS, bm_george (British male storyteller), speed 1.2
+Music & foley ..... mix.py: an original jazz waltz (synthesized bass, brushes, piano, clarinet); pen, page and brush foley
+Subtitles ......... tenet-sketch.en.srt (also handwritten in the page margin)
+Facts ............. FACTS.md
+
+Characters are original stand-ins drawn as faceless sketch figures. No film stills, logos, likenesses or music from the film are used.
+The story is the user's summary.
