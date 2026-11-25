@@ -135,3 +135,13 @@ Shots: title clock running backward; opera exterior (columns, statues, lit arche
 - **Opera exterior.** Larger assault team, a helicopter with a searchlight crossing the sky, watchers on the roofline, and embers rising from the vans.
 - **Highway heist.** Gantry sign (TALLINN), scrolling lamp posts and barriers, headlight and tail-light glow, skid marks, a lorry with a crew on its roof and a flashing beacon, a helicopter with a searchlight, a fireball with smoke, and the pink inverted car driving backward.
 - **Paper flecks** drift across every shot.
+
+## Revision 3: better characters
+
+The character rig was rebuilt, not just dressed up:
+- **Faces:** a real skull, jaw and chin (wider jowls for Sator, a narrower jaw for Kat); eyes with iris, pupil, highlight and lids (blinking); brows that change with mood; a nose with a shadow side and nostril; a mouth that is calm, smiling, grinning, smirking or worried; ears; stubble that follows the jaw.
+- **Each person has a face of their own:** the Protagonist (flat stern brows, chin cleft), Sator (heavy brows, large nose, eye bags, smirk), Neil (soft brows, a grin), Kat (arched brows, lashes, lipstick).
+- **Bodies:** sloped shoulders, a waist, a shorter neck with a shirt collar; a feminine silhouette for Kat (narrow shoulders, belted waist, flared coat); elbow creases and sleeve folds.
+- **Hands** have a palm, four fingers and a thumb; gloves for the soldiers.
+- **Colour per plate:** pink cheeks, lips, nose tip and ears overprinted on the blue skin; a violet tie (blue under pink); a sunflower scarf, watch, belt buckle and earrings.
+- **Staging:** a ground shadow under every standing figure; expressive poses in the portraits (a hand to the cuff, to the lapel, to the strap, arms folded); the trinket close-up now shows the Protagonist's face looking at the bag.

@@ -98,19 +98,22 @@ function person(c, o, A, mask, mul = 1) {
   const PC = pts => () => { P(pts)(); c.closePath(); };
   const E = (x, y, rx, ry = rx, a = 0) => () => c.ellipse(x, y, Math.max(.01, rx), Math.max(.01, ry), a, 0, TAU);
   const R_ = (x, y, w, h) => () => c.rect(x, y, w, h);
+  const fem = !!o.fem;
   const bw = o.build ?? 1, cl = o.cloth ?? .85, sk = o.skin ?? .14, hd = o.hairD ?? 1, tr = o.legs ?? Math.max(cl, .75);
   const coat = o.coat ?? 'suit', light = cl < .35;
   const det = (w, fn) => light ? Lw(.9, w * .8, fn) : KO(w, fn);   // seams: paper lines on dark cloth, ink lines on pale cloth
   const ph = o.walk ?? 0, st = o.stride ?? 0, sit = !!o.seated, dy = sit ? 22 : 0;
-  const hipY = -50 + dy, shY = -80 + dy, shX = 10.5 * bw, hY = shY - 11.2;   // hY: the head's centre
+  const hipY = -50 + dy, shY = -80 + dy, shX = (fem ? 8.7 : 10.5) * bw, hY = shY - 10.6;   // hY: the head's centre
+  const wst = (fem ? 6.8 : 8.6) * bw, hipW = (fem ? 10 : 9.4) * bw;
   const longC = ['trench', 'overcoat', 'labcoat'].includes(coat);
   const hem = sit ? hipY + 5 : ({ suit: -44, tactical: -45, linen: -43, peacoat: -37, trench: -21, overcoat: -23, labcoat: -26 }[coat] ?? -44);
-  const hw = longC && !sit ? 13.2 * bw : 10.2 * bw;
-  const lx = o.look ?? .7;
+  const hw = longC && !sit ? (fem ? 14.5 : 13.2) * bw : (fem ? 10.6 : 10.2) * bw;
+  const lx = o.look ?? .7, jaw = o.jaw ?? (fem ? .86 : 1), nose = o.nose ?? 1;
+  const mood = o.mood ?? (o.smile ? 'smile' : o.brows === 'stern' ? 'stern' : 'calm');
 
   // ---- legs
   const legG = sgn => {
-    const hx = sgn * 4.4 * bw;
+    const hx = sgn * (fem ? 4.1 : 4.4) * bw;
     if (sit) return { hip: [hx, hipY], k: [hx + 23, hipY - 1], an: [hx + 23.5, -3] };
     const p = ph + (sgn > 0 ? 0 : Math.PI);
     const a = st * .42 * Math.sin(p), b = st * .6 * Math.max(0, Math.sin(p + 1.7));
@@ -118,7 +121,7 @@ function person(c, o, A, mask, mul = 1) {
     return { hip: [hx, hipY], k, an: [k[0] + Math.sin(a - b) * 24, k[1] + Math.cos(a - b) * 24] };
   };
   const drawLeg = (g, d) => {
-    Lw(d, 8.3 * bw, P([g.hip, g.k, g.an]));
+    Lw(d, (fem ? 7.4 : 8.3) * bw, P([g.hip, g.k, g.an]));
     KO(.42, P([[lerp(g.hip[0], g.k[0], .4) + 1.2, lerp(g.hip[1], g.k[1], .4)], [g.k[0] + 1.2, g.k[1]], [g.an[0] + 1, g.an[1] - 4]]));   // crease
     if (coat === 'tactical') { PA(1, E(g.k[0] + 1, g.k[1] + 1, 3.6, 3)); KO(.35, P([[g.k[0] - 2, g.k[1] + 1], [g.k[0] + 4, g.k[1] + 1]])); }   // knee pad
     F(1, PC([[g.an[0] - 3, g.an[1] - 2.6], [g.an[0] + 2.6, g.an[1] - 3], [g.an[0] + 7.8, g.an[1] + .2], [g.an[0] + 7.6, g.an[1] + 1.8], [g.an[0] - 3.3, g.an[1] + 1.8]]));   // shoe
@@ -134,18 +137,30 @@ function person(c, o, A, mask, mul = 1) {
   };
   const aF = o.armF ?? [-swing, .22], aB = o.armB ?? [swing, .22];
   const gF = armG(1, aF[0], aF[1]), gB = armG(-1, aB[0], aB[1]);
+  // a hand: a palm, four fingers and a thumb (the thumb leads, toward +x)
+  const drawHand = (hx, hy, ang, glove) => {
+    const dx = Math.sin(ang), dyy = Math.cos(ang), nx = Math.cos(ang), ny = -Math.sin(ang);
+    const cx0 = hx + dx * 2.4, cy0 = hy + dyy * 2.4;
+    const fing = [];
+    for (const k of [-1.25, -.42, .42, 1.25]) { const s0 = [cx0 + nx * k * .85 + dx * 1.2, cy0 + ny * k * .85 + dyy * 1.2], len = 3.6 - Math.abs(k) * .35; fing.push([s0, [s0[0] + dx * len + nx * k * .12, s0[1] + dyy * len + ny * k * .12]]); }
+    const th0 = [cx0 + nx * 1.9, cy0 + ny * 1.9], th1 = [th0[0] + dx * 2.3 + nx * .9, th0[1] + dyy * 2.3 + ny * .9];
+    const fp = () => { for (const [a, b] of [...fing, [th0, th1]]) { c.moveTo(a[0], a[1]); c.lineTo(b[0], b[1]); } };
+    if (glove) { Lw(1, 2.1, fp); F(1, E(cx0, cy0, 2.6, 3.1, -ang)); KO(.28, P([[cx0 - nx * 1.8 + dx * .6, cy0 - ny * 1.8 + dyy * .6], [cx0 + nx * 1.8 + dx * .6, cy0 + ny * 1.8 + dyy * .6]])); return; }
+    Lw(.8, 2.0, fp); KO(1.15, fp); Lw(sk, 1.15, fp);
+    PA(sk, E(cx0, cy0, 2.4, 3, -ang)); Lw(.75, .42, E(cx0, cy0, 2.4, 3, -ang));
+    Lw(.55, .3, P([[cx0 + nx * 1.2, cy0 + ny * 1.2], [cx0 + nx * 1.6 + dx * 1.2, cy0 + ny * 1.6 + dyy * 1.2]]));   // thumb crease
+  };
   const drawArm = (g, d, front) => {
-    Lw(d, 6.5 * bw, P([g.sh, g.el, g.wr]));
-    if (o.rolled) { const m0 = [lerp(g.el[0], g.wr[0], .2), lerp(g.el[1], g.wr[1], .2)]; KO(4.6, P([m0, g.wr])); Lw(sk, 4.6, P([m0, g.wr])); Lw(.75, .4, P([[m0[0] - 2, m0[1]], [m0[0] + 2, m0[1]]])); }
+    Lw(d, (fem ? 5.8 : 6.5) * bw, P([g.sh, g.el, g.wr]));
+    if (o.rolled) { const m0 = [lerp(g.el[0], g.wr[0], .2), lerp(g.el[1], g.wr[1], .2)]; KO(4.6, P([m0, g.wr])); Lw(sk, 4.6, P([m0, g.wr])); Lw(.75, .4, P([[m0[0] - 2, m0[1]], [m0[0] + 2, m0[1]]])); Lw(.55, .3, P([[lerp(m0[0], g.wr[0], .5) - 1, lerp(m0[1], g.wr[1], .5)], [lerp(m0[0], g.wr[0], .5) + 1.4, lerp(m0[1], g.wr[1], .5) + .3]])); }
     det(.42, P([[lerp(g.sh[0], g.el[0], .5) + .9, lerp(g.sh[1], g.el[1], .5)], [g.el[0] + 1.1, g.el[1] + .4]]));   // sleeve fold
+    det(.36, P([[g.el[0] - 1.2, g.el[1] - 1.4], [g.el[0] + 1.6, g.el[1] + .6]]));   // elbow crease
     const ca = Math.cos(g.ang), sa = Math.sin(g.ang);
     if (!o.gloves && !o.rolled && !light) KO(1.3, P([[g.wr[0] - ca * 2.7, g.wr[1] + sa * 2.7], [g.wr[0] + ca * 2.7, g.wr[1] - sa * 2.7]]));   // white cuff
     if (o.pocketsH) return null;
-    const hx = g.wr[0] + sa * 2.4, hy = g.wr[1] + ca * 2.4;
-    if (o.gloves) { F(1, E(hx, hy, 2.3, 2.7, -g.ang)); KO(.3, P([[hx - 1.2, hy + .6], [hx + 1.2, hy + .6]])); }
-    else { PA(sk, E(hx, hy, 2.15, 2.6, -g.ang)); Lw(.75, .42, E(hx, hy, 2.15, 2.6, -g.ang)); Lw(.6, .32, P([[hx + ca * .3, hy - .4], [hx + ca * 1.4 + sa, hy + 1.2]])); }
-    if (front && o.watch) { F(1, R_(g.wr[0] - 1.7, g.wr[1] - .9, 3.4, 1.8)); KO(.3, E(g.wr[0], g.wr[1], .6)); }
-    return [hx, hy];
+    drawHand(g.wr[0], g.wr[1], g.ang, o.gloves);
+    if (front && o.watch) { F(1, R_(g.wr[0] - 1.9, g.wr[1] - 1, 3.8, 2)); KO(.3, E(g.wr[0], g.wr[1], .7)); A.watch = [g.wr[0], g.wr[1]]; }
+    return [g.wr[0] + sa * 4.2, g.wr[1] + ca * 4.2];
   };
   // ---- pack (behind the body); the trinket hangs from its lower corner
   if (o.pack) {
@@ -153,49 +168,58 @@ function person(c, o, A, mask, mul = 1) {
     KO(.4, P([[-shX - 4.3, shY + 10], [-shX + 2.8, shY + 9.6]])); for (let i = 0; i < 6; i++) KO(.35, E(-shX - 1, shY + 12 + i * 2.4, .35));
     Lw(1, .9, E(-shX - 1, shY - .5, 1.6, 1.2)); A.trinket = [-shX - 3.4, shY + 31];
   }
-  if (o.hair === 'bun') { F(hd, E(-4.4, hY - 4.2, 3.2, 3)); KO(.3, P([[-6.4, hY - 4.6], [-2.6, hY - 3.4]])); }
+  if (o.hair === 'bun') { F(hd, E(-4.6, hY - 4.4, 3.4, 3.1)); KO(.3, P([[-6.6, hY - 4.8], [-2.6, hY - 3.4]])); KO(.25, P([[-6.2, hY - 3.4], [-3, hY - 2.6]])); }
   drawLeg(legG(-1), tr * .82);
   drawArm(gB, cl * .8 + (light ? .1 : 0), false);
   drawLeg(legG(1), tr);
-  // ---- neck
-  PA(sk, PC([[-2.7, hY + 4], [2.7, hY + 4], [3, shY + 1], [-3, shY + 1]])); F(sk + .2, E(.4, hY + 5.6, 2.6, .9));
-  // ---- torso
-  const torso = PC([[-shX, shY], [shX, shY], [shX * .95, shY + 17], [9 * bw, hipY + 2], [hw, hem], [-hw, hem], [-9 * bw, hipY + 2], [-shX * .95, shY + 17]]);
-  PA(cl, torso); F(cl, E(-shX * .86, shY + 2.6, 3.4)); F(cl, E(shX * .86, shY + 2.6, 3.4));
-  F(Math.min(1, cl + .22), PC([[shX * .42, shY], [shX, shY], [shX * .95, shY + 17], [9 * bw, hipY + 2], [hw, hem], [hw * .5, hem]]));   // shadow side
-  if (light) Lw(.9, .7, torso);
+  // ---- neck (a shorter one) with a shadow under the jaw
+  const nk = Math.min(1.3, bw); PA(sk, PC([[-2.9 * nk, hY + 4.4], [2.9 * nk, hY + 4.4], [3.5 * nk, shY + 1.4], [-3.5 * nk, shY + 1.4]])); F(sk + .3, PC([[-2.9 * nk, hY + 4.4], [2.9 * nk, hY + 4.4], [3 * nk, hY + 6.6], [-3 * nk, hY + 6.6]]));
+  // ---- torso: sloped shoulders, a waist
+  const torsoP = () => { c.moveTo(-shX, shY + .8); c.lineTo(-3.4, shY - 1.2); c.lineTo(3.4, shY - 1.2); c.lineTo(shX, shY + .8); c.quadraticCurveTo(shX + .9, shY + 10, wst, shY + 22); c.lineTo(hipW, hipY + 2); c.lineTo(hw, hem); c.lineTo(-hw, hem); c.lineTo(-hipW, hipY + 2); c.lineTo(-wst, shY + 22); c.quadraticCurveTo(-shX - .9, shY + 10, -shX, shY + .8); c.closePath(); };
+  PA(cl, torsoP); F(cl, E(-shX * .86, shY + 2.6, 3.4)); F(cl, E(shX * .86, shY + 2.6, 3.4));
+  F(Math.min(1, cl + .22), PC([[shX * .42, shY - 1], [shX, shY + .8], [shX + .4, shY + 10], [wst, shY + 22], [hipW, hipY + 2], [hw, hem], [hw * .5, hem]]));   // shadow side
+  F(Math.min(1, cl + .12), PC([[-wst, shY + 22], [-wst + 2.2, shY + 22], [-hipW + 1.6, hipY + 2], [-hipW, hipY + 2]]));   // the waist, a little darker
+  if (light) Lw(.9, .7, torsoP);
+  if (fem && !sit) KO(.4, P([[-wst, shY + 22], [wst, shY + 22]]));   // a seam at the waist
   // coat details
   const V = PC([[-3.7, shY - .4], [3.7, shY - .4], [0, shY + 15.5]]);
+  const collar = sgn => PC([[sgn * 2.7, shY - 2.3], [sgn * 4.9, shY + .8], [sgn * 1.2, shY + 4.4], [0, shY + 1]]);
   if (coat === 'suit' || coat === 'overcoat' || coat === 'labcoat' || coat === 'peacoat') {
     KO(0, V);
     if (coat === 'labcoat') F(.75, V);
-    if (o.tie) { F(1, PC([[-1.25, shY + .2], [1.25, shY + .2], [2, shY + 13.6], [0, shY + 16.6], [-2, shY + 13.6]])); F(1, E(0, shY + 1, 1.7, 1.3)); KO(.25, P([[-1.2, shY + 6], [1.6, shY + 7.5]])); }
-    else if (coat !== 'labcoat') F(sk, PC([[-2.2, shY - .4], [2.2, shY - .4], [0, shY + 6]]));
-    if (coat !== 'labcoat') { Lw(.7, .32, P([[-3.7, shY - .4], [-2, shY + 3.4], [-.2, shY + 1]])); Lw(.7, .32, P([[3.7, shY - .4], [2, shY + 3.4], [.2, shY + 1]])); }
+    if (o.tie) {
+      const tp = [[-1.25, shY + .2], [1.25, shY + .2], [2, shY + 13.6], [0, shY + 16.6], [-2, shY + 13.6]];
+      F(1, PC(tp)); F(1, E(0, shY + 1, 1.7, 1.3)); KO(.25, P([[-1.2, shY + 6], [1.6, shY + 7.5]])); A.tie = tp;
+    } else if (coat !== 'labcoat') F(sk, PC([[-2.2, shY - .4], [2.2, shY - .4], [0, shY + 6]]));
+    if (coat !== 'labcoat') { KO(0, collar(-1)); KO(0, collar(1)); Lw(1, .38, collar(-1)); Lw(1, .38, collar(1)); }
     det(.85, P([[-3.7, shY - .4], [-6.7, shY + 8.6], [-1.5, shY + 18.5]])); det(.85, P([[3.7, shY - .4], [6.7, shY + 8.6], [1.5, shY + 18.5]]));   // lapels
     det(.7, P([[-8.4, shY + 23], [-4.2, shY + 23]])); det(.7, P([[4.2, shY + 23], [8.4, shY + 23]])); det(.6, P([[4, shY + 8.8], [7.4, shY + 8.5]]));   // pockets
-    if (coat === 'suit') { KO(0, E(.3, shY + 22.5, .75)); KO(0, E(.3, shY + 27.5, .75)); KO(0, PC([[4.4, shY + 8.6], [6.4, shY + 8.4], [5.4, shY + 6.6]])); }
-    if (coat === 'overcoat' || coat === 'peacoat') { for (let i = 0; i < 3; i++) { KO(0, E(-2.8, shY + 19 + i * 5, .8)); KO(0, E(3.6, shY + 19 + i * 5, .8)); } PA(Math.min(1, cl + .1), PC([[-6.8, shY - 3.2], [6.8, shY - 3.2], [8.6, shY + 5], [3.7, shY + 2], [0, shY + 9], [-3.7, shY + 2], [-8.6, shY + 5]])); KO(.4, P([[-6.8, shY - 3.2], [-8.6, shY + 5]])); KO(.4, P([[6.8, shY - 3.2], [8.6, shY + 5]])); if (o.tie) F(1, PC([[-1.25, shY + 4], [1.25, shY + 4], [2, shY + 13.6], [0, shY + 16.6], [-2, shY + 13.6]])); }
-    if (coat === 'overcoat') { det(.5, P([[.6, shY + 30], [.9, hem]])); det(.45, P([[-9.4, hipY + 8], [-6, hipY + 7]])); det(.45, P([[6, hipY + 7], [9.4, hipY + 8]])); }
+    if (coat === 'suit') { KO(0, E(.3, shY + 22.5, .75)); KO(0, E(.3, shY + 27.5, .75)); KO(0, PC([[4.4, shY + 8.6], [6.4, shY + 8.4], [5.4, shY + 6.6]])); det(.35, P([[-6, shY + 12], [-3, shY + 18]])); det(.35, P([[3, shY + 12], [6, shY + 18]])); }
+    if (coat === 'overcoat' || coat === 'peacoat') { for (let i = 0; i < 3; i++) { KO(0, E(-2.8, shY + 19 + i * 5, .8)); KO(0, E(3.6, shY + 19 + i * 5, .8)); } PA(Math.min(1, cl + .1), PC([[-6.4, shY - 1.2], [-3.9, shY - 1.8], [-3.2, shY + .8], [-3.7, shY + 2], [0, shY + 9], [3.7, shY + 2], [3.2, shY + .8], [3.9, shY - 1.8], [6.4, shY - 1.2], [8.6, shY + 5], [3.7, shY + 2], [0, shY + 9], [-3.7, shY + 2], [-8.6, shY + 5]])); KO(.4, P([[-6.4, shY - 1.2], [-8.6, shY + 5]])); KO(.4, P([[6.4, shY - 1.2], [8.6, shY + 5]])); if (o.tie) F(1, PC([[-1.25, shY + 4], [1.25, shY + 4], [2, shY + 13.6], [0, shY + 16.6], [-2, shY + 13.6]])); }
+    if (coat === 'overcoat') { det(.5, P([[.6, shY + 30], [.9, hem]])); det(.45, P([[-9.4, hipY + 8], [-6, hipY + 7]])); det(.45, P([[6, hipY + 7], [9.4, hipY + 8]])); det(.3, P([[-10, hipY + 14], [-8, hem - 4]])); det(.3, P([[10, hipY + 14], [8, hem - 4]])); }
     if (coat === 'labcoat') { det(.5, P([[.5, shY + 16], [.8, hem]])); Lw(1, .38, P([[-2.6, shY + .5], [-.6, shY + 13], [.6, shY + 13], [2.6, shY + .5]])); F(1, R_(-1.8, shY + 13, 3.6, 4.6)); KO(0, R_(-1.2, shY + 13.6, 2.4, 1.4)); for (let i = 0; i < 3; i++) Lw(.9, .4, P([[4.6 + i * .8, shY + 7.4], [4.6 + i * .8, shY + 10.6]])); }
   }
   if (coat === 'linen') {
     PA(sk, PC([[-2.6, shY - .4], [2.6, shY - .4], [0, shY + 7.6]]));
     Lw(1, .55, P([[-3.7, shY - .4], [-6.4, shY + 8.6], [-1.6, shY + 20]])); Lw(1, .55, P([[3.7, shY - .4], [6.4, shY + 8.6], [1.6, shY + 20]]));
+    Lw(1, .45, collar(-1)); Lw(1, .45, collar(1));
     for (const [a, b, e] of [[-7, shY + 12, 1], [5, shY + 20, -1], [-6, hipY - 2, 1], [6.5, hipY - 6, -1], [-2, shY + 25, 1]]) Lw(.95, .4, P([[a, b], [a + 2.6 * e, b + 1.4], [a + 4 * e, b + .6]]));   // creases of linen
     Lw(.95, .55, P([[-8.4, shY + 24], [-4.4, shY + 24]])); Lw(.95, .55, P([[4.4, shY + 24], [8.4, shY + 24]]));
+    for (let i = 0; i < 3; i++) F(1, E(0, shY + 8 + i * 4.4, .55));   // buttons
   }
   if (coat === 'trench') {
     PA(Math.min(1, cl + .12), PC([[-7, shY - 2.6], [7, shY - 2.6], [9.2, shY + 9], [3.2, shY + 3], [0, shY + 12], [-3.2, shY + 3], [-9.2, shY + 9]]));
     KO(0, PC([[-2.4, shY - .6], [2.4, shY - .6], [0, shY + 5.6]])); F(sk, PC([[-2.4, shY - .6], [2.4, shY - .6], [0, shY + 5.6]]));
     for (let i = 0; i < 3; i++) { KO(0, E(-2.6, shY + 15 + i * 5.2, .75)); KO(0, E(4.2, shY + 15 + i * 5.2, .75)); }
-    F(1, R_(-hw * .74, hipY - 2.2, hw * 1.48, 3.6)); KO(.38, R_(-1.6, hipY - 1.8, 3.2, 2.8));   // belt + buckle
-    Lw(1, .9, P([[-1, hipY + 1.4], [-3.4, hipY + 12]])); Lw(1, .9, P([[1.2, hipY + 1.4], [2.4, hipY + 11]]));   // belt ends
-    det(.5, P([[.7, hipY + 2], [1.1, hem]])); det(.45, P([[-8.6, hipY + 7], [-5.4, hipY + 12]])); det(.45, P([[8.6, hipY + 7], [5.4, hipY + 12]]));
+    const by = fem ? shY + 21 : hipY - 2.2;   // a belt at the waist
+    F(1, R_(-(fem ? wst + 1.5 : hw * .74), by, (fem ? wst + 1.5 : hw * .74) * 2, 3.6)); KO(.38, R_(-1.6, by + .4, 3.2, 2.8)); A.buckle = [0, by + 1.8];
+    Lw(1, .9, P([[-1, by + 3.6], [-3.4, by + 13]])); Lw(1, .9, P([[1.2, by + 3.6], [2.4, by + 12]]));   // belt ends
+    det(.5, P([[.7, by + 4], [1.1, hem]])); det(.45, P([[-8.6, hipY + 7], [-5.4, hipY + 12]])); det(.45, P([[8.6, hipY + 7], [5.4, hipY + 12]]));
     det(.6, P([[-shX * .9, shY + .4], [-shX * .45, shY + .6]])); det(.6, P([[shX * .45, shY + .6], [shX * .9, shY + .4]]));   // epaulettes
-    det(.3, P([[-hw + .8, hem - 1.6], [hw - .8, hem - 1.6]]));
+    det(.3, P([[-hw + .8, hem - 1.6], [hw - .8, hem - 1.6]])); det(.3, P([[-hw + 2, by + 8], [-hw + 3, hem - 3]])); det(.3, P([[hw - 2, by + 8], [hw - 3, hem - 3]]));
   }
   if (coat === 'tactical') {
+    F(1, PC([[-3.4, shY - 3.6], [3.4, shY - 3.6], [3.9, shY + 1], [-3.9, shY + 1]])); KO(.3, P([[-3, shY - 1], [3, shY - 1]]));   // neck gaiter
     PA(1, PC([[-9, shY + .4], [9, shY + .4], [9.5, hipY + 3], [-9.5, hipY + 3]]));   // plate carrier
     for (let i = 0; i < 3; i++) { KO(.5, R_(-8.2 + i * 5.7, shY + 18.5, 4.6, 6.6)); KO(.35, P([[-8 + i * 5.7, shY + 20.3], [-3.8 + i * 5.7, shY + 20.3]])); }
     for (let r = 0; r < 4; r++) KO(.32, P([[-8.4, shY + 4 + r * 3.3], [-2, shY + 4 + r * 3.3]]));
@@ -204,8 +228,8 @@ function person(c, o, A, mask, mul = 1) {
     Lw(1, .55, P([[-7.2, shY + 1.6], [-8.8, shY - 8]]));   // radio antenna
   }
   if (o.scarf) {
-    PA(o.scarfD ?? 1, PC([[-4.4, shY - 2.4], [4.4, shY - 2.4], [4.9, shY + 2], [-4.9, shY + 2]]));
-    PA(o.scarfD ?? 1, PC([[1.2, shY + 1], [4, shY + 1], [3.4, shY + 19], [.8, shY + 19]]));
+    const s1 = [[-4.4, shY - 2.4], [4.4, shY - 2.4], [4.9, shY + 2], [-4.9, shY + 2]], s2 = [[1.2, shY + 1], [4, shY + 1], [3.4, shY + 19], [.8, shY + 19]];
+    PA(o.scarfD ?? 1, PC(s1)); PA(o.scarfD ?? 1, PC(s2)); A.scarf = [s1, s2];
     for (let i = 0; i < 4; i++) KO(.3, P([[1.4 + i * .5, shY + 4 + i * 3.6], [3.8 - i * .1, shY + 4.6 + i * 3.6]]));
     for (let i = 0; i < 4; i++) Lw(o.scarfD ?? 1, .3, P([[1 + i * .7, shY + 19], [1 + i * .7, shY + 20.6]]));
   }
@@ -224,58 +248,94 @@ function person(c, o, A, mask, mul = 1) {
   if (hand) A.hand = hand;
   if (o.case && hand) { PA(1, R_(hand[0] - 5.5, hand[1] + 2.4, 11, 8)); Lw(1, .7, P([[hand[0] - 1.6, hand[1] + 2.4], [hand[0] - 1.6, hand[1] + .8], [hand[0] + 1.6, hand[1] + .8], [hand[0] + 1.6, hand[1] + 2.4]])); A.case = [hand[0], hand[1] + 6.4]; }
   if (o.card && hand) { KO(0, R_(hand[0] + .6, hand[1] - 4.2, 5.4, 3.4)); Lw(1, .3, R_(hand[0] + .6, hand[1] - 4.2, 5.4, 3.4)); Lw(1, .25, P([[hand[0] + 1.6, hand[1] - 2.6], [hand[0] + 4.8, hand[1] - 2.6]])); }
-  // ---- head
-  const head = E(0, hY, 5.5, 6.7);
-  PA(sk, E(-5.45, hY + .4, 1.15, 1.9)); PA(sk, E(5.45, hY + .4, 1.15, 1.9));   // ears
-  PA(sk, head);
-  c.save(); c.beginPath(); head(); c.clip(); F(sk + .22, R_(1.5 + lx * .4, hY - 8, 8, 16)); F(sk + .12, R_(-6, hY + 4.4, 12, 3)); c.restore();   // shade
-  Lw(.8, .42, head);
-  Lw(.6, .3, E(-5.45, hY + .4, 1.15, 1.9)); Lw(.6, .3, E(5.45, hY + .4, 1.15, 1.9));
-  if (o.stubble) F(.3, PC([[-5.3, hY + 1.4], [-4.7, hY + 4.6], [-2.4, hY + 6.4], [2.4, hY + 6.4], [4.7, hY + 4.6], [5.3, hY + 1.4], [3.4, hY + 3.6], [-3.4, hY + 3.6]]));
+  // ---- head: a skull with a jaw and a chin, ears, a nose, eyes with an iris, brows, a mouth that has a mood
+  const headP = () => { const j = jaw; c.moveTo(0, hY - 6.9); c.bezierCurveTo(4.2, hY - 6.9, 5.7, hY - 4.2, 5.6, hY - .6); c.bezierCurveTo(5.6, hY + 2.2, 4.6 * j, hY + 5.4, 2.5 * j, hY + 6.7); c.quadraticCurveTo(0, hY + 7.7, -2.5 * j, hY + 6.7); c.bezierCurveTo(-4.6 * j, hY + 5.4, -5.6, hY + 2.2, -5.6, hY - .6); c.bezierCurveTo(-5.7, hY - 4.2, -4.2, hY - 6.9, 0, hY - 6.9); c.closePath(); };
+  PA(sk, E(-5.5, hY + .6, 1.15, 1.9)); PA(sk, E(5.5, hY + .6, 1.15, 1.9));   // ears
+  Lw(.6, .3, P([[-5.7, hY - .2], [-5.1, hY + .8], [-5.7, hY + 1.6]])); Lw(.6, .3, P([[5.7, hY - .2], [5.1, hY + .8], [5.7, hY + 1.6]]));
+  PA(sk, headP);
+  c.save(); c.beginPath(); headP(); c.clip(); F(sk + .22, R_(1.5 + lx * .4, hY - 8, 8, 16)); F(sk + .14, R_(-6, hY + 4.6, 12, 3.4)); F(sk + .1, PC([[-5.6, hY - 1], [-4, hY - 1], [-4.4, hY + 4], [-5.6, hY + 3]])); c.restore();   // shade
+  Lw(.8, .45, headP);
+  if (o.stubble) F(.32, PC([[-5.4, hY + 1.2], [-4.8, hY + 4.6], [-2.5, hY + 6.8], [2.5, hY + 6.8], [4.8, hY + 4.6], [5.4, hY + 1.2], [3.6, hY + 3.7], [1.8, hY + 4.4], [-1.8, hY + 4.4], [-3.6, hY + 3.7]]));
   const mk_ = o.mask;
   if (o.hair !== 'balaclava') {
-    const ey = hY - .5;
+    const ey = hY - .5, bd = hd > .5 ? hd : .9;
     if (mk_ !== 'gas') {
-      for (const sx of [-1, 1]) { if (o.blink) { Lw(1, .5, P([[sx * 2.05 + lx - 1, ey], [sx * 2.05 + lx + 1, ey + .1]])); continue; } KO(0, E(sx * 2.05 + lx, ey, 1.05, .62)); F(1, E(sx * 2.05 + lx * 1.25, ey, .58, .62)); }
-      const bA = o.brows === 'stern' ? 1 : 0, bd = hd > .5 ? hd : .9;
-      Lw(bd, .8, P([[-3.4 + lx, hY - 2.6 - bA * .4], [-1.1 + lx, hY - 2.3 + bA * .5]])); Lw(bd, .8, P([[1.1 + lx, hY - 2.3 + bA * .5], [3.4 + lx, hY - 2.6 - bA * .4]]));
-      if (o.glasses) { Lw(1, .42, R_(-3.7 + lx, ey - 1.4, 3.2, 2.6)); Lw(1, .42, R_(.5 + lx, ey - 1.4, 3.2, 2.6)); Lw(1, .35, P([[-.5 + lx, ey - .6], [.5 + lx, ey - .6]])); }
+      // eyes
+      for (const sx of [-1, 1]) {
+        const ex = sx * 2.25 + lx * .9;
+        if (o.blink) { Lw(1, .55, P([[ex - 1.3, ey + .1], [ex, ey + .35], [ex + 1.3, ey + .1]])); continue; }
+        KO(0, E(ex, ey, 1.3, .8)); F(.85, E(ex + lx * .5, ey, .7, .72)); F(1, E(ex + lx * .56, ey, .36));
+        KO(0, E(ex + lx * .5 - .24, ey - .3, .17));   // the highlight
+        Lw(1, .5, P([[ex - 1.45, ey + .15], [ex - .5, ey - .82], [ex + .6, ey - .86], [ex + 1.45, ey + .08]]));   // upper lid
+        Lw(.4, .24, P([[ex - 1.2, ey + .72], [ex, ey + .96], [ex + 1.2, ey + .7]]));   // lower lid
+        if (fem || o.lashes) Lw(1, .38, P([[ex + sx * 1.4, ey - .1], [ex + sx * 2.2, ey - .75]]));
+        if (o.bags) Lw(.4, .26, P([[ex - 1.3, ey + 1.5], [ex, ey + 1.9], [ex + 1.3, ey + 1.45]]));
+        if (mood === 'smile' || mood === 'grin') Lw(.55, .28, P([[ex - 1.2, ey + 1.1], [ex, ey + .8], [ex + 1.2, ey + 1.1]]));
+      }
+      // brows
+      const bt = { stern: .6, calm: 0, smile: -.15, grin: -.2, worry: -.6, smirk: .25 }[mood] ?? 0;
+      const bwid = { heavy: 1.2, flat: .95, arched: .5, soft: .75 }[o.brow ?? 'flat'], bar = o.brow === 'arched' ? 1 : .3;
+      for (const sx of [-1, 1]) {
+        const xi = sx * 1.2 + lx * 1.1, xo = sx * 4.3 + lx * .9, yb = hY - 2.9 - (o.brow === 'arched' ? .3 : 0);
+        Lw(bd, bwid, P([[xi, yb + bt * 1.1], [lerp(xi, xo, .6), yb - bar - bt * .3], [xo, yb + .5 - bt * .2]]));
+      }
+      if (mood === 'stern' && !fem) { Lw(.4, .26, P([[-3 + lx, hY - 4.4], [3 + lx, hY - 4.4]])); Lw(.35, .24, P([[-2.2 + lx, hY - 5.1], [2.2 + lx, hY - 5.1]])); }
+      if (o.glasses) { const ex1 = -2.25 + lx * .9, ex2 = 2.25 + lx * .9; Lw(1, .45, R_(ex1 - 1.9, ey - 1.4, 3.8, 2.8)); Lw(1, .45, R_(ex2 - 1.9, ey - 1.4, 3.8, 2.8)); Lw(1, .38, P([[ex1 + 1.9, ey - .6], [ex2 - 1.9, ey - .6]])); Lw(1, .32, P([[ex1 - 1.9, ey - .8], [-5.4, hY - .8]])); Lw(1, .32, P([[ex2 + 1.9, ey - .8], [5.4, hY - .8]])); }
     }
     if (!mk_) {
-      Lw(.75, .5, P([[.3 + lx, hY - .2], [1.15 + lx, hY + 2.7], [-.15 + lx, hY + 3]]));
-      Lw(.85, .55, P([[-1.5 + lx, hY + 4.8], [lx, hY + 5.05], [1.5 + lx, hY + 4.8]]));
-      if (o.smile) Lw(.6, .32, P([[-1.9 + lx, hY + 4.3], [-1.5 + lx, hY + 4.8]]));
-      Lw(.4, .3, P([[-2 + lx, hY + 6.1], [2 + lx, hY + 6.1]]));
+      // nose: bridge, tip, nostril, a shadow on the far side
+      const nn = nose;
+      F(sk + .26, PC([[lx + 1.3 * nn, hY - 1.2], [lx + 2.2 * nn, hY + 2.4], [lx + 1.2 * nn, hY + 3]]));
+      Lw(.75, .5, P([[.3 + lx, hY - .6], [1.2 * nn + lx, hY + 2.6], [.1 + lx, hY + 3.1 + (nn - 1) * .4], [-.9 * nn + lx, hY + 2.7]]));
+      F(.9, E(lx + .85 * nn, hY + 3.05, .3, .2));
+      if (mood === 'stern' && o.brow === 'heavy') { Lw(.5, .26, P([[-2.2 + lx, hY + 2.2], [-2.1 + lx, hY + 4.5]])); Lw(.5, .26, P([[2.6 + lx, hY + 2.2], [2.5 + lx, hY + 4.5]])); }   // nasolabial lines
+      // mouth
+      if (mood === 'smile') { Lw(.9, .6, P([[-1.9 + lx, hY + 4.5], [lx - .2, hY + 5.25], [1.9 + lx, hY + 4.5]])); Lw(.55, .3, P([[-2.2 + lx, hY + 4.1], [-1.9 + lx, hY + 4.5]])); Lw(.55, .3, P([[2.2 + lx, hY + 4.1], [1.9 + lx, hY + 4.5]])); }
+      else if (mood === 'grin') { F(.9, PC([[-2.1 + lx, hY + 4.4], [lx, hY + 5.5], [2.1 + lx, hY + 4.4], [lx, hY + 4.9]])); KO(0, PC([[-1.6 + lx, hY + 4.6], [lx, hY + 5.1], [1.6 + lx, hY + 4.6], [lx, hY + 4.78]])); Lw(.55, .3, P([[-2.5 + lx, hY + 4], [-2.1 + lx, hY + 4.4]])); Lw(.55, .3, P([[2.5 + lx, hY + 4], [2.1 + lx, hY + 4.4]])); }
+      else if (mood === 'smirk') { Lw(.9, .55, P([[-1.5 + lx, hY + 5.15], [.4 + lx, hY + 5.05], [1.9 + lx, hY + 4.4]])); Lw(.5, .28, P([[2.2 + lx, hY + 4.1], [1.9 + lx, hY + 4.4]])); }
+      else if (mood === 'worry') Lw(.85, .55, P([[-1.6 + lx, hY + 5.2], [lx, hY + 4.85], [1.6 + lx, hY + 5.2]]));
+      else Lw(.9, .55, P([[-1.7 + lx, hY + 4.9], [lx - .3, hY + 5.05], [1.7 + lx, hY + 4.85]]));
+      Lw(.4, .3, P([[-1.7 + lx, hY + 6.1], [1.7 + lx, hY + 6.1]]));   // under the lip
+      if (o.cleft) Lw(.4, .26, P([[lx, hY + 6.3], [lx, hY + 7]]));
+      A.face = { hY, lx };
     }
   }
   // hair in front
   const hp = pts => pts.map(([x, y]) => [x, y + hY]);
   switch (o.hair) {
     case 'crop': case 'grey':
-      F(o.hair === 'grey' ? .45 : hd, PC(hp([[-5.7, 0], [-5.9, -3.6], [-4.6, -6.1], [-1.8, -7.5], [1.8, -7.5], [4.6, -6.1], [5.9, -3.6], [5.7, 0], [5, -2.6], [3.6, -4], [0, -4.4], [-3.6, -4], [-5, -2.6]])));
-      for (let i = 0; i < 7; i++) KO(.22, P(hp([[-4 + i * 1.3, -5.4], [-3.6 + i * 1.3, -6.6]]))); break;
+      F(o.hair === 'grey' ? .45 : hd, PC(hp([[-5.8, .4], [-6, -3.6], [-4.7, -6.4], [-1.8, -7.8], [1.8, -7.8], [4.7, -6.4], [6, -3.6], [5.8, .4], [5.1, -2.4], [3.6, -4], [0, -4.5], [-3.6, -4], [-5.1, -2.4]])));
+      for (let i = 0; i < 8; i++) KO(.22, P(hp([[-4.4 + i * 1.25, -5.6], [-3.9 + i * 1.25, -7]]))); KO(.28, P(hp([[-1.6, -7.7], [-.4, -5.6]])));   // a side parting
+      F(hd, PC(hp([[-5.9, .4], [-5.3, 3], [-4.8, 1.4]]))); F(hd, PC(hp([[5.9, .4], [5.3, 3], [4.8, 1.4]]))); break;   // sideburns
     case 'swept':
-      F(hd, PC(hp([[-5.8, .6], [-6.3, -3.8], [-4.9, -6.9], [-1.5, -8.6], [2.6, -8.7], [5.9, -7], [6.8, -3.4], [6, 0], [5.2, -2.6], [3.8, -4.1], [1.2, -4.4], [-.8, -3.4], [-2.6, -1.6], [-3.4, -3.4], [-4.8, -2.4]])));
-      for (let i = 0; i < 5; i++) KO(.25, P(hp([[-3.6 + i * 1.8, -6.6], [-1.6 + i * 1.8, -4.8]])));
-      F(hd, PC(hp([[-1.4, -4.4], [.6, -4], [-2.6, -.6]]))); break;
+      F(hd, PC(hp([[-5.9, .8], [-6.4, -3.8], [-5, -7.2], [-1.5, -9], [2.8, -9.1], [6.1, -7.2], [7, -3.4], [6.1, 0], [5.3, -2.6], [3.8, -4.2], [1.2, -4.5], [-.8, -3.4], [-2.6, -1.6], [-3.4, -3.4], [-4.9, -2.4]])));
+      for (let i = 0; i < 6; i++) KO(.25, P(hp([[-3.8 + i * 1.8, -7.2], [-1.6 + i * 1.8, -5]])));
+      F(hd, PC(hp([[-1.4, -4.5], [.8, -4], [-2.8, -.4]]))); F(hd, PC(hp([[2.8, -9], [4.6, -10], [5.4, -8.2]])));   // a flick
+      F(hd, PC(hp([[-6, .8], [-5.4, 3.6], [-4.9, 1.6]]))); break;
     case 'slick':
-      for (const s of [-1, 1]) F(hd * .55, PC(hp([[s * 5.7, .4], [s * 6, -3], [s * 5.2, -5.4], [s * 3.2, -6.7], [s * 3.4, -5.2], [s * 4.4, -3.6], [s * 4.8, -.6]])));
-      for (let i = 0; i < 5; i++) Lw(hd * .5, .32, P(hp([[-3 + i * 1.5, -6.6], [-2.2 + i * 1.5, -6.9]]))); break;
+      for (const s of [-1, 1]) F(hd * .6, PC(hp([[s * 5.8, .5], [s * 6.2, -3], [s * 5.4, -5.8], [s * 3.3, -7.1], [s * 3.4, -5.4], [s * 4.5, -3.6], [s * 4.9, -.4]])));
+      for (let i = 0; i < 5; i++) Lw(hd * .55, .32, P(hp([[-3.2 + i * 1.6, -6.7], [-2.4 + i * 1.6, -7.1]])));
+      F(hd * .5, PC(hp([[-5.5, -3], [-3.3, -6.6], [-2, -7.4], [-3.4, -4.6]]))); F(hd * .5, PC(hp([[5.5, -3], [3.3, -6.6], [2, -7.4], [3.4, -4.6]])));
+      F(hd * .7, PC(hp([[-5.9, .6], [-6.3, 3.4], [-5.2, 4.6], [-4.9, 1.2]]))); F(hd * .7, PC(hp([[5.9, .6], [6.3, 3.4], [5.2, 4.6], [4.9, 1.2]])));
+      F(hd * .45, PC(hp([[-3.4, -6.2], [0, -7.6], [3.4, -6.2], [0, -5.9]]))); break;
     case 'bun':
-      F(hd, PC(hp([[-5.7, 0], [-5.8, -3.8], [-4.2, -6.4], [-.8, -7.3], [2.8, -7], [5.2, -5.3], [5.9, -2.4], [5.6, 0], [4.6, -3.2], [2.4, -4.6], [-.6, -5], [-3.6, -4], [-4.9, -2.2]])));
-      KO(.3, P(hp([[-1.6, -7.1], [-.4, -5]]))); for (let i = 0; i < 4; i++) KO(.2, P(hp([[1 + i, -6.6], [2.2 + i, -4.6]]))); break;
+      F(hd, PC(hp([[-5.8, .4], [-5.9, -3.8], [-4.3, -6.6], [-.8, -7.6], [2.8, -7.2], [5.3, -5.4], [6, -2.4], [5.7, .4], [4.7, -3.2], [2.4, -4.8], [-.6, -5.2], [-3.7, -4.2], [-5, -2.2]])));
+      F(hd, PC(hp([[-5.6, -2], [-2, -5.6], [1.6, -6.2], [4.4, -4.6], [2.4, -4.4], [-.8, -4.6], [-3.6, -3.4], [-5.4, .6]])));   // a swept fringe
+      KO(.3, P(hp([[-1.6, -7.3], [-.4, -5.2]]))); for (let i = 0; i < 5; i++) KO(.2, P(hp([[.4 + i, -6.9], [1.8 + i, -4.8]])));
+      Lw(hd, .55, P(hp([[5.2, -3], [5.9, 2], [5.4, 6.4]])));   // a loose strand
+      F(hd, PC(hp([[5.8, .4], [5.2, 3.4], [4.8, 1.2]]))); break;
     case 'bob':
-      F(hd, PC(hp([[-6.6, 5], [-7, -2], [-5.4, -6.8], [0, -8.4], [5.4, -6.8], [7, -2], [6.6, 5], [4.9, 5.2], [5.3, 0], [4.6, -3.4], [1, -4.6], [-4.6, -3.4], [-5.3, 0], [-4.9, 5.2]])));
-      for (let i = 0; i < 6; i++) KO(.22, P(hp([[-4 + i * 1.6, -7.2], [-4.6 + i * 1.7, -4]]))); break;
+      F(hd, PC(hp([[-6.7, 5], [-7.1, -2], [-5.5, -7], [0, -8.7], [5.5, -7], [7.1, -2], [6.7, 5], [5, 5.3], [5.4, 0], [4.7, -3.4], [1, -4.7], [-4.7, -3.4], [-5.4, 0], [-5, 5.3]])));
+      for (let i = 0; i < 6; i++) KO(.22, P(hp([[-4.2 + i * 1.7, -7.4], [-4.8 + i * 1.8, -4]]))); break;
     case 'cap':
-      F(.45, E(-5.3, hY - .4, 1, 2.2)); F(.45, E(5.3, hY - .4, 1, 2.2));
-      F(1, PC(hp([[-6, -2.6], [-5.6, -6.4], [-2, -8], [3.2, -7.8], [5.8, -5.6], [6.3, -3.4], [9.4, -2.8], [9.4, -2], [5.8, -1.8], [-5.9, -1.8]])));
-      KO(.3, P(hp([[-5.4, -3.6], [6, -3.4]]))); KO(.25, P(hp([[0, -7.9], [.6, -3.6]]))); break;
+      F(.45, E(-5.4, hY - .4, 1, 2.2)); F(.45, E(5.4, hY - .4, 1, 2.2));
+      F(1, PC(hp([[-6.1, -2.6], [-5.7, -6.6], [-2, -8.2], [3.2, -8], [5.9, -5.8], [6.4, -3.4], [9.6, -2.8], [9.6, -2], [5.9, -1.8], [-6, -1.8]])));
+      KO(.3, P(hp([[-5.5, -3.6], [6, -3.4]]))); KO(.25, P(hp([[0, -8.1], [.6, -3.6]]))); F(1, E(0, hY - 8.3, .7)); break;
     case 'helmet':
-      F(1, () => { c.ellipse(0, hY - 1, 7.3, 8.6, 0, Math.PI, 0); c.lineTo(7.3, hY + .2); c.lineTo(-7.3, hY + .2); c.closePath(); });
-      KO(.45, P(hp([[-7, -.9], [7, -.9]]))); KO(.3, P(hp([[-4, -6.6], [4, -6.6]]))); F(1, R_(-1.8, hY - 10.6, 3.6, 2.6)); KO(.3, R_(-1.2, hY - 10, 2.4, 1.2));
-      F(1, E(-5.6, hY + .4, 1.9, 2.4)); F(1, E(5.6, hY + .4, 1.9, 2.4));
-      Lw(1, .6, P(hp([[-5.4, 1.6], [-2.6, 6.4], [2.6, 6.4], [5.4, 1.6]]))); break;
+      F(1, () => { c.ellipse(0, hY - 1, 7.4, 8.8, 0, Math.PI, 0); c.lineTo(7.4, hY + .2); c.lineTo(-7.4, hY + .2); c.closePath(); });
+      KO(.45, P(hp([[-7.1, -.9], [7.1, -.9]]))); KO(.3, P(hp([[-4, -6.8], [4, -6.8]]))); F(1, R_(-1.8, hY - 10.8, 3.6, 2.6)); KO(.3, R_(-1.2, hY - 10.2, 2.4, 1.2));
+      F(1, E(-5.7, hY + .4, 1.9, 2.4)); F(1, E(5.7, hY + .4, 1.9, 2.4));
+      Lw(1, .6, P(hp([[-5.5, 1.6], [-2.6, 6.5], [2.6, 6.5], [5.5, 1.6]]))); break;
     case 'balaclava':
       F(1, E(0, hY + .2, 5.9, 7)); KO(0, R_(-3.8 + lx, hY - 1.9, 7.6, 2.6));
       for (const sx of [-1, 1]) F(1, E(sx * 2.05 + lx * 1.25, hY - .6, .55)); break;
@@ -291,13 +351,22 @@ function person(c, o, A, mask, mul = 1) {
     Lw(1, 1.1, P([[2.8 + lx, hY + 4], [6.6, hY + 7.4], [8.2, hY + 12.6]])); KO(.25, P([[3.4 + lx, hY + 4.6], [6.2, hY + 7.6]]));
     Lw(1, .45, P([[-5.3, hY], [-2.8 + lx, hY + 2]])); Lw(1, .45, P([[5.3, hY], [2.8 + lx, hY + 2]]));
   }
-  if (o.earrings) { F(1, E(-5.5, hY + 2.7, .45, .65)); F(1, E(5.5, hY + 2.7, .45, .65)); }
-  A.head = [0, hY]; A.chest = [0, shY + 8];
+  if (o.earrings) { F(1, E(-5.5, hY + 2.9, .5, .75)); F(1, E(5.5, hY + 2.9, .5, .75)); A.earrings = [[-5.5, hY + 2.9], [5.5, hY + 2.9]]; }
+  A.head = [0, hY]; A.chest = [0, shY + 8]; if (A.face) A.ears = [[-5.5, hY + .6], [5.5, hY + .6]];
 }
 
+// who is who: a recurring cast gets the same face, brows and bearing in every shot
+const WHO = {
+  prot: { brow: 'flat', mood: 'stern', cleft: true },
+  sator: { brow: 'heavy', mood: 'smirk', jaw: 1.3, nose: 1.3, bags: true },
+  neil: { brow: 'soft', mood: 'grin' },
+  kat: { fem: true, brow: 'arched', mood: 'calm', jaw: .86, lashes: true },
+};
 // draw one person: knocked out of every plate (a paper fringe), inked on plate p (and overprinted on o.over)
 function figure(p, x, y, h, o = {}) {
   if (!o.fixedY && y > 940) y -= 70;                          // feet stay above the subtitle bar
+  const who = o.who ?? (o.coat === 'overcoat' && o.hair === 'slick' ? 'sator' : o.coat === 'linen' && o.hair === 'swept' ? 'neil' : o.coat === 'trench' && o.hair === 'bun' ? 'kat' : o.coat === 'suit' && o.hair === 'crop' ? 'prot' : null);
+  if (who) o = { ...WHO[who], ...o };
   const ph0 = T * 2.2 + x * .013;
   if (o.walk === undefined && !o.armF) o = { ...o, armF: [Math.sin(ph0) * .05, .22], armB: [-Math.sin(ph0) * .05, .22] };   // breathing
   if (o.blink === undefined) o = { ...o, blink: (T * .9 + x * .0037) % 3 < .12 };
@@ -305,10 +374,13 @@ function figure(p, x, y, h, o = {}) {
   const f = o.face ?? 1, s = h / 100, A = {};
   const [ax, ay] = scr(x - h * .7, y - h * 1.12), [bx, by] = scr(x + h * .7, y + h * .1);
   const X0 = Math.max(0, Math.floor(ax) - 10), Y0 = Math.max(0, Math.floor(ay) - 10), X1 = Math.min(W, Math.ceil(bx) + 10), Y1 = Math.min(H, Math.ceil(by) + 10);
+  const over = o.over || [], mul = 1 - (o.lift ?? 0);
+  const L2 = ([u, v]) => [x + f * s * u, y + s * v];
   if (X1 > X0 && Y1 > Y0) {
+    if (!o.seated && !o.noShadow) fill(p === 'K' ? 'K' : 'B', .24 * mul, ell(x, y + 2, h * .26, h * .03));   // a shadow to stand on
     MC.save(); MC.setTransform(1, 0, 0, 1, 0, 0); MC.clearRect(X0, Y0, X1 - X0, Y1 - Y0); MC.restore();
     MC.save(); MC.translate(x, y); MC.scale(f * s, s); person(MC, o, {}, true); MC.restore();
-    const over = o.over || [], halo = o.halo ?? 4, self = o.selfHalo ?? 2.2;
+    const halo = o.halo ?? 4, self = o.selfHalo ?? 2.2;
     for (const q of PLATES) {
       const own = q === p || over.includes(q);
       const hh = own ? self : halo, offs = hh ? [[-hh, 0], [hh, 0], [0, -hh], [0, hh]] : [[0, 0]];
@@ -316,9 +388,26 @@ function figure(p, x, y, h, o = {}) {
       for (const [dx, dy] of offs) c.drawImage(MC.canvas, X0, Y0, X1 - X0, Y1 - Y0, X0 + dx, Y0 + dy, X1 - X0, Y1 - Y0);
       c.restore();
     }
-    const mul = 1 - (o.lift ?? 0);
     PL[p].save(); PL[p].translate(x, y); PL[p].scale(f * s, s); person(PL[p], o, A, false, mul); PL[p].restore();
     for (const q of over) { PL[q].save(); PL[q].translate(x, y); PL[q].scale(f * s, s); person(PL[q], o, {}, false, mul * (o.overD ?? 1)); PL[q].restore(); }
+    // colour on the other plates: pink cheeks and lips, a sunflower scarf, watch, buckle and earrings
+    const acc = (pl, d, shape) => fill(pl, d * mul, shape);
+    if (A.face && o.pinkSkin !== false && !over.includes('K') && p !== 'K' && !o.mask && o.hair !== 'balaclava') {
+      const { hY: fy, lx: fl } = A.face;
+      for (const sx of [-1, 1]) { const [cx, cy] = L2([sx * 3.1 + fl * .5, fy + 2.5]); acc('K', .26, ell(cx, cy, 1.8 * s, 1.2 * s)); }
+      const [lxp, lyp] = L2([fl, fy + 5.05]); acc('K', o.fem ? .95 : .6, ell(lxp, lyp, 1.5 * s, .55 * s));
+      const [nxp, nyp] = L2([.9 + fl, fy + 2.8]); acc('K', .24, ell(nxp, nyp, .9 * s, .7 * s));
+      for (const e of A.ears || []) { const [ex, ey] = L2(e); acc('K', .3, ell(ex, ey, 1 * s, 1.8 * s)); }
+    }
+    if (A.scarf && p === 'B') {
+      for (const pg of A.scarf) { const pts = pg.map(L2); knock(['B'], poly(pts)); acc('S', .95, poly(pts)); }
+      const [a, b, c2, d] = A.scarf[1].map(L2);
+      for (const t_ of [.2, .5, .8]) { const l0 = [lerp(a[0], d[0], t_), lerp(a[1], d[1], t_)], r0 = [lerp(b[0], c2[0], t_), lerp(b[1], c2[1], t_)]; stroke('B', mul, .9 * s, path([l0, r0])); }
+    }
+    if (A.tie && !over.includes('K') && p === 'B') acc('K', .8, poly(A.tie.map(L2)));
+    if (A.watch) { const [wx, wy] = L2(A.watch); knock(['B'], ell(wx, wy, 2.1 * s, 1.4 * s)); acc('S', 1, ell(wx, wy, 1.8 * s, 1.1 * s)); }
+    if (A.buckle) { const [bxp, byp] = L2(A.buckle); knock(['B'], ell(bxp, byp, 2.3 * s, 1.6 * s)); acc('S', 1, ell(bxp, byp, 1.9 * s, 1.3 * s)); }
+    for (const e of A.earrings || []) { const [ex, ey] = L2(e); knock(['B'], ell(ex, ey, .9 * s, 1.1 * s)); acc('S', 1, ell(ex, ey, .6 * s, .9 * s)); }
   }
   const wa = k => A[k] && [x + f * s * A[k][0], y + s * A[k][1]];
   if (o.trinket && A.trinket) trinket(...wa('trinket'), s * 1.1, o.lift ?? 0);
@@ -594,10 +683,10 @@ function portraitScene(cfg, t, u) {   // a big bust on a sunburst, and a dossier
   cfg.facts.forEach(([k, v], i) => { const kk = ss(seg(u, .06 + i * .13, .12)); if (kk <= 0) return; const y = y0 + 40 + i * 88; text('B', kk, k, 1120, y, '600 22px Jost', 'left', undefined, 4); text('B', kk, v, 1120, y + 40, '600 36px Jost', 'left'); stroke('B', kk * .5, 2, path([[1120, y + 60], [1800, y + 60]]), [8, 8]); });
   tag('PROFILE', 80, 110, 'B', 26);
 }
-const PROTAG = { kicker: 'CIA · NO NAME ON FILE', name: ['THE', 'PROTAGONIST'], accent: 'S', inks: ['B'], facts: [['ROLE', 'CIA AGENT'], ['SURVIVES', 'THE KYIV SIEGE'], ['PASSES', 'A LETHAL LOYALTY TEST'], ['RECRUITED INTO', 'TENET'], ['MISSION', 'STOP INVERSION']], fig: { coat: 'suit', hair: 'crop', tie: true, stubble: true, watch: true, look: .9, brows: 'stern', armF: [.08, .15], armB: [.05, .2] } };
-const SATOR = { kicker: 'THE MAN BEHIND IT', name: ['ANDREI', 'SATOR'], accent: 'K', inks: ['B', 'K'], facts: [['ROLE', 'RUSSIAN OLIGARCH'], ['RECEIVES', 'INVERTED GOLD'], ['TAKES ORDERS FROM', 'FUTURE ANTAGONISTS'], ['HEALTH', 'DYING OF CANCER']], fig: { coat: 'overcoat', hair: 'slick', hairD: .9, build: 1.3, cloth: .9, tie: true, stubble: true, brows: 'stern', over: ['K'], overD: .75, ring: true, watch: true, look: .9, armF: [.2, .5], armB: [.1, .2] } };
-const NEIL = { kicker: 'A SHARP HANDLER', name: ['NEIL'], accent: 'S', inks: ['B', 'K'], facts: [['ROLE', 'HANDLER'], ['TEAMS UP WITH', 'THE PROTAGONIST'], ['CARRIES', 'AN ORANGE TRINKET'], ['IN THE END', 'GOES BACK, ON PURPOSE']], fig: { coat: 'linen', cloth: .48, hair: 'swept', scarf: true, scarfD: .95, rolled: true, pack: true, trinket: true, smile: true, look: .9, armF: [.1, .2] } };
-const KAT = { kicker: "SATOR'S ESTRANGED WIFE", name: ['KAT'], accent: 'K', inks: ['B'], facts: [['ROLE', 'TEAMS UP WITH THE PROTAGONIST'], ['KNOWS', 'SATOR BEST'], ['ON THE YACHT', 'STALLS HIM, THEN ENDS IT']], fig: { coat: 'trench', cloth: .7, hair: 'bun', hairD: .85, earrings: true, build: .92, look: .7, armF: [.2, .5], armB: [.05, .15] } };
+const PROTAG = { kicker: 'CIA · NO NAME ON FILE', name: ['THE', 'PROTAGONIST'], accent: 'S', inks: ['B'], facts: [['ROLE', 'CIA AGENT'], ['SURVIVES', 'THE KYIV SIEGE'], ['PASSES', 'A LETHAL LOYALTY TEST'], ['RECRUITED INTO', 'TENET'], ['MISSION', 'STOP INVERSION']], fig: { who: 'prot', coat: 'suit', hair: 'crop', tie: true, stubble: true, watch: true, look: .9, armF: [.5, 2.0], armB: [.05, .2] } };
+const SATOR = { kicker: 'THE MAN BEHIND IT', name: ['ANDREI', 'SATOR'], accent: 'K', inks: ['B', 'K'], facts: [['ROLE', 'RUSSIAN OLIGARCH'], ['RECEIVES', 'INVERTED GOLD'], ['TAKES ORDERS FROM', 'FUTURE ANTAGONISTS'], ['HEALTH', 'DYING OF CANCER']], fig: { coat: 'overcoat', hair: 'slick', hairD: .9, build: 1.3, cloth: .9, tie: true, stubble: true, brows: 'stern', over: ['K'], overD: .75, ring: true, look: .9, armF: [.55, 1.5], armB: [.12, .2] } };
+const NEIL = { kicker: 'A SHARP HANDLER', name: ['NEIL'], accent: 'S', inks: ['B', 'K'], facts: [['ROLE', 'HANDLER'], ['TEAMS UP WITH', 'THE PROTAGONIST'], ['CARRIES', 'AN ORANGE TRINKET'], ['IN THE END', 'GOES BACK, ON PURPOSE']], fig: { coat: 'linen', cloth: .48, hair: 'swept', scarf: true, scarfD: .95, rolled: true, pack: true, trinket: true, look: .9, armF: [.35, 2.2] } };
+const KAT = { kicker: "SATOR'S ESTRANGED WIFE", name: ['KAT'], accent: 'K', inks: ['B'], facts: [['ROLE', 'TEAMS UP WITH THE PROTAGONIST'], ['KNOWS', 'SATOR BEST'], ['ON THE YACHT', 'STALLS HIM, THEN ENDS IT']], fig: { coat: 'trench', cloth: .7, hair: 'bun', hairD: .85, earrings: true, build: .92, look: .7, armF: [.45, 2.3], armB: [.3, 2.0] } };
 const portrait = cfg => (t, u) => portraitScene(cfg, t, u);
 
 function shLoyalty(t, u) {   // 3a · the loyalty test: the rails, the train, the pill
@@ -978,8 +1067,8 @@ function shTrinket(t, u) {   // 14 · the trinket on Neil's bag
   trinket(1300, 520 - 30, 22, 0, 1);
   const cx = 1300, cy = 560, R = 270; stroke('B', 1, 10, ell(cx, cy, R)); knock(['S', 'K'], ring(cx, cy, R + 5, R + 30));
   const sw = Math.sin(t * 2) * 4;
-  profileHead(380 + sw, 640, 6.2);
-  stroke('B', .9, 3, path([[620, 400], [1030, 520]]), [14, 12]);
+  figure('B', 400 + sw, 1900, 1700, { ...PROTAG.fig, armF: [.05, .22], fixedY: true, face: 1, look: 1, mood: 'calm', halo: 8 });
+  stroke('B', .9, 3, path([[620, 330], [1030, 520]]), [14, 12]);
   if (u > .3) tag('THE ORANGE TRINKET', cx, 140, 'S', 28, 'center');
   tag("NEIL'S BAG", cx + 200, 300, 'B', 24);
 }
