@@ -109,7 +109,7 @@ function paint() {
     if (T < t0) break;
     const r = 60 + i * 44, k = ss(seg(T, t0, 0.5));
     ellOn('S', 960, 560, r * k, r * k, 1, 'source-over');
-    onPlate('S', c => { c.globalCompositeOperation = K_OUT; c.beginPath(); c.arc(960, 560, r * k - 16, 0, Math.PI * 2); c.fill(); });
+    onPlate('S', c => { c.globalCompositeOperation = K_OUT; c.beginPath(); c.arc(960, 560, Math.max(0.01, r * k - 16), 0, Math.PI * 2); c.fill(); });
   }
   if (T >= Lt(6, 0.3) && T < Lt(6, 0.98)) text('B', 'THE ALGORITHM · 9 PARTS', 960, 1070, '600 40px Jost', 'center', 1);
   if (T >= Lt(7, 0.1)) fig('B', 420, GROUND, 0.92, { step: .2 });
