@@ -145,3 +145,12 @@ The character rig was rebuilt, not just dressed up:
 - **Hands** have a palm, four fingers and a thumb; gloves for the soldiers.
 - **Colour per plate:** pink cheeks, lips, nose tip and ears overprinted on the blue skin; a violet tie (blue under pink); a sunflower scarf, watch, belt buckle and earrings.
 - **Staging:** a ground shadow under every standing figure; expressive poses in the portraits (a hand to the cuff, to the lapel, to the strap, arms folded); the trinket close-up now shows the Protagonist's face looking at the bag.
+
+## Revision 4: finer details
+
+- **Fabric:** pinstripe on the Protagonist's suit, herringbone on Sator's overcoat, a twill on Kat's trench, a loose weave on Neil's linen (only where a figure is big enough to show it).
+- **Light:** a paper rim light along the lit edge of every head and torso; hatching on the shadowed cheekbone; a sheen on the hair.
+- **Faces:** lid creases, crow's feet for Sator, sunglasses for his bodyguards, a proper open grin for Neil.
+- **Hands:** slimmer, longer fingers and a knuckle crease. **Feet:** shoe shine, heels for Kat.
+- **Accessories in the second inks:** a sunflower tie clip and cufflinks, Sator's pink pocket square, Kat's sunflower necklace and bracelet.
+- **Scenes:** two bodyguards beside Sator; passers-by and a parked car on the team's street; a CLASSIFIED stamp and a barcode on the dossier cards.
