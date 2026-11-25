@@ -77,24 +77,25 @@ function makePaper() {
 // Accessories are drawn over the engine's figure at the head and torso anchors, so each character reads at a glance.
 function person(c, look, pose, x, y, Sz, yaw, o = {}) {
   const prims = figure(look, pose, { x, y, S: Sz, yaw }, { seed: o.seed ?? (x | 0), boil: b12() });
+  for (const p of prims) if (p.k === 'knock') p.a = 1;
   drawPrims(c, prims, { color: o.color ?? 1, ink: o.ink ?? 1 });
   const h = prims.head, lw = Math.max(1.2, Sz * .0045), col = o.color ?? 1, hx = h.c[0], hy = h.c[1], r = h.r;
   const sk = (name, poly, fillCol, wa = .8, seed = 0) => sketchShape(c, poly, fillCol, { ink: lw, wash: wa * col, seed: seed + b12() });
   // hair and head coverings
   if (o.bun) sketchShape(c, ellipse(hx - r * 1.1, hy - r * .9, r * .55, r * .5, 12), look.hair ?? C.ink, { ink: lw, wash: .85 * col, seed: 300 + b12() });
   if (o.mantilla) { const m = [[hx - r * 1.5, hy - r * .3], [hx - r * 1.2, hy - r * 1.9], [hx, hy - r * 2.2], [hx + r * 1.2, hy - r * 1.9], [hx + r * 1.5, hy - r * .3], [hx + r * 1.9, hy + r * 3.2], [hx - r * 1.9, hy + r * 3.2]]; sk('mantilla', m, hex('#f2ede3'), .5, 310); for (let i = 0; i < 7; i++) drawPen(c, penStroke([[hx - r * 1.6 + i * r * .45, hy - r * 1.6], [hx - r * 1.5 + i * r * .45, hy + r * 2.6]], { w: .7, wob: .3, seed: 320 + i, over: 0, gap: 0 }), .55 * col, INK, .5); }
-  if (o.hat === 'tricorn') { sk('hat', [[hx - r * 2.1, hy - r * .8], [hx + r * 2.1, hy - r * .8], [hx + r * .4, hy - r * 2.6], [hx - r * .4, hy - r * 2.6]], C.ink, .9, 330); sk('brim', [[hx - r * 2.6, hy - r * .9], [hx + r * 2.6, hy - r * .9], [hx + r * 1.4, hy - r * .5], [hx - r * 1.4, hy - r * .5]], C.ink, .9, 331); }
+  if (o.hat === 'tricorn') { sk('crown', [[hx - r * 1.1, hy - r * .8], [hx + r * 1.1, hy - r * .8], [hx + r * .9, hy - r * 2.1], [hx - r * .9, hy - r * 2.1]], C.ink, .9, 330); sk('brim', [[hx - r * 2.7, hy - r * .9], [hx - r * 1.2, hy - r * 1.6], [hx, hy - r * .9], [hx + r * 1.2, hy - r * 1.6], [hx + r * 2.7, hy - r * .9], [hx + r * 1.2, hy - r * .5], [hx - r * 1.2, hy - r * .5]], C.ink, .9, 331); }
   if (o.hat === 'wide') { sk('brim', ellipse(hx, hy - r * .85, r * 2.6, r * .5, 20), hex('#c9b48a'), .6, 340); sk('crown', [[hx - r * .9, hy - r * .9], [hx + r * .9, hy - r * .9], [hx + r * .75, hy - r * 2.3], [hx - r * .75, hy - r * 2.3]], hex('#c9b48a'), .6, 341); }
   if (o.hat === 'top') { sk('brim', ellipse(hx, hy - r * .9, r * 1.6, r * .28, 18), C.ink, .9, 350); sk('crown', [[hx - r * .9, hy - r * .9], [hx + r * .9, hy - r * .9], [hx + r * .78, hy - r * 2.7], [hx - r * .78, hy - r * 2.7]], C.ink, .9, 351); wash(c, [[hx - r * .8, hy - r * 1.7], [hx + r * .8, hy - r * 1.7], [hx + r * .8, hy - r * 1.5], [hx - r * .8, hy - r * 1.5]], RED, { a: .6 * col, j: 1, layers: 1, seed: 352 }); }
   if (o.helmet) sk('helmet', ellipse(hx, hy - r * .4, r * 1.25, r * 1.05, 16), C.slate, .6, 360);
   // neck and collar: ruff for the judge, lace for her
-  if (o.ruff) { for (let i = 0; i < 8; i++) { const a = Math.PI * (i / 7 + .08); drawPen(c, penStroke([[hx + Math.cos(a) * r * 1.2, hy + r * 1.8 + Math.sin(a) * r * .5], [hx + Math.cos(a) * r * 1.85, hy + r * 1.8 + Math.sin(a) * r * .7]], { w: lw * .9, wob: .3, seed: 370 + i, over: 0, gap: 0 }), col); } sk('ruff', ellipse(hx, hy + r * 2.1, r * 1.5, r * .35, 16), hex('#f2ede3'), .3, 372); }
   if (o.lace) for (let i = 0; i < 6; i++) drawPen(c, penStroke([[hx - r * 1.1 + i * r * .44, hy + r * 1.85], [hx - r * .9 + i * r * .44, hy + r * 2.25]], { w: .8, wob: .2, seed: 380 + i, over: 0, gap: 0 }), .7 * col);
   // a cross on the chest (inquisition) and a rosary on her hand
   if (o.cross) { const cx2 = hx, cy2 = hy + r * 3.4; drawPen(c, penStroke([[cx2, cy2 - r * .9], [cx2, cy2 + r * .9]], { w: lw, wob: .2, seed: 390, over: 0 }), col); drawPen(c, penStroke([[cx2 - r * .5, cy2 - r * .2], [cx2 + r * .5, cy2 - r * .2]], { w: lw, wob: .2, seed: 391, over: 0 }), col); }
-  if (o.cape) { const s0 = Sz * .14; sk('cape', [[hx - r * 1.2, hy + r * 1.2], [hx + r * 1.2, hy + r * 1.2], [hx + r * 1.7, hy + r * 4.5], [hx + r * 2.4, hy + r * 10], [hx - r * 2.4, hy + r * 10], [hx - r * 1.7, hy + r * 4.5]], C.ink, .85, 400); }
+  if (o.cape) { sk('cape', [[hx - r * 1.9, hy + r * 2.2], [hx + r * 1.9, hy + r * 2.2], [hx + r * 2.6, hy + r * 6], [hx + r * 3.0, hy + r * 10], [hx - r * 3.0, hy + r * 10], [hx - r * 2.6, hy + r * 6]], C.ink, .85, 400); }
+  if (o.ruff) { for (let i = 0; i < 8; i++) { const a = Math.PI * (i / 7 + .08); drawPen(c, penStroke([[hx + Math.cos(a) * r * 1.2, hy + r * 1.8 + Math.sin(a) * r * .5], [hx + Math.cos(a) * r * 1.85, hy + r * 1.8 + Math.sin(a) * r * .7]], { w: lw * .9, wob: .3, seed: 370 + i, over: 0, gap: 0 }), col); } sk('ruff', ellipse(hx, hy + r * 2.1, r * 1.5, r * .35, 16), hex('#f2ede3'), .3, 372); }
   if (o.belt) { const bx = prims.hand?.R ? 0 : 0; const by = hy + r * 8.5; drawPen(c, penStroke([[hx - r * 1.5, by], [hx + r * 1.5, by]], { w: lw * 1.2, wob: .2, seed: 410, over: 1 }), col); drawPen(c, penStroke([...ellipse(hx + r * 1.7, by + r * .3, r * .35, r * .35, 10)], { w: lw * .8, wob: .2, seed: 411, over: 0 }), col); }
-  if (o.rebozo) sk('rebozo', [[hx - r * 1.3, hy + r * .7], [hx + r * 1.3, hy + r * .7], [hx + r * 2.1, hy + r * 5.5], [hx - r * 2.1, hy + r * 5.5]], RED, .85, 420);
+  if (o.rebozo) { sk('rebozo', [[hx - r * 2.5, hy + r * 1.5], [hx + r * 2.5, hy + r * 1.5], [hx + r * 2.1, hy + r * 2.7], [hx - r * 2.1, hy + r * 2.7]], RED, .9, 420); sk('ends', [[hx - r * 2.5, hy + r * 1.5], [hx - r * 1.6, hy + r * 1.5], [hx - r * 1.5, hy + r * 3.9], [hx - r * 2.2, hy + r * 3.7]], RED, .8, 421); sk('ends2', [[hx + r * 1.6, hy + r * 1.5], [hx + r * 2.5, hy + r * 1.5], [hx + r * 2.2, hy + r * 3.7], [hx + r * 1.5, hy + r * 3.9]], RED, .8, 422); for (let i = 0; i < 7; i++) drawPen(c, penStroke([[hx - r * 2.0 + i * r * .55, hy + r * 2.7], [hx - r * 2.0 + i * r * .55, hy + r * 3.3]], { w: .9, wob: .2, seed: 425 + i, over: 0, gap: 0 }), col * .9); }
   if (o.earrings) { c.fillStyle = rgba(INK, .9); c.beginPath(); c.arc(hx - r * 1.05, hy + r * .3, Math.max(.8, r * .14), 0, TAU); c.fill(); c.beginPath(); c.arc(hx + r * 1.05, hy + r * .3, Math.max(.8, r * .14), 0, TAU); c.fill(); }
   if (o.torch) { const [tx, ty] = prims.hand.R; drawPen(c, penStroke([[tx, ty + Sz * .04], [tx + Sz * .02, ty - Sz * .2]], { w: lw * 2.2, wob: .5, seed: 430, over: 1 }), 1); const fx = tx + Sz * .02, fy = ty - Sz * .24, fl = 1 + .15 * Math.sin(T * 17 + x); reserve(c, ellipse(fx, fy, Sz * .09, Sz * .11, 14), .35, 6, 3); wash(c, ellipse(fx, fy, Sz * .05 * fl, Sz * .08 * fl, 12), C.ochre, { a: .8, j: 3, layers: 2, seed: 431 + b12() }); }
   if (o.halberd) { const [gx, gy] = prims.hand.R; drawPen(c, penStroke([[gx, gy + Sz * .1], [gx + Sz * .06, gy - Sz * .95]], { w: lw * 1.6, wob: .4, seed: 440, over: 2 }), 1); sk('blade', [[gx + Sz * .06, gy - Sz * .95], [gx + Sz * .14, gy - Sz * .86], [gx + Sz * .1, gy - Sz * .72], [gx + Sz * .06, gy - Sz * .78]], C.steel, .7, 441); }
@@ -108,13 +109,15 @@ function carrot(c, x, y, h, col, seed, o = {}) {
   drawPen(c, penStroke([[x + h * .06, y - h * .34], [x + h * .08 - Math.sin(ph) * h * .07, y]], { w: Math.max(1, h * .035), wob: .3, seed: seed + 2 + b12(), over: 1 }), 1);
   c.fillStyle = rgba(INK, .9); c.beginPath(); c.arc(x, y - h * .98, h * .085, 0, TAU); c.fill();
 }
-function shipInk(c, x, y, s, p, col = INK, seed = 7, sails = 0) {   // a three-masted ship: hull, masts, yards, and sails that fill as sails > 0
-  const hull = [[x - 220 * s, y], [x - 170 * s, y + 60 * s], [x + 200 * s, y + 60 * s], [x + 250 * s, y]];
+function shipInk(c, x, y, s, p, col = INK, seed = 7, sails = 0) {   // a three-masted ship: hull, masts, yards and sails (filled when sails > 0)
+  const hull = [[x - 270 * s, y - 20 * s], [x - 220 * s, y + 50 * s], [x + 220 * s, y + 50 * s], [x + 290 * s, y - 20 * s]];
+  wash(c, hull, C.sea, { a: .5 * p, j: 2, layers: 2, edge: .3, seed: seed + 3 });
   drawPen(c, penStroke([...hull, hull[0]], { w: 3, wob: 1, seed, over: 3 }), p, col);
-  for (const mx of [-120, 0, 120]) drawPen(c, penStroke([[x + mx * s, y], [x + mx * s, y - 260 * s]], { w: 2.2, wob: .6, seed: seed + 1 + mx, over: 2 }), clamp(p * 1.2 - .1), col);
-  for (const mx of [-120, 0, 120]) drawPen(c, penStroke([[x + (mx - 90) * s, y - 240 * s], [x + (mx + 90) * s, y - 240 * s]], { w: 1.8, wob: .4, seed: seed + 4 + mx, over: 1 }), clamp(p * 1.4 - .3), col);
-  if (sails > 0) for (const mx of [-120, 0, 120]) { const bulge = 30 * s * sails; drawPen(c, penStroke([[x + (mx - 84) * s, y - 236 * s], [x + (mx - 84 + bulge / s * .4) * s, y - 120 * s], [x + (mx - 84) * s, y - 20 * s]], { w: 1.2, wob: .6, seed: seed + 10 + mx, over: 1 }), sails, col); drawPen(c, penStroke([[x + (mx + 84) * s, y - 236 * s], [x + (mx + 84 - bulge / s * .4) * s, y - 120 * s], [x + (mx + 84) * s, y - 20 * s]], { w: 1.2, wob: .6, seed: seed + 13 + mx, over: 1 }), sails, col); }
-  for (let k = 0; k < 4; k++) drawPen(c, penStroke([[x - 230 * s + k * 110 * s, y + 90 * s], [x - 180 * s + k * 110 * s, y + 96 * s]], { w: 1, wob: .5, seed: seed + 30 + k, over: 0, gap: 0 }), clamp(p - .2) * .6, col, .6);
+  for (const mx of [-150, 0, 150]) {
+    drawPen(c, penStroke([[x + mx * s, y - 20 * s], [x + mx * s, y - 330 * s]], { w: 2.4, wob: .6, seed: seed + 1 + mx, over: 3 }), clamp(p * 1.2 - .1), col);
+    for (const yy of [-290, -210]) drawPen(c, penStroke([[x + (mx - 80) * s, y + yy * s], [x + (mx + 80) * s, y + yy * s]], { w: 1.8, wob: .4, seed: seed + 4 + mx + yy, over: 1 }), clamp(p * 1.4 - .3), col);
+    if (sails > 0) { const q = sails; drawPen(c, penStroke([[x + (mx - 76) * s, y - 286 * s], [x + (mx - 76) * s - 30 * s * q, y - 250 * s], [x + (mx - 76) * s, y - 214 * s]], { w: 1.2, wob: .4, seed: seed + 10 + mx, over: 1 }), q, col); wash(c, [[x + (mx - 76) * s, y - 286 * s], [x + (mx + 76) * s, y - 286 * s], [x + (mx + 76) * s, y - 214 * s], [x + (mx - 76) * s, y - 214 * s]], hex('#f2ede3'), { a: .5 * q, j: 1, layers: 1, seed: seed + 16 + mx }); }
+  }
 }
 
 // ---------------------------------------------------------------- the pages
@@ -192,10 +195,10 @@ const PG = {
 const DY = {
   mar: (c, t, u) => { const k = ss(seg(u, .2, .5));
     for (let i = 0; i < 4; i++) { const r = (1 - ((t * .3 + i * .25) % 1)) * 90 + 10; drawPen(c, penStroke([...Array(10)].map((_, q) => { const a = -.9 + q * .2; return [700 + Math.cos(a) * r, 560 + Math.sin(a) * r * .6]; }), { w: 1.6, wob: .4, seed: 20 + i, over: 1 }), 1, mix3(RED, INK, .3), clamp(1 - r / 110)); }
-    person(c, LK.soledad, stand({ handR: V(.06, .86, .14), elbR: V(1, -.4, 0) }), 540, 1180, 560 * (.92 + .08 * k), Math.PI * .5, { rebozo: true, mantilla: true, earrings: true, seed: 10 });
+    person(c, LK.soledad, stand({ handR: V(.06, .86, .14), elbR: V(1, -.4, 0) }), 540, 1180, 560 * (.92 + .08 * k), Math.PI * .5, { rebozo: true, earrings: true, seed: 10 });
     if (u > .3) handwrite(c, 'una mujer misteriosa', 120, 1440, 56, seg(u, .3, .25)); },
   calle: (c, t, u) => { const x = lerp(-120, 540, ss(seg(u, 0, .6)));
-    person(c, LK.woman, walk(t * 4), x, 1200, 560, Math.PI * .5, { rebozo: true, mantilla: true, earrings: true, seed: 30 });
+    person(c, LK.woman, walk(t * 4), x, 1200, 560, Math.PI * .5, { rebozo: true, earrings: true, seed: 30 });
     person(c, LK.old, walk(t * 3.5 + 2), lerp(980, 720, ss(seg(u, 0, .8))), 1200, 520, -Math.PI * .5, { hat: 'wide', seed: 31 });
     if (u > .4) handwrite(c, 'siglos', 620, 760, 54, seg(u, .4, .25)); },
   inquisicion: (c, t, u) => {
@@ -204,28 +207,28 @@ const DY = {
     for (let i = 0; i < 4; i++) { const x = 830 + i * 20, h = 60 + k * 240 * (1 - i * .15); drawPen(c, penStroke([[x, 1120], [x - 8 + Math.sin(t * 3 + i) * 8, 1120 - h]], { w: 4, wob: 1.2, seed: 50 + i + b12(), over: 2 }), 1, INK, .6); }
     if (u > .3) handwrite(c, 'bruja', 180, 500, 80, seg(u, .3, .2), { weight: 700 }); },
   celda: (c, t, u) => {
-    person(c, LK.soledad, stand({ handR: V(.05, .6, .18), elbR: V(1, -.4, 0) }), 540, 1180, 520, Math.PI * .5, { rebozo: true, mantilla: true, seed: 60 });
+    person(c, LK.soledad, stand({ handR: V(.05, .6, .18), elbR: V(1, -.4, 0) }), 540, 1180, 520, Math.PI * .5, { rebozo: true, seed: 60 });
     const k = ss(seg(u, .4, .5)); drawPen(c, penStroke([[560, 960], [640, 760 + (1 - k) * 60], [700, 620 + (1 - k) * 80]], { w: 3, wob: .8, seed: 61, over: 2 }), 1, INK, .4);
     if (u > .7) handwrite(c, 'carbón', 740, 980, 46, seg(u, .7, .2)); },
   dibujo: (c, t, u) => {
-    person(c, LK.soledad, stand({ handR: V(.1, .68, .42), elbR: V(1, -.3, 0) }), 260, 1180, 500, Math.PI * .5, { rebozo: true, mantilla: true, seed: 70 });
-    shipInk(c, 540, 600, 1.55, ss(seg(u, 0, .5)), INK, 71, ss(seg(u, .4, .4)));
-    person(c, LK.guard, stand({ handR: V(.1, .7, .2) }), 860, 1180, 520, -Math.PI * .5, { hat: 'tricorn', halberd: true, belt: true, seed: 72 });
+    person(c, LK.soledad, stand({ handR: V(.1, .68, .42), elbR: V(1, -.3, 0) }), 260, 1180, 500, Math.PI * .5, { rebozo: true, seed: 70 });
+    shipInk(c, 540, 640, 1.0, ss(seg(u, 0, .5)), INK, 71, ss(seg(u, .4, .4)));
+    person(c, LK.guard, stand({ handR: V(.1, .7, .2) }), 860, 1180, 520, -Math.PI * .5, { hat: 'tricorn', torch: true, belt: true, seed: 72 });
     if (u > .58) handwrite(c, 'Navegar —respondió él.', 260, 300, 46, seg(u, .58, .3)); },
   barco: (c, t, u) => { const mv = ss(seg(u, .1, .6));
-    shipInk(c, 520 + mv * 220, 600, 1.55, 1, INK, 80, 1);
-    person(c, LK.soledad, stand({ handR: V(.1, .8, .3), elbR: V(1, -.3, 0) }), lerp(260, 520 + mv * 220, mv), lerp(1180, 640, mv), lerp(500, 260, mv), Math.PI * .5, { rebozo: true, mantilla: true, seed: 81, color: 1 - mv * .4, ink: 1 - mv * .6 });
+    shipInk(c, 440 + mv * 200, 640, 1.0, 1, INK, 80, 1);
+    person(c, LK.soledad, stand({ handR: V(.1, .8, .3), elbR: V(1, -.3, 0) }), lerp(260, 520 + mv * 220, mv), lerp(1180, 640, mv), lerp(500, 260, mv), Math.PI * .5, { rebozo: true, seed: 81, color: 1 - mv * .4, ink: 1 - mv * .6 });
     if (mv > .2) for (let i = 0; i < 6; i++) drawPen(c, penStroke([[260 + i * 40, 1060], [260 + i * 40 + 30, 1100 - mv * 200 * (i % 2)]], { w: 1.4, wob: .6, seed: 82 + i, over: 1 }), mv, mix3(RED, INK, .3));
     if (u > .55) handwrite(c, 'la mujer sonrió', 120, 300, 50, seg(u, .55, .25)); },
-  manana: (c, t, u) => { shipInk(c, 540, 600, 1.4, 1, INK, 90, 1);
+  manana: (c, t, u) => { shipInk(c, 540, 640, 1.0, 1, INK, 90, 1);
     const d = ss(seg(u, .3, .4));
     person(c, LK.guard, stand({ armL: -1.1, armR: -1.1, bendL: .3, bendR: .3 }), 280, 1180, 480 * (1 - d * .15), Math.PI * .5, { hat: 'tricorn', seed: 91, color: 1 - d * .3, ink: 1 - d * .4 });
     if (u > .5) handwrite(c, 'Soledad había desaparecido', 120, 1000, 50, seg(u, .5, .3)); },
   hoy: (c, t, u) => { const x = lerp(-60, 460, ss(seg(u, 0, .7)));
-    person(c, LK.soledad, walk(t * 4.5), x, 1240, 600, 0, { rebozo: true, mantilla: true, earrings: true, seed: 100 });
+    person(c, LK.soledad, walk(t * 4.5), x, 1240, 600, 0, { rebozo: true, earrings: true, seed: 100 });
     drawPen(c, penStroke([[600, 420], [600, 980]], { w: 1, wob: .5, seed: 101, over: 2 }), 1, INK, .4);
     if (u > .4) handwrite(c, 'sin envejecer', 230, 320, 56, seg(u, .4, .25)); },
-  final: (c, t, u) => { carrot(c, 300, 1300, 110, C.slate, 110, { walk: t * 3 }); carrot(c, 760, 1300, 110, C.adobe, 111, { walk: -t * 3 }); },
+  final: () => {},
 };
 
 // ---------------------------------------------------------------- subtitles: handwritten in the lower margin
@@ -260,7 +263,7 @@ function frame(t) {
   ctx.globalCompositeOperation = 'multiply'; ctx.drawImage(STAT, 0, 0); ctx.globalCompositeOperation = 'source-over';
   DY[sh.key](ctx, lt, u);
   ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.globalCompositeOperation = 'source-over';
-  if (i > 0 && snapIdx === i - 1 && lt < .45) { const k = ss(lt / .45), x = W * (1 - k); ctx.save(); ctx.beginPath(); ctx.rect(0, 0, x, H); ctx.clip(); ctx.drawImage(SNAP, -W * k * .2, 0); ctx.restore(); const g = ctx.createLinearGradient(x - 30, 0, x + 40, 0); g.addColorStop(0, 'rgba(60,45,35,0)'); g.addColorStop(.5, 'rgba(60,45,35,.25)'); g.addColorStop(1, 'rgba(60,45,35,0)'); ctx.fillStyle = g; ctx.fillRect(x - 30, 0, 70, H); }
+  if (i > 0 && snapIdx === i - 1 && lt < .45) { const k = ss(lt / .45), x0 = -W * k; ctx.save(); ctx.drawImage(SNAP, x0, 0); ctx.restore(); const g = ctx.createLinearGradient(x0 + W - 40, 0, x0 + W + 30, 0); g.addColorStop(0, 'rgba(60,45,35,0)'); g.addColorStop(.6, 'rgba(60,45,35,.22)'); g.addColorStop(1, 'rgba(60,45,35,0)'); ctx.fillStyle = g; ctx.fillRect(x0 + W - 40, 0, 70, H); }
   else { SNX.drawImage(out, 0, 0); snapIdx = i; }
   if (sh.key !== 'final') subtitle(t);
   ctx.save(); ctx.globalCompositeOperation = 'multiply'; ctx.globalAlpha = .35; ctx.fillStyle = ctx.createPattern(TOOTH, 'repeat'); ctx.fillRect(0, 0, W, H); ctx.restore();
