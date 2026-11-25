@@ -1,0 +1,12 @@
+TENET, PRINTED — Risograph Print (Lemo-Opuscar library)
+Code-rendered film · 1920x1080 · 24 fps · about 127 s · -14 LUFS
+
+Picture ........... main.js: three plate canvases (blue, sunflower, pink) drawn in 2D, printed by riso.js (WebGL2 print shader from the library's risograph style)
+Print engine ...... riso.js (from the library's risograph style): misregistration, halftone, ink grain, roller reveal
+Fonts ............. Jost (SIL Open Font License 1.1), Bricolage Grotesque (SIL Open Font License 1.1), in fonts/ (pinned to google/fonts 86aced91)
+Voice ............. Kokoro TTS, bm_george (British male storyteller), speed 1.2
+Music & foley ..... mix.py: synthesized upright bass, vibes-like plucks, brushed kit, toy piano; riso feed/drum/lift foley
+Subtitles ......... tenet-riso.en.srt
+Facts ............. FACTS.md
+
+Characters are fictional stand-ins. No film stills, logos or likenesses are used. The story is the user's summary.

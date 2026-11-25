@@ -1,0 +1,12 @@
+TENET, IN A COLORED-PENCIL CUTAWAY — Colored-Pencil Science Illustration (Lemo-Opuscar library)
+Code-rendered film · 1920x1080 · 24 fps · about 125 s · -14 LUFS
+
+Picture ........... main.js (three.js scene and the pencil post pass from the library's colored-pencil style)
+Engine ............ three.js (MIT), from the library's node_modules
+Font .............. LXGW WenKai (SIL Open Font License 1.1), subset in fonts/, handwriting skeletons in glyphs.json
+Voice ............. Kokoro TTS, bm_george (British male storyteller), speed 1.2
+Music & sound .... mix.py: sampled instruments (CC0 sample libraries via the library's sampler) + pencil foley
+Subtitles ......... tenet-pencil.en.srt
+Facts ............. FACTS.md
+
+Characters are fictional stand-ins. No film stills, logos or likenesses are used. The story is the user's summary.
