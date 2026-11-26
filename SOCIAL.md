@@ -324,3 +324,19 @@ Fuentes: INAH – Leyendas de San Juan de Ulúa | Secretaría de Educación Púb
 
 **Hashtags:**
 #PlotTwistWithAandR #LaMulataDeCordoba #Veracruz #Cordoba #LeyendasDeMexico #LeyendasMexicanas #Brujeria #Inquisicion #Terror #HistoriasDeTerror #Folclore #UrbanSketch #Leyendas #Shorts #Reels
+
+## Tenet, sketched · YouTube description (Urban Sketch · Pen & Wash, ~2:09)
+
+**Title:** Tenet in 2 minutes, drawn as a spy's sketchbook (Urban Sketch · Pen & Wash)
+
+**Description:**
+A two-minute sketchbook version of Christopher Nolan's *Tenet* (2020). Every place in the story gets its own page: Kyiv, a rail yard, a lab, a Vietnamese coast, Oslo, Tallinn, a turnstile, a Soviet-era blast site. The pen draws the world forward; inverted things un-draw and are washed in rose; the orange trinket is the only saturated colour.
+
+Spoilers: this is a plot summary of the film, including its ending.
+
+Not affiliated with Warner Bros., Syncopy or Christopher Nolan. Characters are original sketch figures with no likeness of any actor. The narration and the score are original. The storyline follows a written summary and some details (the freeport crash, the Tallinn heist, the Vietnam yacht and the Stalsk-12 site) are simplified for the length.
+
+Sources: Wikipedia, "Tenet (film)".
+
+**Hashtags:**
+#Tenet #ChristopherNolan #TenetMovie #MovieSummary #Spoilers #UrbanSketch #PenAndWash #SketchbookArt #MovieRecap #ShortFilm #Explainer #Sci-Fi #TimeTravel #AnimationArt #Shorts
